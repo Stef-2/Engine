@@ -1,6 +1,24 @@
-#include "Model.h"
+#include "Mesh.h"
 
-Engine::Model::Model(const char* filePath)
+Engine::Mesh::Mesh()
+{
+    this->vertexBufferr = {};
+    this->indices = {};
+    this->VBO = 0;
+    this->EBO = 0;
+}
+
+Engine::Mesh::Mesh(const char* filePath)
+{
+    this->vertexBufferr = {};
+    this->indices = {};
+    this->VBO = 0;
+    this->EBO = 0;
+
+    this->Setup(filePath);
+}
+
+void Engine::Mesh::Setup(const char* filePath)
 {
     bool success = false;
     int counter = 0;
@@ -8,35 +26,40 @@ Engine::Model::Model(const char* filePath)
     objl::Loader loader;
     success = loader.LoadFile(filePath);
 
-    if(!success)
+    if (!success)
     {
-        std::cerr << filePath << ": Model loading failed" << std::endl;
+        std::cerr << filePath << ": Mesh loading failed" << std::endl;
+        this->vertexBufferr = {};
+        this->indices = {};
         this->VBO = 0;
         this->EBO = 0;
         return;
     }
+
     objl::Mesh mesh = loader.LoadedMeshes[0];
+    vertexBufferr = {};
+    indices = {};
 
-    vertexBuffer = new float[mesh.Vertices.size() * (3 + 2)];
-    indices = new unsigned int[mesh.Indices.size()];;
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
 
-    for(int i = 0; i < mesh.Vertices.size(); i++)
+    for (int i = 0; i < mesh.Vertices.size(); i++)
     {
         vertexBuffer[counter] = mesh.Vertices[i].Position.X;
-        vertexBuffer[counter+1] = mesh.Vertices[i].Position.Y;
-        vertexBuffer[counter+2] = mesh.Vertices[i].Position.Z;
+        vertexBuffer[counter + 1] = mesh.Vertices[i].Position.Y;
+        vertexBuffer[counter + 2] = mesh.Vertices[i].Position.Z;
 
         //vertNrm[counter3] = mesh.Vertices[i].Normal.X;
         //vertNrm[counter3+1] = mesh.Vertices[i].Normal.Y;
         //vertNrm[counter3+2] = mesh.Vertices[i].Normal.Z;
 
-        vertexBuffer[counter+3] = mesh.Vertices[i].TextureCoordinate.X;
-        vertexBuffer[counter+4] = mesh.Vertices[i].TextureCoordinate.Y;
+        vertexBuffer[counter + 3] = mesh.Vertices[i].TextureCoordinate.X;
+        vertexBuffer[counter + 4] = mesh.Vertices[i].TextureCoordinate.Y;
 
         counter += 5;
     }
 
-    for(int i = 0; i < mesh.Indices.size(); i++)
+    for (int i = 0; i < mesh.Indices.size(); i++)
         indices[i] = mesh.Indices[i];
 
     //vertex buffer
@@ -58,16 +81,16 @@ Engine::Model::Model(const char* filePath)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(*indices), indices, GL_STATIC_DRAW);
 
-    for(int i = 0; i < mesh.Vertices.size() * 5; i++)
-        std::cout << "vertex buffer-" << i << ": "<<*(this->vertexBuffer + i) << std::endl;
-    for(int i = 0; i < mesh.Indices.size(); i++)
+    for (int i = 0; i < mesh.Vertices.size() * 5; i++)
+        std::cout << "vertex buffer-" << i << ": " << *(this->vertexBuffer + i) << std::endl;
+    for (int i = 0; i < mesh.Indices.size(); i++)
         std::cout << "indices-" << i << ": " << *(this->indices + i) << std::endl;
     std::cout << "vb size: " << sizeof(vertexBuffer) / sizeof(vertexBuffer[0]) << std::endl;
     std::cout << "indices size: " << sizeof(indices) / sizeof(indices[0]) << std::endl;
     std::cout << "vertices: " << mesh.Vertices.size() << std::endl;
 }
 
-void Engine::Model::Draw(Shader* shader)
+void Engine::Mesh::Draw(Shader* shader)
 {
     //vertex buffer
     glGenBuffers(1, &this->VBO);
@@ -98,18 +121,18 @@ void Engine::Model::Draw(Shader* shader)
     glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
 }
 
-Engine::Model::~Model()
+Engine::Mesh::~Mesh()
 {
     if(this->vertexBuffer != NULL) delete this->vertexBuffer;
     if(this->indices != NULL) delete this->indices;
 }
 
-Engine::Model::Model(const Model& other)
+Engine::Mesh::Mesh(const Mesh& other)
 {
 
 }
 
-Engine::Model& Engine::Model::operator=(const Model& rhs)
+Engine::Mesh& Engine::Mesh::operator=(const Mesh& rhs)
 {
     if (this == &rhs) return *this;
     return *this;
