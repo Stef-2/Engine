@@ -30,16 +30,18 @@ namespace Engine
         public:
             Mesh();
             Mesh(const char* filePath);
+            Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
             ~Mesh();
             Mesh(const Mesh& other);
             Mesh& operator=(const Mesh& other);
 
             void Setup(const char* filePath);
+            void Setup();
             void Draw(Shader* shader);
 
         private:
             //mesh vertices
-            std::vector<Vertex> vertexBufferr;
+            std::vector<Vertex> vertices;
 
             //order in which they connect to form triangles
             std::vector<unsigned int> indices;

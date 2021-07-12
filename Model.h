@@ -21,9 +21,14 @@ namespace Engine
 
 	class Model
 	{
+	public:
 		Model();
+		Model(const char* filePath);
 
+		void LoadMesh(const char* filePath);
+		void Draw(Engine::Shader* shader);
 
+	private:
 		std::vector<Mesh> meshes;
 		std::vector<Texture> textures;
 	};

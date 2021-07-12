@@ -166,12 +166,14 @@
     <ClInclude Include="include\VertexBuffer.h" />
     <ClInclude Include="include\VertexShader.h" />
     <ClInclude Include="include\Window.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Model.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\wood.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Engine.cpp" />

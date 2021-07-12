@@ -18,6 +18,14 @@ Engine::Mesh::Mesh(const char* filePath)
     this->Setup(filePath);
 }
 
+Engine::Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices)
+{
+    this->vertices = vertices;
+    this->indices = indices;
+
+    this->Setup();
+}
+
 void Engine::Mesh::Setup(const char* filePath)
 {
     bool success = false;
@@ -82,7 +90,7 @@ void Engine::Mesh::Setup(const char* filePath)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(*indices), indices, GL_STATIC_DRAW);
 
     for (int i = 0; i < mesh.Vertices.size() * 5; i++)
-        std::cout << "vertex buffer-" << i << ": " << *(this->vertexBuffer + i) << std::endl;
+        std::cout << "vertex buffer-" << i << ": " << *(this->vertices + i) << std::endl;
     for (int i = 0; i < mesh.Indices.size(); i++)
         std::cout << "indices-" << i << ": " << *(this->indices + i) << std::endl;
     std::cout << "vb size: " << sizeof(vertexBuffer) / sizeof(vertexBuffer[0]) << std::endl;
@@ -90,26 +98,41 @@ void Engine::Mesh::Setup(const char* filePath)
     std::cout << "vertices: " << mesh.Vertices.size() << std::endl;
 }
 
+void Engine::Mesh::Setup()
+{
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
+    //vertex pos
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+
+    //vertex UVs
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+}
+
 void Engine::Mesh::Draw(Shader* shader)
 {
     //vertex buffer
-    glGenBuffers(1, &this->VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(*vertexBuffer), vertexBuffer, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    //glBindAttribLocation(shaderProgram, 0, "vertPos");
-    glEnableVertexAttribArray(0);
-    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3* sizeof(float)));
-    //glBindAttribLocation(shaderProgram, 1, "vertColor");
-    //glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(6 * sizeof(float)));
-    //glBindAttribLocation(shaderProgram, 1, "vertCoord");
-    glEnableVertexAttribArray(1);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+ 
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    
     //element buffer
-    glGenBuffers(1, &this->EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(*indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
 
     unsigned int pos0 = glGetAttribLocation(shader->GetProgramID(), "vertPos");
     glBindAttribLocation(shader->GetProgramID(), pos0, "vertPos");
@@ -118,13 +141,13 @@ void Engine::Mesh::Draw(Shader* shader)
     glBindAttribLocation(shader->GetProgramID(), pos1, "vertCoord");
 
     shader->Run();
-    glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
 Engine::Mesh::~Mesh()
 {
-    if(this->vertexBuffer != NULL) delete this->vertexBuffer;
-    if(this->indices != NULL) delete this->indices;
+    //if(this->vertexBuffer != NULL) delete this->vertexBuffer;
+    //if(this->indices != NULL) delete this->indices;
 }
 
 Engine::Mesh::Mesh(const Mesh& other)
