@@ -7,6 +7,7 @@ Engine::Object::Object()
     this->scale = new float[3] {1.0f, 1.0f, 1.0f};
 
     this->UpdateTransform();
+    this->transform = glm::mat4(1.0f);
 }
 
 Engine::Object::~Object()
@@ -197,6 +198,8 @@ Engine::Model Engine::Object::GetModel()
 
 void Engine::Object::Draw(glm::mat4 view, glm::mat4 projection)
 {
+    //find the locations of uniform variables in the shader and assign transform matrices to them
+
     int modelLoc = glGetUniformLocation(this->shader->GetProgramID(), "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->transform));
 
@@ -206,7 +209,6 @@ void Engine::Object::Draw(glm::mat4 view, glm::mat4 projection)
     int projectionLoc = glGetUniformLocation(this->shader->GetProgramID(), "projection");
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-    this->shader->Run();
     this->model->Draw(this->shader);
 }
 

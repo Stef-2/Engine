@@ -40,6 +40,12 @@ void Engine::Mesh::Setup()
 
 void Engine::Mesh::Draw(Shader* shader)
 {
+    unsigned int pos0 = glGetAttribLocation(shader->GetProgramID(), "vertPos");
+    glBindAttribLocation(shader->GetProgramID(), pos0, "vertPos");
+
+    unsigned int pos1 = glGetAttribLocation(shader->GetProgramID(), "vertCoord");
+    glBindAttribLocation(shader->GetProgramID(), pos1, "vertCoord");
+
     //vertex buffer
     glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
@@ -54,13 +60,7 @@ void Engine::Mesh::Draw(Shader* shader)
     
     //element buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
-
-    unsigned int pos0 = glGetAttribLocation(shader->GetProgramID(), "vertPos");
-    glBindAttribLocation(shader->GetProgramID(), pos0, "vertPos");
-
-    unsigned int pos1 = glGetAttribLocation(shader->GetProgramID(), "vertCoord");
-    glBindAttribLocation(shader->GetProgramID(), pos1, "vertCoord");
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
     shader->Run();
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -74,7 +74,10 @@ Engine::Mesh::~Mesh()
 
 Engine::Mesh::Mesh(const Mesh& other)
 {
-
+    this->VBO = other.VBO;
+    this->EBO = other.EBO;
+    this->vertices = other.vertices;
+    this->indices = other.indices;
 }
 
 Engine::Mesh& Engine::Mesh::operator=(const Mesh& rhs)

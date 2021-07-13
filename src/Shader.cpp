@@ -51,7 +51,7 @@ int Engine::Shader::SetVertexShader(const char* filePath)
         reader.read(&c,1);
         code += c;
     }
-    //std::cout << "vs: " << code << std::endl;
+
     reader.close();
     const char* data = code.c_str();
 
@@ -71,40 +71,28 @@ int Engine::Shader::SetVertexShader(const char* filePath)
     }
     else
     {
-        std::cout << "vs: " << data << std::endl;
-        //delete data;
-        //std::cout << "broooo" << std::endl;
+        std::cout << "vs compiled successfully: " << data << std::endl;
         return vertexShader;
     }
 }
 
 int Engine::Shader::SetFragmentShader(const char* filePath)
 {
-    std::cout << "brozef" << std::endl;
     std::string code;
     char c;
     int success = false;
     int length = 0;
-    //char* data;
 
-    //fragment shader read
     std::ifstream reader(filePath);
-    /*reader.seekg (0, reader.end);
-    length = reader.tellg();
-    reader.seekg (0, reader.beg);
-    data = new char[length];
-    reader.read(const_cast<char*>(data), length);
-    reader.close();*/
+
     while(!reader.eof())
     {
         reader.read(&c, 1);
         code += c;
     }
-    std::cout << "vs: " << code << std::endl;
     reader.close();
     const char* data = code.c_str();
 
-    std::cout << "fs: " << data << std::endl;
 
     //fragment shader compile and bind
     unsigned int fragmentShader;
@@ -122,8 +110,7 @@ int Engine::Shader::SetFragmentShader(const char* filePath)
     }
     else
     {
-        std::cout << "fs compiled bro" << std::endl;
-        //delete data;
+        std::cout << "fs compiled successfully: " << data << std::endl;
         return fragmentShader;
     }
 }
@@ -163,9 +150,12 @@ int Engine::Shader::CompileProgram()
         this->compileSuccess = 0;
         return 0;
     }
-    this->compileSuccess = 1;
-    std::cout << "sp compiled bro" << std::endl;
-    return shaderProgram;
+    else {
+        this->compileSuccess = 1;
+        this->programID = shaderProgram;
+        std::cout << "sp compiled successfully" << std::endl;
+        return shaderProgram;
+    }
 }
 
 void Engine::Shader::Run()

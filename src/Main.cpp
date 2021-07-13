@@ -12,7 +12,7 @@ int main()
     Engine::Motor& motor = Engine::Motor::GetInstance();
 
     Engine::Camera camera(new GLfloat[3]{0.0,0.0,0.0});
-
+    std::string title;
     motor.SetWindow(new Engine::Window(1280, 720, "Engine", NULL, NULL, new int[2] {2,1}));
 
     Engine::Object* activeObject;
@@ -35,10 +35,10 @@ int main()
     glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
     cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 
-    //Engine::Object obj(new float[3]{0.0f, 0.0f, 0.0f});
+    Engine::Object obj;
 
-    //obj.SetShader(new Engine::Shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs", "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
-    //obj.SetModel(new Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\MaleLow.obj"));
+    obj.SetShader(new Engine::Shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs", "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
+    obj.SetModel(new Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\MaleLow.obj"));
 
     //texture
     int width, height, nrChannels;
@@ -83,8 +83,12 @@ int main()
         if (glfwGetKey(motor.GetWindow()->GetWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
             cameraPos += cameraSpeed * -cameraUp;
 
+        title = "Engine --- Position: X: " + std::to_string(cameraPos.x) + " --- Y: " + std::to_string(cameraPos.y) + " --- Z: " + std::to_string(cameraPos.z);
+
+        glfwSetWindowTitle(motor.GetWindow()->GetWindow(), title.c_str());
         glfwSwapBuffers(motor.GetWindow()->GetWindow());
         glfwPollEvents();
+
         glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -93,19 +97,9 @@ int main()
 
         view  = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
         projection = glm::perspective(glm::radians(fov), (float)motor.GetWindow()->GetDimensions()[0] / (float)(float)motor.GetWindow()->GetDimensions()[1], 0.1f, 10000.0f);
-
-        int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-        //set camera based on input
-        const float radius = 10.0f;
-        float camX = sin(glfwGetTime()) * radius;
-        float camZ = cos(glfwGetTime()) * radius;
-
-        view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
         view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        int viewLoc = glGetUniformLocation(shaderProgram, "view");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+        obj.Draw(view, projection);
 
         //glDrawArrays(GL_TRIANGLES, 0, 36);
         //glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
