@@ -19,7 +19,7 @@
 namespace Engine
 {
 
-//
+
 class Object
 {
     public:

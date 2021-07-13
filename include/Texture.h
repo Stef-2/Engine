@@ -5,7 +5,12 @@
 #include "glad/glad.h"
 #endif
 
+#ifndef STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#define STB_IMAGE_IMPLEMENTATION
+#endif
+
+
 #include "glfw3.h"
 #include "fstream"
 #include "iostream"
@@ -19,10 +24,11 @@ namespace Engine
 class Texture
 {
     public:
-        Texture() = delete;
+        Texture();
         Texture(const char* filePath);
         ~Texture();
 
+        void Setup(const char* filePath);
         unsigned char GetData();
         int GetWidth();
         int GetHeight();

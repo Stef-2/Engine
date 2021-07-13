@@ -1,6 +1,10 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
+#define STB_IMAGE_IMPLEMENTATION
+#define OBJL_INCLUDED
+#define __glad_h_
+
 #include "glfw3.h"
 #include "Texture.h"
 

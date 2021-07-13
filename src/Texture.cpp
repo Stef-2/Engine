@@ -1,11 +1,29 @@
 #include "Texture.h"
 
+Engine::Texture::Texture()
+{
+    this->data = {};
+    this->width = {};
+    this->height = {};
+    this->depth = {};
+}
+
 Engine::Texture::~Texture()
 {
     if (this->data != NULL) delete data;
 }
 
 Engine::Texture::Texture(const char* filePath)
+{
+    this->data = {};
+    this->width = {};
+    this->height = {};
+    this->depth = {};
+
+    this->Setup(filePath);
+}
+
+void Engine::Texture::Setup(const char* filePath)
 {
     int width, height, depth;
     unsigned int texture;

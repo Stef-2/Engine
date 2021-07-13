@@ -1,13 +1,15 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#define STB_IMAGE_IMPLEMENTATION
+
 #ifndef OBJL_INCLUDED
 #include "OBJ_Loader.h"
 #define OBJL_INCLUDED
 #endif
 
 #include "Mesh.h"
-#include "Material.h"
+#include "Texture.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -30,8 +32,10 @@ namespace Engine
 
 	private:
 		std::vector<Mesh> meshes;
-		Material material;
+		std::vector<Texture> textures;
 	};
+
+	
 
 }
 

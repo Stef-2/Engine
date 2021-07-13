@@ -3,8 +3,10 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #define OBJL_INCLUDED
+
 #ifndef __glad_h_
 #include "glad/glad.h"
+#define __glad_h_
 #endif
 
 #include "glfw3.h"

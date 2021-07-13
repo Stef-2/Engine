@@ -20,7 +20,8 @@ Engine::Object::~Object()
 
 Engine::Object::Object(const Object& other)
 {
-    Object object = other;
+    Object object;
+    object = other;
     *this->position = *object.GetPosition();
     *this->rotation = *object.GetRotation();
     *this->scale = *object.GetScale();

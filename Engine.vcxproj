@@ -154,7 +154,9 @@
     <ClInclude Include="include\FragmentShader.h" />
     <ClInclude Include="include\glfw3.h" />
     <ClInclude Include="include\Main.h" />
+    <ClInclude Include="include\Material.h" />
     <ClInclude Include="include\Mesh.h" />
+    <ClInclude Include="include\Model.h" />
     <ClInclude Include="include\Monitor.h" />
     <ClInclude Include="include\Obj.h" />
     <ClInclude Include="include\Object.h" />
@@ -166,21 +168,19 @@
     <ClInclude Include="include\VertexBuffer.h" />
     <ClInclude Include="include\VertexShader.h" />
     <ClInclude Include="include\Window.h" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Model.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\wood.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Material.cpp" />
-    <ClCompile Include="Model.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\FragmentShader.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\Monitor.cpp" />
     <ClCompile Include="src\Obj.cpp" />
     <ClCompile Include="src\Object.cpp" />

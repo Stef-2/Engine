@@ -2,14 +2,15 @@
 
 Engine::Model::Model()
 {
+
 	this->meshes = {};
-	this->material = {};
+	this->textures = {};
 }
 
 Engine::Model::Model(const char* filePath)
 {
 	this->meshes = {};
-	this->material = {};
+	this->textures = {};
 
 	this->LoadMesh(filePath);
 }

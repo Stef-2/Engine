@@ -1,6 +1,9 @@
 #ifndef MESH_H
 #define MESH_H
 
+#define STB_IMAGE_IMPLEMENTATION
+#define OBJL_INCLUDED
+
 #include "Shader.h"
 
 #ifndef OBJL_INCLUDED
@@ -29,13 +32,11 @@ namespace Engine
     {
         public:
             Mesh();
-            Mesh(const char* filePath);
             Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
             ~Mesh();
             Mesh(const Mesh& other);
             Mesh& operator=(const Mesh& other);
 
-            void Setup(const char* filePath);
             void Setup();
             void Draw(Shader* shader);
 
