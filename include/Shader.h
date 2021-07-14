@@ -26,9 +26,9 @@ class Shader
         Shader();
         Shader(const char* vertexShader, const char* fragmentShader);
 
-        Shader(const Shader& other);
-        Shader& operator=(const Shader& other);
-        ~Shader();
+        //Shader(const Shader& other);
+        //Shader& operator=(const Shader& other);
+        //~Shader();
 
         unsigned int GetVertexShader();
         unsigned int GetFragmentShader();

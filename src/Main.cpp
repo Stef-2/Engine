@@ -8,16 +8,15 @@ int main()
     if (!Engine::Initialize())
         glfwTerminate();
 
-
     Engine::Motor& motor = Engine::Motor::GetInstance();
 
-    Engine::Camera camera(new GLfloat[3]{0.0,0.0,0.0});
+    //Engine::Camera camera(new GLfloat[3]{0.0,0.0,0.0});
     std::string title;
     motor.SetWindow(new Engine::Window(1280, 720, "Engine", NULL, NULL, new int[2] {2,1}));
 
     Engine::Object* activeObject;
 
-    activeObject = &camera;
+    //activeObject = &camera;
 
     Engine::InitializeCallbacks(&motor);
 
@@ -25,6 +24,10 @@ int main()
   
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
+    float lastTime = 0.0f;
+    float frameMs = 0.0f;
+    int nFrames = 0;
+    int fps = 0;
 
     float cameraSpeed;
     glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -36,30 +39,17 @@ int main()
     cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 
     Engine::Object obj;
+    obj.SetShader(Engine::Shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
+                                     "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
+    obj.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\MaleLow.obj"));
 
-    obj.SetShader(new Engine::Shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs", "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
-    obj.SetModel(new Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\MaleLow.obj"));
-
-    //texture
-    int width, height, nrChannels;
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    unsigned char *data = stbi_load("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\wood.jpg", &width, &height, &nrChannels, 0);
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
-    }
-    //stbi_image_free(data);
+    Engine::Material material;
+    obj.GetModel()->LoadMaterial(material);
+    obj.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Colour.jpg");
 
     //-----------------------------------------------
     glEnable(GL_DEPTH_TEST);
-
+    lastTime = glfwGetTime();
     //!!!-------------- main loop --------------!!!
     while(!glfwWindowShouldClose(motor.GetWindow()->GetWindow()))
     {
@@ -69,6 +59,14 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         cameraSpeed = 2.5f * deltaTime;
+        nFrames++;
+
+        if (currentFrame - lastTime >= 1.0f) {
+            frameMs = 1000.0f / (float)nFrames;
+            fps = CLOCKS_PER_SEC / deltaTime;
+            nFrames = 0;
+            lastTime += 1.0f;
+        }
 
         if (glfwGetKey(motor.GetWindow()->GetWindow(), GLFW_KEY_W) == GLFW_PRESS)
             cameraPos += cameraSpeed * cameraFront;
@@ -83,7 +81,8 @@ int main()
         if (glfwGetKey(motor.GetWindow()->GetWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
             cameraPos += cameraSpeed * -cameraUp;
 
-        title = "Engine --- Position: X: " + std::to_string(cameraPos.x) + " --- Y: " + std::to_string(cameraPos.y) + " --- Z: " + std::to_string(cameraPos.z);
+        title = "Engine --- Frame time: " + std::to_string(frameMs) + " ms --- FPS: " + std::to_string(fps);
+        title += " --- Position: X: " + std::to_string(cameraPos.x) + " --- Y: " + std::to_string(cameraPos.y) + " --- Z: " + std::to_string(cameraPos.z);
 
         glfwSetWindowTitle(motor.GetWindow()->GetWindow(), title.c_str());
         glfwSwapBuffers(motor.GetWindow()->GetWindow());
@@ -100,9 +99,7 @@ int main()
         view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
         obj.Draw(view, projection);
-
-        //glDrawArrays(GL_TRIANGLES, 0, 36);
-        //glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+        obj.RotateRelative(new float[3]{ 0.0f * deltaTime, 5.0f * deltaTime, 0.0f * deltaTime});
     }
 
     glfwTerminate();

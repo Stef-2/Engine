@@ -4,13 +4,13 @@ Engine::Model::Model()
 {
 
 	this->meshes = {};
-	this->textures = {};
+	this->materials = {};
 }
 
 Engine::Model::Model(const char* filePath)
 {
 	this->meshes = {};
-	this->textures = {};
+	this->materials = {};
 
 	this->LoadMesh(filePath);
 }
@@ -30,7 +30,10 @@ void Engine::Model::LoadMesh(const char* filePath)
     }
 
     int nLoadedMeshes = loader.LoadedMeshes.size();
+    int nLoadedMats = loader.LoadedMaterials.size();
+    std::cout << "materials: " << nLoadedMats << std::endl;
     std::vector<Vertex> vertices;
+    Texture tex;
     
     for (size_t i = 0; i < nLoadedMeshes; i++)
     {
@@ -49,13 +52,27 @@ void Engine::Model::LoadMesh(const char* filePath)
         
         meshes.push_back(Mesh(vertices, loader.LoadedMeshes[i].Indices));
     }
+}
 
+void Engine::Model::LoadMaterial(Engine::Material material)
+{
+    materials.push_back(Material());
+}
+
+std::vector<Engine::Mesh>* Engine::Model::GetMeshes()
+{
+    return &this->meshes;
+}
+
+std::vector<Engine::Material>* Engine::Model::GetMaterials()
+{
+    return &this->materials;
 }
 
 void Engine::Model::Draw(Engine::Shader* shader)
 {
     for (size_t i = 0; i < meshes.size(); i++)
     {
-        meshes[i].Draw(shader);
+        meshes[i].Draw(shader, &materials[0]);
     }
 }

@@ -17,6 +17,7 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/string_cast.hpp>
 //#include "Shader.h"
+#include "Material.h"
 #include "window.h"
 #include "Engine.h"
 //#include "Model.h"

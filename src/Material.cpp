@@ -7,10 +7,21 @@ Engine::Material::Material()
 	metallic = {};
 }
 
+Engine::Material::Material(const char* filePath)
+{
+	diffuse = {};
+	roughness = {};
+	metallic = {};
+}
 
 void Engine::Material::SetDiffuse(const char* filePath)
 {
 	this->diffuse = Engine::Texture(filePath);
+}
+
+void Engine::Material::SetDiffuse(Texture texture)
+{
+	this->diffuse = texture;
 }
 
 void Engine::Material::SetRoughness(const char* filePath)
@@ -18,22 +29,32 @@ void Engine::Material::SetRoughness(const char* filePath)
 	this->roughness = Engine::Texture(filePath);
 }
 
+void Engine::Material::SetRoughness(Texture texture)
+{
+	this->roughness = texture;
+}
+
 void Engine::Material::SetMetallic(const char* filePath)
 {
 	this->metallic = Engine::Texture(filePath);
 }
 
-Engine::Texture Engine::Material::GetDiffuse()
+void Engine::Material::SetMetallic(Texture texture)
 {
-	return this->diffuse;
+	this->metallic = texture;
 }
 
-Engine::Texture Engine::Material::GetRougness()
+Engine::Texture* Engine::Material::GetDiffuse()
 {
-	return this->roughness;
+	return &this->diffuse;
 }
 
-Engine::Texture Engine::Material::GetMetallic()
+Engine::Texture* Engine::Material::GetRougness()
 {
-	return this->metallic;
+	return &this->roughness;
+}
+
+Engine::Texture* Engine::Material::GetMetallic()
+{
+	return &this->metallic;
 }

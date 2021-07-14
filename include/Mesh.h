@@ -5,6 +5,7 @@
 #define OBJL_INCLUDED
 
 #include "Shader.h"
+#include "Material.h"
 
 #ifndef OBJL_INCLUDED
 #include "OBJ_Loader.h"
@@ -33,12 +34,18 @@ namespace Engine
         public:
             Mesh();
             Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
-            ~Mesh();
-            Mesh(const Mesh& other);
-            Mesh& operator=(const Mesh& other);
+            //~Mesh();
+            //Mesh(const Mesh& other);
+            //Mesh& operator=(const Mesh& other);
 
             void Setup();
-            void Draw(Shader* shader);
+            void Draw(Shader* shader, Material* material);
+
+            unsigned int GetVBO();
+            unsigned int GetEBO();
+
+            std::vector<Vertex>* GetVertices();
+            std::vector<unsigned int>* GetIndices();
 
         private:
             //mesh vertices

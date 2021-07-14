@@ -16,24 +16,30 @@ Engine::Shader::Shader(const char* vertexShader, const char* fragmentShader)
     this->CompileProgram();
 }
 
-Engine::Shader::~Shader()
+/*Engine::Shader::~Shader()
 {
     //if (this->vsLog != NULL) delete this->vsLog;
     //if (this->fsLog != NULL) delete this->fsLog;
     //if (this->spLog != NULL) delete this->spLog;
-}
+}*/
 
-Engine::Shader::Shader(const Shader& other)
+/*Engine::Shader::Shader(const Shader& other)
 {
-    //copy ctor
-}
+    this->compileSuccess = other.compileSuccess;
+    this->fragmentShader = other.fragmentShader;
+    this->vertexShader = other.vertexShader;
+    strcpy_s(this->fsLog, other.fsLog);
+    strcpy_s(this->spLog, other.spLog);
+    strcpy_s(this->vsLog, other.vsLog);
+    this->programID = other.programID;
+}*/
 
-Engine::Shader& Engine::Shader::operator=(const Shader& rhs)
+/*Engine::Shader& Engine::Shader::operator=(const Shader& rhs)
 {
     if (this == &rhs) return *this;
 
     return *this;
-}
+}*/
 
 int Engine::Shader::SetVertexShader(const char* filePath)
 {

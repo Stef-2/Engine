@@ -9,6 +9,7 @@
 #endif
 
 #include "Mesh.h"
+#include "Material.h"
 #include "Texture.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -28,14 +29,17 @@ namespace Engine
 		Model(const char* filePath);
 
 		void LoadMesh(const char* filePath);
+		void LoadMaterial(Material material);
+
 		void Draw(Engine::Shader* shader);
+
+		std::vector<Mesh>* GetMeshes();
+		std::vector<Material>* GetMaterials();
 
 	private:
 		std::vector<Mesh> meshes;
-		std::vector<Texture> textures;
+		std::vector<Material> materials;
 	};
-
-	
 
 }
 

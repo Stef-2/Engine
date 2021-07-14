@@ -16,6 +16,25 @@ Engine::Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indic
     this->Setup();
 }
 
+unsigned int Engine::Mesh::GetVBO()
+{
+    return this->VBO;
+}
+
+unsigned int Engine::Mesh::GetEBO()
+{
+    return this->EBO;
+}
+std::vector<Engine::Vertex>* Engine::Mesh::GetVertices()
+{
+    return &this->vertices;
+}
+
+std::vector<unsigned int>* Engine::Mesh::GetIndices()
+{
+    return &this->indices;
+}
+
 void Engine::Mesh::Setup()
 {
     glGenBuffers(1, &VBO);
@@ -38,8 +57,9 @@ void Engine::Mesh::Setup()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 }
 
-void Engine::Mesh::Draw(Shader* shader)
+void Engine::Mesh::Draw(Shader* shader, Material* material)
 {
+    //find and bind the appropriate shader attributes
     unsigned int pos0 = glGetAttribLocation(shader->GetProgramID(), "vertPos");
     glBindAttribLocation(shader->GetProgramID(), pos0, "vertPos");
 
@@ -62,26 +82,31 @@ void Engine::Mesh::Draw(Shader* shader)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
+    //bind the correct texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, material->GetDiffuse()->GetTextureID());
+
+    //let it rip
     shader->Run();
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
-Engine::Mesh::~Mesh()
+/*Engine::Mesh::~Mesh()
 {
     //if(this->vertexBuffer != NULL) delete this->vertexBuffer;
     //if(this->indices != NULL) delete this->indices;
-}
+}*/
 
-Engine::Mesh::Mesh(const Mesh& other)
+/*Engine::Mesh::Mesh(const Mesh& other)
 {
     this->VBO = other.VBO;
     this->EBO = other.EBO;
     this->vertices = other.vertices;
     this->indices = other.indices;
-}
+}*/
 
-Engine::Mesh& Engine::Mesh::operator=(const Mesh& rhs)
+/*Engine::Mesh& Engine::Mesh::operator=(const Mesh& rhs)
 {
     if (this == &rhs) return *this;
     return *this;
-}
+}*/

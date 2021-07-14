@@ -33,14 +33,17 @@ class Object
         float* GetPosition();
         float* GetRotation();
         float* GetScale();
+
         bool IsMoving();
+
         std::string ToString();
-        glm::mat4 GetTransform();
-        Engine::Shader GetShader();
-        Engine::Model GetModel();
+        glm::mat4* GetTransform();
+        Engine::Shader* GetShader();
+        Engine::Model* GetModel();
+
         void Draw(glm::mat4 view, glm::mat4 projection);
-        void SetShader(Engine::Shader* shader);
-        void SetModel(Engine::Model* model);
+        void SetShader(const Engine::Shader& shader);
+        void SetModel(const Engine::Model& model);
 
         void Transform(glm::mat4 transformMatrix);
         void UpdateTransform();
@@ -59,8 +62,8 @@ class Object
 
 
     protected:
-        Model* model;
-        Shader* shader;
+        Model model;
+        Shader shader;
         Object* children;
         glm::mat4 transform;
         float* position;

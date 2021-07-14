@@ -21,25 +21,28 @@
 namespace Engine
 {
 
-class Texture
-{
-    public:
-        Texture();
-        Texture(const char* filePath);
-        ~Texture();
+    class Texture
+    {
+        public:
+            Texture();
+            Texture(const char* filePath);
+            ~Texture();
 
-        void Setup(const char* filePath);
-        unsigned char GetData();
-        int GetWidth();
-        int GetHeight();
-        int GetDepth();
+            void Setup(const char* filePath);
+            void SetupObj(std::string data);
+            unsigned char* GetData();
+            int GetWidth();
+            int GetHeight();
+            int GetDepth();
+            unsigned int GetTextureID();
 
-    private:
-        int width;
-        int height;
-        int depth;
-        unsigned char* data;
-};
+        private:
+            int width;
+            int height;
+            int depth;
+            unsigned char* data;
+            unsigned int textureID;
+    };
 
 }
 #endif // TEXTURE_H

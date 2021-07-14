@@ -158,9 +158,9 @@ void Engine::Object::Transform(glm::mat4 transformMatrix)
     this->UpdateTransform();
 }
 
-glm::mat4 Engine::Object::GetTransform()
+glm::mat4* Engine::Object::GetTransform()
 {
-    return this->transform;
+    return &this->transform;
 }
 
 void Engine::Object::UpdateTransform()
@@ -176,40 +176,40 @@ void Engine::Object::UpdateTransform()
     this->transform = trans;
 }
 
-void Engine::Object::SetShader(Engine::Shader* shader)
+void Engine::Object::SetShader(const Engine::Shader& shader)
 {
     this->shader = shader;
 }
 
-Engine::Shader Engine::Object::GetShader()
+Engine::Shader* Engine::Object::GetShader()
 {
-    return *this->shader;
+    return &this->shader;
 }
 
-void Engine::Object::SetModel(Engine::Model* model)
+void Engine::Object::SetModel(const Engine::Model& model)
 {
     this->model = model;
 }
 
-Engine::Model Engine::Object::GetModel()
+Engine::Model* Engine::Object::GetModel()
 {
-    return *this->model;
+    return &this->model;
 }
 
 void Engine::Object::Draw(glm::mat4 view, glm::mat4 projection)
 {
     //find the locations of uniform variables in the shader and assign transform matrices to them
 
-    int modelLoc = glGetUniformLocation(this->shader->GetProgramID(), "model");
+    int modelLoc = glGetUniformLocation(this->shader.GetProgramID(), "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->transform));
 
-    int viewLoc = glGetUniformLocation(this->shader->GetProgramID(), "view");
+    int viewLoc = glGetUniformLocation(this->shader.GetProgramID(), "view");
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
-    int projectionLoc = glGetUniformLocation(this->shader->GetProgramID(), "projection");
+    int projectionLoc = glGetUniformLocation(this->shader.GetProgramID(), "projection");
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-    this->model->Draw(this->shader);
+    model.Draw(&this->shader);
 }
 
 std::string Engine::Object::ToString()
