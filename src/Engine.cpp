@@ -37,6 +37,12 @@ void Engine::Motor::SetColorDepth(GLint colorDepth)
     this->colorDepth = colorDepth;
 }
 
+//in-engine animation that plays when the program is started
+void Engine::Motor::Intro()
+{
+
+}
+
 Engine::Motor::~Motor()
 {
     if (window != NULL) delete window;

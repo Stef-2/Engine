@@ -38,14 +38,24 @@ int main()
     glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
     cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 
-    Engine::Object obj;
-    obj.SetShader(Engine::Shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
+    Engine::Object obj1;
+    obj1.SetShader(Engine::Shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
                                      "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
-    obj.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\MaleLow.obj"));
+    obj1.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\MaleLow.obj"));
 
-    Engine::Material material;
-    obj.GetModel()->LoadMaterial(material);
-    obj.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Colour.jpg");
+    Engine::Material material1;
+    obj1.GetModel()->LoadMaterial(material1);
+    obj1.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Colour.jpg");
+    
+    Engine::Object obj2;
+    obj2.SetShader(Engine::Shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
+        "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
+    obj2.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Posed.obj"));
+
+    Engine::Material material2;
+    obj2.GetModel()->LoadMaterial(material2);
+    obj2.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Subdermal.jpg");
+    obj2.MoveRelative( 3.0f, 0.0f, 0.0f );
 
     //-----------------------------------------------
     glEnable(GL_DEPTH_TEST);
@@ -98,8 +108,10 @@ int main()
         projection = glm::perspective(glm::radians(fov), (float)motor.GetWindow()->GetDimensions()[0] / (float)(float)motor.GetWindow()->GetDimensions()[1], 0.1f, 10000.0f);
         view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
-        obj.Draw(view, projection);
-        obj.RotateRelative(new float[3]{ 0.0f * deltaTime, 5.0f * deltaTime, 0.0f * deltaTime});
+        obj1.Draw(view, projection);
+        obj2.Draw(view, projection);
+        obj1.RotateRelative(0.0f * deltaTime, 5.0f * deltaTime, 0.0f * deltaTime);
+        obj2.RotateRelative(0.0f * deltaTime, 5.0f * deltaTime, 0.0f * deltaTime );
     }
 
     glfwTerminate();

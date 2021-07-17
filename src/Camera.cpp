@@ -3,9 +3,9 @@
 
 Engine::Camera::~Camera()
 {
-    if (position != NULL) delete position;
-    if (rotation != NULL) delete rotation;
-    if (scale != NULL) delete scale;
+    //if (position != NULL) delete position;
+    //if (rotation != NULL) delete rotation;
+    //if (scale != NULL) delete scale;
 }
 
 void Engine::Camera::Setup(float speed, float nearClip, float farClip, float fov)

@@ -2,178 +2,225 @@
 
 Engine::Object::Object()
 {
-    this->position = new float[3] {0.0f, 0.0f, 0.0f};
-    this->rotation = new float[3] {0.0f, 0.0f, 0.0f};
-    this->scale = new float[3] {1.0f, 1.0f, 1.0f};
+    this->children = {};
+    this->isMoving = {};
+    this->shader = {};
+    this->model = {};
 
-    this->UpdateTransform();
     this->transform = glm::mat4(1.0f);
 }
 
-Engine::Object::~Object()
+Engine::Object::Object(float x, float y, float z)
 {
-    //if (position != NULL) delete position;
-    //if (rotation != NULL) delete rotation;
-    //if (scale != NULL) delete scale;
-    //if (children != NULL) delete children; // jesus christ !
-    //if (model != NULL) delete model;
+    this->children = {};
+    this->isMoving = {};
+    this->shader = {};
+    this->model = {};
+
+    //build an identity matrix
+    this->transform = glm::mat4(1.0f);
+    //move to the required position
+    this->transform = glm::translate(this->transform, glm::vec3(x, y, z));
 }
 
-Engine::Object::Object(const Object& other)
+Engine::Object::Object(glm::mat4 transformMatrix)
 {
-    Object object;
-    object = other;
-    *this->position = *object.GetPosition();
-    *this->rotation = *object.GetRotation();
-    *this->scale = *object.GetScale();
+    this->children = {};
+    this->isMoving = {};
+    this->shader = {};
+    this->model = {};
+
+    this->transform = transformMatrix;
 }
 
-Engine::Object::Object(float* position)
+Engine::Object::Object(glm::vec3 position)
 {
-    this->position = position;
-    this->rotation = new float[3] {0.0f, 0.0f, 0.0f};
-    this->scale = new float[3] {1.0f, 1.0f, 1.0f};
+    this->children = {};
+    this->isMoving = {};
+    this->shader = {};
+    this->model = {};
 
-    this->isMoving = false;
-    this->model = nullptr;
-    this->children = nullptr;
-
-    this->UpdateTransform();
+    //build an identity matrix
+    this->transform = glm::mat4(1.0f);
+    //move to the required position
+    this->transform = glm::translate(this->transform, position);
 }
 
-Engine::Object::Object(float* position, float* rotation, float* scale)
+Engine::Object::Object(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
 {
-    this->position = position;
-    this->rotation = rotation;
-    this->scale = scale;
+    this->children = {};
+    this->isMoving = {};
+    this->shader = {};
+    this->model = {};
 
-    this->isMoving = false;
-    this->model = nullptr;
-    this->children = nullptr;
+    //build an identity matrix
+    this->transform = glm::mat4(1.0f);
 
-    this->UpdateTransform();
+    //build a quaternion out of the euler rotations
+    glm::quat quaternion(glm::radians(rotation));
+
+    //the correct order of matrix transformation is Scale, Rotate, Translate or SRT for short
+    this->transform = glm::scale(this->transform, scale);
+    this->transform = this->transform * glm::mat4_cast(quaternion);
+    this->transform = glm::translate(this->transform, position);
 }
 
-Engine::Object& Engine::Object::operator=(const Object& rhs)
+Engine::Object::Object(float tx, float ty, float tz,
+                       float rx, float ry, float rz,
+                       float sx, float sy, float sz)
 {
-    if (this == &rhs) return *this;
-    return *this;
+    this->children = {};
+    this->isMoving = {};
+    this->shader = {};
+    this->model = {};
+
+    //build a quaternion out of the euler rotations
+    glm::quat quaternion(glm::radians(glm::vec3(rx, ry, rz)));
+    
+    //build an identity matrix
+    this->transform = glm::mat4(1.0f);
+    
+    //the correct order of matrix transformation is Scale, Rotate, Translate or SRT for short
+    this->transform = glm::scale(this->transform, glm::vec3(sx, sy, sz));
+    this->transform = this->transform * glm::mat4_cast(quaternion);
+    this->transform = glm::translate(this->transform, glm::vec3(tx, ty, tz));
 }
 
 float* Engine::Object::GetPosition()
 {
-    return position;
+    glm::vec3 position;
+    glm::quat rotation;
+    glm::vec3 scale;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+
+    //decompose the transform matrix into components so we can extract the needed data
+    glm::decompose(this->transform, scale, rotation, position, skew, perspective);
+
+    return glm::value_ptr(position);
 }
 
 float* Engine::Object::GetRotation()
 {
-    return rotation;
+    glm::vec3 position;
+    glm::quat rotation;
+    glm::vec3 scale;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+    
+    //decompose the transform matrix into components so we can extract the needed data
+    glm::decompose(this->transform, scale, rotation, position, skew, perspective);
+
+    return glm::value_ptr(rotation);
 }
 
 float* Engine::Object::GetScale()
 {
-    return scale;
-}
-
-void Engine::Object::SetPosition(float* position)
-{
-    this->position = position;
-    this->UpdateTransform();
-}
-
-void Engine::Object::SetRotation(float* rotation)
-{
-    this->rotation = rotation;
-    this->UpdateTransform();
-}
-
-void Engine::Object::SetScale(float* scale)
-{
-    this->scale = scale;
-    this->UpdateTransform();
-}
-
-void Engine::Object::MoveRelative(float* offset)
-{
-    position[0] += offset[0];
-    position[1] += offset[1];
-    position[2] += offset[2];
-
-    this->UpdateTransform();
-}
-
-void Engine::Object::MoveAbsolute(float* location)
-{
-    this->position = location;
-    this->UpdateTransform();
-}
-
-void Engine::Object::RotateRelative(float* offset)
-{
-    rotation[0] += offset[0];
-    rotation[1] += offset[1];
-    rotation[2] += offset[2];
-
-    this->UpdateTransform();
-}
-
-void Engine::Object::RotateAbsolute(float* rotation)
-{
-    this->rotation = rotation;
-    this->UpdateTransform();
-}
-
-void Engine::Object::ScaleRelative(float* offset)
-{
-    scale[0] += offset[0];
-    scale[1] += offset[1];
-    scale[2] += offset[2];
-
-    this->UpdateTransform();
-}
-
-void Engine::Object::ScaleAbsolute(float* scale)
-{
-    this->scale = scale;
-    this->UpdateTransform();
-}
-
-void Engine::Object::Transform(glm::mat4 transformMatrix)
-{
-    glm::vec3 translation;
-    glm::quat orientation;
+    glm::vec3 position;
+    glm::quat rotation;
     glm::vec3 scale;
     glm::vec3 skew;
     glm::vec4 perspective;
-    glm::vec3 rotation;
 
-    glm::decompose(transformMatrix, scale, orientation, translation, skew, perspective);
-    rotation = glm::eulerAngles(orientation);
-    rotation = glm::degrees(rotation);
+    //decompose the transform matrix into components so we can extract the needed data
+    glm::decompose(this->transform, scale, rotation, position, skew, perspective);
 
-    this->position = glm::value_ptr(translation);
-    this->rotation = glm::value_ptr(rotation);
-    this->scale = glm::value_ptr(scale);
+    return glm::value_ptr(scale);
+}
 
-    this->UpdateTransform();
+void Engine::Object::MoveRelative(float x, float y, float z)
+{
+    glm::translate(this->transform, glm::vec3(x, y, z));
+}
+
+void Engine::Object::MoveAbsolute(float x, float y, float z)
+{
+    glm::vec3 position;
+    glm::quat rotation;
+    glm::vec3 scale;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+
+    //decompose the transform matrix into components so we can extract the needed data
+    glm::decompose(this->transform, scale, rotation, position, skew, perspective);
+
+    //revert the transform matrix into an identity one
+    this->transform = glm::mat4(1.0f);
+
+    //rebuild the matrix using the extracted plus input values
+    //the correct order of matrix transformation is Scale, Rotate, Translate or SRT for short
+    this->transform = glm::scale(this->transform, scale);
+    this->transform = this->transform * glm::mat4_cast(rotation);
+    this->transform = glm::translate(this->transform, glm::vec3(x, y, z));
+}
+
+void Engine::Object::RotateRelative(float x, float y, float z)
+{
+    //build a quaternion out of the euler rotations
+    glm::quat quaternion(glm::radians(glm::vec3(x, y, z)));
+
+    //multiply the transform matrix by the quaternion casted into a 4x4 matrix to perform the rotation
+    this->transform = this->transform * glm::mat4_cast(quaternion);
+}
+
+void Engine::Object::RotateAbsolute(float x, float y, float z)
+{
+    glm::vec3 position;
+    glm::quat rotation;
+    glm::vec3 scale;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+
+    //decompose the transform matrix into components so we can extract the needed data
+    glm::decompose(this->transform, scale, rotation, position, skew, perspective);
+
+    //revert the transform matrix into an identity one
+    this->transform = glm::mat4(1.0f);
+
+    //build a quaternion out of the euler rotations
+    glm::quat quaternion(glm::radians(glm::vec3(x, y, z)));
+
+    //rebuild the matrix using the extracted plus input values
+    //the correct order of matrix transformation is Scale, Rotate, Translate or SRT for short
+    this->transform = glm::scale(this->transform, scale);
+    this->transform = this->transform * glm::mat4_cast(quaternion);
+    this->transform = glm::translate(this->transform, position);
+}
+
+void Engine::Object::ScaleRelative(float x, float y, float z)
+{
+    this->transform = glm::scale(this->transform, glm::vec3(x, y, z));
+}
+
+void Engine::Object::ScaleAbsolute(float x, float y, float z)
+{
+    glm::vec3 position;
+    glm::quat rotation;
+    glm::vec3 scale;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+
+    //decompose the transform matrix into components so we can extract the needed data
+    glm::decompose(this->transform, scale, rotation, position, skew, perspective);
+
+    //revert the transform matrix into an identity one
+    this->transform = glm::mat4(1.0f);
+
+    //rebuild the matrix using the extracted plus input values
+    //the correct order of matrix transformation is Scale, Rotate, Translate or SRT for short
+    this->transform = glm::scale(this->transform, glm::vec3(x, y, z));
+    this->transform = this->transform * glm::mat4_cast(rotation);
+    this->transform = glm::translate(this->transform, position);
+}
+
+void Engine::Object::SetTransform(glm::mat4 transformMatrix)
+{
+    this->transform = transformMatrix;
 }
 
 glm::mat4* Engine::Object::GetTransform()
 {
     return &this->transform;
-}
-
-void Engine::Object::UpdateTransform()
-{
-    glm::mat4 trans = glm::mat4(1.0f);
-
-    trans = glm::translate(trans, glm::vec3(position[0], position[1], position[2]));
-    trans = glm::scale(trans, glm::vec3(scale[0], scale[1], scale[2]));
-    trans = glm::rotate(trans, glm::radians(rotation[1]), glm::vec3(0.0f, 1.0f, 0.0f));
-    trans = glm::rotate(trans, glm::radians(rotation[2]), glm::vec3(0.0f, 0.0f, 1.0f));
-    trans = glm::rotate(trans, glm::radians(rotation[0]), glm::vec3(1.0f, 0.0f, 0.0f));
-
-    this->transform = trans;
 }
 
 void Engine::Object::SetShader(const Engine::Shader& shader)
@@ -209,6 +256,7 @@ void Engine::Object::Draw(glm::mat4 view, glm::mat4 projection)
     int projectionLoc = glGetUniformLocation(this->shader.GetProgramID(), "projection");
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
+    //pass the draw call to the encapsulated model
     model.Draw(&this->shader);
 }
 

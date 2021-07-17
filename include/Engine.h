@@ -19,6 +19,7 @@ class Motor
         Window* GetWindow();
         GLint* GetResolution();
         GLint GetColorDepth();
+        void Intro();
         void SetWindow(Engine::Window* window);
         void SetResolution(GLint* resolution);
         void SetColorDepth(GLint colorDepth);

@@ -10,6 +10,7 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/quaternion.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -19,58 +20,56 @@
 namespace Engine
 {
 
+    //base object class
+    class Object
+    {
+        public:
+            Object();
+            Object(float x, float y, float z);
 
-class Object
-{
-    public:
-        Object();
-        Object(float* position);
-        Object(float* position, float* rotation, float* scale);
-        ~Object();
-        Object(const Object& other);
-        Object& operator=(const Object& other);
+            Object(float tx, float ty, float tz,
+                   float rx, float ry, float rz,
+                   float sx, float sy, float sz);
 
-        float* GetPosition();
-        float* GetRotation();
-        float* GetScale();
+            Object(glm::mat4 transform);
+            Object(glm::vec3 position);
+            Object(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
 
-        bool IsMoving();
+            float* GetPosition();
+            float* GetRotation();
+            float* GetScale();
 
-        std::string ToString();
-        glm::mat4* GetTransform();
-        Engine::Shader* GetShader();
-        Engine::Model* GetModel();
+            bool IsMoving();
 
-        void Draw(glm::mat4 view, glm::mat4 projection);
-        void SetShader(const Engine::Shader& shader);
-        void SetModel(const Engine::Model& model);
+            std::string ToString();
+            glm::mat4* GetTransform();
+            Engine::Shader* GetShader();
+            Engine::Model* GetModel();
 
-        void Transform(glm::mat4 transformMatrix);
-        void UpdateTransform();
-        void SetPosition(float* position);
-        void SetRotation(float* rotation);
-        void SetScale(float* scale);
+            
+            void SetShader(const Engine::Shader& shader);
+            void SetModel(const Engine::Model& model);
+            void Draw(glm::mat4 view, glm::mat4 projection);
 
-        void MoveRelative(float* offset);
-        void MoveAbsolute(float* location);
+            void SetTransform(glm::mat4 transformMatrix);
 
-        void RotateRelative(float* offset);
-        void RotateAbsolute(float* rotation);
+            void MoveRelative(float x, float y, float z);
+            void MoveAbsolute(float x, float y, float z);
 
-        void ScaleRelative(float* offset);
-        void ScaleAbsolute(float* location);
+            void RotateRelative(float x, float y, float z);
+            void RotateAbsolute(float x, float y, float z);
+
+            void ScaleRelative(float x, float y, float z);
+            void ScaleAbsolute(float x, float y, float z);
 
 
-    protected:
-        Model model;
-        Shader shader;
-        Object* children;
-        glm::mat4 transform;
-        float* position;
-        float* rotation;
-        float* scale;
-        bool isMoving;
-};
+        protected:
+            Model model;
+            Shader shader;
+            std::vector<Object*> children;
+            glm::mat4 transform;
+            bool isMoving;
+    };
 
 }
 #endif // OBJECT_H
