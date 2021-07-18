@@ -243,6 +243,11 @@ Engine::Model* Engine::Object::GetModel()
     return &this->model;
 }
 
+bool Engine::Object::IsMoving()
+{
+    return this->isMoving;
+}
+
 void Engine::Object::Draw(glm::mat4 view, glm::mat4 projection)
 {
     //find the locations of uniform variables in the shader and assign transform matrices to them

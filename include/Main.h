@@ -44,9 +44,6 @@ void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
 void InitializeCallbacks(Motor* motor);
 
 int Initialize();
-
-//temp
-void CubeSetup(float* verts, unsigned int* indices, const char* vb, const char* fb);
 }
 
 #endif // MAIN_H

@@ -105,7 +105,7 @@ int main()
         glm::mat4 projection    = glm::mat4(1.0f);
 
         view  = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-        projection = glm::perspective(glm::radians(fov), (float)motor.GetWindow()->GetDimensions()[0] / (float)(float)motor.GetWindow()->GetDimensions()[1], 0.1f, 10000.0f);
+        projection = glm::perspective(glm::radians(fov), (float)motor.GetWindow()->GetDimensions()[0] / (float)motor.GetWindow()->GetDimensions()[1], 0.1f, 10000.0f);
         view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
         obj1.Draw(view, projection);
@@ -185,54 +185,10 @@ int Engine::Initialize()
 
 void Engine::InitializeCallbacks(Engine::Motor* motor)
 {
+    //setup glfw callbacks
     glfwSetErrorCallback(ErrorCallback);
     glfwSetKeyCallback(motor->GetWindow()->GetWindow(), KeyCallback);
     glfwSetFramebufferSizeCallback(motor->GetWindow()->GetWindow(), FrameBufferCallback);
     glfwSetCursorPosCallback(motor->GetWindow()->GetWindow(), MouseCallback);
     glfwSetScrollCallback(motor->GetWindow()->GetWindow(), ScrollCallback);
-}
-
-void Engine::CubeSetup(float* verts, unsigned int* indices, const char* vb, const char* fb)
-{
-    unsigned int vertexShader;
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vb, NULL);
-    glCompileShader(vertexShader);
-
-    unsigned int fragmentShader;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fb, NULL);
-    glCompileShader(fragmentShader);
-
-    unsigned int shaderProgram;
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    //vertex buffer
-    unsigned int vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glBindAttribLocation(shaderProgram, 0, "vertPos");
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3* sizeof(float)));
-    glBindAttribLocation(shaderProgram, 1, "vertColor");
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(6 * sizeof(float)));
-    glBindAttribLocation(shaderProgram, 2, "vertCoord");
-    glEnableVertexAttribArray(2);
-
-    //element buffer
-    unsigned int ebo;
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glUseProgram(shaderProgram);
 }

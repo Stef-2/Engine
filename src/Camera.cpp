@@ -8,26 +8,35 @@ Engine::Camera::~Camera()
     //if (scale != NULL) delete scale;
 }
 
-void Engine::Camera::Setup(float speed, float nearClip, float farClip, float fov)
+void Engine::Camera::Setup(float speed, float aspectRatio, float nearClip, float farClip, float fov)
 {
     this->speed = speed;
     this->nearClip = nearClip;
     this->farclip = farClip;
     this->fov = fov;
 
-    this->direction = glm::vec3(1.0f);
-    this->projection = glm::mat4(1.0f);
-    this->view = glm::mat4(1.0f);
+    this->projection = glm::perspective(fov, aspectRatio, nearClip, farClip);
+    this->upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
 glm::vec3 Engine::Camera::GetDirection()
 {
-    return this->direction;
+    //camera direction is in essence the rotation component of its transform matrix, so we can just return that
+    glm::vec3 direction = glm::vec3(this->GetRotation()[0], this->GetRotation()[1], this->GetRotation()[2]);
+
+    return direction;
 }
 
 glm::mat4 Engine::Camera::GetView()
 {
-    return this->view;
+    //extract position from transform matrix
+    glm::vec3 position = glm::vec3(this->GetPosition()[0], this->GetPosition()[1], this->GetPosition()[2]);
+    //extract and normalize rotation from our transform matrix too, use that as direction
+    glm::vec3 direction = glm::normalize(glm::vec3(this->GetRotation()[0], this->GetRotation()[1], this->GetRotation()[2]));
+    //combine them into a view matrix
+    glm::mat4 view = glm::lookAt(position, position + direction, this->upDirection);
+
+    return view;
 }
 
 glm::mat4 Engine::Camera::GetProjection()
@@ -55,14 +64,9 @@ float Engine::Camera::GetFov()
     return this->fov;
 }
 
-void Engine::Camera::SetDirection(glm::vec3 direction)
+void Engine::Camera::SetUpDirection(glm::vec3 direction)
 {
-    this->direction = direction;
-}
-
-void Engine::Camera::SetView(glm::mat4 view)
-{
-    this->view = view;
+    this->upDirection = direction;
 }
 
 void Engine::Camera::SetProjection(glm::mat4 projection)

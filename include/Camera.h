@@ -15,7 +15,7 @@ class Camera : public Object
     using Object::Object;
 
     public:
-        void Setup(float speed, float nearClip, float farClip, float fov);
+        void Setup(float speed, float aspectRatio, float nearClip, float farClip, float fov);
         ~Camera();
 
         glm::vec3 GetDirection();
@@ -26,18 +26,15 @@ class Camera : public Object
         float GetFarClip();
         float GetFov();
 
-        void SetDirection(glm::vec3 direction);
-        void SetView(glm::mat4 view);
+        void SetUpDirection(glm::vec3 direction);
         void SetProjection(glm::mat4 projection);
         void SetSpeed(float speed);
         void SetNearClip(float nearClip);
         void SetFarClip(float farClip);
         void SetFov(float fov);
 
-
     private:
-        glm::vec3 direction;
-        glm::mat4 view;
+        glm::vec3 upDirection;
         glm::mat4 projection;
 
         float speed;
