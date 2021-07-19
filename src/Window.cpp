@@ -1,18 +1,18 @@
 #include "Window.h"
 
-Engine::Window::Window(GLint width, GLint height, const char* title, GLFWmonitor* monitor, GLFWwindow* share, GLint* version)
+Engine::Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share, int* version)
 : width(width), height(height), title(const_cast<char*>(title)), window(NULL), monitor(monitor), share(share), version(version)
 {
     Initialize();
 }
 
-Engine::Window::Window(GLint width, GLint height, const char* title, GLFWmonitor* monitor, GLFWwindow* share)
+Engine::Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share)
 : width(width), height(height), title(const_cast<char*>(title)), window(NULL), monitor(monitor), share(share)
 {
     Initialize();
 }
 
-Engine::Window::Window(GLint width, GLint height, const char* title)
+Engine::Window::Window(int width, int height, const char* title)
 : width(width), height(height), title(const_cast<char*>(title)), window(NULL), monitor(NULL), share(NULL)
 {
     Initialize();
@@ -24,7 +24,7 @@ void Engine::Window::Initialize()
     {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, version[0]);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, version[1]);
-        window = glfwCreateWindow(width, height, title, monitor, share);
+        window = glfwCreateWindow(width, height, title.c_str(), monitor, share);
         glfwMakeContextCurrent(window);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSwapInterval(1);
@@ -44,8 +44,13 @@ Engine::Window::~Window()
     if(!share)
         glfwDestroyWindow(share);
     delete version;
-    delete title;
     delete monitor;
+}
+
+void Engine::Window::SetTitle(std::string newTitle)
+{
+    this->title = newTitle;
+    glfwSetWindowTitle(this->window, title.c_str());
 }
 
 GLFWwindow* Engine::Window::GetWindow()
@@ -53,15 +58,15 @@ GLFWwindow* Engine::Window::GetWindow()
     return window;
 }
 
-GLint* Engine::Window::GetVersion()
+int* Engine::Window::GetVersion()
 {
     return version;
 }
-GLint* Engine::Window::GetDimensions()
+int* Engine::Window::GetDimensions()
 {
     return new int[2] {width, height};
 }
-char* Engine::Window::GetTitle()
+std::string Engine::Window::GetTitle()
 {
     return title;
 }

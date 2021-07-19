@@ -8,6 +8,7 @@
 #include "glfw3.h"
 #include "memory"
 #include "iostream"
+#include "string"
 
 namespace Engine
 {
@@ -15,28 +16,29 @@ namespace Engine
 class Window
 {
     public:
-        GLFWwindow* GetWindow();
-        GLFWwindow* GetShared();
-        GLint* GetVersion();
-        GLint* GetDimensions();
-        GLFWmonitor* GetMonitor();
-        char* GetTitle();
-        void Initialize();
-
-        Window(GLint width, GLint height, const char* title, GLFWmonitor* monitor, GLFWwindow* share, GLint* version);
-        Window(GLint width, GLint height, const char* title, GLFWmonitor* monitor, GLFWwindow* share);
-        Window(GLint width, GLint height, const char* title);
+        Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share, int* version);
+        Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share);
+        Window(int width, int height, const char* title);
         Window() = delete;
         ~Window();
+
+        GLFWwindow* GetWindow();
+        GLFWwindow* GetShared();
+        int* GetVersion();
+        int* GetDimensions();
+        GLFWmonitor* GetMonitor();
+        std::string GetTitle();
+        void SetTitle(std::string newTitle);
+        void Initialize();
 
     private:
         GLFWwindow* window;
         GLFWwindow* share;
         GLFWmonitor* monitor;
-        GLint* version;
-        GLint width;
-        GLint height;
-        char* title;
+        int* version;
+        int width;
+        int height;
+        std::string title;
 };
 
 }

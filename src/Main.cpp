@@ -10,13 +10,11 @@ int main()
 
     Engine::Motor& motor = Engine::Motor::GetInstance();
 
-    //Engine::Camera camera(new GLfloat[3]{0.0,0.0,0.0});
-    std::string title;
+    Engine::Camera camera(glm::vec3(0.0f, 0.0f, 0.0f));
+
     motor.SetWindow(new Engine::Window(1280, 720, "Engine", NULL, NULL, new int[2] {2,1}));
 
-    Engine::Object* activeObject;
-
-    //activeObject = &camera;
+    Engine::Object::SetActiveObject(&camera);
 
     Engine::InitializeCallbacks(&motor);
 
@@ -91,10 +89,9 @@ int main()
         if (glfwGetKey(motor.GetWindow()->GetWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
             cameraPos += cameraSpeed * -cameraUp;
 
-        title = "Engine --- Frame time: " + std::to_string(frameMs) + " ms --- FPS: " + std::to_string(fps);
-        title += " --- Position: X: " + std::to_string(cameraPos.x) + " --- Y: " + std::to_string(cameraPos.y) + " --- Z: " + std::to_string(cameraPos.z);
-
-        glfwSetWindowTitle(motor.GetWindow()->GetWindow(), title.c_str());
+        motor.GetWindow()->SetTitle(std::string("Engine --- Frame time: " + std::to_string(frameMs) + " ms --- FPS: " + std::to_string(fps) +
+            " --- Position: X: " + std::to_string(cameraPos.x) + " --- Y: " + std::to_string(cameraPos.y) + " --- Z: " + std::to_string(cameraPos.z)));
+        
         glfwSwapBuffers(motor.GetWindow()->GetWindow());
         glfwPollEvents();
 

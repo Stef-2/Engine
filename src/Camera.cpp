@@ -33,7 +33,7 @@ glm::mat4 Engine::Camera::GetView()
     glm::vec3 position = glm::vec3(this->GetPosition()[0], this->GetPosition()[1], this->GetPosition()[2]);
     //extract and normalize rotation from our transform matrix too, use that as direction
     glm::vec3 direction = glm::normalize(glm::vec3(this->GetRotation()[0], this->GetRotation()[1], this->GetRotation()[2]));
-    //combine them into a view matrix
+    //combine them with the Up vector into a view matrix
     glm::mat4 view = glm::lookAt(position, position + direction, this->upDirection);
 
     return view;
