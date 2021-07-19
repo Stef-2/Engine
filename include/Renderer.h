@@ -5,22 +5,24 @@
 
 namespace Engine
 {
-//wrapper class for general OpenGL settings and objects
-class Renderer
-{
-    public:
-        Renderer();
-        ~Renderer();
-        int Render();
-        int DeltaTime();
+
+    //wrapper class for general OpenGL settings and objects
+    //prepares and performs rendering operations
+    class Renderer
+    {
+        public:
+            Renderer();
+            ~Renderer();
+            int Render();
+            int DeltaTime();
 
 
-    private:
+        private:
 
-        int colorDepth;
-        float currentFrame;
-        float lastFrame;
-};
+            int colorDepth;
+            float currentFrame;
+            float lastFrame;
+    };
 
 }
 #endif // RENDERER_H
