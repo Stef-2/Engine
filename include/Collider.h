@@ -4,7 +4,7 @@
 namespace Engine
 {
 	//class responsible for collision detection
-	//and other physics simulation operations
+	//and other whachy physics simulation operations
 	class Collider
 	{
 

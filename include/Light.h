@@ -7,7 +7,11 @@ namespace Engine
 {
 	class Light : public Engine::Object
 	{
-	};
+		using Engine::Object::Object;
 
+		float intensity;
+		glm::vec3 color;
+
+	};
 }
 #endif

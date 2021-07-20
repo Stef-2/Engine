@@ -22,6 +22,7 @@
 #include "Engine.h"
 //#include "Model.h"
 #include "Object.h"
+#include "Actor.h"
 #include "Camera.h"
 
 #include "fstream"

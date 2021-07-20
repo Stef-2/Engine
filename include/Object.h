@@ -20,7 +20,8 @@
 namespace Engine
 {
 
-    //base object class
+    //base object class, containing transformation
+    //and children data
     class Object
     {
         public:
@@ -45,14 +46,8 @@ namespace Engine
 
             std::string ToString();
             glm::mat4* GetTransform();
-            Engine::Shader* GetShader();
-            Engine::Model* GetModel();
 
             void SetTransform(glm::mat4 transformMatrix);
-            void SetShader(const Engine::Shader& shader);
-            void SetModel(const Engine::Model& model);
-
-            void Draw(glm::mat4 view, glm::mat4 projection);
 
             void MoveRelative(float x, float y, float z);
             void MoveAbsolute(float x, float y, float z);
@@ -64,8 +59,6 @@ namespace Engine
             void ScaleAbsolute(float x, float y, float z);
 
         protected:
-            Model model;
-            Shader shader;
             static Object* active;
             std::vector<Object*> children;
             glm::mat4 transform;

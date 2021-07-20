@@ -25,8 +25,35 @@ namespace Engine
 
     struct Vertex
     {
-        glm::vec3 Position;
-        glm::vec2 TexCoords;
+        glm::vec3 position;
+
+        //texture coordinates
+        glm::vec2 uv;
+    };
+
+    //we're defining a bounding box using two diagonal corners
+    //           o-------o <-second
+    //          /|      /|
+    //         o-+-----o |
+    //         | o-----+-o
+    //         |/      |/
+    // first-> o-------o
+    struct BoundingBox
+    {
+    public:
+        float GetBottom();
+        float GetLeft();
+        float GetFront();
+        float GetTop();
+        float GetRight();
+        float GetBack();
+
+    private:
+        //bottom, left, front
+        glm::vec3 first;
+
+        //top, right, back
+        glm::vec3 second;
     };
 
     class Mesh
@@ -46,6 +73,7 @@ namespace Engine
 
             std::vector<Vertex>* GetVertices();
             std::vector<unsigned int>* GetIndices();
+            BoundingBox GetBoundingBox();
 
         private:
             //mesh vertices
@@ -53,6 +81,8 @@ namespace Engine
 
             //order in which they connect to form triangles
             std::vector<unsigned int> indices;
+
+            BoundingBox boundingBox;
 
             //vertex buffer and element buffer objects
             unsigned int VBO;

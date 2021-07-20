@@ -2,7 +2,6 @@
 
 Engine::Model::Model()
 {
-
 	this->meshes = {};
 	this->materials = {};
 }
@@ -17,36 +16,32 @@ Engine::Model::Model(const char* filePath)
 
 void Engine::Model::LoadMesh(const char* filePath)
 {
-    bool success = false;
-    int counter = 0;
-
     objl::Loader loader;
-    success = loader.LoadFile(filePath);
+    bool success = loader.LoadFile(filePath);
 
-    if (!success)
-    {
+    if (!success) {
         std::cerr << filePath << ": Mesh loading failed" << std::endl;
         return;
     }
 
-    int nLoadedMeshes = loader.LoadedMeshes.size();
-    int nLoadedMats = loader.LoadedMaterials.size();
-    std::cout << "materials: " << nLoadedMats << std::endl;
     std::vector<Vertex> vertices;
-    Texture tex;
     
-    for (size_t i = 0; i < nLoadedMeshes; i++)
+    for (unsigned int i = 0; i < loader.LoadedMeshes.size(); i++)
     {
         vertices.clear();
 
-        for (size_t j = 0; j < loader.LoadedMeshes[i].Vertices.size(); j++)
+        //we're able to read up to 4294967295 vertices at maximum here
+        //if we need more, then to fix the issue we should fire the guy doing the modeling
+        for (unsigned int j = 0; j < loader.LoadedMeshes[i].Vertices.size(); j++)
         {
+            //construct the vertex out of loaded positions and UV coordinates
             Vertex vertex{ glm::vec3(loader.LoadedMeshes[i].Vertices[j].Position.X,
                                      loader.LoadedMeshes[i].Vertices[j].Position.Y,
                                      loader.LoadedMeshes[i].Vertices[j].Position.Z),
                            glm::vec2(loader.LoadedMeshes[i].Vertices[j].TextureCoordinate.X,
                                      loader.LoadedMeshes[i].Vertices[j].TextureCoordinate.Y) };
 
+            //push it onto the stack
             vertices.push_back(vertex);
         }
         
@@ -71,8 +66,8 @@ std::vector<Engine::Material>* Engine::Model::GetMaterials()
 
 void Engine::Model::Draw(Engine::Shader* shader)
 {
-    for (size_t i = 0; i < meshes.size(); i++)
-    {
+    for (size_t i = 0; i < meshes.size(); i++) {
+
         meshes[i].Draw(shader, &materials[0]);
     }
 }

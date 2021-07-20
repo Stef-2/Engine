@@ -21,6 +21,7 @@ class Camera : public Object
         glm::vec3 GetDirection();
         glm::mat4 GetView();
         glm::mat4 GetProjection();
+
         float GetSpeed();
         float GetNearClip();
         float GetFarClip();

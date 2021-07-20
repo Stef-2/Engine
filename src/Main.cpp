@@ -36,7 +36,7 @@ int main()
     glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
     cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 
-    Engine::Object obj1;
+    Engine::Actor obj1;
     obj1.SetShader(Engine::Shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
                                      "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
     obj1.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\MaleLow.obj"));
@@ -45,7 +45,7 @@ int main()
     obj1.GetModel()->LoadMaterial(material1);
     obj1.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Colour.jpg");
     
-    Engine::Object obj2;
+    Engine::Actor obj2;
     obj2.SetShader(Engine::Shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
         "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
     obj2.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Posed.obj"));
