@@ -3,6 +3,8 @@
 
 #include "window.h"
 #include "Renderer.h"
+#include "Collider.h"
+#include "glm/vec2.hpp"
 #include "glfw3.h"
 
 #include "iostream"
@@ -10,34 +12,28 @@
 namespace Engine
 {
 
-//singleton Motor class,
-//used to instantiate subsystems and hold data that would otherwise be global
-class Motor
-{
-    public:
-        static Motor& GetInstance();
-        Window* GetWindow();
-        GLint* GetResolution();
-        GLint GetColorDepth();
-        void Intro();
-        void SetWindow(Engine::Window* window);
-        void SetResolution(GLint* resolution);
-        void SetColorDepth(GLint colorDepth);
-        ~Motor();
+    //Motor (Engine) class, named so as not to be confused with the project's namespace
+    //used to instantiate Renderer and Collider subsystems and hold general engine related options and data
+    class Motor
+    {
+        public:
+            Motor();
+            Window& GetWindow();
+            float GetDeltaTime();
 
-    private:
-        Motor() = default;
-        Motor(const Motor&) = delete;
-        Motor& operator=(const Motor&) = delete;
-        Motor(Motor&&) = delete;
-        Motor& operator=(Motor&&) = delete;
+            void Intro();
+            void SetWindow(Engine::Window& window);
 
-        Window* window;
-        GLint* resolution;
-        GLint colorDepth;
-        Renderer renderer;
-};
+        private:
+            Window window;
 
-#endif // Engine_H
+            float currentTime;
+            float lastTime;
+
+            Renderer renderer;
+            Collider collider;
+    };
 
 }
+
+#endif // Engine_H

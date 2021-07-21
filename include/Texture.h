@@ -16,8 +16,6 @@
 #include "iostream"
 
 //texture loading and handling class
-//the constructor binds it into an openGL texture
-//maybe that functionality should be decoupled
 namespace Engine
 {
 
@@ -28,13 +26,21 @@ namespace Engine
             Texture(const char* filePath);
             ~Texture();
 
+            //loads the texture from a file
+            //and binds it into an OpenGL texture object
             void Setup(const char* filePath);
             void SetupObj(std::string data);
+
+            //this is the handle to the texture object
+            //pass it to OpenGL before any rendering using this texture takes place
+            unsigned int GetTextureID();
+            
+            //raw texture data extracted from the file
             unsigned char* GetData();
+
             int GetWidth();
             int GetHeight();
             int GetDepth();
-            unsigned int GetTextureID();
 
         private:
             int width;

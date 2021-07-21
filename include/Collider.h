@@ -3,11 +3,12 @@
 
 namespace Engine
 {
-	//class responsible for collision detection
-	//and other whachy physics simulation operations
+
+	//Collider class, subsystem of Engine (Motor) class
+	//responsible for holding physics related options and data,
+	//collision detection, and other physics simulation operations
 	class Collider
 	{
-
 
 	};
 }

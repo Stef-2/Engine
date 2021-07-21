@@ -6,6 +6,7 @@
 #endif
 
 #include "glfw3.h"
+#include "glm/vec2.hpp"
 #include "memory"
 #include "iostream"
 #include "string"
@@ -16,28 +17,43 @@ namespace Engine
 class Window
 {
     public:
-        Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share, int* version);
+        Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share, glm::ivec2 version);
         Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share);
         Window(int width, int height, const char* title);
-        Window() = delete;
+        Window();
         ~Window();
 
-        GLFWwindow* GetWindow();
+        GLFWwindow* GetGlWindow();
         GLFWwindow* GetShared();
-        int* GetVersion();
-        int* GetDimensions();
         GLFWmonitor* GetMonitor();
         std::string GetTitle();
+        float GetAspectRatio();
+        glm::ivec2 GetRequestedVersion();
+        std::string GetGivenVersion();
+        glm::ivec2 GetDimensions();
+
+        void SetWidth(int width);
+        void SetHeight(int height);
         void SetTitle(std::string newTitle);
+        void SetMonitor(GLFWmonitor* monitor);
+        void SetShare(GLFWwindow* share);
+        void SetVersion(glm::ivec2 version);
         void Initialize();
 
     private:
-        GLFWwindow* window;
+        //glfw's own window struct
+        GLFWwindow* openGlWindow;
+        //slots for windows with whom we can share content
         GLFWwindow* share;
+        //monitor associated with the window
         GLFWmonitor* monitor;
-        int* version;
+        //the requested OpenGL version
+        glm::ivec2 openGlVersion;
+        //OpenGL isn't guaranted to give us the version we asked for, we'll store the one we're given here
+        std::string openGlGivenVersion;
         int width;
         int height;
+        //OpenGL window title
         std::string title;
 };
 

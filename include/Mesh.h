@@ -56,6 +56,7 @@ namespace Engine
         glm::vec3 second;
     };
 
+    //a mesh class that stores vertex data to be used for rendering
     class Mesh
     {
         public:
@@ -68,6 +69,8 @@ namespace Engine
             void Setup();
             void Draw(Shader* shader, Material* material);
 
+            //handles for Vertex Buffer and Element Buffer objects
+            //they need to be passed to OpenGL functions that are supposed to draw the mesh
             unsigned int GetVBO();
             unsigned int GetEBO();
 
@@ -87,9 +90,6 @@ namespace Engine
             //vertex buffer and element buffer objects
             unsigned int VBO;
             unsigned int EBO;
-
-            //Shader shader;
-
     };
 
 }

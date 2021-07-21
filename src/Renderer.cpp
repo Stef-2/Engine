@@ -2,21 +2,19 @@
 
 Engine::Renderer::Renderer()
 {
-    //ctor
+    this->colorDepth = 24;
 }
 
-Engine::Renderer::~Renderer()
+void Engine::Renderer::Render()
 {
-    //dtor
+
 }
 
-int Engine::Renderer::DeltaTime()
+void Engine::Renderer::SetColorDepth(int colorDepth)
 {
-    float deltaTime;
-
-    this->currentFrame = glfwGetTime();
-    deltaTime = this->currentFrame - this->lastFrame;
-    this->lastFrame = this->currentFrame;
-
-    return deltaTime;
+    this->colorDepth = colorDepth;
+}
+int Engine::Renderer::GetColorDepth()
+{
+    return this->colorDepth;
 }

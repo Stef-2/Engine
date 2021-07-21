@@ -35,23 +35,32 @@ class Shader
         unsigned int GetProgramID();
         std::string GetLogData();
 
+        //load vertex and fragment shaders from files
         int SetVertexShader(const char* filePath);
         int SetFragmentShader(const char* filePath);
 
-        int CompileProgram(); //needs to be run after every shader change
-        void Run(); //needs to be run before every draw call that will make use of this shader
+        //compiles vertex and fragment shaders into a program and binds it
+        //needs to be run after every shader change
+        int CompileProgram();
+
+        //activates this shader program
+        //needs to be run before every draw call that will make use of this shader
+        void Run();
 
     private:
+        //will be set to 1 if shader compilation succeeds, 0 otherwise
         int compileSuccess;
-        char vsLog[512]; //vertex shader compile log
-        char fsLog[512]; //fragment shader compile log
-        char spLog[512]; //shader program compile log
+        //vertex shader compile log
+        char vsLog[512];
+        //fragment shader compile log
+        char fsLog[512];
+        //shader program compile log
+        char spLog[512];
 
         //handles for the shaders and program themselves
         unsigned int vertexShader;
         unsigned int fragmentShader;
         unsigned int programID;
-
 };
 
 }

@@ -1,50 +1,35 @@
 #include "Engine.h"
 
-Engine::Motor& Engine::Motor::GetInstance()
+
+Engine::Motor::Motor()
 {
-    static Engine::Motor* motor = new Engine::Motor();
-    return *motor;
+    this->renderer = {};
+    this->collider = {};
 }
 
-Engine::Window* Engine::Motor::GetWindow()
+float Engine::Motor::GetDeltaTime()
+{
+    float deltaTime;
+
+    this->currentTime = glfwGetTime();
+    deltaTime = this->currentTime - this->lastTime;
+    this->lastTime = this->currentTime;
+
+    return deltaTime;
+}
+
+Engine::Window& Engine::Motor::GetWindow()
 {
     return this->window;
 }
 
-GLint* Engine::Motor::GetResolution()
-{
-    return new int[2] {this->resolution[0], this->resolution[1]};
-}
-
-GLint Engine::Motor::GetColorDepth()
-{
-    return this->colorDepth;
-}
-
-void Engine::Motor::SetWindow(Engine::Window* window)
+void Engine::Motor::SetWindow(Engine::Window& window)
 {
     this->window = window;
-    this->resolution = window->GetDimensions();
-}
-
-void Engine::Motor::SetResolution(GLint* resolution)
-{
-    this->resolution = resolution;
-}
-
-void Engine::Motor::SetColorDepth(GLint colorDepth)
-{
-    this->colorDepth = colorDepth;
 }
 
 //in-engine animation that plays when the program is started
 void Engine::Motor::Intro()
 {
 
-}
-
-Engine::Motor::~Motor()
-{
-    if (window != NULL) delete window;
-    if (resolution != NULL) delete resolution;
 }

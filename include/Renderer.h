@@ -6,22 +6,20 @@
 namespace Engine
 {
 
-    //wrapper class for general OpenGL settings and objects
+    //Renderer class, subsystem of Engine (Motor) class
+    //wraps general OpenGL settings, options and objects
     //prepares and performs rendering operations
     class Renderer
     {
-        public:
-            Renderer();
-            ~Renderer();
-            int Render();
-            int DeltaTime();
+    public:
+        Renderer();
+        void Render();
 
+        void SetColorDepth(int colorDepth);
+        int GetColorDepth();
 
-        private:
-
-            int colorDepth;
-            float currentFrame;
-            float lastFrame;
+    private:
+        int colorDepth;
     };
 
 }

@@ -92,3 +92,37 @@ void Engine::Camera::SetFov(float fov)
 {
     this->fov = fov;
 }
+
+void Engine::Camera::Draw(Engine::Object* actor)
+{
+    //find the locations of uniform variables in the shader and assign transform matrices to them
+    int modelLoc = glGetUniformLocation(static_cast<Engine::Actor*>(actor)->GetShader()->GetProgramID(), "model");
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->transform));
+
+    //check if the of uniform variable was found
+    if (modelLoc < 0) {
+        std::cerr << "Unable to draw object: " << this->ToString() << ", location of model uniform var was not found" << std::endl;
+        return;
+    }
+
+    int viewLoc = glGetUniformLocation(static_cast<Engine::Actor*>(actor)->GetShader()->GetProgramID(), "view");
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(this->GetView()));
+
+    //check if the of uniform variable was found
+    if (viewLoc < 0) {
+        std::cerr << "Unable to draw object: " << this->ToString() << ", location of view uniform var was not found" << std::endl;
+        return;
+    }
+
+    int projectionLoc = glGetUniformLocation(static_cast<Engine::Actor*>(actor)->GetShader()->GetProgramID(), "projection");
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(this->GetProjection()));
+
+    //check if the of uniform variable was found
+    if (projectionLoc < 0) {
+        std::cerr << "Unable to draw object: " << this->ToString() << ", location of projection uniform var was not found" << std::endl;
+        return;
+    }
+
+    //pass the draw call to the encapsulated model
+    static_cast<Engine::Actor*>(actor)->GetModel()->Draw(static_cast<Engine::Actor*>(actor)->GetShader());
+}

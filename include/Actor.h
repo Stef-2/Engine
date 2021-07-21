@@ -2,6 +2,7 @@
 #define ACTOR_H
 
 #include "Object.h"
+#include "Camera.h"
 
 namespace Engine
 {
@@ -20,6 +21,7 @@ namespace Engine
 		void SetModel(const Engine::Model& model);
 
 		void Draw(glm::mat4 view, glm::mat4 projection);
+		void Draw(Engine::Object* camera);
 
 	protected:
 		Model model;

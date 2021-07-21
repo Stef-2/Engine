@@ -8,11 +8,11 @@ int main()
     if (!Engine::Initialize())
         glfwTerminate();
 
-    Engine::Motor& motor = Engine::Motor::GetInstance();
+    Engine::Motor motor;
 
     Engine::Camera camera(glm::vec3(0.0f, 0.0f, 0.0f));
-
-    motor.SetWindow(new Engine::Window(1280, 720, "Engine", NULL, NULL, new int[2] {2,1}));
+    Engine::Window window(1280, 720, "Engine", NULL, NULL, glm::ivec2(2, 1));
+    motor.SetWindow(window);
 
     Engine::Object::SetActiveObject(&camera);
 
@@ -41,8 +41,7 @@ int main()
                                      "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
     obj1.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\MaleLow.obj"));
 
-    Engine::Material material1;
-    obj1.GetModel()->LoadMaterial(material1);
+    obj1.GetModel()->LoadMaterial(Engine::Material());
     obj1.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Colour.jpg");
     
     Engine::Actor obj2;
@@ -50,8 +49,7 @@ int main()
         "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
     obj2.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Posed.obj"));
 
-    Engine::Material material2;
-    obj2.GetModel()->LoadMaterial(material2);
+    obj2.GetModel()->LoadMaterial(Engine::Material());
     obj2.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Subdermal.jpg");
     obj2.MoveRelative( 3.0f, 0.0f, 0.0f );
 
@@ -59,7 +57,7 @@ int main()
     glEnable(GL_DEPTH_TEST);
     lastTime = glfwGetTime();
     //!!!-------------- main loop --------------!!!
-    while(!glfwWindowShouldClose(motor.GetWindow()->GetWindow()))
+    while(!glfwWindowShouldClose(motor.GetWindow().GetGlWindow()))
     {
         //theres a whole bunch of overlap in here, gotta cleanup
 
@@ -76,23 +74,23 @@ int main()
             lastTime += 1.0f;
         }
 
-        if (glfwGetKey(motor.GetWindow()->GetWindow(), GLFW_KEY_W) == GLFW_PRESS)
+        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_W) == GLFW_PRESS)
             cameraPos += cameraSpeed * cameraFront;
-        if (glfwGetKey(motor.GetWindow()->GetWindow(), GLFW_KEY_S) == GLFW_PRESS)
+        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_S) == GLFW_PRESS)
             cameraPos -= cameraSpeed * cameraFront;
-        if (glfwGetKey(motor.GetWindow()->GetWindow(), GLFW_KEY_A) == GLFW_PRESS)
+        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_A) == GLFW_PRESS)
             cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-        if (glfwGetKey(motor.GetWindow()->GetWindow(), GLFW_KEY_D) == GLFW_PRESS)
+        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_D) == GLFW_PRESS)
             cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-        if (glfwGetKey(motor.GetWindow()->GetWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
+        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
             cameraPos += cameraSpeed * cameraUp;
-        if (glfwGetKey(motor.GetWindow()->GetWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
             cameraPos += cameraSpeed * -cameraUp;
 
-        motor.GetWindow()->SetTitle(std::string("Engine --- Frame time: " + std::to_string(frameMs) + " ms --- FPS: " + std::to_string(fps) +
+        motor.GetWindow().SetTitle(std::string("Engine --- Frame time: " + std::to_string(frameMs) + " ms --- FPS: " + std::to_string(fps) +
             " --- Position: X: " + std::to_string(cameraPos.x) + " --- Y: " + std::to_string(cameraPos.y) + " --- Z: " + std::to_string(cameraPos.z)));
         
-        glfwSwapBuffers(motor.GetWindow()->GetWindow());
+        glfwSwapBuffers(motor.GetWindow().GetGlWindow());
         glfwPollEvents();
 
         glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -102,7 +100,7 @@ int main()
         glm::mat4 projection    = glm::mat4(1.0f);
 
         view  = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-        projection = glm::perspective(glm::radians(fov), (float)motor.GetWindow()->GetDimensions()[0] / (float)motor.GetWindow()->GetDimensions()[1], 0.1f, 10000.0f);
+        projection = glm::perspective(glm::radians(fov), motor.GetWindow().GetAspectRatio(), 0.1f, 10000.0f);
         view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
         obj1.Draw(view, projection);
@@ -184,8 +182,8 @@ void Engine::InitializeCallbacks(Engine::Motor* motor)
 {
     //setup glfw callbacks
     glfwSetErrorCallback(ErrorCallback);
-    glfwSetKeyCallback(motor->GetWindow()->GetWindow(), KeyCallback);
-    glfwSetFramebufferSizeCallback(motor->GetWindow()->GetWindow(), FrameBufferCallback);
-    glfwSetCursorPosCallback(motor->GetWindow()->GetWindow(), MouseCallback);
-    glfwSetScrollCallback(motor->GetWindow()->GetWindow(), ScrollCallback);
+    glfwSetKeyCallback(motor->GetWindow().GetGlWindow(), KeyCallback);
+    glfwSetFramebufferSizeCallback(motor->GetWindow().GetGlWindow(), FrameBufferCallback);
+    glfwSetCursorPosCallback(motor->GetWindow().GetGlWindow(), MouseCallback);
+    glfwSetScrollCallback(motor->GetWindow().GetGlWindow(), ScrollCallback);
 }
