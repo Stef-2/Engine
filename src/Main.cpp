@@ -1,5 +1,6 @@
 #include "Main.h"
 
+Engine::Camera camera(0.0f, -0.5f, 0.0f, 180.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
 glm::vec3 cameraFront;
 float fov = 45;
 
@@ -10,12 +11,13 @@ int main()
 
     Engine::Motor motor;
 
-    Engine::Camera camera(glm::vec3(0.0f, 0.0f, 0.0f));
+    
     Engine::Window window(1280, 720, "Engine", NULL, NULL, glm::ivec2(2, 1));
     motor.SetWindow(window);
 
     Engine::Object::SetActiveObject(&camera);
-
+    camera.SetUpDirection(glm::vec3(0.0f, 1.0f, 0.0f));
+    camera.Setup(1.0f, motor.GetWindow().GetAspectRatio(), 0.1f, 1000.0f, 90.0f);
     Engine::InitializeCallbacks(&motor);
 
     //-----------------------------------------------
@@ -28,12 +30,13 @@ int main()
     int fps = 0;
 
     float cameraSpeed;
-    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 cameraTarget = glm::vec3(3.0f, 0.0f, 0.0f);
     glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
     glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+    //glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
     cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 
     Engine::Actor obj1;
@@ -51,7 +54,8 @@ int main()
 
     obj2.GetModel()->LoadMaterial(Engine::Material());
     obj2.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Subdermal.jpg");
-    obj2.MoveRelative( 3.0f, 0.0f, 0.0f );
+    obj2.MoveRelative(3.0f, 0.0f, 0.0f);
+    obj1.MoveRelative(3.0f, 0.0f, 0.0f);
 
     //-----------------------------------------------
     glEnable(GL_DEPTH_TEST);
@@ -74,18 +78,25 @@ int main()
             lastTime += 1.0f;
         }
 
-        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_W) == GLFW_PRESS)
+        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_W) == GLFW_PRESS) {
             cameraPos += cameraSpeed * cameraFront;
-        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_S) == GLFW_PRESS)
+            camera.MoveRelative(0.5f, 0.0f, 0.0f);
+        }
+        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_S) == GLFW_PRESS) {
             cameraPos -= cameraSpeed * cameraFront;
-        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_A) == GLFW_PRESS)
+        }
+        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_A) == GLFW_PRESS) {
             cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_D) == GLFW_PRESS)
+        }
+        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_D) == GLFW_PRESS) {
             cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
+        }
+        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
             cameraPos += cameraSpeed * cameraUp;
-        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        }
+        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
             cameraPos += cameraSpeed * -cameraUp;
+        }
 
         motor.GetWindow().SetTitle(std::string("Engine --- Frame time: " + std::to_string(frameMs) + " ms --- FPS: " + std::to_string(fps) +
             " --- Position: X: " + std::to_string(cameraPos.x) + " --- Y: " + std::to_string(cameraPos.y) + " --- Z: " + std::to_string(cameraPos.z)));
@@ -96,16 +107,15 @@ int main()
         glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 view          = glm::mat4(1.0f);
-        glm::mat4 projection    = glm::mat4(1.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(fov), motor.GetWindow().GetAspectRatio(), 0.1f, 10000.0f);
+        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
-        view  = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-        projection = glm::perspective(glm::radians(fov), motor.GetWindow().GetAspectRatio(), 0.1f, 10000.0f);
-        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-
-        obj1.Draw(view, projection);
+        //obj1.Draw(view, projection);
         obj2.Draw(view, projection);
-        obj1.RotateRelative(0.0f * deltaTime, 5.0f * deltaTime, 0.0f * deltaTime);
+        //obj2.Draw(&camera);
+        //camera.RotateRelative(0.0f * deltaTime, 50.0f * deltaTime, 5.0f * deltaTime);
+        //camera.MoveRelative(0.0f, 0.0f, 1.0f);
+        //obj1.RotateRelative(0.0f * deltaTime, 5.0f * deltaTime, 0.0f * deltaTime);
         obj2.RotateRelative(0.0f * deltaTime, 5.0f * deltaTime, 0.0f * deltaTime );
     }
 
@@ -157,6 +167,7 @@ void Engine::MouseCallback(GLFWwindow* window, double xPos, double yPos)
     direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     direction.y = sin(glm::radians(pitch));
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    camera.RotateRelative(direction.x, direction.y, direction.z);
     cameraFront = glm::normalize(direction);
 }
 

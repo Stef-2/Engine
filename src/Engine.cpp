@@ -5,22 +5,37 @@ Engine::Motor::Motor()
 {
     this->renderer = {};
     this->collider = {};
+
+    //just temporary initialization to prevent garbage values from being held here
+    //GetDeltaTime() and Run() functions are actually responsible for keeping these updated
+    this->lastTime = 0;
+    this->currentTime = glfwGetTime();
 }
 
-float Engine::Motor::GetDeltaTime()
+double Engine::Motor::GetDeltaTime()
 {
-    float deltaTime;
+    return this->currentTime - this->lastTime;;
+}
 
+void Engine::Motor::SetDeltaTime()
+{
     this->currentTime = glfwGetTime();
-    deltaTime = this->currentTime - this->lastTime;
     this->lastTime = this->currentTime;
-
-    return deltaTime;
 }
 
 Engine::Window& Engine::Motor::GetWindow()
 {
     return this->window;
+}
+
+Engine::Renderer& Engine::Motor::GetRenderer()
+{
+    return this->renderer;
+}
+
+Engine::Collider& Engine::Motor::GetCollider()
+{
+    return this->collider;
 }
 
 void Engine::Motor::SetWindow(Engine::Window& window)
@@ -30,6 +45,12 @@ void Engine::Motor::SetWindow(Engine::Window& window)
 
 //in-engine animation that plays when the program is started
 void Engine::Motor::Intro()
+{
+
+}
+
+//main engine loop
+void Engine::Motor::Run()
 {
 
 }

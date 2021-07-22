@@ -21,8 +21,8 @@ void Engine::Camera::Setup(float speed, float aspectRatio, float nearClip, float
 
 glm::vec3 Engine::Camera::GetDirection()
 {
-    //camera direction is in essence the rotation component of its transform matrix, so we can just return that
-    glm::vec3 direction = glm::vec3(this->GetRotation()[0], this->GetRotation()[1], this->GetRotation()[2]);
+    //camera direction is in essence the normaliezd rotation component of its transform matrix, so we can just return that
+    glm::vec3 direction = glm::normalize(glm::vec3(this->GetRotation()[0], this->GetRotation()[1], this->GetRotation()[2]));
 
     return direction;
 }
@@ -35,7 +35,8 @@ glm::mat4 Engine::Camera::GetView()
     glm::vec3 direction = glm::normalize(glm::vec3(this->GetRotation()[0], this->GetRotation()[1], this->GetRotation()[2]));
     //combine them with the Up vector into a view matrix
     glm::mat4 view = glm::lookAt(position, position + direction, this->upDirection);
-
+    std::cout << "position: " << glm::to_string(position) << ", normalized direction: " << glm::to_string(direction) << std::endl;
+    std::cout << "view matrix: " << glm::to_string(view) << std::endl;
     return view;
 }
 
@@ -93,10 +94,10 @@ void Engine::Camera::SetFov(float fov)
     this->fov = fov;
 }
 
-void Engine::Camera::Draw(Engine::Object* actor)
+void Engine::Camera::Draw(Engine::Actor* actor)
 {
     //find the locations of uniform variables in the shader and assign transform matrices to them
-    int modelLoc = glGetUniformLocation(static_cast<Engine::Actor*>(actor)->GetShader()->GetProgramID(), "model");
+    int modelLoc = glGetUniformLocation(actor->GetShader()->GetProgramID(), "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->transform));
 
     //check if the of uniform variable was found
@@ -105,7 +106,7 @@ void Engine::Camera::Draw(Engine::Object* actor)
         return;
     }
 
-    int viewLoc = glGetUniformLocation(static_cast<Engine::Actor*>(actor)->GetShader()->GetProgramID(), "view");
+    int viewLoc = glGetUniformLocation(actor->GetShader()->GetProgramID(), "view");
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(this->GetView()));
 
     //check if the of uniform variable was found
@@ -114,7 +115,7 @@ void Engine::Camera::Draw(Engine::Object* actor)
         return;
     }
 
-    int projectionLoc = glGetUniformLocation(static_cast<Engine::Actor*>(actor)->GetShader()->GetProgramID(), "projection");
+    int projectionLoc = glGetUniformLocation(actor->GetShader()->GetProgramID(), "projection");
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(this->GetProjection()));
 
     //check if the of uniform variable was found
@@ -124,5 +125,5 @@ void Engine::Camera::Draw(Engine::Object* actor)
     }
 
     //pass the draw call to the encapsulated model
-    static_cast<Engine::Actor*>(actor)->GetModel()->Draw(static_cast<Engine::Actor*>(actor)->GetShader());
+    actor->GetModel()->Draw(actor->GetShader());
 }

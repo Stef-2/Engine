@@ -101,7 +101,9 @@ float* Engine::Object::GetRotation()
     //decompose the transform matrix into components so we can extract the needed data
     glm::decompose(this->transform, scale, rotation, position, skew, perspective);
 
-    return glm::value_ptr(rotation);
+    glm::vec3 eulerRotation = glm::degrees(glm::eulerAngles(rotation));
+
+    return glm::value_ptr(eulerRotation);
 }
 
 float* Engine::Object::GetScale()
@@ -120,7 +122,7 @@ float* Engine::Object::GetScale()
 
 void Engine::Object::MoveRelative(float x, float y, float z)
 {
-    glm::translate(this->transform, glm::vec3(x, y, z));
+    this->transform = glm::translate(this->transform, glm::vec3(x, y, z));
 }
 
 void Engine::Object::MoveAbsolute(float x, float y, float z)

@@ -11,6 +11,10 @@
 namespace Engine
 {
 
+    //forward declaration of Engine::Actor
+    //so it can be referenced by the draw function without causing a cyclic dependacy
+    class Actor;
+
     //a camera class, inheriting transformation mechanisms from Engine::Object
     //provides the Vew() and Projection() attributes needed for rendering
     class Camera : public Object
@@ -23,7 +27,7 @@ namespace Engine
 
             //view, extracted from camera's transform matrix
             glm::mat4 GetView();
-            //camera direction, effectivelly just object rotation extracted from transform matrix
+            //camera direction vector, effectivelly just object rotation extracted from transform matrix
             glm::vec3 GetDirection();
             //projection matrix, combining field of view, aspect ratio, near and far clip planes
             glm::mat4 GetProjection();
@@ -31,16 +35,20 @@ namespace Engine
             float GetSpeed();
             float GetNearClip();
             float GetFarClip();
-            //field of view
+
+            //field of view, expressed in degrees
+            //usually 45 to 90 degrees
             float GetFov();
 
+            //world "Up" direction, usually positive direction of Y axis
             void SetUpDirection(glm::vec3 direction);
             void SetProjection(glm::mat4 projection);
+            //speed expressed in arbitrary world units, to be used as multiplier for movement
             void SetSpeed(float speed);
             void SetNearClip(float nearClip);
             void SetFarClip(float farClip);
             void SetFov(float fov);
-            void Draw(Engine::Object* actor);
+            void Draw(Engine::Actor* actor);
 
         private:
             glm::vec3 upDirection;
