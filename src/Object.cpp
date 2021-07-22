@@ -7,7 +7,9 @@ Engine::Object::Object()
     this->children = {};
     this->isMoving = {};
 
-    this->transform = glm::mat4(1.0f);
+    this->position = glm::vec3(0.0f, 0.0f, 0.0f);
+    this->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    this->scale = glm::vec3(1.0f, 1.0f, 1.0f);
 }
 
 Engine::Object::Object(float x, float y, float z)
@@ -15,18 +17,9 @@ Engine::Object::Object(float x, float y, float z)
     this->children = {};
     this->isMoving = {};
 
-    //build an identity matrix
-    this->transform = glm::mat4(1.0f);
-    //move to the required position
-    this->transform = glm::translate(this->transform, glm::vec3(x, y, z));
-}
-
-Engine::Object::Object(glm::mat4 transformMatrix)
-{
-    this->children = {};
-    this->isMoving = {};
-
-    this->transform = transformMatrix;
+    this->position = glm::vec3(0.0f, 0.0f, 0.0f);
+    this->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    this->scale = glm::vec3(1.0f, 1.0f, 1.0f);
 }
 
 Engine::Object::Object(glm::vec3 position)
@@ -34,10 +27,9 @@ Engine::Object::Object(glm::vec3 position)
     this->children = {};
     this->isMoving = {};
 
-    //build an identity matrix
-    this->transform = glm::mat4(1.0f);
-    //move to the required position
-    this->transform = glm::translate(this->transform, position);
+    this->position = position;
+    this->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    this->scale = glm::vec3(1.0f, 1.0f, 1.0f);
 }
 
 Engine::Object::Object(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
@@ -45,16 +37,9 @@ Engine::Object::Object(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
     this->children = {};
     this->isMoving = {};
 
-    //build an identity matrix
-    this->transform = glm::mat4(1.0f);
-
-    //build a quaternion out of the euler rotations
-    glm::quat quaternion(glm::radians(rotation));
-
-    //the correct order of matrix transformation is Scale, Rotate, Translate or SRT for short
-    this->transform = glm::scale(this->transform, scale);
-    this->transform = this->transform * glm::mat4_cast(quaternion);
-    this->transform = glm::translate(this->transform, position);
+    this->position = position;
+    this->rotation = rotation;
+    this->scale = scale;
 }
 
 Engine::Object::Object(float tx, float ty, float tz,
@@ -64,155 +49,73 @@ Engine::Object::Object(float tx, float ty, float tz,
     this->children = {};
     this->isMoving = {};
 
-    //build a quaternion out of the euler rotations
-    glm::quat quaternion(glm::radians(glm::vec3(rx, ry, rz)));
-    
-    //build an identity matrix
-    this->transform = glm::mat4(1.0f);
-    
-    //the correct order of matrix transformation is Scale, Rotate, Translate or SRT for short
-    this->transform = glm::scale(this->transform, glm::vec3(sx, sy, sz));
-    this->transform = this->transform * glm::mat4_cast(quaternion);
-    this->transform = glm::translate(this->transform, glm::vec3(tx, ty, tz));
+    this->position = glm::vec3(tx, ty, tz);
+    this->rotation = glm::vec3(rx, ry, rz);
+    this->scale = glm::vec3(sx, sy, sz);
 }
 
-float* Engine::Object::GetPosition()
+glm::vec3 Engine::Object::GetPosition()
 {
-    glm::vec3 position;
-    glm::quat rotation;
-    glm::vec3 scale;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-
-    //decompose the transform matrix into components so we can extract the needed data
-    glm::decompose(this->transform, scale, rotation, position, skew, perspective);
-
-    return glm::value_ptr(position);
+    return this->position;
 }
 
-float* Engine::Object::GetRotation()
+glm::vec3 Engine::Object::GetRotation()
 {
-    glm::vec3 position;
-    glm::quat rotation;
-    glm::vec3 scale;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-    
-    //decompose the transform matrix into components so we can extract the needed data
-    glm::decompose(this->transform, scale, rotation, position, skew, perspective);
-
-    glm::vec3 eulerRotation = glm::degrees(glm::eulerAngles(rotation));
-
-    return glm::value_ptr(eulerRotation);
+    return this->rotation;
 }
 
-float* Engine::Object::GetScale()
+glm::vec3 Engine::Object::GetScale()
 {
-    glm::vec3 position;
-    glm::quat rotation;
-    glm::vec3 scale;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-
-    //decompose the transform matrix into components so we can extract the needed data
-    glm::decompose(this->transform, scale, rotation, position, skew, perspective);
-
-    return glm::value_ptr(scale);
+    return this->scale;
 }
 
 void Engine::Object::MoveRelative(float x, float y, float z)
 {
-    this->transform = glm::translate(this->transform, glm::vec3(x, y, z));
+    this->position = this->position + glm::vec3(x, y, z);
 }
 
 void Engine::Object::MoveAbsolute(float x, float y, float z)
 {
-    glm::vec3 position;
-    glm::quat rotation;
-    glm::vec3 scale;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-
-    //decompose the transform matrix into components so we can extract the needed data
-    glm::decompose(this->transform, scale, rotation, position, skew, perspective);
-
-    //revert the transform matrix into an identity one
-    this->transform = glm::mat4(1.0f);
-
-    //rebuild the matrix using the extracted plus input values
-    //the correct order of matrix transformation is Scale, Rotate, Translate or SRT for short
-    this->transform = glm::scale(this->transform, scale);
-    this->transform = this->transform * glm::mat4_cast(rotation);
-    this->transform = glm::translate(this->transform, glm::vec3(x, y, z));
+    this->position = glm::vec3(x, y, z);
 }
 
 void Engine::Object::RotateRelative(float x, float y, float z)
 {
-    //build a quaternion out of the euler rotations
-    glm::quat quaternion(glm::radians(glm::vec3(x, y, z)));
-
-    //multiply the transform matrix by the quaternion casted into a 4x4 matrix to perform the rotation
-    this->transform = this->transform * glm::mat4_cast(quaternion);
+    this->rotation = this->rotation + glm::vec3(x, y, z);
+    if (this->rotation.x > 360) this->rotation.x -= 360;
+    if (this->rotation.y > 360) this->rotation.y -= 360;
+    if (this->rotation.z > 360) this->rotation.z -= 360;
 }
 
 void Engine::Object::RotateAbsolute(float x, float y, float z)
 {
-    glm::vec3 position;
-    glm::quat rotation;
-    glm::vec3 scale;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-
-    //decompose the transform matrix into components so we can extract the needed data
-    glm::decompose(this->transform, scale, rotation, position, skew, perspective);
-
-    //revert the transform matrix into an identity one
-    this->transform = glm::mat4(1.0f);
-
-    //build a quaternion out of the euler rotations
-    glm::quat quaternion(glm::radians(glm::vec3(x, y, z)));
-
-    //rebuild the matrix using the extracted plus input values
-    //the correct order of matrix transformation is Scale, Rotate, Translate or SRT for short
-    this->transform = glm::scale(this->transform, scale);
-    this->transform = this->transform * glm::mat4_cast(quaternion);
-    this->transform = glm::translate(this->transform, position);
+    this->rotation = glm::vec3(x, y, z);
 }
 
 void Engine::Object::ScaleRelative(float x, float y, float z)
 {
-    this->transform = glm::scale(this->transform, glm::vec3(x, y, z));
+    this->scale = this->scale + glm::vec3(x, y, z);
 }
 
 void Engine::Object::ScaleAbsolute(float x, float y, float z)
 {
-    glm::vec3 position;
-    glm::quat rotation;
-    glm::vec3 scale;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-
-    //decompose the transform matrix into components so we can extract the needed data
-    glm::decompose(this->transform, scale, rotation, position, skew, perspective);
-
-    //revert the transform matrix into an identity one
-    this->transform = glm::mat4(1.0f);
-
-    //rebuild the matrix using the extracted plus input values
-    //the correct order of matrix transformation is Scale, Rotate, Translate or SRT for short
-    this->transform = glm::scale(this->transform, glm::vec3(x, y, z));
-    this->transform = this->transform * glm::mat4_cast(rotation);
-    this->transform = glm::translate(this->transform, position);
+    this->scale = glm::vec3(x, y, z);
 }
 
-void Engine::Object::SetTransform(glm::mat4 transformMatrix)
+glm::mat4 Engine::Object::GetTransform()
 {
-    this->transform = transformMatrix;
-}
+    //build an identity matrix
+    glm::mat4 transform = glm::mat4(1.0f);
 
-glm::mat4* Engine::Object::GetTransform()
-{
-    return &this->transform;
+    //build a quaternion out of our euler angles
+    glm::quat quaternion = glm::quat(glm::radians(this->rotation));
+
+    //the correct order of transformation is Scale, Rotate, Translate or SRT for short
+    transform = glm::scale(transform, this->scale);
+    transform = transform * glm::mat4_cast(quaternion);
+    transform = glm::translate(transform, this->position);
+
+    return transform;
 }
 
 bool Engine::Object::IsMoving()

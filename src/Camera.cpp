@@ -11,32 +11,29 @@ Engine::Camera::~Camera()
 void Engine::Camera::Setup(float speed, float aspectRatio, float nearClip, float farClip, float fov)
 {
     this->speed = speed;
+    this->aspectRatio = aspectRatio;
     this->nearClip = nearClip;
     this->farclip = farClip;
     this->fov = fov;
 
-    this->projection = glm::perspective(fov, aspectRatio, nearClip, farClip);
+    this->SetProjection();
     this->upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
 glm::vec3 Engine::Camera::GetDirection()
 {
-    //camera direction is in essence the normaliezd rotation component of its transform matrix, so we can just return that
-    glm::vec3 direction = glm::normalize(glm::vec3(this->GetRotation()[0], this->GetRotation()[1], this->GetRotation()[2]));
+    //camera direction is in essence the normaliezd rotation component
+    glm::vec3 direction = glm::normalize(this->rotation);
 
     return direction;
 }
 
 glm::mat4 Engine::Camera::GetView()
 {
-    //extract position from transform matrix
-    glm::vec3 position = glm::vec3(this->GetPosition()[0], this->GetPosition()[1], this->GetPosition()[2]);
-    //extract and normalize rotation from our transform matrix too, use that as direction
-    glm::vec3 direction = glm::normalize(glm::vec3(this->GetRotation()[0], this->GetRotation()[1], this->GetRotation()[2]));
-    //combine them with the Up vector into a view matrix
-    glm::mat4 view = glm::lookAt(position, position + direction, this->upDirection);
-    std::cout << "position: " << glm::to_string(position) << ", normalized direction: " << glm::to_string(direction) << std::endl;
-    std::cout << "view matrix: " << glm::to_string(view) << std::endl;
+    //direction is just our normalized orientation
+    glm::vec3 direction = glm::normalize(this->rotation);
+    //building the view matrix using position, direction and Up direction
+    glm::mat4 view = glm::lookAt(this->position, this->position + direction, this->upDirection);
     return view;
 }
 
@@ -48,6 +45,11 @@ glm::mat4 Engine::Camera::GetProjection()
 float Engine::Camera::GetSpeed()
 {
     return this->speed;
+}
+
+float Engine::Camera::GetAspectRatio()
+{
+    return this->aspectRatio;
 }
 
 float Engine::Camera::GetNearClip()
@@ -74,31 +76,46 @@ void Engine::Camera::SetProjection(glm::mat4 projection)
 {
     this->projection = projection;
 }
+
+void Engine::Camera::SetProjection()
+{
+    this->projection = glm::perspective(this->fov, this->aspectRatio, this->nearClip, this->farclip);
+}
+
 void Engine::Camera::SetSpeed(float speed)
 {
     this->speed = speed;
 }
 
+void Engine::Camera::SetAspectRatio(float aspectRatio)
+{
+    this->aspectRatio = aspectRatio;
+    this->SetProjection();
+}
+
 void Engine::Camera::SetNearClip(float nearClip)
 {
     this->nearClip = nearClip;
+    this->SetProjection();
 }
 
 void Engine::Camera::SetFarClip(float farClip)
 {
     this->farclip = farClip;
+    this->SetProjection();
 }
 
 void Engine::Camera::SetFov(float fov)
 {
     this->fov = fov;
+    this->SetProjection();
 }
 
 void Engine::Camera::Draw(Engine::Actor* actor)
 {
     //find the locations of uniform variables in the shader and assign transform matrices to them
     int modelLoc = glGetUniformLocation(actor->GetShader()->GetProgramID(), "model");
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->transform));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(actor->GetTransform()));
 
     //check if the of uniform variable was found
     if (modelLoc < 0) {
@@ -126,4 +143,10 @@ void Engine::Camera::Draw(Engine::Actor* actor)
 
     //pass the draw call to the encapsulated model
     actor->GetModel()->Draw(actor->GetShader());
+}
+
+void Engine::Camera::Draw(std::vector<Engine::Actor*> actors)
+{
+    for (size_t i = 0; i < actors.size(); i++)   
+        this->Draw(actors[i]);
 }

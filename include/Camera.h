@@ -8,6 +8,8 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "glfw3.h"
 
+#include "vector"
+
 namespace Engine
 {
 
@@ -33,6 +35,7 @@ namespace Engine
             glm::mat4 GetProjection();
 
             float GetSpeed();
+            float GetAspectRatio();
             float GetNearClip();
             float GetFarClip();
 
@@ -43,11 +46,15 @@ namespace Engine
             //world "Up" direction, usually positive direction of Y axis
             void SetUpDirection(glm::vec3 direction);
             void SetProjection(glm::mat4 projection);
+            void SetProjection();
             //speed expressed in arbitrary world units, to be used as multiplier for movement
             void SetSpeed(float speed);
+            void SetAspectRatio(float aspectRatio);
             void SetNearClip(float nearClip);
             void SetFarClip(float farClip);
             void SetFov(float fov);
+            //use this camera to draw actor(s)
+            void Draw(std::vector<Engine::Actor*> actors);
             void Draw(Engine::Actor* actor);
 
         private:
@@ -55,6 +62,7 @@ namespace Engine
             glm::mat4 projection;
 
             float speed;
+            float aspectRatio;
             float nearClip;
             float farclip;
             float fov;

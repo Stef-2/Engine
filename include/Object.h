@@ -32,22 +32,19 @@ namespace Engine
                    float rx, float ry, float rz,
                    float sx, float sy, float sz);
 
-            Object(glm::mat4 transform);
             Object(glm::vec3 position);
             Object(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
 
-            float* GetPosition();
-            float* GetRotation();
-            float* GetScale();
+            glm::vec3 GetPosition();
+            glm::vec3 GetRotation();
+            glm::vec3 GetScale();
 
             static Object* GetActiveObject();
             static void SetActiveObject(Object* object);
             bool IsMoving();
 
             std::string ToString();
-            glm::mat4* GetTransform();
-
-            void SetTransform(glm::mat4 transformMatrix);
+            glm::mat4 GetTransform();
 
             void MoveRelative(float x, float y, float z);
             void MoveAbsolute(float x, float y, float z);
@@ -61,7 +58,9 @@ namespace Engine
         protected:
             static Object* active;
             std::vector<Object*> children;
-            glm::mat4 transform;
+            glm::vec3 position;
+            glm::vec3 rotation;
+            glm::vec3 scale;
             bool isMoving;
     };
 

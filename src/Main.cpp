@@ -1,8 +1,6 @@
 #include "Main.h"
 
-Engine::Camera camera(0.0f, -0.5f, 0.0f, 180.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
-glm::vec3 cameraFront;
-float fov = 45;
+Engine::Camera camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
 
 int main()
 {
@@ -16,8 +14,8 @@ int main()
     motor.SetWindow(window);
 
     Engine::Object::SetActiveObject(&camera);
+    camera.Setup(1.0f, motor.GetWindow().GetAspectRatio(), 0.1f, 1000.0f, 45.0f);
     camera.SetUpDirection(glm::vec3(0.0f, 1.0f, 0.0f));
-    camera.Setup(1.0f, motor.GetWindow().GetAspectRatio(), 0.1f, 1000.0f, 90.0f);
     Engine::InitializeCallbacks(&motor);
 
     //-----------------------------------------------
@@ -28,16 +26,6 @@ int main()
     float frameMs = 0.0f;
     int nFrames = 0;
     int fps = 0;
-
-    float cameraSpeed;
-    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 cameraTarget = glm::vec3(3.0f, 0.0f, 0.0f);
-    glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-    glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
-    //glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-    cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 
     Engine::Actor obj1;
     obj1.SetShader(Engine::Shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
@@ -55,7 +43,7 @@ int main()
     obj2.GetModel()->LoadMaterial(Engine::Material());
     obj2.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Subdermal.jpg");
     obj2.MoveRelative(3.0f, 0.0f, 0.0f);
-    obj1.MoveRelative(3.0f, 0.0f, 0.0f);
+    //obj1.MoveRelative(3.0f, 0.0f, 0.0f);
 
     //-----------------------------------------------
     glEnable(GL_DEPTH_TEST);
@@ -68,7 +56,7 @@ int main()
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        cameraSpeed = 2.5f * deltaTime;
+
         nFrames++;
 
         if (currentFrame - lastTime >= 1.0f) {
@@ -79,27 +67,27 @@ int main()
         }
 
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_W) == GLFW_PRESS) {
-            cameraPos += cameraSpeed * cameraFront;
-            camera.MoveRelative(0.5f, 0.0f, 0.0f);
+            camera.MoveRelative(camera.GetDirection().x * 0.5f, camera.GetDirection().y * 0.5f, camera.GetDirection().z * 0.5f);
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_S) == GLFW_PRESS) {
-            cameraPos -= cameraSpeed * cameraFront;
+            //cameraPos -= cameraSpeed * cameraFront;
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_A) == GLFW_PRESS) {
-            cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+            //cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_D) == GLFW_PRESS) {
-            cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+            //cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
-            cameraPos += cameraSpeed * cameraUp;
+            //cameraPos += cameraSpeed * cameraUp;
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-            cameraPos += cameraSpeed * -cameraUp;
+            //cameraPos += cameraSpeed * -cameraUp;
         }
 
         motor.GetWindow().SetTitle(std::string("Engine --- Frame time: " + std::to_string(frameMs) + " ms --- FPS: " + std::to_string(fps) +
-            " --- Position: X: " + std::to_string(cameraPos.x) + " --- Y: " + std::to_string(cameraPos.y) + " --- Z: " + std::to_string(cameraPos.z)));
+            " --- Position: X: " + std::to_string(camera.GetPosition().x) + " --- Y: " + std::to_string(camera.GetPosition().x) + " --- Z: " + std::to_string(camera.GetPosition().x) +
+            " --- Rotation: X: " + std::to_string(camera.GetRotation().x) + " --- Y: " + std::to_string(camera.GetRotation().y) + " --- Z: " + std::to_string(camera.GetRotation().z)));
         
         glfwSwapBuffers(motor.GetWindow().GetGlWindow());
         glfwPollEvents();
@@ -107,16 +95,11 @@ int main()
         glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 projection = glm::perspective(glm::radians(fov), motor.GetWindow().GetAspectRatio(), 0.1f, 10000.0f);
-        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-
-        //obj1.Draw(view, projection);
-        obj2.Draw(view, projection);
-        //obj2.Draw(&camera);
-        //camera.RotateRelative(0.0f * deltaTime, 50.0f * deltaTime, 5.0f * deltaTime);
-        //camera.MoveRelative(0.0f, 0.0f, 1.0f);
+        //camera.Draw(&obj1);
+        obj1.Draw(&camera);
+        obj2.Draw(&camera);
         //obj1.RotateRelative(0.0f * deltaTime, 5.0f * deltaTime, 0.0f * deltaTime);
-        obj2.RotateRelative(0.0f * deltaTime, 5.0f * deltaTime, 0.0f * deltaTime );
+        //obj2.RotateRelative(0.0f * deltaTime, -5.0f * deltaTime, 0.0f * deltaTime );
     }
 
     glfwTerminate();
@@ -167,17 +150,13 @@ void Engine::MouseCallback(GLFWwindow* window, double xPos, double yPos)
     direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     direction.y = sin(glm::radians(pitch));
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    camera.RotateRelative(direction.x, direction.y, direction.z);
-    cameraFront = glm::normalize(direction);
+    //camera.RotateRelative(direction.x, direction.y, direction.z);
+    camera.RotateAbsolute(direction.x, direction.y, direction.z);
 }
 
 void Engine::ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 {
-    fov -= (float)yOffset;
-    if (fov < 1.0f)
-        fov = 1.0f;
-    if (fov > 45.0f)
-        fov = 45.0f;
+    camera.SetFov(camera.GetFov() - (float)yOffset);
 }
 
 int Engine::Initialize()

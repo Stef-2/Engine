@@ -25,7 +25,7 @@ void Engine::Actor::Draw(glm::mat4 view, glm::mat4 projection)
     //find the locations of uniform variables in the shader and assign transform matrices to them
 
     int modelLoc = glGetUniformLocation(this->shader.GetProgramID(), "model");
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->transform));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->GetTransform()));
 
     //check if the of uniform variable was found
     if (modelLoc < 0) {
@@ -60,7 +60,7 @@ void Engine::Actor::Draw(Engine::Camera* camera)
     //find the locations of uniform variables in the shader and assign transform matrices to them
 
     int modelLoc = glGetUniformLocation(this->shader.GetProgramID(), "model");
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->transform));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->GetTransform()));
 
     //check if the of uniform variable was found
     if (modelLoc < 0) {
@@ -78,7 +78,7 @@ void Engine::Actor::Draw(Engine::Camera* camera)
     }
 
     int projectionLoc = glGetUniformLocation(this->shader.GetProgramID(), "projection");
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(camera->GetView()));
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
 
     //check if the of uniform variable was found
     if (projectionLoc < 0) {
