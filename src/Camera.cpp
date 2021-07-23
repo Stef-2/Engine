@@ -16,16 +16,26 @@ void Engine::Camera::Setup(float speed, float aspectRatio, float nearClip, float
     this->farclip = farClip;
     this->fov = fov;
 
-    this->SetProjection();
+    this->UpdateProjection();
     this->upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
-glm::vec3 Engine::Camera::GetDirection()
+glm::vec3 Engine::Camera::GetForwardDirection()
 {
     //camera direction is in essence the normaliezd rotation component
     glm::vec3 direction = glm::normalize(this->rotation);
 
     return direction;
+}
+
+glm::vec3 Engine::Camera::GetUpDirection()
+{
+    return glm::normalize(this->upDirection);
+}
+
+glm::vec3 Engine::Camera::GetRightDirection()
+{
+    return glm::normalize(glm::cross(this->GetForwardDirection(), this->GetUpDirection()));
 }
 
 glm::mat4 Engine::Camera::GetView()
@@ -77,7 +87,7 @@ void Engine::Camera::SetProjection(glm::mat4 projection)
     this->projection = projection;
 }
 
-void Engine::Camera::SetProjection()
+void Engine::Camera::UpdateProjection()
 {
     this->projection = glm::perspective(this->fov, this->aspectRatio, this->nearClip, this->farclip);
 }
@@ -90,25 +100,25 @@ void Engine::Camera::SetSpeed(float speed)
 void Engine::Camera::SetAspectRatio(float aspectRatio)
 {
     this->aspectRatio = aspectRatio;
-    this->SetProjection();
+    this->UpdateProjection();
 }
 
 void Engine::Camera::SetNearClip(float nearClip)
 {
     this->nearClip = nearClip;
-    this->SetProjection();
+    this->UpdateProjection();
 }
 
 void Engine::Camera::SetFarClip(float farClip)
 {
     this->farclip = farClip;
-    this->SetProjection();
+    this->UpdateProjection();
 }
 
 void Engine::Camera::SetFov(float fov)
 {
     this->fov = fov;
-    this->SetProjection();
+    this->UpdateProjection();
 }
 
 void Engine::Camera::Draw(Engine::Actor* actor)
@@ -117,7 +127,7 @@ void Engine::Camera::Draw(Engine::Actor* actor)
     int modelLoc = glGetUniformLocation(actor->GetShader()->GetProgramID(), "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(actor->GetTransform()));
 
-    //check if the of uniform variable was found
+    //check if the uniform variable was found
     if (modelLoc < 0) {
         std::cerr << "Unable to draw object: " << this->ToString() << ", location of model uniform var was not found" << std::endl;
         return;
@@ -126,7 +136,7 @@ void Engine::Camera::Draw(Engine::Actor* actor)
     int viewLoc = glGetUniformLocation(actor->GetShader()->GetProgramID(), "view");
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(this->GetView()));
 
-    //check if the of uniform variable was found
+    //check if the uniform variable was found
     if (viewLoc < 0) {
         std::cerr << "Unable to draw object: " << this->ToString() << ", location of view uniform var was not found" << std::endl;
         return;
@@ -141,7 +151,7 @@ void Engine::Camera::Draw(Engine::Actor* actor)
         return;
     }
 
-    //pass the draw call to the encapsulated model
+    //pass the draw call to the actor's encapsulated model
     actor->GetModel()->Draw(actor->GetShader());
 }
 

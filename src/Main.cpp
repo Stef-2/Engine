@@ -67,22 +67,27 @@ int main()
         }
 
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_W) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetDirection().x * 0.5f, camera.GetDirection().y * 0.5f, camera.GetDirection().z * 0.5f);
+            //camera.MoveRelative(camera.GetDirection().x * 0.5f, camera.GetDirection().y * 0.5f, camera.GetDirection().z * 0.5f);
+            camera.MoveRelative(camera.GetForwardDirection(), 0.25f);
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_S) == GLFW_PRESS) {
             //cameraPos -= cameraSpeed * cameraFront;
+            camera.MoveRelative(camera.GetForwardDirection(), -0.25f);
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_A) == GLFW_PRESS) {
             //cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+            camera.MoveRelative(camera.GetRightDirection(), -0.25f);
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_D) == GLFW_PRESS) {
             //cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+            camera.MoveRelative(camera.GetRightDirection(), 0.25f);
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
-            //cameraPos += cameraSpeed * cameraUp;
+            camera.MoveRelative(camera.GetUpDirection(), 0.25f);
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
             //cameraPos += cameraSpeed * -cameraUp;
+            camera.MoveRelative(camera.GetUpDirection(), -0.25f);
         }
 
         motor.GetWindow().SetTitle(std::string("Engine --- Frame time: " + std::to_string(frameMs) + " ms --- FPS: " + std::to_string(fps) +

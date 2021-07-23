@@ -69,6 +69,11 @@ glm::vec3 Engine::Object::GetScale()
     return this->scale;
 }
 
+void Engine::Object::MoveRelative(glm::vec3 direction, float intensity)
+{
+    this->position = this->position + (intensity * glm::normalize(direction));
+}
+
 void Engine::Object::MoveRelative(float x, float y, float z)
 {
     this->position = this->position + glm::vec3(x, y, z);
@@ -82,9 +87,6 @@ void Engine::Object::MoveAbsolute(float x, float y, float z)
 void Engine::Object::RotateRelative(float x, float y, float z)
 {
     this->rotation = this->rotation + glm::vec3(x, y, z);
-    if (this->rotation.x > 360) this->rotation.x -= 360;
-    if (this->rotation.y > 360) this->rotation.y -= 360;
-    if (this->rotation.z > 360) this->rotation.z -= 360;
 }
 
 void Engine::Object::RotateAbsolute(float x, float y, float z)

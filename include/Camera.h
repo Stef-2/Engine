@@ -18,7 +18,9 @@ namespace Engine
     class Actor;
 
     //a camera class, inheriting transformation mechanisms from Engine::Object
-    //provides the Vew() and Projection() attributes needed for rendering
+    //provides the Vew() and Projection() matrices needed for rendering of Engine::Actor(s)
+    //alternatively, it can initiate rendering itself, taking Engine::Actor(s) as input
+    //both methods can be used interchangeably
     class Camera : public Object
     {
         using Object::Object;
@@ -27,32 +29,45 @@ namespace Engine
             void Setup(float speed, float aspectRatio, float nearClip, float farClip, float fov);
             ~Camera();
 
-            //view, extracted from camera's transform matrix
+            //view, built from camera's transformations and the Up direction
             glm::mat4 GetView();
-            //camera direction vector, effectivelly just object rotation extracted from transform matrix
-            glm::vec3 GetDirection();
             //projection matrix, combining field of view, aspect ratio, near and far clip planes
             glm::mat4 GetProjection();
+
+            //camera's forward, normalized direction vector; effectivelly this is just it's rotation
+            glm::vec3 GetForwardDirection();
+            //a normalized vector that determines the "Up" direction; usually positive Y axis (0.0, 1.0, 0.0)
+            glm::vec3 GetUpDirection();
+            //camera's right, normalized direction vector; cross product of Forward and Up vectors
+            glm::vec3 GetRightDirection();
+            
 
             float GetSpeed();
             float GetAspectRatio();
             float GetNearClip();
             float GetFarClip();
-
-            //field of view, expressed in degrees
-            //usually 45 to 90 degrees
             float GetFov();
 
-            //world "Up" direction, usually positive direction of Y axis
+            //camera's "Up" direction, usually positive direction of Y axis
             void SetUpDirection(glm::vec3 direction);
+            //set and use an arbitrary projection matrix, any calls for UpdateProjection() made afterwards will invalidate this
             void SetProjection(glm::mat4 projection);
-            void SetProjection();
-            //speed expressed in arbitrary world units, to be used as multiplier for movement
+            //updates the projection matrix, should be called every time any of the following parameters change:
+            //<fov, aspect ratio, near clip or far clip>, all functions that changes these already call this function
+            void UpdateProjection();
+            //speed expressed in arbitrary world units, to be used as a multiplier for movement
             void SetSpeed(float speed);
+            //ratio of camera's frustum width and height dimensions
+            //if the desired ratio is the same as OpenGL's rendering window, it can be acquired from Engine::Window::GetAspectRatio()
             void SetAspectRatio(float aspectRatio);
+            //elements closer than this value are not rendered
             void SetNearClip(float nearClip);
+            //elements further than this value are not rendered
             void SetFarClip(float farClip);
+            //field of view, expressed in degrees
+            //usually 45 to 90 degrees
             void SetFov(float fov);
+
             //use this camera to draw actor(s)
             void Draw(std::vector<Engine::Actor*> actors);
             void Draw(Engine::Actor* actor);

@@ -21,8 +21,8 @@ namespace Engine
             Motor();
 
             //wrapper class for OpenGL window struct
-            //holds data about requested and given OpenGL version -
-            //due to the way OpenGL likes to couple that data with it's window
+            //holds data on requested and given OpenGL version -
+            //due to the way OpenGL likes to couple that data with it's window and context
             Engine::Window& GetWindow();
             void SetWindow(Engine::Window& window);
 

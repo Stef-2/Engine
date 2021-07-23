@@ -62,7 +62,7 @@ void Engine::Actor::Draw(Engine::Camera* camera)
     int modelLoc = glGetUniformLocation(this->shader.GetProgramID(), "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->GetTransform()));
 
-    //check if the of uniform variable was found
+    //check if the uniform variable was found
     if (modelLoc < 0) {
         std::cerr << "Unable to draw object: " << this->ToString() << ", location of model uniform var was not found" << std::endl;
         return;
@@ -71,7 +71,7 @@ void Engine::Actor::Draw(Engine::Camera* camera)
     int viewLoc = glGetUniformLocation(this->shader.GetProgramID(), "view");
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera->GetView()));
 
-    //check if the of uniform variable was found
+    //check if the uniform variable was found
     if (viewLoc < 0) {
         std::cerr << "Unable to draw object: " << this->ToString() << ", location of view uniform var was not found" << std::endl;
         return;
