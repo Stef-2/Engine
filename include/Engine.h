@@ -15,14 +15,14 @@ namespace Engine
 {
 
     //Motor (Engine) class, named so as not to be confused with the project's namespace
-    //the class is designed as a singleton for three reasons:
+    //the class is designed as a singleton for the following reasons:
     //1. it is the outermost class of the program, encapsulating everything else. At no point does it make any sense to have multiple instances of it
     //2. it holds much of the high level engine settings which would be cumbersome to constantly pass around if they were local to a single object
-    //3. it employs glfw callbacks which, being C functions are unaware of objects or this->pointer and thus have to be either fully global or static functions
+    //3. it employs glfw callbacks which, being C functions - are unaware of objects or this->pointer and thus have to be either fully global or declared static
 
     //the engine instantiates Renderer and Collider subsystems, glfw's hardware input and error handling callbacks
     //it can hold any number of Engine::Window objects, which create and initialize OpenGL contexts for rendering
-    //the class holds general engine related options and data;
+    //the class holds general engine related options and data
     //finaly, it employs the Run() function which serves as the main engine loop
     class Motor
     {

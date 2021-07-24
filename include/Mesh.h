@@ -12,6 +12,7 @@
 #define OBJL_INCLUDED
 #endif
 
+#include "BoundingVolume.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -31,30 +32,6 @@ namespace Engine
         glm::vec2 uv;
     };
 
-    //we're defining a bounding box using two diagonal corners
-    //           o-------o <-second
-    //          /|      /|
-    //         o-+-----o |
-    //         | o-----+-o
-    //         |/      |/
-    // first-> o-------o
-    struct BoundingBox
-    {
-    public:
-        float GetBottom();
-        float GetLeft();
-        float GetFront();
-        float GetTop();
-        float GetRight();
-        float GetBack();
-
-    private:
-        //bottom, left, front
-        glm::vec3 first;
-
-        //top, right, back
-        glm::vec3 second;
-    };
 
     //a mesh class that stores vertex data to be used for rendering
     class Mesh
@@ -76,7 +53,7 @@ namespace Engine
 
             std::vector<Vertex>* GetVertices();
             std::vector<unsigned int>* GetIndices();
-            BoundingBox GetBoundingBox();
+            Engine::BoundingBox GetBoundingBox();
 
         private:
             //mesh vertices
@@ -85,7 +62,7 @@ namespace Engine
             //order in which they connect to form triangles
             std::vector<unsigned int> indices;
 
-            BoundingBox boundingBox;
+            Engine::BoundingBox boundingBox;
 
             //vertex buffer and element buffer objects
             unsigned int VBO;

@@ -45,7 +45,7 @@
     <ClInclude Include="include\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\VertexBuffer.h">
+    <ClInclude Include="include\BoundingVolume.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\VertexShader.h">
@@ -112,7 +112,7 @@
     <ClCompile Include="src\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\VertexBuffer.cpp">
+    <ClCompile Include="src\BoundingVolume.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\VertexShader.cpp">

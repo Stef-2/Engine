@@ -1,6 +1,9 @@
 #ifndef COLLIDER_H
 #define COLLIDER_H
 
+#include "glm/glm.hpp"
+#include "BoundingVolume.h"
+
 namespace Engine
 {
 

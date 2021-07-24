@@ -94,31 +94,6 @@ void Engine::Mesh::Draw(Shader* shader, Material* material)
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
-float Engine::BoundingBox::GetBottom() {
-    
-    return this->first.y;
-}
-float Engine::BoundingBox::GetLeft() {
-
-    return this->first.x;
-}
-float Engine::BoundingBox::GetFront() {
-
-    return this->first.z;
-}
-float Engine::BoundingBox::GetTop() {
-
-    return this->second.y;
-}
-float Engine::BoundingBox::GetRight() {
-
-    return this->second.x;
-}
-float Engine::BoundingBox::GetBack() {
-
-    return this->second.z;
-}
-
 /*Engine::Mesh::~Mesh()
 {
     //if(this->vertexBuffer != NULL) delete this->vertexBuffer;
