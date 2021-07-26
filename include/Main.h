@@ -24,6 +24,7 @@
 #include "Object.h"
 #include "Actor.h"
 #include "Camera.h"
+#include "BoundingVolume.h"
 
 #include "fstream"
 #include "math.h"

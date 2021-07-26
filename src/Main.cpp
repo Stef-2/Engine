@@ -19,7 +19,11 @@ int main()
     Engine::InitializeCallbacks(&motor);
 
     //-----------------------------------------------
-  
+    Engine::OcTree<int> octree(3);
+    octree.child.mins = { 0.0f, 0.0f, 0.0f };
+    octree.child.maxs = { 5.0f, 6.0f, 8.0f };
+    octree.Subdivide();
+
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
     float lastTime = 0.0f;

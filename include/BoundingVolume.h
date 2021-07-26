@@ -1,5 +1,5 @@
-#ifndef VERTEXBUFFER_H
-#define VERTEXBUFFER_H
+#ifndef BOUNDINGVOLUME_H
+#define BOUNDINGVOLUME_H
 
 #include "glm/glm.hpp"
 
@@ -27,9 +27,12 @@ namespace Engine
         void Move(glm::vec3 offset);
         void Move(glm::vec3 direction, float magnitude);
 
+        //mins
         float GetBottom();
         float GetLeft();
         float GetFront();
+
+        //maxs
         float GetTop();
         float GetRight();
         float GetBack();
@@ -54,7 +57,7 @@ namespace Engine
         float radius;
     };
 
-    //a struct meant to be used as a node in the ocTree
+    //a bounding box based struct meant to be used as a node in the ocTree
     //holds information about its relatives and enclosing data in additon to the inherited position info
     template<typename T>
     struct BoundingNode : Engine::BoundingBox
@@ -65,9 +68,9 @@ namespace Engine
 
         void Subdivide(int maxDepth);
         
-        BoundingBox* parent;
-        BoundingBox* siblings;
-        BoundingBox* children;
+        BoundingNode* parent;
+        BoundingNode** siblings[7];
+        BoundingNode* children[8];
 
         unsigned int depth;
         bool isLeaf;
@@ -81,11 +84,142 @@ namespace Engine
     public:
         OcTree();
         OcTree(int depth);
-        void Subdivide(int maxDepth);
+        void Subdivide();
 
         BoundingNode<T> child;
         unsigned int depth;
     };
+
+    //templated classes need to have their member functions defined in the same header file, so I'm writing them here, below
+
+    template<typename T>
+    Engine::BoundingNode<T>::BoundingNode()
+    {
+        this->mins = {};
+        this->maxs = {};
+
+        this->depth = {};
+        this->isLeaf = {};
+        this->parent = {};
+        //this->siblings = {};
+        *this->children = {};
+        this->data = {};
+    }
+
+    template<typename T>
+    Engine::BoundingNode<T>::~BoundingNode()
+    {
+        //if (this->parent) delete parent;
+        //if (this->siblings) delete siblings;
+        //if (this->children) delete children;
+        //if (this->data) delete data;
+    }
+
+    template<typename T>
+    Engine::BoundingNode<T>::BoundingNode(glm::vec3 mins, glm::vec3 maxs)
+    {
+        this->mins = mins;
+        this->maxs = maxs;
+
+        this->depth = {};
+        this->isLeaf = {};
+        this->parent = nullptr;
+        //this->siblings = nullptr;
+        //this->children = {};
+        this->data = {};
+    }
+
+    template<typename T>
+    void Engine::BoundingNode<T>::Subdivide(int maxDepth)
+    {
+        //check if we've reached maximum recursion depth
+        if (this->depth != maxDepth)
+        {
+            //if not, spawn 8 children and raise them well
+            //setup children parameters
+            for (size_t i = 0; i < 8; i++)
+            {
+                this->children[i] = new BoundingNode<T>;
+                this->children[i]->depth = this->depth + 1;
+                this->children[i]->isLeaf = false;
+                this->children[i]->parent = this;
+
+                //setup siblings, remember that we're not supposed to be our own sibling
+                for (size_t j = 0; j < 8; j++)
+                    if (this->children[i] != this->children[j])
+                        this->children[i]->siblings[j] = &this->children[j];
+            }
+
+            //define half the size of the original bounding box
+            glm::vec3 halfSize = (this->maxs - this->mins) / 2.0f;
+
+            //break it down into offsets on all three axes
+            glm::vec3 xOffset = glm::vec3(halfSize.x, 0.0f, 0.0f);
+            glm::vec3 yOffset = glm::vec3(0.0f, halfSize.y, 0.0f);
+            glm::vec3 zOffset = glm::vec3(0.0f, 0.0f, halfSize.z);
+
+            //setup the child coordinates relative to the proud parent's one
+            //this probably could have been done in some black magic loop but I had too many coffees already
+            //starting at this->mins location and going in clockwise +y direction
+
+            //bottom near left
+            this->children[0]->mins = glm::vec3(this->mins);
+
+            //bottom far left
+            this->children[1]->mins = glm::vec3(this->mins + zOffset);
+
+            //bottom far right
+            this->children[2]->mins = glm::vec3(this->mins + zOffset + xOffset);
+
+            //bottom near right
+            this->children[3]->mins = glm::vec3(this->mins + xOffset);
+
+            //top near left
+            this->children[4]->mins = glm::vec3(this->mins + yOffset);
+
+            //top far left
+            this->children[5]->mins = glm::vec3(this->mins + zOffset + yOffset);
+
+            //top far right
+            this->children[6]->mins = glm::vec3(this->mins + halfSize);
+
+            //top near right
+            this->children[7]->mins = glm::vec3(this->mins + xOffset + yOffset);
+
+            //we haven't reached max depth, so subdivide further
+            for (size_t i = 0; i < 8; i++) {
+                //set the maxs while we're conveniently in a loop
+                this->children[i]->maxs = this->children[i]->mins + halfSize;
+                this->children[i]->Subdivide(maxDepth);
+            }
+        }
+        else {
+            //we've reached the maximum recursion depth
+            this->isLeaf = true;
+            //this->children = {};
+        }
+    }
+
+    template<typename T>
+    Engine::OcTree<T>::OcTree()
+    {
+        this->child = {};
+        this->depth = {};
+    }
+
+    template<typename T>
+    Engine::OcTree<T>::OcTree(int maxDepth)
+    {
+        this->child = {};
+        this->depth = maxDepth;
+    }
+
+    template<typename T>
+    void Engine::OcTree<T>::Subdivide()
+    {
+        this->child.Subdivide(this->depth);
+    }
 }
-#endif // VERTEXBUFFER_H
+
+#endif
 
