@@ -22,7 +22,7 @@ void Engine::Camera::Setup(float speed, float aspectRatio, float nearClip, float
 
 glm::vec3 Engine::Camera::GetForwardDirection()
 {
-    //camera direction is in essence the normaliezd rotation component
+    //camera direction is in essence the normalized rotation component
     glm::vec3 direction = glm::normalize(this->rotation);
 
     return direction;

@@ -1,6 +1,6 @@
 #include "Main.h"
 
-Engine::Camera camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+Engine::Camera camera(0.0f, 0.0f, 0.0f, 0.0f, 90.0f, 0.0f, 1.0f, 1.0f, 1.0f);
 
 int main()
 {
@@ -19,10 +19,10 @@ int main()
     Engine::InitializeCallbacks(&motor);
 
     //-----------------------------------------------
-    Engine::OcTree<int> octree(3);
-    octree.child.mins = { 0.0f, 0.0f, 0.0f };
-    octree.child.maxs = { 5.0f, 6.0f, 8.0f };
-    octree.Subdivide();
+    //Engine::OcTree<int> octree(3);
+    //octree.child.mins = { 0.0f, 0.0f, 0.0f };
+    //octree.child.maxs = { 5.0f, 6.0f, 8.0f };
+    //octree.Subdivide();
 
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
@@ -33,7 +33,8 @@ int main()
 
     Engine::Actor obj1;
     obj1.SetShader(Engine::Shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
-                                     "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
+                                  "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
+
     obj1.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\MaleLow.obj"));
 
     obj1.GetModel()->LoadMaterial(Engine::Material());
@@ -41,12 +42,13 @@ int main()
     
     Engine::Actor obj2;
     obj2.SetShader(Engine::Shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
-        "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
+                                  "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
+
     obj2.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Posed.obj"));
 
     obj2.GetModel()->LoadMaterial(Engine::Material());
     obj2.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Subdermal.jpg");
-    obj2.MoveRelative(3.0f, 0.0f, 0.0f);
+    obj2.MoveRelative(10.0f, 0.0f, 0.0f);
     //obj1.MoveRelative(3.0f, 0.0f, 0.0f);
 
     //-----------------------------------------------
@@ -102,8 +104,8 @@ int main()
         //camera.Draw(&obj1);
         obj1.Draw(&camera);
         obj2.Draw(&camera);
-        //obj1.RotateRelative(0.0f * deltaTime, 5.0f * deltaTime, 0.0f * deltaTime);
-        obj2.RotateRelative(0.0f * deltaTime, 5.0f * deltaTime, 0.0f * deltaTime );
+        obj1.RotateRelative(0.0f * deltaTime, -50.0f * deltaTime, 0.0f * deltaTime);
+        obj2.RotateRelative(0.0f * deltaTime, 50.0f * deltaTime, 0.0f * deltaTime );
     }
 
     glfwTerminate();

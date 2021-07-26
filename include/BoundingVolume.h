@@ -159,9 +159,9 @@ namespace Engine
             glm::vec3 zOffset = glm::vec3(0.0f, 0.0f, halfSize.z);
 
             //setup the child coordinates relative to the proud parent's one
+            //starting at this->mins location and going in clockwise +Y direction
             //this probably could have been done in some black magic loop but I had too many coffees already
-            //starting at this->mins location and going in clockwise +y direction
-
+            
             //bottom near left
             this->children[0]->mins = glm::vec3(this->mins);
 
