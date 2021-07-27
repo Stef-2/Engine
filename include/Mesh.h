@@ -12,7 +12,7 @@
 #define OBJL_INCLUDED
 #endif
 
-#include "BoundingVolume.h"
+//#include "BoundingVolume.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -53,7 +53,7 @@ namespace Engine
 
             std::vector<Vertex>* GetVertices();
             std::vector<unsigned int>* GetIndices();
-            Engine::BoundingBox GetBoundingBox();
+            //Engine::BoundingBox GetBoundingBox();
 
         private:
             //mesh vertices
@@ -62,7 +62,7 @@ namespace Engine
             //order in which they connect to form triangles
             std::vector<unsigned int> indices;
 
-            Engine::BoundingBox boundingBox;
+            //Engine::BoundingBox boundingBox;
 
             //vertex buffer and element buffer objects
             unsigned int VBO;

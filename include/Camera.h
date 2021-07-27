@@ -21,9 +21,9 @@ namespace Engine
     //provides the Vew() and Projection() matrices needed for rendering of Engine::Actor(s)
     //alternatively, it can initiate rendering itself, taking Engine::Actor(s) as input
     //both methods can be used interchangeably
-    class Camera : public Object
+    class Camera : public Engine::Object
     {
-        using Object::Object;
+        using Engine::Object::Object;
 
         public:
             void Setup(float speed, float aspectRatio, float nearClip, float farClip, float fov);

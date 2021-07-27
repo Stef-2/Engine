@@ -24,6 +24,8 @@ int main()
     //octree.child.maxs = { 5.0f, 6.0f, 8.0f };
     //octree.Subdivide();
 
+    Engine::BoundingBox bBox{ {-3.0f, -3.0f, -3.0f}, {10.0f, 22.0f, 7.0f} };
+
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
     float lastTime = 0.0f;
@@ -106,6 +108,7 @@ int main()
         obj2.Draw(&camera);
         obj1.RotateRelative(0.0f * deltaTime, -50.0f * deltaTime, 0.0f * deltaTime);
         obj2.RotateRelative(0.0f * deltaTime, 50.0f * deltaTime, 0.0f * deltaTime );
+        bBox.Draw(&camera);
     }
 
     glfwTerminate();

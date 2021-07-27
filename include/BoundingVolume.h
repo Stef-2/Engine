@@ -2,6 +2,7 @@
 #define BOUNDINGVOLUME_H
 
 #include "glm/glm.hpp"
+#include "Camera.h"
 
 #include "memory"
 
@@ -26,6 +27,8 @@ namespace Engine
 
         void Move(glm::vec3 offset);
         void Move(glm::vec3 direction, float magnitude);
+
+        void Draw(Engine::Camera* camera);
 
         //mins
         float GetBottom();

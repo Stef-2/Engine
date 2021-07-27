@@ -93,6 +93,91 @@ bool Engine::BoundingSphere::IntersectsWith(Engine::BoundingBox& bBox)
     return bBox.IntersectsWith(*this);
 }
 
+void Engine::BoundingBox::Draw(Engine::Camera* camera)
+{
+    //calculate the size of this bounding box, will be useful for vertex calculations and transform matrix
+    glm::vec3 sizeOffset = glm::vec3(maxs - mins);
+    float xOffset = sizeOffset.x;
+    float yOffset = sizeOffset.y;
+    float zOffset = sizeOffset.z;
+
+    //build a transform matrix for the bounding box
+    glm::mat4 transform(1.0f);
+    //transform = glm::translate(transform, sizeOffset / 2.0f);
+
+    //get whatever shader is currently being used, it should do for wireframe rendering
+    int currentShader;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &currentShader);
+
+    //pass the model, view and projection (MVP) matrices to the shader
+    int modelLoc = glGetUniformLocation(currentShader, "model");
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(transform));
+
+    int viewLoc = glGetUniformLocation(currentShader, "view");
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera->GetView()));
+
+    int projectionLoc = glGetUniformLocation(currentShader, "projection");
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
+
+    //create vertex buffer and element buffer objects
+    unsigned int VBO;
+    unsigned int EBO;
+
+    //form a full array of vertices from the two bounding ones
+    //starting at mins, clockwise order +Y
+    float vertices[] = {mins.x, mins.y, mins.z,
+                        mins.x, mins.y, mins.z + zOffset,
+                        mins.x + xOffset, mins.y, mins.z + zOffset,
+                        mins.x + xOffset, mins.y, mins.z,
+                        mins.x, mins.y + yOffset, mins.z,
+                        mins.x, mins.y + yOffset, mins.z + zOffset,
+                        maxs.x, maxs.y, maxs.z,
+                        mins.x + xOffset, mins.y + yOffset, mins.z};
+
+    //form triangles
+    unsigned int indices[] = {0, 7, 3,
+                              0, 4, 7,
+                              1, 4, 0,
+                              1, 5, 4,
+                              1, 2, 5,
+                              2, 6, 5,
+                              3, 7, 2,
+                              2, 7, 6,
+                              4, 6, 7,
+                              4, 5, 6,
+                              2, 3, 1,
+                              3, 0, 1};
+
+    //generate the buffers
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    //bind the vertex buffer
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    //fill the vertex buffer with data
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    //setup vertex position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    //bind the element buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    //fill the element buffer with data
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    //set the rendering mode to wireframe
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    //use whatever current shader we managed to retrieve
+    glUseProgram(currentShader);
+
+    //render
+    glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+
+    //revert back to normal rendering mode so we dont screw up everyone else
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
 float Engine::BoundingBox::GetBottom() {
 
     return this->mins.y;

@@ -4,7 +4,7 @@ Engine::Mesh::Mesh()
 {
     this->vertices = {};
     this->indices = {};
-    this->boundingBox = {};
+    //this->boundingBox = {};
     this->VBO = 0;
     this->EBO = 0;
 }
@@ -38,10 +38,10 @@ std::vector<unsigned int>* Engine::Mesh::GetIndices()
     return &this->indices;
 }
 
-Engine::BoundingBox Engine::Mesh::GetBoundingBox()
+/*Engine::BoundingBox Engine::Mesh::GetBoundingBox()
 {
     return this->boundingBox;
-}
+}*/
 
 void Engine::Mesh::Setup()
 {

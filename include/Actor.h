@@ -8,7 +8,7 @@ namespace Engine
 {
 
 	//forward declaration of Engine::Camera
-	//so it can be referenced by the draw function without causing a cyclic dependacy
+	//so it can be referenced by the draw function without causing a cyclic dependancy
 	class Camera;
 
 	//class encapsulating objects meant to be rendered
