@@ -19,12 +19,11 @@ int main()
     Engine::InitializeCallbacks(&motor);
 
     //-----------------------------------------------
-    //Engine::OcTree<int> octree(3);
-    //octree.child.mins = { 0.0f, 0.0f, 0.0f };
-    //octree.child.maxs = { 5.0f, 6.0f, 8.0f };
-    //octree.Subdivide();
+    Engine::OcTree<int> octree(3);;
+    octree.child.mins = { 0.0f, 0.0f, 0.0f };
+    octree.child.maxs = { 30.0f, 16.0f, 24.0f };
+    octree.Subdivide();
 
-    Engine::BoundingBox bBox{ {-3.0f, -3.0f, -3.0f}, {10.0f, 22.0f, 7.0f} };
 
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
@@ -69,7 +68,7 @@ int main()
 
         if (currentFrame - lastTime >= 1.0f) {
             frameMs = 1000.0f / (float)nFrames;
-            fps = CLOCKS_PER_SEC / deltaTime;
+            fps = (CLOCKS_PER_SEC / deltaTime) / 1000;
             nFrames = 0;
             lastTime += 1.0f;
         }
@@ -108,7 +107,7 @@ int main()
         obj2.Draw(&camera);
         obj1.RotateRelative(0.0f * deltaTime, -50.0f * deltaTime, 0.0f * deltaTime);
         obj2.RotateRelative(0.0f * deltaTime, 50.0f * deltaTime, 0.0f * deltaTime );
-        bBox.Draw(&camera);
+        octree.Draw(&camera);
     }
 
     glfwTerminate();

@@ -69,10 +69,12 @@ namespace Engine
         ~BoundingNode();
         BoundingNode(glm::vec3 mins, glm::vec3 maxs);
 
+        BoundingNode<T>* traverse(int depth);
         void Subdivide(int maxDepth);
+        void RecursiveDraw(Engine::Camera* camera);
         
         BoundingNode* parent;
-        BoundingNode** siblings[7];
+        BoundingNode* siblings[7];
         BoundingNode* children[8];
 
         unsigned int depth;
@@ -88,6 +90,9 @@ namespace Engine
         OcTree();
         OcTree(int depth);
         void Subdivide();
+
+        BoundingNode<T>* Traverse(int depth);
+        void Draw(Engine::Camera* camera);
 
         BoundingNode<T> child;
         unsigned int depth;
@@ -150,7 +155,7 @@ namespace Engine
                 //setup siblings, remember that we're not supposed to be our own sibling
                 for (size_t j = 0; j < 8; j++)
                     if (this->children[i] != this->children[j])
-                        this->children[i]->siblings[j] = &this->children[j];
+                        this->children[i]->siblings[j] = this->children[j];
             }
 
             //define half the size of the original bounding box
@@ -204,6 +209,18 @@ namespace Engine
     }
 
     template<typename T>
+    void Engine::BoundingNode<T>::RecursiveDraw(Engine::Camera* camera)
+    {
+        //draw ourselves
+        this->Draw(camera);
+
+        //if we're not a leaf, pass the draw call to the kids
+        if(!this->isLeaf)
+            for (short i = 0; i < 8; i++)
+                this->children[i]->RecursiveDraw(camera);
+    }
+
+    template<typename T>
     Engine::OcTree<T>::OcTree()
     {
         this->child = {};
@@ -221,6 +238,18 @@ namespace Engine
     void Engine::OcTree<T>::Subdivide()
     {
         this->child.Subdivide(this->depth);
+    }
+
+    template<typename T>
+    Engine::BoundingNode<T>* Engine::OcTree<T>::Traverse(int depth)
+    {
+
+    }
+
+    template<typename T>
+    void Engine::OcTree<T>::Draw(Engine::Camera* camera)
+    {
+        this->child.RecursiveDraw(camera);
     }
 }
 

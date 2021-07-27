@@ -103,7 +103,6 @@ void Engine::BoundingBox::Draw(Engine::Camera* camera)
 
     //build a transform matrix for the bounding box
     glm::mat4 transform(1.0f);
-    //transform = glm::translate(transform, sizeOffset / 2.0f);
 
     //get whatever shader is currently being used, it should do for wireframe rendering
     int currentShader;
@@ -134,20 +133,11 @@ void Engine::BoundingBox::Draw(Engine::Camera* camera)
                         maxs.x, maxs.y, maxs.z,
                         mins.x + xOffset, mins.y + yOffset, mins.z};
 
-    //form triangles
-    unsigned int indices[] = {0, 7, 3,
-                              0, 4, 7,
-                              1, 4, 0,
-                              1, 5, 4,
-                              1, 2, 5,
-                              2, 6, 5,
-                              3, 7, 2,
-                              2, 7, 6,
-                              4, 6, 7,
-                              4, 5, 6,
-                              2, 3, 1,
-                              3, 0, 1};
-
+    //form quads out of vertices
+    unsigned int quads[] = {0, 4, 7, 3,
+                            3, 7, 6, 2,
+                            2, 6, 5, 1,
+                            1, 5, 4, 0};
     //generate the buffers
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -163,7 +153,7 @@ void Engine::BoundingBox::Draw(Engine::Camera* camera)
     //bind the element buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     //fill the element buffer with data
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quads), quads, GL_STATIC_DRAW);
 
     //set the rendering mode to wireframe
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -172,10 +162,14 @@ void Engine::BoundingBox::Draw(Engine::Camera* camera)
     glUseProgram(currentShader);
 
     //render
-    glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_QUADS, sizeof(quads) / sizeof(quads[0]), GL_UNSIGNED_INT, 0);
 
     //revert back to normal rendering mode so we dont screw up everyone else
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    //clean up
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
 }
 
 float Engine::BoundingBox::GetBottom() {
