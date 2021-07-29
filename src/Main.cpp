@@ -24,13 +24,16 @@ int main()
     octree.child.maxs = { 64.0f, 64.0f, 64.0f };
     octree.Subdivide();
 
-
+    unsigned int numCulls;
+    bool check = {};
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
     float lastTime = 0.0f;
     float frameMs = 0.0f;
     int nFrames = 0;
     int fps = 0;
+
+    Engine::Renderer renderer;
 
     Engine::Shader shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
                           "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs");
@@ -50,9 +53,13 @@ int main()
 
     obj2.GetModel()->LoadMaterial(Engine::Material());
     obj2.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Subdermal.jpg");
-    //obj2.MoveRelative(10.0f, 0.0f, 10.0f);
-    //obj1.MoveRelative(3.0f, 0.0f, 0.0f);
+    obj2.MoveRelative(10.0f, 0.0f, 10.0f);
+    //obj1.MoveRelative(0.0f, 0.0f, 0.0f);
 
+
+    std::vector<Engine::Actor*> actors;
+    actors.push_back(&obj1);
+    actors.push_back(&obj2);
     //-----------------------------------------------
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
     //glEnable(GL_CULL_FACE);
@@ -96,9 +103,12 @@ int main()
             camera.MoveRelative(camera.GetUpDirection(), -0.25f);
         }
 
+        numCulls = renderer.Render(camera, actors);
+
         motor.GetWindow().SetTitle(std::string("Engine --- Frame time: " + std::to_string(frameMs) + " ms --- FPS: " + std::to_string(fps) +
             " --- Position: X: " + std::to_string(camera.GetPosition().x) + " --- Y: " + std::to_string(camera.GetPosition().x) + " --- Z: " + std::to_string(camera.GetPosition().x) +
-            " --- Rotation: X: " + std::to_string(camera.GetRotation().x) + " --- Y: " + std::to_string(camera.GetRotation().y) + " --- Z: " + std::to_string(camera.GetRotation().z)));
+            " --- Rotation: X: " + std::to_string(camera.GetRotation().x) + " --- Y: " + std::to_string(camera.GetRotation().y) + " --- Z: " + std::to_string(camera.GetRotation().z) +
+            " --- number of culled objects: " + std::to_string(numCulls)));
         
         glfwSwapBuffers(motor.GetWindow().GetGlWindow());
         glfwPollEvents();
@@ -107,11 +117,11 @@ int main()
         //camera.Draw(&obj1);
         //camera.Draw(&obj2);
 
-        obj1.Draw(&camera); //big guy (for me)
-        obj2.Draw(&camera); //small guy
+        //obj1.Draw(&camera); //big guy (for me)
+        //obj2.Draw(&camera); //small guy
 
-        camera.Draw(obj1.GetModel()->GetBoundingBox());
-        camera.Draw(obj2.GetModel()->GetBoundingBox());
+        //camera.Draw(obj1.GetModel()->GetBoundingBox());
+        //camera.Draw(obj2.GetModel()->GetBoundingBox());
 
         //obj1.RotateRelative(0.0f * deltaTime, -50.0f * deltaTime, 0.0f * deltaTime);
         //obj2.RotateRelative(0.0f * deltaTime, 50.0f * deltaTime, 0.0f * deltaTime );

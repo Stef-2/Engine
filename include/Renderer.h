@@ -17,7 +17,7 @@ namespace Engine
     {
     public:
         Renderer();
-        void Render(Engine::Camera& camera, std::vector<Engine::Actor>* actors);
+        unsigned int Render(Engine::Camera& camera, std::vector<Engine::Actor*> actors);
 
         void SetColorDepth(int colorDepth);
         int GetColorDepth();

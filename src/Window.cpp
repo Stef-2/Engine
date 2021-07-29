@@ -42,6 +42,9 @@ void Engine::Window::Initialize()
             //politely tell OpenGL which version of it we would like to use
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, this->openGlVersion.x);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, this->openGlVersion.y);
+            //glfwWindowHint(GLFW_DEPTH_BITS, 2);
+            //glfwWindowHint(GLFW_STENCIL_BITS, 0);
+            //glfwWindowHint(GLFW_ALPHA_BITS, 0);
             this->openGlWindow = glfwCreateWindow(width, height, title.c_str(), monitor, share);
             glfwMakeContextCurrent(openGlWindow);
             glfwSetInputMode(openGlWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
