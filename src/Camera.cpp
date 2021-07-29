@@ -70,6 +70,81 @@ glm::vec4* Engine::Camera::GetFrustumPlanes()
     return planes;
 }
 
+void Engine::Camera::Draw(Engine::BoundingBox* bb)
+{
+    //calculate the size of this bounding box, will be useful for vertex calculations and transform matrix
+    glm::vec3 sizeOffset = glm::vec3(bb->maxs - bb->mins);
+    float xOffset = sizeOffset.x;
+    float yOffset = sizeOffset.y;
+    float zOffset = sizeOffset.z;
+
+    //build a transform matrix for the bounding box
+    glm::mat4 transform(1.0f);
+
+    //get whatever shader is currently being used, it should do for wireframe rendering
+    Engine::Shader* currentShader = Engine::Shader::GetCurrentShader();
+
+    //pass the model, view and projection (MVP) matrices to the shader
+    glUniformMatrix4fv(currentShader->GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(transform));
+
+    glUniformMatrix4fv(currentShader->GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(this->GetView()));
+
+    glUniformMatrix4fv(currentShader->GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(this->GetProjection()));
+
+    //create vertex buffer and element buffer objects
+    unsigned int VBO;
+    unsigned int EBO;
+
+    //form a full array of vertices from the two bounding ones
+    //starting at mins, clockwise order +Y
+    float vertices[] = {bb->mins.x, bb->mins.y, bb->mins.z,
+                        bb->mins.x, bb->mins.y, bb->mins.z + zOffset,
+                        bb->mins.x + xOffset, bb->mins.y, bb->mins.z + zOffset,
+                        bb->mins.x + xOffset, bb->mins.y, bb->mins.z,
+                        bb->mins.x, bb->mins.y + yOffset, bb->mins.z,
+                        bb->mins.x, bb->mins.y + yOffset, bb->mins.z + zOffset,
+                        bb->maxs.x, bb->maxs.y, bb->maxs.z,
+                        bb->mins.x + xOffset, bb->mins.y + yOffset, bb->mins.z};
+
+    //form quads out of vertices
+    unsigned int quads[] = { 0, 4, 7, 3,
+                            3, 7, 6, 2,
+                            2, 6, 5, 1,
+                            1, 5, 4, 0 };
+    //generate the buffers
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    //bind the vertex buffer
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    //fill the vertex buffer with data
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+    //setup vertex position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    //bind the element buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    //fill the element buffer with data
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quads), quads, GL_DYNAMIC_DRAW);
+
+    //set the rendering mode to wireframe
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    //use whatever current shader we managed to retrieve
+    glUseProgram(currentShader->GetProgramID());
+
+    //render
+    glDrawElements(GL_QUADS, sizeof(quads) / sizeof(quads[0]), GL_UNSIGNED_INT, 0);
+
+    //revert back to normal rendering mode so we dont screw up everyone else
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    //clean up
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+}
+
 glm::mat4 Engine::Camera::GetProjection()
 {
     return this->projection;

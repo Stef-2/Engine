@@ -32,9 +32,11 @@ int main()
     int nFrames = 0;
     int fps = 0;
 
+    Engine::Shader shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
+                          "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs");
+
     Engine::Actor obj1;
-    obj1.SetShader(Engine::Shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
-                                  "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
+    obj1.SetShader(shader);
 
     obj1.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\MaleLow.obj"));
 
@@ -42,26 +44,26 @@ int main()
     obj1.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Colour.jpg");
     
     Engine::Actor obj2;
-    obj2.SetShader(Engine::Shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
-                                  "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs"));
+    obj2.SetShader(shader);
 
     obj2.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Posed.obj"));
 
     obj2.GetModel()->LoadMaterial(Engine::Material());
     obj2.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Subdermal.jpg");
-    obj2.MoveRelative(10.0f, 0.0f, 0.0f);
+    //obj2.MoveRelative(10.0f, 0.0f, 10.0f);
     //obj1.MoveRelative(3.0f, 0.0f, 0.0f);
 
     //-----------------------------------------------
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     lastTime = glfwGetTime();
     //!!!-------------- main loop --------------!!!
     while(!glfwWindowShouldClose(motor.GetWindow().GetGlWindow()))
     {
         //theres a whole bunch of overlap in here, gotta cleanup
-
+        obj1.MoveRelative(0.1f * deltaTime, 0.0f, 0.0f);
+        obj2.MoveRelative(-0.1f * deltaTime, 0.0f, 0.0f);
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -74,9 +76,6 @@ int main()
             nFrames = 0;
             lastTime += 1.0f;
         }
-
-        glfwSwapBuffers(motor.GetWindow().GetGlWindow());
-        glfwPollEvents();
 
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_W) == GLFW_PRESS) {
             camera.MoveRelative(camera.GetForwardDirection(), 0.25f);
@@ -101,14 +100,23 @@ int main()
             " --- Position: X: " + std::to_string(camera.GetPosition().x) + " --- Y: " + std::to_string(camera.GetPosition().x) + " --- Z: " + std::to_string(camera.GetPosition().x) +
             " --- Rotation: X: " + std::to_string(camera.GetRotation().x) + " --- Y: " + std::to_string(camera.GetRotation().y) + " --- Z: " + std::to_string(camera.GetRotation().z)));
         
+        glfwSwapBuffers(motor.GetWindow().GetGlWindow());
+        glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //camera.Draw(&obj1);
-        obj1.Draw(&camera);
-        obj2.Draw(&camera);
-        obj1.RotateRelative(0.0f * deltaTime, -50.0f * deltaTime, 0.0f * deltaTime);
-        obj2.RotateRelative(0.0f * deltaTime, 50.0f * deltaTime, 0.0f * deltaTime );
-        octree.Draw(&camera);
+        //camera.Draw(&obj2);
+
+        obj1.Draw(&camera); //big guy (for me)
+        obj2.Draw(&camera); //small guy
+
+        camera.Draw(obj1.GetModel()->GetBoundingBox());
+        camera.Draw(obj2.GetModel()->GetBoundingBox());
+
+        //obj1.RotateRelative(0.0f * deltaTime, -50.0f * deltaTime, 0.0f * deltaTime);
+        //obj2.RotateRelative(0.0f * deltaTime, 50.0f * deltaTime, 0.0f * deltaTime );
+        
+        //camera.Draw(&octree);
     }
 
     glfwTerminate();

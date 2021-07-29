@@ -14,6 +14,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "BoundingVolume.h"
 #include "glfw3.h"
 
 #include "vector"
@@ -30,15 +31,18 @@ namespace Engine
 
 		void LoadMesh(const char* filePath);
 		void LoadMaterial(Material material);
+		void SetBoundingBox(glm::vec3 mins, glm::vec3 maxs);
 
 		void Draw(Engine::Shader* shader);
 
 		std::vector<Mesh>* GetMeshes();
 		std::vector<Material>* GetMaterials();
+		Engine::BoundingBox* GetBoundingBox();
 
 	private:
 		std::vector<Mesh> meshes;
 		std::vector<Material> materials;
+		Engine::BoundingBox boundingBox;
 	};
 
 }

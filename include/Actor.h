@@ -21,6 +21,10 @@ namespace Engine
 		Engine::Shader* GetShader();
 		Engine::Model* GetModel();
 
+		void MoveRelative(glm::vec3 direction, float intensity) override;
+		void MoveRelative(float x, float y, float z) override;
+		void MoveAbsolute(float x, float y, float z) override;
+
 		void SetShader(const Engine::Shader& shader);
 		void SetModel(const Engine::Model& model);
 

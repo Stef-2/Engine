@@ -6,6 +6,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "BoundingVolume.h"
 #include "glfw3.h"
 
 #include "vector"
@@ -19,7 +20,7 @@ namespace Engine
 
     //a camera class, inheriting transformation mechanisms from Engine::Object
     //provides the Vew() and Projection() matrices needed for rendering of Engine::Actor(s)
-    //alternatively, it can initiate rendering itself, taking Engine::Actor(s) as input
+    //alternatively, it can initiate rendering itself, taking Engine::Actor(s) as input(s)
     //both methods can be used interchangeably
     class Camera : public Engine::Object
     {
@@ -74,6 +75,12 @@ namespace Engine
             void Draw(std::vector<Engine::Actor*> actors);
             void Draw(Engine::Actor* actor);
 
+            //use this camera to draw Bouding Volumes
+            template<typename T>
+            void Draw(Engine::OcTree<T>* tree);
+            template<typename T>
+            void RecursiveDraw(Engine::BoundingNode<T>* boundingNode);
+            void Draw(Engine::BoundingBox* boundingBox);
         private:
             glm::vec3 upDirection;
             glm::mat4 projection;
@@ -85,5 +92,24 @@ namespace Engine
             float fov;
     };
 
+    //bounding volumes are templeted types, we have to define their draw methods here
+
+    template<typename T>
+    void Engine::Camera::RecursiveDraw(Engine::BoundingNode<T>* boundingNode)
+    {
+        //draw ourselves
+        Draw(boundingNode);
+
+        //if we're not a leaf, pass the draw call to the kids
+        if (!boundingNode->isLeaf)
+            for (short i = 0; i < 8; i++)
+                RecursiveDraw(boundingNode->children[i]);
+    }
+
+    template<typename T>
+    void Engine::Camera::Draw(Engine::OcTree<T>* tree)
+    {
+        RecursiveDraw(&tree->child);
+    }
 }
 #endif // CAMERA_H

@@ -1,5 +1,7 @@
 #include "Shader.h"
 
+Engine::Shader* Engine::Shader::currentShader = {};
+
 Engine::Shader::Shader()
 {
     this->compileSuccess = 0;
@@ -142,6 +144,7 @@ int Engine::Shader::CompileProgram()
     //main shader program
     unsigned int shaderProgram;
 
+    //compile and link
     shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, this->vertexShader);
     glAttachShader(shaderProgram, this->fragmentShader);
@@ -150,23 +153,67 @@ int Engine::Shader::CompileProgram()
     glDeleteShader(this->vertexShader);
     glDeleteShader(this->fragmentShader);
 
+    //check for and print any errors we may have had
     if(!success) {
+        
         glGetProgramInfoLog(shaderProgram, 512, NULL, spLog);
         std::cerr << "shader program linking failed: " << spLog << std::endl;
         this->compileSuccess = 0;
         return 0;
     }
-    else {
+    else 
+    {
+        //if everything wen't smoothly...
         this->compileSuccess = 1;
         this->programID = shaderProgram;
         std::cout << "sp compiled successfully" << std::endl;
+
+        //get and bind the location of shader attributes
+        //we can use these later without having to bother the gfx card since most glGetX() functions are very slow
+        this->modelTransformLocation = glGetUniformLocation(this->programID, "model");
+        this->viewTransformLocation = glGetUniformLocation(this->programID, "view");
+        this->projectionTransformLocation = glGetUniformLocation(this->programID, "projection");
+
+        this->vertexPositionLocation = glGetAttribLocation(this->programID, "vertPos");
+        glBindAttribLocation(this->programID, this->vertexPositionLocation, "vertPos");
+
+        this->vertexUvLocation = glGetAttribLocation(this->programID, "vertCoord");
+        glBindAttribLocation(this->programID, this->vertexUvLocation, "vertCoord");
+
         return shaderProgram;
     }
 }
 
-void Engine::Shader::Run()
+unsigned int Engine::Shader::GetAttributeLocation(Engine::Shader::ShaderAttribute attribute)
 {
+    switch (attribute)
+    {
+    case Engine::Shader::ShaderAttribute::MODEL_LOCATION:
+        return this->modelTransformLocation;
+
+    case Engine::Shader::ShaderAttribute::VIEW_LOCATION:
+        return this->viewTransformLocation;
+
+    case Engine::Shader::ShaderAttribute::PROJECTION_LOCATION:
+        return this->projectionTransformLocation;
+
+    case Engine::Shader::ShaderAttribute::VERTEX_POSITION_LOCATION:
+        return this->vertexPositionLocation;
+
+    case Engine::Shader::ShaderAttribute::VERTEX_UV_LOCATION:
+        return this->vertexUvLocation;
+    }
+}
+
+void Engine::Shader::Activate()
+{
+    Engine::Shader::currentShader = this;
     glUseProgram(this->programID);
+}
+
+Engine::Shader* Engine::Shader::GetCurrentShader()
+{
+    return Engine::Shader::currentShader;
 }
 
 std::string Engine::Shader::GetLogData()

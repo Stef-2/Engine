@@ -51,12 +51,12 @@ void Engine::Mesh::Setup()
     //bind the vertex buffer
     glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
     //fill the vertex buffer with data
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_DYNAMIC_DRAW);
 
     //bind the element buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     //fill the element buffer with data
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_DYNAMIC_DRAW);
 }
 
 void Engine::Mesh::Draw(Shader* shader, Material* material)
@@ -88,7 +88,7 @@ void Engine::Mesh::Draw(Shader* shader, Material* material)
     glBindTexture(GL_TEXTURE_2D, material->GetDiffuse()->GetTextureID());
 
     //run the shader program
-    shader->Run();
+    shader->Activate();
 
     //wrooom !
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);

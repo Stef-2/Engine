@@ -46,9 +46,9 @@ namespace Engine
             std::string ToString();
             glm::mat4 GetTransform();
 
-            void MoveRelative(glm::vec3 direction, float intensity);
-            void MoveRelative(float x, float y, float z);
-            void MoveAbsolute(float x, float y, float z);
+            virtual void MoveRelative(glm::vec3 direction, float intensity);
+            virtual void MoveRelative(float x, float y, float z);
+            virtual void MoveAbsolute(float x, float y, float z);
 
             void RotateRelative(float x, float y, float z);
             void RotateAbsolute(float x, float y, float z);

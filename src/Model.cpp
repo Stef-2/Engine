@@ -25,6 +25,8 @@ void Engine::Model::LoadMesh(const char* filePath)
     }
 
     std::vector<Vertex> vertices;
+    glm::vec3 min{ 0.0f };
+    glm::vec3 max{ 0.0f };
     
     for (unsigned int i = 0; i < loader.LoadedMeshes.size(); i++)
     {
@@ -43,15 +45,25 @@ void Engine::Model::LoadMesh(const char* filePath)
 
             //push it onto the stack
             vertices.push_back(vertex);
+
+            min = glm::min(min, vertex.position);
+            max = glm::max(max, vertex.position);
         }
         
         meshes.push_back(Mesh(vertices, loader.LoadedMeshes[i].Indices));
     }
+
+    this->SetBoundingBox(min, max);
 }
 
 void Engine::Model::LoadMaterial(Engine::Material material)
 {
     materials.push_back(Material());
+}
+
+void Engine::Model::SetBoundingBox(glm::vec3 mins, glm::vec3 maxs)
+{
+    this->boundingBox = Engine::BoundingBox{mins, maxs};
 }
 
 std::vector<Engine::Mesh>* Engine::Model::GetMeshes()
@@ -62,6 +74,11 @@ std::vector<Engine::Mesh>* Engine::Model::GetMeshes()
 std::vector<Engine::Material>* Engine::Model::GetMaterials()
 {
     return &this->materials;
+}
+
+Engine::BoundingBox* Engine::Model::GetBoundingBox()
+{
+    return &this->boundingBox;
 }
 
 void Engine::Model::Draw(Engine::Shader* shader)

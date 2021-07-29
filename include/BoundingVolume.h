@@ -6,7 +6,6 @@
 #define __glad_h_
 #endif
 
-#include "Camera.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/glm.hpp"
@@ -40,7 +39,6 @@ namespace Engine
 
         //draws the bounding box in wireframe mode
         //not much use for this besides debugging
-        void Draw(Engine::Camera* camera);
 
         //mins
         float GetBottom();
@@ -83,8 +81,7 @@ namespace Engine
 
         BoundingNode<T>* traverse(int depth);
         void Subdivide(int maxDepth);
-        void RecursiveDraw(Engine::Camera* camera);
-        
+
         BoundingNode* parent;
         BoundingNode* siblings[7];
         BoundingNode* children[8];
@@ -104,7 +101,6 @@ namespace Engine
         void Subdivide();
 
         BoundingNode<T>* Traverse(int depth);
-        void Draw(Engine::Camera* camera);
 
         BoundingNode<T> child;
         unsigned int depth;
@@ -181,7 +177,7 @@ namespace Engine
             //setup the child coordinates relative to the proud parent's one
             //starting at this->mins location and going in clockwise +Y direction
             //this probably could have been done in some black magic loop but I had too many coffees already
-            
+
             //bottom near left
             this->children[0]->mins = glm::vec3(this->mins);
 
@@ -221,18 +217,6 @@ namespace Engine
     }
 
     template<typename T>
-    void Engine::BoundingNode<T>::RecursiveDraw(Engine::Camera* camera)
-    {
-        //draw ourselves
-        this->Draw(camera);
-
-        //if we're not a leaf, pass the draw call to the kids
-        if(!this->isLeaf)
-            for (short i = 0; i < 8; i++)
-                this->children[i]->RecursiveDraw(camera);
-    }
-
-    template<typename T>
     Engine::OcTree<T>::OcTree()
     {
         this->child = {};
@@ -258,12 +242,6 @@ namespace Engine
 
     }
 
-    template<typename T>
-    void Engine::OcTree<T>::Draw(Engine::Camera* camera)
-    {
-        this->child.RecursiveDraw(camera);
-    }
 }
-
 #endif
 
