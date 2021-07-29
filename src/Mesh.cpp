@@ -94,11 +94,13 @@ void Engine::Mesh::Draw(Shader* shader, Material* material)
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
-/*Engine::Mesh::~Mesh()
+Engine::Mesh::~Mesh()
 {
     //if(this->vertexBuffer != NULL) delete this->vertexBuffer;
     //if(this->indices != NULL) delete this->indices;
-}*/
+    //if (this->VBO) glDeleteBuffers(1, &this->VBO);
+    //if (this->EBO) glDeleteBuffers(1, &this->EBO);
+}   
 
 /*Engine::Mesh::Mesh(const Mesh& other)
 {

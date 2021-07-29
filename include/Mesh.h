@@ -12,7 +12,6 @@
 #define OBJL_INCLUDED
 #endif
 
-//#include "BoundingVolume.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -39,7 +38,7 @@ namespace Engine
         public:
             Mesh();
             Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
-            //~Mesh();
+            ~Mesh();
             //Mesh(const Mesh& other);
             //Mesh& operator=(const Mesh& other);
 

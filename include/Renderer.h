@@ -1,7 +1,11 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "glfw3.h"
+//#include "glfw3.h"
+#include "Camera.h"
+#include "Actor.h"
+
+#include "vector"
 
 namespace Engine
 {
@@ -13,7 +17,7 @@ namespace Engine
     {
     public:
         Renderer();
-        void Render();
+        void Render(Engine::Camera& camera, std::vector<Engine::Actor>* actors);
 
         void SetColorDepth(int colorDepth);
         int GetColorDepth();

@@ -165,7 +165,7 @@ void Engine::BoundingBox::Draw(Engine::Camera* camera)
     glDrawElements(GL_QUADS, sizeof(quads) / sizeof(quads[0]), GL_UNSIGNED_INT, 0);
 
     //revert back to normal rendering mode so we dont screw up everyone else
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode(GL_FRONT, GL_FILL);
 
     //clean up
     glDeleteBuffers(1, &VBO);

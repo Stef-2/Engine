@@ -17,6 +17,7 @@ void Engine::Camera::Setup(float speed, float aspectRatio, float nearClip, float
     this->fov = fov;
 
     this->UpdateProjection();
+    
     this->upDirection = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
@@ -24,7 +25,6 @@ glm::vec3 Engine::Camera::GetForwardDirection()
 {
     //camera direction is in essence the normalized rotation component
     glm::vec3 direction = glm::normalize(this->rotation);
-
     return direction;
 }
 
@@ -45,6 +45,29 @@ glm::mat4 Engine::Camera::GetView()
     //building the view matrix using position, direction and Up direction
     glm::mat4 view = glm::lookAt(this->position, this->position + direction, this->upDirection);
     return view;
+}
+
+glm::vec4* Engine::Camera::GetFrustumPlanes()
+{
+    //full camera matrix from which we'll extract the planes
+    //OpenGL uses collumn-major matrice orientation, so we need to transpose it before we can extract
+    glm::mat4 matrix = this->projection * this->GetView();
+    matrix = glm::transpose(matrix);
+
+    glm::vec4 left{matrix[3] + matrix[0]};
+    glm::vec4 right{matrix[3] - matrix[0]};
+
+    glm::vec4 top{matrix[3] - matrix[1]};
+    glm::vec4 bottom{matrix[3] + matrix[1]};
+
+    glm::vec4 near{matrix[3] + matrix[2]};
+    glm::vec4 far{matrix[3] - matrix[2]};
+
+    //array of planes to fill in
+    glm::vec4 planes[6] = {glm::normalize(left), glm::normalize(right), glm::normalize(top),
+                           glm::normalize(bottom), glm::normalize(near), glm::normalize(far)};
+    
+    return planes;
 }
 
 glm::mat4 Engine::Camera::GetProjection()

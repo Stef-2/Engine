@@ -20,8 +20,8 @@ int main()
 
     //-----------------------------------------------
     Engine::OcTree<int> octree(3);;
-    octree.child.mins = { 0.0f, 0.0f, 0.0f };
-    octree.child.maxs = { 30.0f, 16.0f, 24.0f };
+    octree.child.mins = { -64.0f, -64.0f, -64.0f };
+    octree.child.maxs = { 64.0f, 64.0f, 64.0f };
     octree.Subdivide();
 
 
@@ -53,6 +53,8 @@ int main()
     //obj1.MoveRelative(3.0f, 0.0f, 0.0f);
 
     //-----------------------------------------------
+    glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     lastTime = glfwGetTime();
     //!!!-------------- main loop --------------!!!
@@ -72,6 +74,9 @@ int main()
             nFrames = 0;
             lastTime += 1.0f;
         }
+
+        glfwSwapBuffers(motor.GetWindow().GetGlWindow());
+        glfwPollEvents();
 
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_W) == GLFW_PRESS) {
             camera.MoveRelative(camera.GetForwardDirection(), 0.25f);
@@ -96,10 +101,6 @@ int main()
             " --- Position: X: " + std::to_string(camera.GetPosition().x) + " --- Y: " + std::to_string(camera.GetPosition().x) + " --- Z: " + std::to_string(camera.GetPosition().x) +
             " --- Rotation: X: " + std::to_string(camera.GetRotation().x) + " --- Y: " + std::to_string(camera.GetRotation().y) + " --- Z: " + std::to_string(camera.GetRotation().z)));
         
-        glfwSwapBuffers(motor.GetWindow().GetGlWindow());
-        glfwPollEvents();
-
-        glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //camera.Draw(&obj1);

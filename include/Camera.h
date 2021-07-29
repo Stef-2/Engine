@@ -40,6 +40,8 @@ namespace Engine
             glm::vec3 GetUpDirection();
             //camera's right, normalized direction vector; cross product of Forward and Up vectors
             glm::vec3 GetRightDirection();
+            //camera's view frustum clipping planes, to be used for frustum culling by the renderer
+            glm::vec4* GetFrustumPlanes();
             
 
             float GetSpeed();

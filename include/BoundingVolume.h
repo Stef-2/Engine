@@ -1,13 +1,23 @@
 #ifndef BOUNDINGVOLUME_H
 #define BOUNDINGVOLUME_H
 
-#include "glm/glm.hpp"
+#ifndef __glad_h_
+#include "glad/glad.h"
+#define __glad_h_
+#endif
+
 #include "Camera.h"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/glm.hpp"
+#include "glfw3.h"
 
 #include "memory"
 
 namespace Engine
 {
+    //class Camera;
+
     //forward declaration of BoudingSphere so BoundingBox can reference it
     struct BoundingSphere;
 
@@ -28,6 +38,8 @@ namespace Engine
         void Move(glm::vec3 offset);
         void Move(glm::vec3 direction, float magnitude);
 
+        //draws the bounding box in wireframe mode
+        //not much use for this besides debugging
         void Draw(Engine::Camera* camera);
 
         //mins
@@ -154,7 +166,7 @@ namespace Engine
 
                 //setup siblings, remember that we're not supposed to be our own sibling
                 for (size_t j = 0; j < 8; j++)
-                    if (this->children[i] != this->children[j])
+                    if (j != i)
                         this->children[i]->siblings[j] = this->children[j];
             }
 
