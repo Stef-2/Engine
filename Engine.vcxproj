@@ -162,7 +162,7 @@
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\Model.h" />
     <ClInclude Include="include\Monitor.h" />
-    <ClInclude Include="include\Obj.h" />
+    <ClInclude Include="include\Skybox.h" />
     <ClInclude Include="include\Object.h" />
     <ClInclude Include="include\OBJ_Loader.h" />
     <ClInclude Include="include\Renderer.h" />
@@ -189,7 +189,7 @@
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\Monitor.cpp" />
-    <ClCompile Include="src\Obj.cpp" />
+    <ClCompile Include="src\Skybox.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
@@ -200,9 +200,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\fragment shader.fs" />
+    <None Include="shaders\skybox.fs" />
+    <None Include="shaders\skybox.vs" />
     <None Include="shaders\vertex shader.vs" />
-    <None Include="skybox.fs" />
-    <None Include="skybox.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

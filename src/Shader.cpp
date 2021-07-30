@@ -8,14 +8,31 @@ Engine::Shader::Shader()
     this->vertexShader = 0;
     this->fragmentShader = 0;
     this->programID = 0;
+    this->modelTransformLocation = {};
+    this->viewTransformLocation = {};
+    this->projectionTransformLocation = {};
+
+    this->vertexPositionLocation = {};
+    this->vertexUvLocation = {};
 }
 
 Engine::Shader::Shader(const char* vertexShader, const char* fragmentShader)
 {
-    this->SetVertexShader(vertexShader);
-    this->SetFragmentShader(fragmentShader);
+    this->compileSuccess = 0;
+    this->vertexShader = 0;
+    this->fragmentShader = 0;
+    this->programID = 0;
+    this->modelTransformLocation = {};
+    this->viewTransformLocation = {};
+    this->projectionTransformLocation = {};
 
-    this->CompileProgram();
+    this->vertexPositionLocation = {};
+    this->vertexUvLocation = {};
+
+    this->compileSuccess = this->SetVertexShader(vertexShader);
+    this->compileSuccess = this->SetFragmentShader(fragmentShader);
+
+    this->compileSuccess = this->CompileProgram();
 }
 
 /*Engine::Shader::~Shader()
@@ -142,7 +159,7 @@ int Engine::Shader::CompileProgram()
     }
 
     //main shader program
-    unsigned int shaderProgram;
+    unsigned int shaderProgram = 0;
 
     //compile and link
     shaderProgram = glCreateProgram();
@@ -171,14 +188,26 @@ int Engine::Shader::CompileProgram()
         //get and bind the location of shader attributes
         //we can use these later without having to bother the gfx card since most glGetX() functions are very slow
         this->modelTransformLocation = glGetUniformLocation(this->programID, "model");
+        if (this->modelTransformLocation == 4294967295)
+            this->modelTransformLocation = 0;
+
         this->viewTransformLocation = glGetUniformLocation(this->programID, "view");
+        if (this->viewTransformLocation == 4294967295)
+            this->viewTransformLocation = 0;
+
         this->projectionTransformLocation = glGetUniformLocation(this->programID, "projection");
+        if (this->projectionTransformLocation == 4294967295)
+            this->projectionTransformLocation = 0;
 
         this->vertexPositionLocation = glGetAttribLocation(this->programID, "vertPos");
         glBindAttribLocation(this->programID, this->vertexPositionLocation, "vertPos");
+        if (this->vertexPositionLocation == 4294967295)
+            this->vertexPositionLocation = 0;
 
         this->vertexUvLocation = glGetAttribLocation(this->programID, "vertCoord");
         glBindAttribLocation(this->programID, this->vertexUvLocation, "vertCoord");
+        if (this->vertexUvLocation == 4294967295)
+            this->vertexUvLocation = 0;
 
         return shaderProgram;
     }

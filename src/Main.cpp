@@ -24,7 +24,7 @@ int main()
     octree.child.maxs = { 64.0f, 64.0f, 64.0f };
     octree.Subdivide();
 
-    unsigned int numCulls;
+    unsigned int numCulls = 0;
     bool check = {};
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
@@ -34,7 +34,7 @@ int main()
     int fps = 0;
 
     Engine::Renderer renderer;
-
+    
     Engine::Shader shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
                           "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs");
 
@@ -56,6 +56,26 @@ int main()
     obj2.MoveRelative(10.0f, 0.0f, 10.0f);
     //obj1.MoveRelative(0.0f, 0.0f, 0.0f);
 
+    //----------------------------------------------------------
+
+    Engine::Shader skyBoxShader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\skybox.vs",
+                                "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\skybox.fs");
+
+    Engine::Skybox skyBox;
+    skyBox.SetShader(skyBoxShader);
+
+    const char* skyBoxTextures[6] = {"C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Daylight Box_Right.bmp",
+                                     "C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Daylight Box_Left.bmp",
+                                     "C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Daylight Box_Top.bmp",
+                                     "C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Daylight Box_Bottom.bmp",
+                                     "C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Daylight Box_Front.bmp",
+                                     "C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Daylight Box_Back.bmp"};
+
+    Engine::Texture skyBoxTex(skyBoxTextures);
+    skyBox.SetTexture(skyBoxTex);
+
+    skyBox.Setup();
+    //skyBox.ScaleAbsolute(10.0f, 10.0f, 10.0f);
 
     std::vector<Engine::Actor*> actors;
     actors.push_back(&obj1);
@@ -64,13 +84,14 @@ int main()
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
     //glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
+    //glDisable(GL_DEPTH_TEST);
     lastTime = glfwGetTime();
     //!!!-------------- main loop --------------!!!
     while(!glfwWindowShouldClose(motor.GetWindow().GetGlWindow()))
     {
         //theres a whole bunch of overlap in here, gotta cleanup
-        obj1.MoveRelative(0.1f * deltaTime, 0.0f, 0.0f);
-        obj2.MoveRelative(-0.1f * deltaTime, 0.0f, 0.0f);
+        //obj1.MoveRelative(0.1f * deltaTime, 0.0f, 0.0f);
+        //obj2.MoveRelative(-0.1f * deltaTime, 0.0f, 0.0f);
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -103,8 +124,10 @@ int main()
             camera.MoveRelative(camera.GetUpDirection(), -0.25f);
         }
 
+        
+        
         numCulls = renderer.Render(camera, actors);
-
+        camera.Draw(&skyBox);
         motor.GetWindow().SetTitle(std::string("Engine --- Frame time: " + std::to_string(frameMs) + " ms --- FPS: " + std::to_string(fps) +
             " --- Position: X: " + std::to_string(camera.GetPosition().x) + " --- Y: " + std::to_string(camera.GetPosition().x) + " --- Z: " + std::to_string(camera.GetPosition().x) +
             " --- Rotation: X: " + std::to_string(camera.GetRotation().x) + " --- Y: " + std::to_string(camera.GetRotation().y) + " --- Z: " + std::to_string(camera.GetRotation().z) +

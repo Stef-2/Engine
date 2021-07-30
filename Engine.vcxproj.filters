@@ -30,7 +30,7 @@
     <ClInclude Include="include\Main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Obj.h">
+    <ClInclude Include="include\Skybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\OBJ_Loader.h">
@@ -103,7 +103,7 @@
     <ClCompile Include="src\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Obj.cpp">
+    <ClCompile Include="src\Skybox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Renderer.cpp">
@@ -156,10 +156,10 @@
     <None Include="shaders\vertex shader.vs">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="skybox.vs">
+    <None Include="shaders\skybox.fs">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="skybox.fs">
+    <None Include="shaders\skybox.vs">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

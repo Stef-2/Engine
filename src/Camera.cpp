@@ -145,6 +145,31 @@ void Engine::Camera::Draw(Engine::BoundingBox* bb)
     glDeleteBuffers(1, &EBO);
 }
 
+void Engine::Camera::Draw(Engine::Skybox* skybox)
+{
+    glm::mat4 view = glm::mat4(glm::mat3(this->GetView()));
+    glDepthMask(GL_FALSE);
+    skybox->GetShader()->Activate();
+
+    glUniformMatrix4fv(skybox->GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(view));
+
+    glUniformMatrix4fv(skybox->GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(this->GetProjection()));
+
+    //bind the vertex buffer
+    glBindBuffer(GL_ARRAY_BUFFER, skybox->GetVBO());
+    //fill the vertex buffer with data
+    glBufferData(GL_ARRAY_BUFFER, 108 * sizeof(float), skybox->GetVertices(), GL_DYNAMIC_DRAW);
+    //setup vertex position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->GetTexture()->GetTextureID());
+
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    glDepthMask(GL_TRUE);
+}
+
 glm::mat4 Engine::Camera::GetProjection()
 {
     return this->projection;

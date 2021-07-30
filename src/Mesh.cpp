@@ -28,6 +28,7 @@ unsigned int Engine::Mesh::GetEBO()
 {
     return this->EBO;
 }
+
 std::vector<Engine::Vertex>* Engine::Mesh::GetVertices()
 {
     return &this->vertices;
@@ -62,11 +63,9 @@ void Engine::Mesh::Setup()
 void Engine::Mesh::Draw(Shader* shader, Material* material)
 {
     //find and bind the appropriate shader attribute positions
-    unsigned int pos_0 = glGetAttribLocation(shader->GetProgramID(), "vertPos");
-    glBindAttribLocation(shader->GetProgramID(), pos_0, "vertPos");
+    glBindAttribLocation(shader->GetProgramID(), shader->GetAttributeLocation(Engine::Shader::ShaderAttribute::VERTEX_POSITION_LOCATION), "vertPos");
 
-    unsigned int pos_1 = glGetAttribLocation(shader->GetProgramID(), "vertCoord");
-    glBindAttribLocation(shader->GetProgramID(), pos_1, "vertCoord");
+    glBindAttribLocation(shader->GetProgramID(), shader->GetAttributeLocation(Engine::Shader::ShaderAttribute::VERTEX_UV_LOCATION), "vertCoord");
 
     //bind the vertex buffer
     glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
@@ -85,6 +84,7 @@ void Engine::Mesh::Draw(Shader* shader, Material* material)
 
     //bind the corresponding texture
     glActiveTexture(GL_TEXTURE0);
+    //glBindTexture(GL_TEXTURE_CUBE_MAP, material->GetDiffuse()->GetTextureID());
     glBindTexture(GL_TEXTURE_2D, material->GetDiffuse()->GetTextureID());
 
     //run the shader program

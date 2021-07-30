@@ -64,6 +64,8 @@ void Engine::Actor::Draw(glm::mat4 view, glm::mat4 projection)
 
 void Engine::Actor::Draw(Engine::Camera* camera)
 {
+    //this->shader.Activate();
+    
     //find the locations of uniform variables in the shader and assign transform matrices to them
 
     glUniformMatrix4fv(this->shader.GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(this->GetTransform()));
@@ -71,7 +73,7 @@ void Engine::Actor::Draw(Engine::Camera* camera)
     glUniformMatrix4fv(this->shader.GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(camera->GetView()));
 
     glUniformMatrix4fv(this->shader.GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
-
+    
     //pass the draw call to the encapsulated model
     model.Draw(&this->shader);
 }

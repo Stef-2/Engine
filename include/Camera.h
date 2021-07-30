@@ -3,6 +3,7 @@
 
 #include "Object.h"
 #include "Actor.h"
+#include "Skybox.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -17,6 +18,7 @@ namespace Engine
     //forward declaration of Engine::Actor
     //so it can be referenced by the draw function without causing a cyclic dependacy
     class Actor;
+    class Skybox;
 
     //a camera class, inheriting transformation mechanisms from Engine::Object
     //provides the Vew() and Projection() matrices needed for rendering of Engine::Actor(s)
@@ -81,6 +83,10 @@ namespace Engine
             template<typename T>
             void RecursiveDraw(Engine::BoundingNode<T>* boundingNode);
             void Draw(Engine::BoundingBox* boundingBox);
+
+            //use this camera to draw a skybox
+            void Draw(Engine::Skybox* skybox);
+
         private:
             glm::vec3 upDirection;
             glm::mat4 projection;
