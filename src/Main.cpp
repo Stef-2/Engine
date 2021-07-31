@@ -127,6 +127,9 @@ int main()
         
         
         numCulls = renderer.Render(camera, actors);
+        
+        //obj1.Draw(&camera);
+        //obj2.Draw(&camera);
         camera.Draw(&skyBox);
         motor.GetWindow().SetTitle(std::string("Engine --- Frame time: " + std::to_string(frameMs) + " ms --- FPS: " + std::to_string(fps) +
             " --- Position: X: " + std::to_string(camera.GetPosition().x) + " --- Y: " + std::to_string(camera.GetPosition().x) + " --- Z: " + std::to_string(camera.GetPosition().x) +

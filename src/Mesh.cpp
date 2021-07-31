@@ -88,7 +88,7 @@ void Engine::Mesh::Draw(Shader* shader, Material* material)
     glBindTexture(GL_TEXTURE_2D, material->GetDiffuse()->GetTextureID());
 
     //run the shader program
-    shader->Activate();
+    //shader->Activate();
 
     //wrooom !
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);

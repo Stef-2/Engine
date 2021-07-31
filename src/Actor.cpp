@@ -64,7 +64,7 @@ void Engine::Actor::Draw(glm::mat4 view, glm::mat4 projection)
 
 void Engine::Actor::Draw(Engine::Camera* camera)
 {
-    //this->shader.Activate();
+    this->shader.Activate();
     
     //find the locations of uniform variables in the shader and assign transform matrices to them
 

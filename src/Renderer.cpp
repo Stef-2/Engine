@@ -40,13 +40,16 @@ unsigned int Engine::Renderer::Render(Engine::Camera& camera, std::vector<Engine
             if (glm::dot(glm::vec3(frustumPlanes[j]),front) + frustumPlanes[j].w < 0.0f) {
                 visible = false;
                 numCulls += 1;
+
+                //we don't actually need to check every plane, one is enough
+                //so long as we can prove the object is fully behind any one of them, we can skip the others
                 break;
             }
         }
 
         //otherwise, the object is visible and should be rendered
         if (visible) {
-            camera.Draw(actors.at(i));
+            actors.at(i)->Draw(&camera);
             //camera.Draw(actors.at(i)->GetModel()->GetBoundingBox());
         }
     }
