@@ -49,7 +49,7 @@ unsigned int Engine::Renderer::Render(Engine::Camera& camera, std::vector<Engine
 
         //otherwise, the object is visible and should be rendered
         if (visible) {
-            actors.at(i)->Draw(&camera);
+            camera.Draw(actors.at(i));
             //camera.Draw(actors.at(i)->GetModel()->GetBoundingBox());
         }
     }

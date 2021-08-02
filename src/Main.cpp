@@ -1,6 +1,9 @@
 #include "Main.h"
 
-Engine::Camera camera(0.0f, 0.0f, 0.0f, 0.0f, 90.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+Engine::Camera camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+
+double oldX = 1280.0 / 2.0;
+double oldY = 720.0 / 2.0;
 
 int main()
 {
@@ -107,6 +110,7 @@ int main()
 
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_W) == GLFW_PRESS) {
             camera.MoveRelative(camera.GetForwardDirection(), 0.25f);
+            std::cout << glm::to_string(glm::transpose(camera.GetView())) << std::endl;
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_S) == GLFW_PRESS) {
             camera.MoveRelative(camera.GetForwardDirection(), -0.25f);
@@ -124,15 +128,15 @@ int main()
             camera.MoveRelative(camera.GetUpDirection(), -0.25f);
         }
 
-        
+        //obj1.RotateRelative(5.0f, 0.0f, 0.0f);
         
         numCulls = renderer.Render(camera, actors);
-        
-        //obj1.Draw(&camera);
-        //obj2.Draw(&camera);
+        //camera.Draw(&obj1);
+       // camera.Draw(&obj2);
         camera.Draw(&skyBox);
-        motor.GetWindow().SetTitle(std::string("Engine --- Frame time: " + std::to_string(frameMs) + " ms --- FPS: " + std::to_string(fps) +
-            " --- Position: X: " + std::to_string(camera.GetPosition().x) + " --- Y: " + std::to_string(camera.GetPosition().x) + " --- Z: " + std::to_string(camera.GetPosition().x) +
+
+        motor.GetWindow().SetTitle(std::string("Frame time: " + std::to_string(frameMs) + " ms --- FPS: " + std::to_string(fps) +
+            " --- Position: X: " + std::to_string(camera.GetPosition().x) + " --- Y: " + std::to_string(camera.GetPosition().y) + " --- Z: " + std::to_string(camera.GetPosition().z) +
             " --- Rotation: X: " + std::to_string(camera.GetRotation().x) + " --- Y: " + std::to_string(camera.GetRotation().y) + " --- Z: " + std::to_string(camera.GetRotation().z) +
             " --- number of culled objects: " + std::to_string(numCulls)));
         
@@ -140,8 +144,7 @@ int main()
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //camera.Draw(&obj1);
-        //camera.Draw(&obj2);
+        
 
         //obj1.Draw(&camera); //big guy (for me)
         //obj2.Draw(&camera); //small guy
@@ -187,24 +190,33 @@ void Engine::MouseCallback(GLFWwindow* window, double xPos, double yPos)
     lastX = xPos;
     lastY = yPos;
 
-    float sensitivity = 0.1f;
+    float sensitivity = 2;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
     yaw   += xoffset;
     pitch += yoffset;
 
+    double difX = (xPos - oldX) * sensitivity;
+    double difY = (yPos - oldY) * sensitivity;
+
+    oldX = xPos;
+    oldY = yPos;
+
     if(pitch > 89.0f)
         pitch = 89.0f;
     if(pitch < -89.0f)
         pitch = -89.0f;
 
+    glm::vec3 rot = glm::normalize(glm::vec3(difY, difX, 0.0f));
+
     glm::vec3 direction;
     direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     direction.y = sin(glm::radians(pitch));
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-
-    camera.RotateAbsolute(direction.x, direction.y, direction.z);
+    //std::cout << difX << " - " << difY << std::endl;
+    //camera.RotateAbsolute(direction.x, direction.y, direction.z);
+    camera.RotateRelative(rot.x, rot.y, 0.0f);
 }
 
 void Engine::ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)

@@ -23,8 +23,10 @@ void Engine::Camera::Setup(float speed, float aspectRatio, float nearClip, float
 
 glm::vec3 Engine::Camera::GetForwardDirection()
 {
-    //camera direction is in essence the normalized rotation component
-    glm::vec3 direction = glm::normalize(this->rotation);
+    //we can extract our forward looking direction from the view matrix
+    glm::mat4 view = this->GetView();
+    glm::vec3 direction = glm::vec3(-view[0][2], -view[1][2], -view[2][2]);
+    
     return direction;
 }
 
@@ -40,30 +42,36 @@ glm::vec3 Engine::Camera::GetRightDirection()
 
 glm::mat4 Engine::Camera::GetView()
 {
-    //direction is just our normalized orientation
-    glm::vec3 direction = glm::normalize(this->rotation);
-    //building the view matrix using position, direction and Up direction
-    glm::mat4 view = glm::lookAt(this->position, this->position + direction, this->upDirection);
-    return view;
+    //we're way too cool to construct a view matrix using LookAt(), so, 
+    //convert our orientation quaternion into a rotation matix
+    glm::mat4 direction = glm::mat4_cast(this->orientation);
+    
+    //construct a translation matrix from our position
+    glm::mat4 position = glm::mat4(1.0f);
+    position = glm::translate(position, -this->position);
+
+    //multiply the two to create a view matrix B-)
+    return direction * position;
 }
 
 glm::vec4* Engine::Camera::GetFrustumPlanes()
 {
     //full camera matrix from which we'll extract the planes
-    //OpenGL uses collumn-major matrice orientation, so we need to transpose it before we can extract
     glm::mat4 matrix = this->projection * this->GetView();
+    //OpenGL uses collumn-major matrix orientation, so we need to transpose it before extraction
     matrix = glm::transpose(matrix);
 
-    glm::vec4 left{matrix[3] + matrix[0]};
-    glm::vec4 right{matrix[3] - matrix[0]};
+    glm::vec4 left {matrix[3] + matrix[0]};
+    glm::vec4 right {matrix[3] - matrix[0]};
 
-    glm::vec4 top{matrix[3] - matrix[1]};
-    glm::vec4 bottom{matrix[3] + matrix[1]};
+    glm::vec4 top {matrix[3] - matrix[1]};
+    glm::vec4 bottom {matrix[3] + matrix[1]};
 
-    glm::vec4 near{matrix[3] + matrix[2]};
-    glm::vec4 far{matrix[3] - matrix[2]};
+    glm::vec4 near {matrix[3] + matrix[2]};
+    glm::vec4 far {matrix[3] - matrix[2]};
 
     //array of planes to fill in
+    //normalizing them means that the first three values of each plane will be their respective normal
     glm::vec4 planes[6] = {glm::normalize(left), glm::normalize(right), glm::normalize(top),
                            glm::normalize(bottom), glm::normalize(near), glm::normalize(far)};
     
@@ -83,6 +91,9 @@ void Engine::Camera::Draw(Engine::BoundingBox* bb)
 
     //get whatever shader is currently being used, it should do for wireframe rendering
     Engine::Shader* currentShader = Engine::Shader::GetCurrentShader();
+
+    //use whatever current shader we managed to retrieve
+    glUseProgram(currentShader->GetProgramID());
 
     //pass the model, view and projection (MVP) matrices to the shader
     glUniformMatrix4fv(currentShader->GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(transform));
@@ -107,10 +118,10 @@ void Engine::Camera::Draw(Engine::BoundingBox* bb)
                         bb->mins.x + xOffset, bb->mins.y + yOffset, bb->mins.z};
 
     //form quads out of vertices
-    unsigned int quads[] = { 0, 4, 7, 3,
+    unsigned int quads[] = {0, 4, 7, 3,
                             3, 7, 6, 2,
                             2, 6, 5, 1,
-                            1, 5, 4, 0 };
+                            1, 5, 4, 0};
     //generate the buffers
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -131,9 +142,6 @@ void Engine::Camera::Draw(Engine::BoundingBox* bb)
     //set the rendering mode to wireframe
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    //use whatever current shader we managed to retrieve
-    glUseProgram(currentShader->GetProgramID());
-
     //render
     glDrawElements(GL_QUADS, sizeof(quads) / sizeof(quads[0]), GL_UNSIGNED_INT, 0);
 
@@ -147,6 +155,8 @@ void Engine::Camera::Draw(Engine::BoundingBox* bb)
 
 void Engine::Camera::Draw(Engine::Skybox* skybox)
 {
+    //we trick the shader into thinking the skybox has infinite / max depth by removing the last row and collumn from the view matrix
+    //we can do this by converting the 4x4 matrix into a 3x3 one and then back
     glm::mat4 view = glm::mat4(glm::mat3(this->GetView()));
     glDepthMask(GL_FALSE);
     skybox->GetShader()->Activate();
@@ -246,35 +256,17 @@ void Engine::Camera::SetFov(float fov)
 
 void Engine::Camera::Draw(Engine::Actor* actor)
 {
+    actor->GetShader()->Activate();
+
     //find the locations of uniform variables in the shader and assign transform matrices to them
-    int modelLoc = glGetUniformLocation(actor->GetShader()->GetProgramID(), "model");
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(actor->GetTransform()));
 
-    //check if the uniform variable was found
-    if (modelLoc < 0) {
-        std::cerr << "Unable to draw object: " << this->ToString() << ", location of model uniform var was not found" << std::endl;
-        return;
-    }
+    glUniformMatrix4fv(actor->GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(actor->GetTransform()));
 
-    int viewLoc = glGetUniformLocation(actor->GetShader()->GetProgramID(), "view");
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(this->GetView()));
+    glUniformMatrix4fv(actor->GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(this->GetView()));
 
-    //check if the uniform variable was found
-    if (viewLoc < 0) {
-        std::cerr << "Unable to draw object: " << this->ToString() << ", location of view uniform var was not found" << std::endl;
-        return;
-    }
+    glUniformMatrix4fv(actor->GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(this->GetProjection()));
 
-    int projectionLoc = glGetUniformLocation(actor->GetShader()->GetProgramID(), "projection");
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(this->GetProjection()));
-
-    //check if the of uniform variable was found
-    if (projectionLoc < 0) {
-        std::cerr << "Unable to draw object: " << this->ToString() << ", location of projection uniform var was not found" << std::endl;
-        return;
-    }
-
-    //pass the draw call to the actor's encapsulated model
+    //pass the draw call to the encapsulated model
     actor->GetModel()->Draw(actor->GetShader());
 }
 

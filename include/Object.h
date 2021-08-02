@@ -35,6 +35,7 @@ namespace Engine
             Object(glm::vec3 position);
             Object(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
 
+            glm::quat GetOrientation();
             glm::vec3 GetPosition();
             glm::vec3 GetRotation();
             glm::vec3 GetScale();
@@ -45,6 +46,8 @@ namespace Engine
 
             std::string ToString();
             glm::mat4 GetTransform();
+
+            void SetOrientation(glm::quat quaternion);
 
             virtual void MoveRelative(glm::vec3 direction, float intensity);
             virtual void MoveRelative(float x, float y, float z);
@@ -59,6 +62,7 @@ namespace Engine
         protected:
             static Object* active;
             std::vector<Object*> children;
+            glm::quat orientation;
             glm::vec3 position;
             glm::vec3 rotation;
             glm::vec3 scale;

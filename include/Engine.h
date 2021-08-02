@@ -19,6 +19,7 @@ namespace Engine
     //1. it is the outermost class of the program, encapsulating everything else. At no point does it make any sense to have multiple instances of it
     //2. it holds much of the high level engine settings which would be cumbersome to constantly pass around if they were local to a single object
     //3. it employs glfw callbacks which, being C functions - are unaware of objects or this->pointer and thus have to be either fully global or declared static
+    //4. I'm looking for an excuse to implement a singleton pattern in this project
 
     //the engine instantiates Renderer and Collider subsystems, glfw's hardware input and error handling callbacks
     //it can hold any number of Engine::Window objects, which create and initialize OpenGL contexts for rendering
@@ -62,7 +63,7 @@ namespace Engine
             //time between the previous and current engine update cycle
             //should be used as a multiplier for any rendering, movement or physics operation
             //allows us to make these operations independent from framerate
-            //which is not guaranteed to be constant, depending on hardware and/or software limitation on any one system
+            //which is not guaranteed to be constant, depending on hardware and/or software limitation
             double GetDeltaTime();
             //updates delta time, should be used once every engine cycle
             void SetDeltaTime();

@@ -50,6 +50,8 @@ Engine::Model* Engine::Actor::GetModel()
 
 void Engine::Actor::Draw(glm::mat4 view, glm::mat4 projection)
 {
+    this->shader.Activate();
+
     //find the locations of uniform variables in the shader and assign transform matrices to them
 
     glUniformMatrix4fv(this->shader.GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(this->GetTransform()));
