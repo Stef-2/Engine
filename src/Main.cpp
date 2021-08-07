@@ -22,10 +22,10 @@ int main()
     Engine::InitializeCallbacks(&motor);
 
     //-----------------------------------------------
-    Engine::OcTree<int> octree(3);;
-    octree.child.mins = { -64.0f, -64.0f, -64.0f };
-    octree.child.maxs = { 64.0f, 64.0f, 64.0f };
-    octree.Subdivide();
+    //Engine::OcTree<int> octree(3);;
+    //octree.child.mins = { -64.0f, -64.0f, -64.0f };
+    //octree.child.maxs = { 64.0f, 64.0f, 64.0f };
+    //octree.Subdivide();
 
     unsigned int numCulls = 0;
     bool check = {};
@@ -37,7 +37,30 @@ int main()
     int fps = 0;
 
     Engine::Renderer renderer;
+    Engine::Collider collider;
+
+    Engine::Triangle tri1{ {{0.1f, 5.0f, 0.2f}, {0.0f, 0.0f}},
+                           {{0.2f, 0.1f, 0.2f}, {0.0f, 0.0f}},
+                           {{8.0f, 0.1f, 0.1f}, {0.0f, 0.0f}} };
+
+    Engine::Triangle tri2{ {{6.0f, 8.0f, 3.0f}, {0.0f, 0.0f}},
+                           {{6.0f, -4.0f, -2.0f}, {0.0f, 0.0f}},
+                           {{6.0f, 8.0f, -2.0f}, {0.0f, 0.0f}} };
+
+    Engine::Triangle tri3{ {{0.0f, 5.0f, 0.0f}, {0.0f, 0.0f}},
+                           {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                           {{0.0f, -5.0f, 5.0f}, {0.0f, 0.0f}} };
+
+    Engine::Triangle tri4{ {{6.0f, 5.0f, 0.0f}, {0.0f, 0.0f}},
+                           {{6.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                           {{6.0f, -5.0f, 5.0f}, {0.0f, 0.0f}} };
+
+    std::string str = collider.Intersects(tri1, tri2) ? "da" : "ne";
+
+    std::cout << str << std::endl;
     
+    exit(0);
+
     Engine::Shader shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
                           "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs");
 
@@ -110,7 +133,7 @@ int main()
 
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_W) == GLFW_PRESS) {
             camera.MoveRelative(camera.GetForwardDirection(), 0.25f);
-            std::cout << glm::to_string(glm::transpose(camera.GetView())) << std::endl;
+            //std::cout << glm::to_string(glm::transpose(camera.GetView())) << std::endl;
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_S) == GLFW_PRESS) {
             camera.MoveRelative(camera.GetForwardDirection(), -0.25f);
@@ -128,11 +151,12 @@ int main()
             camera.MoveRelative(camera.GetUpDirection(), -0.25f);
         }
 
-        //obj1.RotateRelative(5.0f, 0.0f, 0.0f);
+        obj2.RotateRelative(0.0f, 2.0f, 0.0f);
+        //obj2.MoveRelative(0.2f, 0.0f, 0.0f);
         
-        numCulls = renderer.Render(camera, actors);
-        //camera.Draw(&obj1);
-       // camera.Draw(&obj2);
+        //numCulls = renderer.Render(camera, actors);
+        camera.Draw(&obj1);
+        camera.Draw(&obj2);
         camera.Draw(&skyBox);
 
         motor.GetWindow().SetTitle(std::string("Frame time: " + std::to_string(frameMs) + " ms --- FPS: " + std::to_string(fps) +

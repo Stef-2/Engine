@@ -7,7 +7,7 @@ Engine::Object::Object()
     this->children = {};
     this->isMoving = {};
 
-    this->orientation = {};
+    this->orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
     this->position = glm::vec3(0.0f, 0.0f, 0.0f);
     this->rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     this->scale = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -159,8 +159,8 @@ glm::mat4 Engine::Object::GetTransform()
 
     //the correct order of transformation is Scale, Rotate, Translate or SRT for short
     transform = glm::scale(transform, this->scale);
-    transform = transform * glm::mat4_cast(this->orientation);
     transform = glm::translate(transform, this->position);
+    transform = transform * glm::mat4_cast(this->orientation);
 
     return transform;
 }

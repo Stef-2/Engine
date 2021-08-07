@@ -31,6 +31,12 @@ namespace Engine
         glm::vec2 uv;
     };
 
+    struct Triangle
+    {
+        Engine::Vertex a;
+        Engine::Vertex b;
+        Engine::Vertex c;
+    };
 
     //a mesh class that stores vertex data to be used for rendering
     class Mesh
