@@ -103,16 +103,16 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
 {
     //A fast triangle to triangle intersection test for collision detection
     //Oren Tropp, Ayellet Tal, Ilan Shimshoni
-    //Computer Animationand Virtual Worlds 17(5) 2006, pp 527 - 535
+    //Computer Animation and Virtual Worlds 17(5) 2006, pp 527 - 535
 
     
-    //C1 = first.a.position
-    //P1 = first.b.position
-    //P2 = first.c.position;
+    glm::vec3 C1 = first.a.position;
+    glm::vec3 P1 = first.b.position - first.a.position;
+    glm::vec3 P2 = first.c.position - first.a.position;
 
-    //D1 = second.a.position;
-    //Q1 = second.b.position;
-    //Q2 = second.c.position;
+    glm::vec3 D1 = second.a.position;
+    glm::vec3 Q1 = second.b.position - second.a.position;
+    glm::vec3 Q2 = second.c.position - second.a.position;
 
     auto sVpsV_2 = [&](float s1, glm::vec3 V1, float s2, glm::vec3 V2) {
         return glm::vec3(s1 * V1[0] + s2 * V2[0], s1 * V1[1] + s2 * V2[1], 0.0f);
@@ -227,16 +227,15 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
         return false;
     };
 
-    glm::vec3 distance = first.a.position - second.a.position;
+    glm::vec3 r = D1 - C1;
 
     //determinant computation
-    float dp0 = first.b.position.y * first.c.position.z - first.c.position.y * first.b.position.z;
-    float dp1 = first.b.position.x * first.c.position.z - first.c.position.x * first.b.position.z;
-    float dp2 = first.b.position.x * first.c.position.y - first.c.position.x * first.b.position.y;
-
-    float dq1 = second.b.position.x * dp0 - second.b.position.y * dp1 + second.b.position.z * dp2;
-    float dq2 = second.c.position.x * dp0 - second.c.position.y * dp1 + second.c.position.z * dp2;
-    float dr = -distance.x * dp0 + distance.y * dp1 - distance.z * dp2;
+    float dp0 = P1[1] * P2[2] - P2[1] * P1[2];
+    float dp1 = P1[0] * P2[2] - P2[0] * P1[2];
+    float dp2 = P1[0] * P2[1] - P2[0] * P1[1];
+    float dq1 = Q1[0] * dp0 - Q1[1] * dp1 + Q1[2] * dp2;
+    float dq2 = Q2[0] * dp0 - Q2[1] * dp1 + Q2[2] * dp2;
+    float dr = -r[0] * dp0 + r[1] * dp1 - r[2] * dp2;
 
     float beta1 = dr * dq2;
     float beta2 = dr * dq1;
@@ -255,14 +254,13 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
             return false;
         else
         {
-            glm::vec3 C2 = first.a.position + first.b.position;
-            glm::vec3 C3 = first.a.position + first.c.position;
-            glm::vec3 D2 = second.a.position + second.b.position;
-            glm::vec3 D3 = second.a.position + second.c.position;
+            glm::vec3 C2 = C1 + P1;
+            glm::vec3 C3 = C1 + P2;
+            glm::vec3 D2 = D1 + Q1;
+            glm::vec3 D3 = D1 + Q2;
+            glm::vec3 N1 = glm::cross(P1, P2);
 
-            glm::vec3 normal = glm::cross(first.b.position, first.c.position);
-
-            return CoplanarTriangleTriangleTest(normal, first.a.position, C2, C3, second.a.position, D2, D3);
+            return CoplanarTriangleTriangleTest(N1, C1, C2, C3, D1, D2, D3);
         }
     }
     else if (!beta1Legal && !beta2Legal)
@@ -272,7 +270,7 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
     else if (beta2Legal && beta1Legal) {
         SF = dq1 * dq2;
 
-        t = sVpsV_2(beta2, second.c.position, (-beta1), second.b.position);
+        t = sVpsV_2(beta2, Q2, -beta1, Q1);
     }
 
     else if (beta1Legal && !beta2Legal) {
@@ -281,35 +279,31 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
         //all betas are multiplied by a positive SF
         beta1 = beta1 - beta2;
         float beta3 = dr3 * dq1;
-        t = sVpsV_2(SF - beta3 - beta1, second.b.position, beta3, second.c.position);
+        t = sVpsV_2(SF - beta3 - beta1, Q1, beta3, Q2);
     }
 
     else if (beta2Legal && !beta1Legal) {
         SF = dq2 * dq3;
 
-        //all betas are multiplied by a positive SF
-        beta2 = beta1 - beta2;
+        beta2 = beta1 - beta2;   // all betas are multiplied by a positive SF
         float beta3 = dr3 * dq2;
-
-        t = sVpsV_2(SF - beta3, second.b.position, beta3 - beta2, second.c.position);
-        glm::vec3 Q1 = second.c.position;
-        glm::vec3 Q2 = second.c.position;
+        t = sVpsV_2(SF - beta3, Q1, beta3 - beta2, Q2);
+        Q1 = Q2;
         beta1 = beta2;
     }
 
     glm::vec3  p1, p2;
-    glm::vec3 r4 = sVpsV_2(SF, distance, beta1, second.b.position);
+    glm::vec3 r4 = sVpsV_2(SF, r, beta1, Q1);
     float det1, det2, det3;
     float alpha1, alpha2;
     float gama1, gama2, gama3;
 
     auto SegmentCollide3 = [&](glm::vec3 q, glm::vec3 r)
     {
-        p1[0] = SF * first.b.position.x;
-        p1[1] = SF * first.b.position.y;
-
-        p2[0] = SF * first.c.position.x;
-        p2[1] = SF * first.c.position.y;
+        p1[0] = SF * P1[0]; 
+        p1[1] = SF * P1[1]; 
+        p2[0] = SF * P2[0]; 
+        p2[1] = SF * P2[1]; 
 
         det1 = p1[0] * q[1] - q[0] * p1[1];
         gama1 = (p1[0] * r[1] - r[0] * p1[1]) * det1;
@@ -345,7 +339,7 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
     
     };
 
-    SegmentCollide3(t, r4);
+    return SegmentCollide3(t, r4);
 
     return false;
 }

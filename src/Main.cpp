@@ -39,9 +39,9 @@ int main()
     Engine::Renderer renderer;
     Engine::Collider collider;
 
-    Engine::Triangle tri1{ {{0.1f, 5.0f, 0.2f}, {0.0f, 0.0f}},
-                           {{0.2f, 0.1f, 0.2f}, {0.0f, 0.0f}},
-                           {{8.0f, 0.1f, 0.1f}, {0.0f, 0.0f}} };
+    Engine::Triangle tri1{ {{0.0f, 5.0f, 0.0f}, {0.0f, 0.0f}},
+                           {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                           {{8.0f, 0.0f, 0.0f}, {0.0f, 0.0f}} };
 
     Engine::Triangle tri2{ {{6.0f, 8.0f, 3.0f}, {0.0f, 0.0f}},
                            {{6.0f, -4.0f, -2.0f}, {0.0f, 0.0f}},
@@ -55,7 +55,7 @@ int main()
                            {{6.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
                            {{6.0f, -5.0f, 5.0f}, {0.0f, 0.0f}} };
 
-    std::string str = collider.Intersects(tri1, tri2) ? "da" : "ne";
+    std::string str = collider.Intersects(tri3, tri4) ? "da" : "ne";
 
     std::cout << str << std::endl;
     
