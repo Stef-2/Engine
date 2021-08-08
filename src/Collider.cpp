@@ -175,6 +175,8 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
             if (d0 * d1 > 0.0f)
                 if (d0 * d2 > 0.0f)
                     return true;
+
+            return false;
         };
 
         auto EdgeTriangleTest = [&](glm::vec3 V0, glm::vec3 V1, glm::vec3 U0, glm::vec3 U1, glm::vec3 U2)
@@ -203,26 +205,28 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
                             if (e <= 0 && e >= f)
                                 return true;
                 }
+
+                return false;
             };
 
             // test edge U0,U1 against V0 ,V1
-            EdgeEdgeTest(V0, U0, U1);
+            return EdgeEdgeTest(V0, U0, U1);
 
             // test edge U1,U2 against V0, V1
-            EdgeEdgeTest(V0, U1, U2);
+            return EdgeEdgeTest(V0, U1, U2);
 
             //test edge U2,U1 against V0, V1
-            EdgeEdgeTest(V0, U2, U0);
+            return EdgeEdgeTest(V0, U2, U0);
         };
 
         //test all edges of triangle 1 against the edges of triangle 2
-        EdgeTriangleTest(V0, V1, U0, U1, U2);
-        EdgeTriangleTest(V1, V2, U0, U1, U2);
-        EdgeTriangleTest(V2, V0, U0, U1, U2);
+        return EdgeTriangleTest(V0, V1, U0, U1, U2);
+        return EdgeTriangleTest(V1, V2, U0, U1, U2);
+        return EdgeTriangleTest(V2, V0, U0, U1, U2);
 
         // finally, test if tri1 is totally contained in tri2 or vice versa 
-        PointTriangleTest(V0, U0, U1, U2);
-        PointTriangleTest(U0, V0, V1, V2);
+        return PointTriangleTest(V0, U0, U1, U2);
+        return PointTriangleTest(U0, V0, V1, V2);
 
         return false;
     };

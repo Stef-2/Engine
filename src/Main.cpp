@@ -55,7 +55,7 @@ int main()
                            {{6.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
                            {{6.0f, -5.0f, 5.0f}, {0.0f, 0.0f}} };
 
-    std::string str = collider.Intersects(tri3, tri4) ? "da" : "ne";
+    std::string str = collider.Intersects(tri1, tri2) ? "da" : "ne";
 
     std::cout << str << std::endl;
     
