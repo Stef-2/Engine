@@ -6,7 +6,7 @@ Engine::Skybox::Skybox()
     this->texture = {};
     this->VBO = {};
 
-    this->vertices = new float[108]{       
+    this->vertices = std::make_unique<float*>(new float[108]{
         -1.0f,  1.0f, -1.0f,
         -1.0f, -1.0f, -1.0f,
          1.0f, -1.0f, -1.0f,
@@ -48,7 +48,7 @@ Engine::Skybox::Skybox()
          1.0f, -1.0f, -1.0f,
         -1.0f, -1.0f,  1.0f,
          1.0f, -1.0f,  1.0f
-    };
+    });
 }
 
 void Engine::Skybox::SetShader(const Engine::Shader& shader)
@@ -78,7 +78,7 @@ unsigned int Engine::Skybox::GetVBO()
 
 float* Engine::Skybox::GetVertices()
 {
-    return this->vertices;
+    return *this->vertices.get();
 }
 
 void Engine::Skybox::Setup()
@@ -92,5 +92,5 @@ void Engine::Skybox::Setup()
     //bind the vertex buffer
     glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
     //fill the vertex buffer with data
-    glBufferData(GL_ARRAY_BUFFER, 108 * sizeof(float), this->vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 108 * sizeof(float), this->vertices.get(), GL_STATIC_DRAW);
 }

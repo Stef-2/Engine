@@ -67,6 +67,8 @@ bool Engine::Collider::Intersects(Engine::BoundingBox& box, Engine::BoundingSphe
 {
     //Moller97 triangle - triangle intersection detection algorithm
 
+    //abandonware
+
     //plane equation for the first triangle
     glm::vec3 firstNormal = glm::cross(first.b.position - first.a.position, first.c.position - first.a.position);
     float firstDistance = glm::dot(-firstNormal, first.a.position);
@@ -105,7 +107,6 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
     //Oren Tropp, Ayellet Tal, Ilan Shimshoni
     //Computer Animation and Virtual Worlds 17(5) 2006, pp 527 - 535
 
-    
     glm::vec3 C1 = first.a.position;
     glm::vec3 P1 = first.b.position - first.a.position;
     glm::vec3 P2 = first.c.position - first.a.position;
@@ -114,12 +115,12 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
     glm::vec3 Q1 = second.b.position - second.a.position;
     glm::vec3 Q2 = second.c.position - second.a.position;
 
-    auto sVpsV_2 = [&](float s1, glm::vec3 V1, float s2, glm::vec3 V2) {
+    auto sVpsV_2 = [](float s1, glm::vec3 V1, float s2, glm::vec3 V2) {
         return glm::vec3(s1 * V1[0] + s2 * V2[0], s1 * V1[1] + s2 * V2[1], 0.0f);
     };
 
     //Tomas Moller's "A Fast Triangle-Triangle Intersection Test" - Journal of Graphics Tools, 2(2), 1997
-    auto CoplanarTriangleTriangleTest = [&](glm::vec3 N, glm::vec3 V0, glm::vec3 V1, glm::vec3 V2, glm::vec3 U0, glm::vec3 U1, glm::vec3 U2)
+    auto CoplanarTriangleTriangleTest = [](glm::vec3 N, glm::vec3 V0, glm::vec3 V1, glm::vec3 V2, glm::vec3 U0, glm::vec3 U1, glm::vec3 U2)
     {
         glm::vec3 A;
         short i0, i1;
@@ -273,7 +274,6 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
 
     else if (beta2Legal && beta1Legal) {
         SF = dq1 * dq2;
-
         t = sVpsV_2(beta2, Q2, -beta1, Q1);
     }
 
@@ -289,7 +289,8 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
     else if (beta2Legal && !beta1Legal) {
         SF = dq2 * dq3;
 
-        beta2 = beta1 - beta2;   // all betas are multiplied by a positive SF
+        //all betas are multiplied by a positive SF
+        beta2 = beta1 - beta2;   
         float beta3 = dr3 * dq2;
         t = sVpsV_2(SF - beta3, Q1, beta3 - beta2, Q2);
         Q1 = Q2;
@@ -339,8 +340,8 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
                     //23
                     return true;
             }
-                return false;
-    
+
+        return false;
     };
 
     return SegmentCollide3(t, r4);

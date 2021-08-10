@@ -36,6 +36,8 @@ namespace Engine
 	protected:
 		Model model;
 		Shader shader;
+
+		bool isVisible;
 	};
 
 }

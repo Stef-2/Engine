@@ -38,7 +38,7 @@ namespace Engine
         //vertex buffer object
         unsigned int VBO;
 
-        float* vertices;
+        std::unique_ptr<float*> vertices;
 
     };
 

@@ -1,5 +1,6 @@
 #version 120
 
+varying vec3 normal;
 varying vec3 texCoords;
 
 uniform samplerCube cubeMap;

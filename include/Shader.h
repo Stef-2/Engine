@@ -29,6 +29,7 @@ namespace Engine
                 VIEW_LOCATION,
                 PROJECTION_LOCATION,
                 VERTEX_POSITION_LOCATION,
+                VERTEX_NORMAL_LOCATION,
                 VERTEX_UV_LOCATION
             };
 
@@ -80,6 +81,7 @@ namespace Engine
 
             //shader attribute locations
             unsigned int vertexPositionLocation;
+            unsigned int vertexNormalLocation;
             unsigned int vertexUvLocation;
             unsigned int modelTransformLocation;
             unsigned int viewTransformLocation;

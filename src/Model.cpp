@@ -14,7 +14,7 @@ Engine::Model::Model(const char* filePath)
 	this->LoadMesh(filePath);
 }
 
-void Engine::Model::LoadMesh(const char* filePath)
+/*void Engine::Model::LoadMesh(const char* filePath)
 {
     objl::Loader loader;
     bool success = loader.LoadFile(filePath);
@@ -28,10 +28,13 @@ void Engine::Model::LoadMesh(const char* filePath)
     glm::vec3 min{ 0.0f };
     glm::vec3 max{ 0.0f };
     
+    objl::Mesh asd = loader.LoadedMeshes[0];
+    std::cout << asd.Vertices.size() << std::endl;
+
     for (unsigned int i = 0; i < loader.LoadedMeshes.size(); i++)
     {
         vertices.clear();
-
+        
         //we're able to read up to 4294967295 vertices at maximum here
         //if we need more, then to fix the issue we should fire the guy doing the modeling
         for (unsigned int j = 0; j < loader.LoadedMeshes[i].Vertices.size(); j++)
@@ -54,11 +57,92 @@ void Engine::Model::LoadMesh(const char* filePath)
     }
 
     this->SetBoundingBox(min, max);
+}*/
+
+void Engine::Model::LoadMesh(const char* filePath)
+{
+    Assimp::Importer importer;
+
+    const aiScene* scene = importer.ReadFile(filePath, aiProcess_GenSmoothNormals | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+
+    if (!scene) {
+        std::cerr << importer.GetErrorString() << std::endl;
+        return;
+    }
+
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+
+    glm::vec3 min{ 0.0f };
+    glm::vec3 max{ 0.0f };
+
+    aiVector3D empty{ 0.0f, 0.0f, 0.0f };
+
+    bool hasAABB = false;
+
+    //go through all the meshes
+    for (size_t i = 0; i < scene->mNumMeshes; i++)
+    {
+        aiMesh* mesh = scene->mMeshes[i];
+        vertices.clear();
+
+        //check if the mesh has a precalculated bounding box
+        if (mesh->mAABB.mMin.Length() || mesh->mAABB.mMax.Length())
+        {
+            //form the bounding box for the whole model from mesh(es) bounding boxes
+            min = glm::min(min, glm::vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z));
+            max = glm::max(max, glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
+            hasAABB = true;
+        }
+
+        //go through all their vertices
+        for (size_t j = 0; j < mesh->mNumVertices; j++)
+        {
+            //construct a vertex out of loaded data
+            aiVector3D position = mesh->mVertices[j];
+            aiVector3D normal = mesh->HasNormals() ? mesh->mNormals[j] : empty;
+            aiVector3D uv = mesh->HasTextureCoords(0) ? mesh->mTextureCoords[0][j] : empty;
+
+                                    //positions
+            Engine::Vertex vertex{ {position.x, position.y, position.z},
+                                    // normals
+                                   {normal.x, normal.y, normal.z},
+                                    //  UVs
+                                   {uv.x, uv.y} };
+
+            //push it onto the stack
+            vertices.push_back(vertex);
+
+            //in case the mesh doesn't have a precalculated bounding box, we'll build it ourselves
+            if (!hasAABB) {
+                min = glm::min(min, vertex.position);
+                max = glm::max(max, vertex.position);
+            }
+        }
+
+        //go through all their faces
+        for (size_t k = 0; k < mesh->mNumFaces; k++) {
+
+            indices.push_back(mesh->mFaces[k].mIndices[0]);
+            indices.push_back(mesh->mFaces[k].mIndices[1]);
+            indices.push_back(mesh->mFaces[k].mIndices[2]);
+        }
+
+        meshes.push_back(Mesh(vertices, indices));
+
+    }
+
+    this->SetBoundingBox(min, max);
 }
 
-void Engine::Model::LoadMaterial(Engine::Material material)
+void Engine::Model::LoadMaterial(const Engine::Material& material)
 {
-    materials.push_back(Material());
+    materials.push_back(material);
+}
+
+void Engine::Model::LoadMesh(const Engine::Mesh& other)
+{
+    this->meshes.push_back(other);
 }
 
 void Engine::Model::SetBoundingBox(glm::vec3 mins, glm::vec3 maxs)

@@ -33,9 +33,6 @@
     <ClInclude Include="include\Skybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\OBJ_Loader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>

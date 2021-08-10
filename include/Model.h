@@ -3,10 +3,9 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 
-#ifndef OBJL_INCLUDED
-#include "OBJ_Loader.h"
-#define OBJL_INCLUDED
-#endif
+#include "assimp/Importer.hpp"
+#include "assimp/scene.h"
+#include "assimp/postprocess.h"
 
 #include "Mesh.h"
 #include "Material.h"
@@ -30,7 +29,8 @@ namespace Engine
 		Model(const char* filePath);
 
 		void LoadMesh(const char* filePath);
-		void LoadMaterial(Material material);
+		void LoadMesh(const Mesh& other);
+		void LoadMaterial(const Material& material);
 		void SetBoundingBox(glm::vec3 mins, glm::vec3 maxs);
 
 		void Draw(Engine::Shader* shader);

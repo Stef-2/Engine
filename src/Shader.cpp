@@ -79,6 +79,7 @@ int Engine::Shader::SetVertexShader(const char* filePath)
 
     reader.close();
     const char* data = code.c_str();
+    length = code.size();
 
     //vertex shader compile and bind
     unsigned int vertexShader;
@@ -89,14 +90,14 @@ int Engine::Shader::SetVertexShader(const char* filePath)
     this->vertexShader = vertexShader;
     if(!success) {
         glGetShaderInfoLog(vertexShader, 512, NULL, this->vsLog);
-        std::cerr << "vertex shader compilation failed: " << this->vsLog << std::endl;
+        std::cerr << filePath << " - vertex shader compilation failed: " << std::endl << this->vsLog << std::endl;
         std::cerr<< "vertex shader: " << std::endl << data << ", Length: " << length << std::endl;
         //delete data;
         return 0;
     }
     else
     {
-        std::cout << "vs compiled successfully: " << data << std::endl;
+        std::cout << filePath << " vertex shader compiled successfully" << std::endl;
         return vertexShader;
     }
 }
@@ -117,7 +118,7 @@ int Engine::Shader::SetFragmentShader(const char* filePath)
     }
     reader.close();
     const char* data = code.c_str();
-
+    length = code.size();
 
     //fragment shader compile and bind
     unsigned int fragmentShader;
@@ -128,14 +129,14 @@ int Engine::Shader::SetFragmentShader(const char* filePath)
     this->fragmentShader = fragmentShader;
     if(!success) {
         glGetShaderInfoLog(fragmentShader, 512, NULL, this->fsLog);
-        std::cerr << "fragment shader compilation failed: " << this->fsLog << std::endl;
+        std::cerr << filePath << " - fragment shader compilation failed: " << std::endl << this->fsLog << std::endl;
         std::cerr<< "fragment shader: " << std::endl << data << ", Length: " << length << std::endl;
         delete data;
         return 0;
     }
     else
     {
-        std::cout << "fs compiled successfully: " << data << std::endl;
+        std::cout << filePath << " fragment shader compiled successfully" << std::endl;
         return fragmentShader;
     }
 }
@@ -145,13 +146,13 @@ int Engine::Shader::CompileProgram()
     int success;
 
     //check if both the required shaders are present
-    if(!this->vertexShader){
+    if(!this->vertexShader) {
         std::cerr << "unable to compile shader program, vertex shader is missing" << std::endl;
         this->compileSuccess = 0;
         this->programID = 0;
         return 0;
     }
-    if(!this->fragmentShader){
+    if(!this->fragmentShader) {
         std::cerr << "unable to compile shader program, fragment shader is missing" << std::endl;
         this->compileSuccess = 0;
         this->programID = 0;
@@ -174,7 +175,7 @@ int Engine::Shader::CompileProgram()
     if(!success) {
         
         glGetProgramInfoLog(shaderProgram, 512, NULL, spLog);
-        std::cerr << "shader program linking failed: " << spLog << std::endl;
+        std::cerr << "shader program linking failed: " << std::endl << spLog << std::endl;
         this->compileSuccess = 0;
         return 0;
     }
@@ -183,31 +184,24 @@ int Engine::Shader::CompileProgram()
         //if everything wen't smoothly...
         this->compileSuccess = 1;
         this->programID = shaderProgram;
-        std::cout << "sp compiled successfully" << std::endl;
+        std::cout << "shader program compiled and linked successfully" << std::endl;
 
         //get and bind the location of shader attributes
         //we can use these later without having to bother the gfx card since most glGetX() functions are very slow
         this->modelTransformLocation = glGetUniformLocation(this->programID, "model");
-        if (this->modelTransformLocation == 4294967295)
-            this->modelTransformLocation = 0;
 
         this->viewTransformLocation = glGetUniformLocation(this->programID, "view");
-        if (this->viewTransformLocation == 4294967295)
-            this->viewTransformLocation = 0;
 
         this->projectionTransformLocation = glGetUniformLocation(this->programID, "projection");
-        if (this->projectionTransformLocation == 4294967295)
-            this->projectionTransformLocation = 0;
 
         this->vertexPositionLocation = glGetAttribLocation(this->programID, "vertPos");
         glBindAttribLocation(this->programID, this->vertexPositionLocation, "vertPos");
-        if (this->vertexPositionLocation == 4294967295)
-            this->vertexPositionLocation = 0;
+
+        this->vertexNormalLocation = glGetAttribLocation(this->programID, "vertNormal");
+        glBindAttribLocation(this->programID, this->vertexNormalLocation, "vertNormal");
 
         this->vertexUvLocation = glGetAttribLocation(this->programID, "vertCoord");
         glBindAttribLocation(this->programID, this->vertexUvLocation, "vertCoord");
-        if (this->vertexUvLocation == 4294967295)
-            this->vertexUvLocation = 0;
 
         return shaderProgram;
     }
@@ -228,6 +222,9 @@ unsigned int Engine::Shader::GetAttributeLocation(Engine::Shader::ShaderAttribut
 
     case Engine::Shader::ShaderAttribute::VERTEX_POSITION_LOCATION:
         return this->vertexPositionLocation;
+
+    case Engine::Shader::ShaderAttribute::VERTEX_NORMAL_LOCATION:
+        return this->vertexNormalLocation;
 
     case Engine::Shader::ShaderAttribute::VERTEX_UV_LOCATION:
         return this->vertexUvLocation;

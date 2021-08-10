@@ -26,8 +26,7 @@ namespace Engine
     struct Vertex
     {
         glm::vec3 position;
-
-        //texture coordinates
+        glm::vec3 normal;
         glm::vec2 uv;
     };
 
