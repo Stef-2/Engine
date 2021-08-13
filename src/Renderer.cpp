@@ -69,17 +69,17 @@ void Engine::Renderer::Render(Engine::Camera& camera, Engine::Actor& actor)
 
     //find the locations of uniform variables in the shader and assign transform matrices to them
     glUniformMatrix4fv(actor.GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(actor.GetTransform()));
-
+    
     glUniformMatrix4fv(actor.GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetView()));
 
     glUniformMatrix4fv(actor.GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
 
     //find and bind the appropriate shader attribute positions
-    glBindAttribLocation(actor.GetShader()->GetProgramID(), actor.GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::VERTEX_POSITION_LOCATION), "vertPos");
+    glBindAttribLocation(actor.GetShader()->GetProgramID(), actor.GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::VERTEX_POSITION_LOCATION), "vertexPosition");
 
-    glBindAttribLocation(actor.GetShader()->GetProgramID(), actor.GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::VERTEX_NORMAL_LOCATION), "vertNormal");
+    glBindAttribLocation(actor.GetShader()->GetProgramID(), actor.GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::VERTEX_NORMAL_LOCATION), "vertexNormal");
 
-    glBindAttribLocation(actor.GetShader()->GetProgramID(), actor.GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::VERTEX_UV_LOCATION), "vertCoord");
+    glBindAttribLocation(actor.GetShader()->GetProgramID(), actor.GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::VERTEX_UV_LOCATION), "vertexCoordinate");
 
     //go through all the meshes in actor's model and draw them
     for (size_t i = 0; i < actor.GetModel()->GetMeshes()->size(); i++) {
@@ -89,32 +89,23 @@ void Engine::Renderer::Render(Engine::Camera& camera, Engine::Actor& actor)
 
         //setup vertex position attribute
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Engine::Vertex), (void*)0);
-        //glEnableVertexAttribArray(0);
 
         //setup vertex normal attribute
         //struct members are sequential in memory so we can use offsetof() to find the appropriate data
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Engine::Vertex), (void*)offsetof(Engine::Vertex, normal));
-        //glEnableVertexAttribArray(1);
 
         //setup vertex UVs attribute
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Engine::Vertex), (void*)offsetof(Engine::Vertex, uv));
-        //glEnableVertexAttribArray(2);
 
         //bind the element buffer
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, actor.GetModel()->GetMeshes()->at(i).GetEBO());
 
         //bind the corresponding texture
-        glActiveTexture(GL_TEXTURE0);
-        //glBindTexture(GL_TEXTURE_CUBE_MAP, material->GetDiffuse()->GetTextureID());
+        //glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, actor.GetModel()->GetMaterials()->at(0).GetDiffuse()->GetTextureID());
-
+        
         //render
         glDrawElements(GL_TRIANGLES, actor.GetModel()->GetMeshes()->at(i).GetIndices()->size(), GL_UNSIGNED_INT, 0);
-
-        //clean up
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
     }
 }
 
@@ -225,8 +216,9 @@ void Engine::Renderer::Render(Engine::Camera& camera, Engine::Skybox& skybox)
 
 void Engine::Renderer::Render(Engine::Camera& camera, std::vector<Engine::Actor*> actors)
 {
-    for (size_t i = 0; i < actors.size(); i++)
+    for (size_t i = 0; i < actors.size(); i++) {
         this->Render(camera, *actors[i]);
+    }
 }
 
 void Engine::Renderer::SetColorDepth(int colorDepth)

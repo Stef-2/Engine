@@ -4,6 +4,7 @@ Engine::Mesh::Mesh()
 {
     this->vertices = {};
     this->indices = {};
+    this->triangles = {};
     //this->boundingBox = {};
     this->VBO = 0;
     this->EBO = 0;
@@ -13,6 +14,7 @@ Engine::Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indic
 {
     this->vertices = vertices;
     this->indices = indices;
+    this->triangles = {};
     this->VBO = 0;
     this->EBO = 0;
 
@@ -39,6 +41,11 @@ std::vector<unsigned int>* Engine::Mesh::GetIndices()
     return &this->indices;
 }
 
+std::vector<Engine::Triangle> Engine::Mesh::GetTriangles()
+{
+    return this->triangles;
+}
+
 /*Engine::BoundingBox Engine::Mesh::GetBoundingBox()
 {
     return this->boundingBox;
@@ -52,46 +59,19 @@ void Engine::Mesh::Setup()
     //bind the vertex buffer
     glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
     //fill the vertex buffer with data
-    glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &vertices[0], GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
     //bind the element buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     //fill the element buffer with data
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(unsigned int), &indices[0], GL_DYNAMIC_DRAW);
-}
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
-void Engine::Mesh::Draw(Shader* shader, Material* material)
-{
-    //find and bind the appropriate shader attribute positions
-    glBindAttribLocation(shader->GetProgramID(), shader->GetAttributeLocation(Engine::Shader::ShaderAttribute::VERTEX_POSITION_LOCATION), "vertPos");
+    //std::vector<Engine::Triangle> tris;
 
-    glBindAttribLocation(shader->GetProgramID(), shader->GetAttributeLocation(Engine::Shader::ShaderAttribute::VERTEX_UV_LOCATION), "vertCoord");
+    for (unsigned int i = 0; i < this->indices.size() - 2; i += 3)
+        this->triangles.push_back({ &this->vertices.at(indices.at(i)), &this->vertices.at(indices.at(i + 1)), &this->vertices.at(indices.at(i + 2)) });
 
-    //bind the vertex buffer
-    glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-
-    //setup vertex position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-    glEnableVertexAttribArray(0);
- 
-    //setup vertex UVs attribute
-    //struct members are sequential in memory so we can use offsetof() to find the appropriate data
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
-    glEnableVertexAttribArray(1);
-    
-    //bind the element buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
-
-    //bind the corresponding texture
-    glActiveTexture(GL_TEXTURE0);
-    //glBindTexture(GL_TEXTURE_CUBE_MAP, material->GetDiffuse()->GetTextureID());
-    glBindTexture(GL_TEXTURE_2D, material->GetDiffuse()->GetTextureID());
-
-    //run the shader program
-    //shader->Activate();
-
-    //wrooom !
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    //this->triangles = tris;
 }
 
 Engine::Mesh::~Mesh()

@@ -9,7 +9,6 @@
 
 #include "Mesh.h"
 #include "Material.h"
-#include "Texture.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -32,8 +31,6 @@ namespace Engine
 		void LoadMesh(const Mesh& other);
 		void LoadMaterial(const Material& material);
 		void SetBoundingBox(glm::vec3 mins, glm::vec3 maxs);
-
-		void Draw(Engine::Shader* shader);
 
 		std::vector<Mesh>* GetMeshes();
 		std::vector<Material>* GetMaterials();

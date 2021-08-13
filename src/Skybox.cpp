@@ -6,6 +6,7 @@ Engine::Skybox::Skybox()
     this->texture = {};
     this->VBO = {};
 
+    //[-1, 1] box vertices
     this->vertices = std::make_unique<float*>(new float[108]{
         -1.0f,  1.0f, -1.0f,
         -1.0f, -1.0f, -1.0f,

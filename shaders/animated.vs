@@ -4,16 +4,19 @@ attribute vec3 vertexPosition;
 attribute vec3 vertexNormal;
 attribute vec2 vertexCoordinate;
 
-varying vec3 normal;
-varying vec3 uv;
+attribute ivec3 boneID;
+attribute vec3 boneWeight;
 
+varying vec3 normal;
+varying vec2 uv;
+
+uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
 void main()
 {
-    uv = vertexPosition;
-    vec4 position = projection * view *  vec4(vertexPosition, 1.0f) + vec4(vertexCoordinate.x, vertexCoordinate.y, 0.0f, 0.0f) * 0;
-    gl_Position = position.xyww;
+    gl_Position = projection * view * model * vec4(vertexPosition, 1.0f);
     normal = vertexNormal;
+    uv = vertexCoordinate;
 }

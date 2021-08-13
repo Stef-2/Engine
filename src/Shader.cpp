@@ -194,14 +194,14 @@ int Engine::Shader::CompileProgram()
 
         this->projectionTransformLocation = glGetUniformLocation(this->programID, "projection");
 
-        this->vertexPositionLocation = glGetAttribLocation(this->programID, "vertPos");
-        glBindAttribLocation(this->programID, this->vertexPositionLocation, "vertPos");
+        this->vertexPositionLocation = glGetAttribLocation(this->programID, "vertexPosition");
+        glBindAttribLocation(this->programID, this->vertexPositionLocation, "vertexPosition");
 
-        this->vertexNormalLocation = glGetAttribLocation(this->programID, "vertNormal");
-        glBindAttribLocation(this->programID, this->vertexNormalLocation, "vertNormal");
+        this->vertexNormalLocation = glGetAttribLocation(this->programID, "vertexNormal");
+        glBindAttribLocation(this->programID, this->vertexNormalLocation, "vertexNormal");
 
-        this->vertexUvLocation = glGetAttribLocation(this->programID, "vertCoord");
-        glBindAttribLocation(this->programID, this->vertexUvLocation, "vertCoord");
+        this->vertexUvLocation = glGetAttribLocation(this->programID, "vertexCoordinate");
+        glBindAttribLocation(this->programID, this->vertexUvLocation, "vertexCoordinate");
 
         return shaderProgram;
     }

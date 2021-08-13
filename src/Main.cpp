@@ -2,6 +2,7 @@
 
 Engine::Camera camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
 
+float deltaTime = 0.0f;
 double oldX = 1280.0 / 2.0;
 double oldY = 720.0 / 2.0;
 
@@ -28,9 +29,10 @@ int main()
     //octree.Subdivide();
 
     unsigned int vertexCount = 0;
+    unsigned int triangleCount = 0;
     unsigned int numCulls = 0;
     bool check = {};
-    float deltaTime = 0.0f;
+
     float lastFrame = 0.0f;
     float lastTime = 0.0f;
     float frameMs = 0.0f;
@@ -40,7 +42,7 @@ int main()
     Engine::Renderer renderer;
     Engine::Collider collider;
 
-    Engine::Triangle tri1{ {{0.0f, 5.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+    /*Engine::Triangle tri1{ {{0.0f, 5.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
                            {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
                            {{8.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}} };
 
@@ -58,13 +60,13 @@ int main()
 
     std::string str = collider.Intersects(tri1, tri2) ? "da" : "ne";
 
-    std::cout << str << std::endl;
+    std::cout << str << std::endl;*/
 
-    Engine::Shader shader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\vertex shader.vs",
-                          "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\fragment shader.fs");
-
+    Engine::Shader basic("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\basic.vs",
+                          "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\basic.fs");
+    
     Engine::Actor obj1;
-    obj1.SetShader(shader);
+    obj1.SetShader(basic);
 
     obj1.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Barrel.obj"));
 
@@ -72,23 +74,34 @@ int main()
     obj1.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Barrel_BaseColor.png");
     
     Engine::Actor obj2;
-    obj2.SetShader(shader);
+    obj2.SetShader(basic);
 
     obj2.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Posed.obj"));
 
     obj2.GetModel()->LoadMaterial(Engine::Material());
     obj2.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Subdermal.jpg");
     obj2.MoveRelative(10.0f, 0.0f, 10.0f);
-    //obj1.MoveRelative(0.0f, 0.0f, 0.0f);
+    obj1.MoveRelative(0.0f, 0.0f, 0.0f);
 
-    //Engine::Actor obj3;
-    //obj3.SetShader(shader);
+    Engine::Actor obj3;
+    obj3.SetShader(basic);
 
-    //obj3.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Anoplophora.obj"));
+    obj3.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Anoplophora.obj"));
 
-    //obj3.GetModel()->LoadMaterial(Engine::Material());
-    //obj3.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Anoplophora_Diffuse.png");
-    //obj3.MoveRelative(-10.0f, 0.0f, -10.0f);
+    obj3.GetModel()->LoadMaterial(Engine::Material());
+    obj3.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Anoplophora_Diffuse.png");
+    obj3.MoveRelative(-10.0f, 0.0f, -10.0f);
+
+    /*
+    Engine::Actor obj1;
+    obj1.SetShader(basic);
+
+    obj1.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\PLANTS ON TABLE.fbx"));
+
+    obj1.GetModel()->LoadMaterial(Engine::Material());
+    obj1.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\PLANTS_ON_TABLE.jpg");
+    */
+
     //----------------------------------------------------------
 
     Engine::Shader skyBoxShader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\skybox.vs",
@@ -113,7 +126,7 @@ int main()
     std::vector<Engine::Actor*> actors;
     actors.push_back(&obj1);
     actors.push_back(&obj2);
-    //actors.push_back(&obj3);
+    actors.push_back(&obj3);
 
 
     for (size_t i = 0; i < actors.size(); i++)
@@ -121,12 +134,13 @@ int main()
         for (size_t j = 0; j < actors.at(i)->GetModel()->GetMeshes()->size(); j++)
         {
             vertexCount += actors.at(i)->GetModel()->GetMeshes()->at(j).GetVertices()->size();
+            triangleCount += actors.at(i)->GetModel()->GetMeshes()->at(j).GetTriangles().size();
         }
     }
 
     //-----------------------------------------------
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     //glDisable(GL_DEPTH_TEST);
     lastTime = glfwGetTime();
@@ -150,22 +164,22 @@ int main()
         }
 
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_W) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetForwardDirection(), 0.25f);
+            camera.MoveRelative(camera.GetForwardDirection(), 8.0f * deltaTime);
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_S) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetForwardDirection(), -0.25f);
+            camera.MoveRelative(camera.GetForwardDirection(), -8.0f * deltaTime);
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_A) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetRightDirection(), -0.25f);
+            camera.MoveRelative(camera.GetRightDirection(), -8.0f * deltaTime);
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_D) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetRightDirection(), 0.25f);
+            camera.MoveRelative(camera.GetRightDirection(), 8.0f * deltaTime);
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetUpDirection(), 0.25f);
+            camera.MoveRelative(camera.GetUpDirection(), 8.0f * deltaTime);
         }
         if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetUpDirection(), -0.25f);
+            camera.MoveRelative(camera.GetUpDirection(), -8.0f * deltaTime);
         }
 
         //obj2.RotateRelative(0.0f, 2.0f, 0.0f);
@@ -175,12 +189,12 @@ int main()
         renderer.Render(camera, renderer.FrustumCull(camera, actors));
         //camera.Draw(&obj1);
         //camera.Draw(&obj2);
-        camera.Draw(&skyBox);
+        renderer.Render(camera, skyBox);
 
-        motor.GetWindow().SetTitle(std::string("Frame time: " + std::to_string(frameMs) + " ms --- FPS: " + std::to_string(fps) +
-            " --- Position: X: " + std::to_string(camera.GetPosition().x) + " --- Y: " + std::to_string(camera.GetPosition().y) + " --- Z: " + std::to_string(camera.GetPosition().z) +
-            " --- Rotation: X: " + std::to_string(camera.GetRotation().x) + " --- Y: " + std::to_string(camera.GetRotation().y) + " --- Z: " + std::to_string(camera.GetRotation().z) +
-            " --- number of culled objects: " + std::to_string(numCulls) + " --- vertex count: " + std::to_string(vertexCount)));
+        motor.GetWindow().SetTitle(std::string("Frame time: " + std::to_string(frameMs) + " ms - FPS: " + std::to_string(fps) +
+            " - Position: X: " + std::to_string(camera.GetPosition().x) + " - Y: " + std::to_string(camera.GetPosition().y) + " - Z: " + std::to_string(camera.GetPosition().z) +
+            " - Rotation: X: " + std::to_string(camera.GetRotation().x) + " - Y: " + std::to_string(camera.GetRotation().y) + " - Z: " + std::to_string(camera.GetRotation().z) +
+            " - number of culled objects: " + std::to_string(numCulls) + " - vertex count: " + std::to_string(vertexCount) + "- tri count: " + std::to_string(triangleCount)));
         
         glfwSwapBuffers(motor.GetWindow().GetGlWindow());
         glfwPollEvents();
@@ -232,15 +246,15 @@ void Engine::MouseCallback(GLFWwindow* window, double xPos, double yPos)
     lastX = xPos;
     lastY = yPos;
 
-    float sensitivity = 2;
+    float sensitivity = 3;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
     yaw   += xoffset;
     pitch += yoffset;
 
-    double difX = (xPos - oldX) * sensitivity;
-    double difY = (yPos - oldY) * sensitivity;
+    double difX = (xPos - oldX) * (sensitivity * deltaTime);
+    double difY = (yPos - oldY) * (sensitivity * deltaTime);
 
     oldX = xPos;
     oldY = yPos;
@@ -250,7 +264,7 @@ void Engine::MouseCallback(GLFWwindow* window, double xPos, double yPos)
     if(pitch < -89.0f)
         pitch = -89.0f;
 
-    glm::vec3 rot = glm::normalize(glm::vec3(difY, difX, 0.0f));
+    glm::vec3 rot = glm::vec3(difY, difX, 0.0f);
 
     glm::vec3 direction;
     direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));

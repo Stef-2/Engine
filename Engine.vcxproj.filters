@@ -45,7 +45,7 @@
     <ClInclude Include="include\BoundingVolume.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\VertexShader.h">
+    <ClInclude Include="include\Animation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Window.h">
@@ -76,6 +76,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Bone.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -112,7 +115,7 @@
     <ClCompile Include="src\BoundingVolume.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\VertexShader.cpp">
+    <ClCompile Include="src\Animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Window.cpp">
@@ -145,18 +148,27 @@
     <ClCompile Include="src\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Bone.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\fragment shader.fs">
+    <None Include="shaders\basic.fs">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="shaders\vertex shader.vs">
+    <None Include="shaders\basic.vs">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shaders\skybox.fs">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shaders\skybox.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\animated.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\animated.vs">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

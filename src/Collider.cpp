@@ -107,13 +107,13 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
     //Oren Tropp, Ayellet Tal, Ilan Shimshoni
     //Computer Animation and Virtual Worlds 17(5) 2006, pp 527 - 535
 
-    glm::vec3 C1 = first.a.position;
-    glm::vec3 P1 = first.b.position - first.a.position;
-    glm::vec3 P2 = first.c.position - first.a.position;
+    glm::vec3 C1 = first.a->position;
+    glm::vec3 P1 = first.b->position - first.a->position;
+    glm::vec3 P2 = first.c->position - first.a->position;
 
-    glm::vec3 D1 = second.a.position;
-    glm::vec3 Q1 = second.b.position - second.a.position;
-    glm::vec3 Q2 = second.c.position - second.a.position;
+    glm::vec3 D1 = second.a->position;
+    glm::vec3 Q1 = second.b->position - second.a->position;
+    glm::vec3 Q2 = second.c->position - second.a->position;
 
     auto sVpsV_2 = [](float s1, glm::vec3 V1, float s2, glm::vec3 V2) {
         return glm::vec3(s1 * V1[0] + s2 * V2[0], s1 * V1[1] + s2 * V2[1], 0.0f);
@@ -142,7 +142,7 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
                 i1 = 1;
             }
         }
-        /* A[0]<=A[1] */
+        // A[0]<=A[1]
         else {
             if (A[2] > A[1]) {
                 //A[2] is greatest

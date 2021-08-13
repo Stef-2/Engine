@@ -63,37 +63,36 @@ void Engine::Model::LoadMesh(const char* filePath)
 {
     Assimp::Importer importer;
 
-    const aiScene* scene = importer.ReadFile(filePath, aiProcess_GenSmoothNormals | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+    const aiScene* scene = importer.ReadFile(filePath, aiProcess_DropNormals | aiProcess_GenSmoothNormals | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |
+                                                       aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes | aiProcess_GenBoundingBoxes | aiProcess_ImproveCacheLocality);
 
     if (!scene) {
         std::cerr << importer.GetErrorString() << std::endl;
         return;
     }
 
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
+    std::vector<Vertex> vertices {};
+    std::vector<unsigned int> indices {};
 
     glm::vec3 min{ 0.0f };
     glm::vec3 max{ 0.0f };
-
+    unsigned int vertexCount = 0;
+    unsigned int triangleCount = 0;
     aiVector3D empty{ 0.0f, 0.0f, 0.0f };
 
-    bool hasAABB = false;
-
+    //bool hasAABB = false;
+    
     //go through all the meshes
     for (size_t i = 0; i < scene->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[i];
+        vertexCount += mesh->mNumVertices;
+        triangleCount += mesh->mNumFaces;
         vertices.clear();
 
-        //check if the mesh has a precalculated bounding box
-        if (mesh->mAABB.mMin.Length() || mesh->mAABB.mMax.Length())
-        {
-            //form the bounding box for the whole model from mesh(es) bounding boxes
-            min = glm::min(min, glm::vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z));
-            max = glm::max(max, glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
-            hasAABB = true;
-        }
+        //accumulate min and max values of bounding boxes from all meshes since we want one bounding box for the whole model
+        min = glm::min(min, glm::vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z));
+        max = glm::max(max, glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
 
         //go through all their vertices
         for (size_t j = 0; j < mesh->mNumVertices; j++)
@@ -103,24 +102,18 @@ void Engine::Model::LoadMesh(const char* filePath)
             aiVector3D normal = mesh->HasNormals() ? mesh->mNormals[j] : empty;
             aiVector3D uv = mesh->HasTextureCoords(0) ? mesh->mTextureCoords[0][j] : empty;
 
-                                    //positions
+                                       //positions
             Engine::Vertex vertex{ {position.x, position.y, position.z},
-                                    // normals
+                                       //normals
                                    {normal.x, normal.y, normal.z},
-                                    //  UVs
+                                       //UVs
                                    {uv.x, uv.y} };
 
             //push it onto the stack
             vertices.push_back(vertex);
-
-            //in case the mesh doesn't have a precalculated bounding box, we'll build it ourselves
-            if (!hasAABB) {
-                min = glm::min(min, vertex.position);
-                max = glm::max(max, vertex.position);
-            }
         }
 
-        //go through all their faces
+        //go through all their faces / triangles
         for (size_t k = 0; k < mesh->mNumFaces; k++) {
 
             indices.push_back(mesh->mFaces[k].mIndices[0]);
@@ -131,6 +124,9 @@ void Engine::Model::LoadMesh(const char* filePath)
         meshes.push_back(Mesh(vertices, indices));
 
     }
+
+    std::cout << "model: " << filePath << " vertex count: " << vertexCount << std::endl;
+    std::cout << "model: " << filePath << " triangle count: " << triangleCount << std::endl;
 
     this->SetBoundingBox(min, max);
 }
@@ -163,12 +159,4 @@ std::vector<Engine::Material>* Engine::Model::GetMaterials()
 Engine::BoundingBox* Engine::Model::GetBoundingBox()
 {
     return &this->boundingBox;
-}
-
-void Engine::Model::Draw(Engine::Shader* shader)
-{
-    for (size_t i = 0; i < meshes.size(); i++) {
-
-        meshes[i].Draw(shader, &materials[0]);
-    }
 }

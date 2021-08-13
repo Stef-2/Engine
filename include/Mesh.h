@@ -2,15 +2,9 @@
 #define MESH_H
 
 #define STB_IMAGE_IMPLEMENTATION
-#define OBJL_INCLUDED
 
 #include "Shader.h"
 #include "Material.h"
-
-#ifndef OBJL_INCLUDED
-#include "OBJ_Loader.h"
-#define OBJL_INCLUDED
-#endif
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -22,19 +16,27 @@
 
 namespace Engine
 {
-
+    //basic vertex data
     struct Vertex
     {
         glm::vec3 position;
         glm::vec3 normal;
         glm::vec2 uv;
     };
+ 
+    //vertex extension for animated meshes
+    struct VertexBoneData
+    {
+        glm::uvec3 boneID;
+        glm::vec3 boneWeight;
+    };
 
+    //triangle data for collision detection
     struct Triangle
     {
-        Engine::Vertex a;
-        Engine::Vertex b;
-        Engine::Vertex c;
+        Engine::Vertex* a;
+        Engine::Vertex* b;
+        Engine::Vertex* c;
     };
 
     //a mesh class that stores vertex data to be used for rendering
@@ -48,7 +50,6 @@ namespace Engine
             //Mesh& operator=(const Mesh& other);
 
             void Setup();
-            void Draw(Shader* shader, Material* material);
 
             //handles for Vertex Buffer and Element Buffer objects
             //they need to be passed to OpenGL functions that are supposed to draw the mesh
@@ -57,13 +58,17 @@ namespace Engine
 
             std::vector<Vertex>* GetVertices();
             std::vector<unsigned int>* GetIndices();
+            std::vector<Triangle> GetTriangles();
 
         private:
             //mesh vertices
             std::vector<Vertex> vertices;
+            std::vector<VertexBoneData> bones;
 
             //order in which they connect to form triangles
             std::vector<unsigned int> indices;
+
+            std::vector<Triangle> triangles;
 
             //vertex buffer and element buffer objects
             unsigned int VBO;
