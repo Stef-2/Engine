@@ -2,6 +2,8 @@
 #define ANIMATION_H
 
 
+#include "string"
+
 namespace Engine
 {
 
@@ -11,6 +13,7 @@ namespace Engine
         Animation();
 
     private:
+        std::string name;
         float duration;
         unsigned int ticksPerSecond;
     };

@@ -4,8 +4,8 @@ Engine::Mesh::Mesh()
 {
     this->vertices = {};
     this->indices = {};
+    this->bones = {};
     this->triangles = {};
-    //this->boundingBox = {};
     this->VBO = 0;
     this->EBO = 0;
 }
@@ -14,6 +14,19 @@ Engine::Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indic
 {
     this->vertices = vertices;
     this->indices = indices;
+    this->bones = {};
+    this->triangles = {};
+    this->VBO = 0;
+    this->EBO = 0;
+
+    this->Setup();
+}
+
+Engine::Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<VertexBoneData> bones)
+{
+    this->vertices = vertices;
+    this->indices = indices;
+    this->bones = bones;
     this->triangles = {};
     this->VBO = 0;
     this->EBO = 0;
@@ -46,10 +59,20 @@ std::vector<Engine::Triangle> Engine::Mesh::GetTriangles()
     return this->triangles;
 }
 
-/*Engine::BoundingBox Engine::Mesh::GetBoundingBox()
+std::vector<Engine::VertexBoneData> Engine::Mesh::GetBones()
 {
-    return this->boundingBox;
-}*/
+    return this->bones;
+}
+
+void Engine::Mesh::SetVertices(std::vector<Engine::Vertex> vertices)
+{
+    this->vertices = vertices;
+}
+
+void Engine::Mesh::SetIndices(std::vector<unsigned int> indices)
+{
+    this->indices = indices;
+}
 
 void Engine::Mesh::Setup()
 {
@@ -66,32 +89,7 @@ void Engine::Mesh::Setup()
     //fill the element buffer with data
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
-    //std::vector<Engine::Triangle> tris;
-
-    for (unsigned int i = 0; i < this->indices.size() - 2; i += 3)
+    //construct triangle data out of vertices and indices
+    for (size_t i = 0; i < this->indices.size() - 2; i += 3)
         this->triangles.push_back({ &this->vertices.at(indices.at(i)), &this->vertices.at(indices.at(i + 1)), &this->vertices.at(indices.at(i + 2)) });
-
-    //this->triangles = tris;
 }
-
-Engine::Mesh::~Mesh()
-{
-    //if(this->vertexBuffer != NULL) delete this->vertexBuffer;
-    //if(this->indices != NULL) delete this->indices;
-    //if (this->VBO) glDeleteBuffers(1, &this->VBO);
-    //if (this->EBO) glDeleteBuffers(1, &this->EBO);
-}   
-
-/*Engine::Mesh::Mesh(const Mesh& other)
-{
-    this->VBO = other.VBO;
-    this->EBO = other.EBO;
-    this->vertices = other.vertices;
-    this->indices = other.indices;
-}*/
-
-/*Engine::Mesh& Engine::Mesh::operator=(const Mesh& rhs)
-{
-    if (this == &rhs) return *this;
-    return *this;
-}*/

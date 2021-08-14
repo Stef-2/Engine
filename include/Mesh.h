@@ -45,9 +45,7 @@ namespace Engine
         public:
             Mesh();
             Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
-            ~Mesh();
-            //Mesh(const Mesh& other);
-            //Mesh& operator=(const Mesh& other);
+            Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<VertexBoneData> bones);
 
             void Setup();
 
@@ -59,6 +57,11 @@ namespace Engine
             std::vector<Vertex>* GetVertices();
             std::vector<unsigned int>* GetIndices();
             std::vector<Triangle> GetTriangles();
+            std::vector<VertexBoneData> GetBones();
+
+            void SetVertices(std::vector<Vertex> vertices);
+            void SetIndices(std::vector<unsigned int> indices);
+
 
         private:
             //mesh vertices

@@ -14,51 +14,6 @@ Engine::Model::Model(const char* filePath)
 	this->LoadMesh(filePath);
 }
 
-/*void Engine::Model::LoadMesh(const char* filePath)
-{
-    objl::Loader loader;
-    bool success = loader.LoadFile(filePath);
-
-    if (!success) {
-        std::cerr << filePath << ": Mesh loading failed" << std::endl;
-        return;
-    }
-
-    std::vector<Vertex> vertices;
-    glm::vec3 min{ 0.0f };
-    glm::vec3 max{ 0.0f };
-    
-    objl::Mesh asd = loader.LoadedMeshes[0];
-    std::cout << asd.Vertices.size() << std::endl;
-
-    for (unsigned int i = 0; i < loader.LoadedMeshes.size(); i++)
-    {
-        vertices.clear();
-        
-        //we're able to read up to 4294967295 vertices at maximum here
-        //if we need more, then to fix the issue we should fire the guy doing the modeling
-        for (unsigned int j = 0; j < loader.LoadedMeshes[i].Vertices.size(); j++)
-        {
-            //construct the vertex out of loaded positions and UV coordinates
-            Vertex vertex{ glm::vec3(loader.LoadedMeshes[i].Vertices[j].Position.X,
-                                     loader.LoadedMeshes[i].Vertices[j].Position.Y,
-                                     loader.LoadedMeshes[i].Vertices[j].Position.Z),
-                           glm::vec2(loader.LoadedMeshes[i].Vertices[j].TextureCoordinate.X,
-                                     loader.LoadedMeshes[i].Vertices[j].TextureCoordinate.Y) };
-
-            //push it onto the stack
-            vertices.push_back(vertex);
-
-            min = glm::min(min, vertex.position);
-            max = glm::max(max, vertex.position);
-        }
-        
-        meshes.push_back(Mesh(vertices, loader.LoadedMeshes[i].Indices));
-    }
-
-    this->SetBoundingBox(min, max);
-}*/
-
 void Engine::Model::LoadMesh(const char* filePath)
 {
     Assimp::Importer importer;
@@ -71,7 +26,10 @@ void Engine::Model::LoadMesh(const char* filePath)
         return;
     }
 
-    std::vector<Vertex> vertices {};
+    //vectors to be filled in with data
+    std::vector<Engine::Bone> bones {};
+    std::vector<Engine::VertexBoneData> vertexBoneData {};
+    std::vector<Engine::Vertex> vertices {};
     std::vector<unsigned int> indices {};
 
     glm::vec3 min{ 0.0f };
@@ -80,7 +38,17 @@ void Engine::Model::LoadMesh(const char* filePath)
     unsigned int triangleCount = 0;
     aiVector3D empty{ 0.0f, 0.0f, 0.0f };
 
-    //bool hasAABB = false;
+    //parse animation data
+    if (scene->HasAnimations())
+    {
+        aiAnimation* animation;
+
+        for (size_t i = 0; i < scene->mNumAnimations; i++)
+        {
+            animation = scene->mAnimations[i];
+            //animation->mChannels[i].
+        }
+    }
     
     //go through all the meshes
     for (size_t i = 0; i < scene->mNumMeshes; i++)
@@ -90,6 +58,25 @@ void Engine::Model::LoadMesh(const char* filePath)
         triangleCount += mesh->mNumFaces;
         vertices.clear();
 
+        //parse bones if they're present
+        if (mesh->HasBones())
+        {
+            for (size_t i = 0; i < mesh->mNumBones; i++)
+            {
+                aiMatrix4x4 offset = mesh->mBones[i]->mOffsetMatrix;
+                
+
+                glm::mat4 matrix{ offset.a1, offset.a2, offset.a3, offset.a4,
+                                  offset.b1, offset.b2, offset.b3, offset.b4,
+                                  offset.c1, offset.c2, offset.c3, offset.c4,
+                                  offset.d1, offset.d2, offset.d3, offset.d4 };
+
+                aiVertexWeight weights = mesh->mBones[i]->mWeights[3];
+                Engine::Bone bone(std::string(mesh->mBones[i]->mName.C_Str()), matrix, mesh->mBones[i]->mNumWeights);
+                bones.push_back(bone);
+            }
+        }
+
         //accumulate min and max values of bounding boxes from all meshes since we want one bounding box for the whole model
         min = glm::min(min, glm::vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z));
         max = glm::max(max, glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
@@ -97,16 +84,16 @@ void Engine::Model::LoadMesh(const char* filePath)
         //go through all their vertices
         for (size_t j = 0; j < mesh->mNumVertices; j++)
         {
-            //construct a vertex out of loaded data
-            aiVector3D position = mesh->mVertices[j];
+            //make sure the required data is present and construct a vertex out of it
+            aiVector3D position = mesh->HasPositions() ? mesh->mVertices[j] : empty;
             aiVector3D normal = mesh->HasNormals() ? mesh->mNormals[j] : empty;
             aiVector3D uv = mesh->HasTextureCoords(0) ? mesh->mTextureCoords[0][j] : empty;
 
-                                       //positions
+                                   //positions
             Engine::Vertex vertex{ {position.x, position.y, position.z},
-                                       //normals
+                                   //normals
                                    {normal.x, normal.y, normal.z},
-                                       //UVs
+                                   //UVs
                                    {uv.x, uv.y} };
 
             //push it onto the stack

@@ -8,6 +8,7 @@
 #include "assimp/postprocess.h"
 
 #include "Mesh.h"
+#include "Bone.h"
 #include "Material.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -17,6 +18,7 @@
 
 #include "vector"
 #include "iostream"
+#include "string"
 
 namespace Engine
 {
