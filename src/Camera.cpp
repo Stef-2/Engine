@@ -1,13 +1,5 @@
 #include "Camera.h"
 
-
-Engine::Camera::~Camera()
-{
-    //if (position != NULL) delete position;
-    //if (rotation != NULL) delete rotation;
-    //if (scale != NULL) delete scale;
-}
-
 void Engine::Camera::Setup(float speed, float aspectRatio, float nearClip, float farClip, float fov)
 {
     this->speed = speed;

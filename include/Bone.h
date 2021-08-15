@@ -59,6 +59,9 @@ namespace Engine
 		std::vector<RotationKey> rotations;
 		std::vector<ScaleKey> scales;
 
+		Bone* parent;
+		std::vector<Bone*> children;
+
 		std::string name;
 		glm::mat4 transform;
 		unsigned int numAffectedVerts;

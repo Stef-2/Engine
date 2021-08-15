@@ -29,6 +29,7 @@ void Engine::Model::LoadMesh(const char* filePath)
     //vectors to be filled in with data
     std::vector<Engine::Bone> bones {};
     std::vector<Engine::VertexBoneData> vertexBoneData {};
+
     std::vector<Engine::Vertex> vertices {};
     std::vector<unsigned int> indices {};
 

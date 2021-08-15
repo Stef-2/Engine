@@ -24,6 +24,7 @@ namespace Engine
         void Render(Engine::Camera& camera, std::vector<Engine::Actor*> actors);
         void Render(Engine::Camera& camera, Engine::BoundingBox& box);
         void Render(Engine::Camera& camera, Engine::Skybox& skybox);
+        void Render(Engine::Camera& camera, std::vector<Engine::Bone*> bones);
 
         template<typename T>
         void Render(Engine::Camera& camera, Engine::OcTree<T>& tree);

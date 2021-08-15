@@ -16,13 +16,13 @@ namespace Engine
 
     //a camera class, inheriting transformation mechanisms from Engine::Object
     //provides the Vew() and Projection() matrices needed for rendering
+    //provides frustum clipping planes, needed for frustum culling
     class Camera : public Engine::Object
     {
         using Engine::Object::Object;
 
         public:
             void Setup(float speed, float aspectRatio, float nearClip, float farClip, float fov);
-            ~Camera();
 
             //view, built from camera's transformations and the Up direction
             glm::mat4 GetView();
@@ -62,7 +62,7 @@ namespace Engine
             void SetSpeed(float speed);
 
             //ratio of camera's frustum width and height dimensions
-            //if the desired ratio is the same as OpenGL's rendering window, it can be acquired from Engine::Window::GetAspectRatio()
+            //if the desired ratio is the same as rendering window's, it can be acquired from Engine::Window::GetAspectRatio()
             void SetAspectRatio(float aspectRatio);
 
             //elements closer than this value are not rendered
