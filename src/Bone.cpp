@@ -36,7 +36,7 @@ glm::mat4 Engine::Bone::GetTransform()
 
 unsigned int Engine::Bone::GetNumAffectedVertices()
 {
-	return this->numAffectedVerts
+	return this->numAffectedVerts;
 }
 
 unsigned int Engine::Bone::GetID()

@@ -1,4 +1,4 @@
-#include "Main.h"
+#include <Main.h>
 
 Engine::Camera camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
 
@@ -14,7 +14,8 @@ int main()
     Engine::Motor& motor = Engine::Motor::GetInstance();
 
     
-    Engine::Window window(1280, 720, "Engine", NULL, NULL, glm::ivec2(2, 1));
+    Engine::Window window(1280, 720, "Engine", NULL, NULL, glm::ivec2(4, 6));
+    std::cout << "version: " << window.GetGivenVersion() << std::endl;
     motor.SetWindow(window);
 
     Engine::Object::SetActiveObject(&camera);
@@ -62,34 +63,34 @@ int main()
 
     std::cout << str << std::endl;*/
 
-    Engine::Shader basic("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\basic.vs",
-                          "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\basic.fs");
+    Engine::Shader basic("C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\basic.vs",
+                          "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\basic.fs");
     
     Engine::Actor obj1;
     obj1.SetShader(basic);
 
-    obj1.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Barrel.obj"));
+    obj1.SetModel(Engine::Model("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Barrel.obj"));
 
     obj1.GetModel()->LoadMaterial(Engine::Material());
-    obj1.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Barrel_BaseColor.png");
+    obj1.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Barrel_BaseColor.png");
     
     Engine::Actor obj2;
     obj2.SetShader(basic);
 
-    obj2.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Posed.obj"));
+    obj2.SetModel(Engine::Model("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\midPoly human\\Body_Posed.obj"));
 
     obj2.GetModel()->LoadMaterial(Engine::Material());
-    obj2.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\midPoly human\\Body_Subdermal.jpg");
+    obj2.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\midPoly human\\Body_Subdermal.jpg");
     obj2.MoveRelative(10.0f, 0.0f, 10.0f);
     obj1.MoveRelative(0.0f, 0.0f, 0.0f);
 
     Engine::Actor obj3;
     obj3.SetShader(basic);
 
-    obj3.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Anoplophora.obj"));
+    obj3.SetModel(Engine::Model("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Anoplophora.obj"));
 
     obj3.GetModel()->LoadMaterial(Engine::Material());
-    obj3.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Anoplophora_Diffuse.png");
+    obj3.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Anoplophora_Diffuse.png");
     obj3.MoveRelative(-10.0f, 0.0f, -10.0f);
 
     /*
@@ -104,18 +105,18 @@ int main()
 
     //----------------------------------------------------------
 
-    Engine::Shader skyBoxShader("C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\skybox.vs",
-                                "C:\\Users\\Cofara\\source\\repos\\Engine\\shaders\\skybox.fs");
+    Engine::Shader skyBoxShader("C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\skybox.vs",
+                                "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\skybox.fs");
 
     Engine::Skybox skyBox;
     skyBox.SetShader(skyBoxShader);
 
-    const char* skyBoxTextures[6] = {"C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Daylight Box_Right.bmp",
-                                     "C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Daylight Box_Left.bmp",
-                                     "C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Daylight Box_Top.bmp",
-                                     "C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Daylight Box_Bottom.bmp",
-                                     "C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Daylight Box_Front.bmp",
-                                     "C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\Daylight Box_Back.bmp"};
+    const char* skyBoxTextures[6] = {"C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Daylight Box_Right.bmp",
+                                     "C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Daylight Box_Left.bmp",
+                                     "C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Daylight Box_Top.bmp",
+                                     "C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Daylight Box_Bottom.bmp",
+                                     "C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Daylight Box_Front.bmp",
+                                     "C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Daylight Box_Back.bmp"};
 
     Engine::Texture skyBoxTex(skyBoxTextures);
     skyBox.SetTexture(skyBoxTex);
