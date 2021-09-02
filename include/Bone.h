@@ -9,7 +9,7 @@
 
 namespace Engine
 {
-	//animation keys
+	// animation keys
 	struct PositionKey
 	{
 		glm::vec3 position;
@@ -29,7 +29,7 @@ namespace Engine
 	};
 
 
-	//you have been spooked by mr. skeltal
+	// you have been spooked by mr. skeltal
 	class Bone
 	{
 	public:
@@ -69,4 +69,4 @@ namespace Engine
 	};
 }
 
-#endif //BONE_H
+#endif // BONE_H

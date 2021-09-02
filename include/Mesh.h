@@ -16,7 +16,7 @@
 
 namespace Engine
 {
-    //basic vertex data
+    // basic vertex data
     struct Vertex
     {
         glm::vec3 position;
@@ -24,14 +24,14 @@ namespace Engine
         glm::vec2 uv;
     };
  
-    //vertex extension for animated meshes
+    // vertex extension for animated meshes
     struct VertexBoneData
     {
         glm::uvec3 boneID;
         glm::vec3 boneWeight;
     };
 
-    //triangle data for collision detection
+    // triangle data for collision detection
     struct Triangle
     {
         Engine::Vertex* a;
@@ -39,7 +39,7 @@ namespace Engine
         Engine::Vertex* c;
     };
 
-    //a mesh class that stores vertex data to be used for rendering
+    // a mesh class that stores vertex data to be used for rendering
     class Mesh
     {
         public:
@@ -49,8 +49,8 @@ namespace Engine
 
             void Setup();
 
-            //handles for Vertex Buffer and Element Buffer objects
-            //they need to be passed to OpenGL functions that are supposed to draw the mesh
+            // handles for Vertex Buffer and Element Buffer objects
+            // they need to be passed to OpenGL functions that are supposed to draw the mesh
             unsigned int GetVBO();
             unsigned int GetEBO();
 
@@ -64,20 +64,20 @@ namespace Engine
 
 
         private:
-            //mesh vertices
+            // mesh vertices
             std::vector<Vertex> vertices;
             std::vector<VertexBoneData> bones;
 
-            //order in which they connect to form triangles
+            // order in which they connect to form triangles
             std::vector<unsigned int> indices;
 
             std::vector<Triangle> triangles;
 
-            //vertex buffer and element buffer objects
+            // vertex buffer and element buffer objects
             unsigned int VBO;
             unsigned int EBO;
     };
 
 }
 
-#endif // MESH_H
+#endif //  MESH_H

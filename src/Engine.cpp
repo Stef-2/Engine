@@ -12,15 +12,15 @@ Engine::Motor::Motor()
     this->renderer = {};
     this->collider = {};
 
-    //just temporary initialization to prevent garbage values from being held here
-    //GetDeltaTime() and Run() functions are actually responsible for keeping these updated
+    // just temporary initialization to prevent garbage values from being held here
+    // GetDeltaTime() and Run() functions are actually responsible for keeping these updated
     this->lastTime = 0;
     this->currentTime = glfwGetTime();
 }
 
 void Engine::Motor::Initialize()
 {
-    //initialize glfw
+    // initialize glfw
     if (!glfwInit()) {
         std::cerr << "Glfw could not be initialized." << std::endl;
         abort();
@@ -125,10 +125,10 @@ void Engine::Motor::MouseCallback(GLFWwindow* window, double xPos, double yPos)
     direction.y = sin(glm::radians(pitch));
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 
-    //camera.RotateAbsolute(direction.x, direction.y, direction.z);
+    // camera.RotateAbsolute(direction.x, direction.y, direction.z);
 }
 
 void Engine::Motor::ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 {
-    //camera.SetFov(camera.GetFov() - (float)yOffset);
+    // camera.SetFov(camera.GetFov() - (float)yOffset);
 }

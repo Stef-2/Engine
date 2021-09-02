@@ -2,23 +2,23 @@
 
 bool Engine::Collider::Intersects(Engine::BoundingBox& first, Engine::BoundingBox& second)
 {
-    //for an intersection to occur, it needs to happen on all three axes
-    //for performance reasons, we split the check into three parts, if any of them return false, the whole function can imediatelly return false
-    //we assume that multiple boxes can have perfectly aligned walls, which we count as an intersection, hence the (<=, >=) instead of (<, >)
+    // for an intersection to occur, it needs to happen on all three axes
+    // for performance reasons, we split the check into three parts, if any of them return false, the whole function can imediatelly return false
+    // we assume that multiple boxes can have perfectly aligned walls, which we count as an intersection, hence the (<=, >=) instead of (<, >)
 
-    //x axis
+    // x axis
     bool intersection = first.GetLeft() <= second.GetRight() && first.GetRight() >= second.GetLeft();
 
     if (!intersection)
         return false;
     else {
-        //y axis
+        // y axis
         intersection = first.GetBottom() <= second.GetTop() && first.GetTop() >= second.GetBottom();
 
         if (!intersection)
             return false;
         else {
-            //z axis
+            // z axis
             intersection = first.GetFront() <= second.GetBack() && first.GetBack() >= second.GetFront();
 
             if (!intersection)
@@ -31,7 +31,7 @@ bool Engine::Collider::Intersects(Engine::BoundingBox& first, Engine::BoundingBo
 
 bool Engine::Collider::Intersects(Engine::BoundingSphere& first, Engine::BoundingSphere& second)
 {
-    //check if the sum of radi is greater than the distance between the spheres
+    // check if the sum of radi is greater than the distance between the spheres
     return glm::distance(first.center, second.center) < (first.radius + second.radius);
 }
 
@@ -39,21 +39,21 @@ bool Engine::Collider::Intersects(Engine::BoundingBox& box, Engine::BoundingSphe
 {
     float distance = glm::pow(sphere.radius, 2);
 
-    //x axis
+    // x axis
     if (sphere.center.x < box.mins.x)
         distance -= glm::pow(sphere.center.x - box.mins.x, 2);
     else
         if (sphere.center.x > box.maxs.x)
             distance -= glm::pow(sphere.center.x - box.maxs.x, 2);
 
-    //y axis
+    // y axis
     if (sphere.center.y < box.mins.y)
         distance -= glm::pow(sphere.center.y - box.mins.y, 2);
     else
         if (sphere.center.y > box.maxs.y)
             distance -= glm::pow(sphere.center.y - box.maxs.y, 2);
 
-    //z axis
+    // z axis
     if (sphere.center.z < box.mins.z)
         distance -= glm::pow(sphere.center.z - box.mins.z, 2);
     else
@@ -65,37 +65,37 @@ bool Engine::Collider::Intersects(Engine::BoundingBox& box, Engine::BoundingSphe
 
 /* bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& second)
 {
-    //Moller97 triangle - triangle intersection detection algorithm
+    // Moller97 triangle - triangle intersection detection algorithm
 
-    //abandonware
+    // abandonware
 
-    //plane equation for the first triangle
+    // plane equation for the first triangle
     glm::vec3 firstNormal = glm::cross(first.b.position - first.a.position, first.c.position - first.a.position);
     float firstDistance = glm::dot(-firstNormal, first.a.position);
 
-    //plane equation for the second triangle
+    // plane equation for the second triangle
     glm::vec3 secondNormal = glm::cross(second.b.position - second.a.position, second.c.position - second.a.position);
     float secondDistance = glm::dot(-secondNormal, second.a.position);
 
-    //distances of first triangle's vertices to the second plane
+    // distances of first triangle's vertices to the second plane
     float firstD1 = glm::dot(secondNormal, first.a.position) + secondDistance;
     float firstD2 = glm::dot(secondNormal, first.b.position) + secondDistance;
     float firstD3 = glm::dot(secondNormal, first.c.position) + secondDistance;
 
-    //distances of second triangle's vertices to the first plane
+    // distances of second triangle's vertices to the first plane
     float secondD1 = glm::dot(firstNormal, second.a.position) + firstDistance;
     float secondD2 = glm::dot(firstNormal, second.b.position) + firstDistance;
     float secondD3 = glm::dot(firstNormal, second.c.position) + firstDistance;
 
-    //direction of the line formed by the intersection of the two planes
+    // direction of the line formed by the intersection of the two planes
     glm::vec3 lineDirection = glm::cross(firstNormal, secondNormal);
     
-    //projections of first triangle's vertices onto the planes intersection line
+    // projections of first triangle's vertices onto the planes intersection line
     float projectionOntoLine_1a = glm::dot(lineDirection, first.a.position);
     float projectionOntoLine_1b = glm::dot(lineDirection, first.b.position);
     float projectionOntoLine_1c = glm::dot(lineDirection, first.c.position);
 
-    //projections of second triangle's vertices onto the planes intersection line
+    // projections of second triangle's vertices onto the planes intersection line
     float projectionOntoLine_2a = glm::dot(lineDirection, second.a.position);
     float projectionOntoLine_2b = glm::dot(lineDirection, second.b.position);
     float projectionOntoLine_2c = glm::dot(lineDirection, second.c.position);
@@ -103,9 +103,9 @@ bool Engine::Collider::Intersects(Engine::BoundingBox& box, Engine::BoundingSphe
 
 bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& second)
 {
-    //A fast triangle to triangle intersection test for collision detection
-    //Oren Tropp, Ayellet Tal, Ilan Shimshoni
-    //Computer Animation and Virtual Worlds 17(5) 2006, pp 527 - 535
+    // A fast triangle to triangle intersection test for collision detection
+    // Oren Tropp, Ayellet Tal, Ilan Shimshoni
+    // Computer Animation and Virtual Worlds 17(5) 2006, pp 527 - 535
 
     glm::vec3 C1 = first.a->position;
     glm::vec3 P1 = first.b->position - first.a->position;
@@ -119,38 +119,38 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
         return glm::vec3(s1 * V1[0] + s2 * V2[0], s1 * V1[1] + s2 * V2[1], 0.0f);
     };
 
-    //Tomas Moller's "A Fast Triangle-Triangle Intersection Test" - Journal of Graphics Tools, 2(2), 1997
+    // Tomas Moller's "A Fast Triangle-Triangle Intersection Test" - Journal of Graphics Tools, 2(2), 1997
     auto CoplanarTriangleTriangleTest = [](glm::vec3 N, glm::vec3 V0, glm::vec3 V1, glm::vec3 V2, glm::vec3 U0, glm::vec3 U1, glm::vec3 U2)
     {
         glm::vec3 A;
         short i0, i1;
 
-        //first project onto an axis-aligned plane, that maximizes the area of the triangles, compute indices: i0,i1.
+        // first project onto an axis-aligned plane, that maximizes the area of the triangles, compute indices: i0,i1.
         A[0] = glm::abs(N[0]);
         A[1] = glm::abs(N[1]);
         A[2] = glm::abs(N[2]);
 
         if (A[0] > A[1]) {
             if (A[0] > A[2]) {
-                //A[0] is greatest
+                // A[0] is greatest
                 i0 = 1;      
                 i1 = 2;
             }
             else {
-                //A[2] is greatest
+                // A[2] is greatest
                 i0 = 0;      
                 i1 = 1;
             }
         }
-        // A[0]<=A[1]
+        //  A[0]<=A[1]
         else {
             if (A[2] > A[1]) {
-                //A[2] is greatest
+                // A[2] is greatest
                 i0 = 0;      
                 i1 = 1;
             }
             else {
-                //A[1] is greatest
+                // A[1] is greatest
                 i0 = 0;      
                 i1 = 2;
             }
@@ -185,7 +185,7 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
             float Ax = V1[i0] - V0[i0];
             float Ay = V1[i1] - V0[i1];
 
-            //Franklin Antonio's "Faster Line Segment Intersection" - Graphics Gems III
+            // Franklin Antonio's "Faster Line Segment Intersection" - Graphics Gems III
             auto EdgeEdgeTest = [&](glm::vec3 V0, glm::vec3 U0, glm::vec3 U1)
             {
                 float Bx = U0[i0] - U1[i0];
@@ -210,22 +210,22 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
                 return false;
             };
 
-            // test edge U0,U1 against V0 ,V1
+            //  test edge U0,U1 against V0 ,V1
             return EdgeEdgeTest(V0, U0, U1);
 
-            // test edge U1,U2 against V0, V1
+            //  test edge U1,U2 against V0, V1
             return EdgeEdgeTest(V0, U1, U2);
 
-            //test edge U2,U1 against V0, V1
+            // test edge U2,U1 against V0, V1
             return EdgeEdgeTest(V0, U2, U0);
         };
 
-        //test all edges of triangle 1 against the edges of triangle 2
+        // test all edges of triangle 1 against the edges of triangle 2
         return EdgeTriangleTest(V0, V1, U0, U1, U2);
         return EdgeTriangleTest(V1, V2, U0, U1, U2);
         return EdgeTriangleTest(V2, V0, U0, U1, U2);
 
-        // finally, test if tri1 is totally contained in tri2 or vice versa 
+        //  finally, test if tri1 is totally contained in tri2 or vice versa 
         return PointTriangleTest(V0, U0, U1, U2);
         return PointTriangleTest(U0, V0, V1, V2);
 
@@ -234,7 +234,7 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
 
     glm::vec3 r = D1 - C1;
 
-    //determinant computation
+    // determinant computation
     float dp0 = P1[1] * P2[2] - P2[1] * P1[2];
     float dp1 = P1[0] * P2[2] - P2[0] * P1[2];
     float dp2 = P1[0] * P2[1] - P2[0] * P1[1];
@@ -255,7 +255,7 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
     if ((dq1 == 0) && (dq2 == 0))
     {
         if (dr != 0)
-            //triangles are on parallel planes
+            // triangles are on parallel planes
             return false;
         else
         {
@@ -269,7 +269,7 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
         }
     }
     else if (!beta1Legal && !beta2Legal)
-        //fast reject-all, vertices are on the same side of the triangle plane
+        // fast reject-all, vertices are on the same side of the triangle plane
         return false;
 
     else if (beta2Legal && beta1Legal) {
@@ -280,7 +280,7 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
     else if (beta1Legal && !beta2Legal) {
         SF = dq1 * dq3;
 
-        //all betas are multiplied by a positive SF
+        // all betas are multiplied by a positive SF
         beta1 = beta1 - beta2;
         float beta3 = dr3 * dq1;
         t = sVpsV_2(SF - beta3 - beta1, Q1, beta3, Q2);
@@ -289,7 +289,7 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
     else if (beta2Legal && !beta1Legal) {
         SF = dq2 * dq3;
 
-        //all betas are multiplied by a positive SF
+        // all betas are multiplied by a positive SF
         beta2 = beta1 - beta2;   
         float beta3 = dr3 * dq2;
         t = sVpsV_2(SF - beta3, Q1, beta3 - beta2, Q2);
@@ -325,19 +325,19 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
         if (alpha1_legal) {
             if (alpha2_legal) {
                 if (((gama1 <= 0) && (gama1 >= -(det1 * det1))) || ((gama2 <= 0) && (gama2 >= -(det2 * det2))) || (gama1 * gama2 < 0))
-                    //12
+                    // 12
                     return true;
             }
             else {
                 if (((gama1 <= 0) && (gama1 >= -(det1 * det1))) || ((gama3 <= 0) && (gama3 >= -(det3 * det3))) || (gama1 * gama3 < 0))
-                    //13
+                    // 13
                     return true;
             }
         }
         else
             if (alpha2_legal) {
                 if (((gama2 <= 0) && (gama2 >= -(det2 * det2))) || ((gama3 <= 0) && (gama3 >= -(det3 * det3))) || (gama2 * gama3 < 0))
-                    //23
+                    // 23
                     return true;
             }
 

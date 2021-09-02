@@ -15,4 +15,4 @@ class FragmentShader
     private:
 };
 
-#endif // FRAGMENTSHADER_H
+#endif //  FRAGMENTSHADER_H

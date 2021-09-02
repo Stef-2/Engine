@@ -1,7 +1,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-//#include "glfw3.h"
+// #include "glfw3.h"
 #include "Camera.h"
 #include "Actor.h"
 #include "BoundingVolume.h"
@@ -12,9 +12,9 @@
 namespace Engine
 {
 
-    //Renderer class, subsystem of Engine (Motor) class
-    //wraps general OpenGL settings, options and objects
-    //prepares and performs rendering operations
+    // Renderer class, subsystem of Engine (Motor) class
+    // wraps general OpenGL settings, options and objects
+    // prepares and performs rendering operations
     class Renderer
     {
     public:
@@ -42,15 +42,15 @@ namespace Engine
 
 
 
-    //bounding volumes are templated types, we have to define their draw methods here
+    // bounding volumes are templated types, we have to define their draw methods here
 
     template<typename T>
     void Engine::Renderer::RecursiveRender(Engine::Camera& camera, Engine::BoundingNode<T>& node)
     {
-        //draw ourselves
+        // draw ourselves
         this->Render(camera, node);
 
-        //if we're not a leaf, pass the draw call to the kids
+        // if we're not a leaf, pass the draw call to the kids
         if (!node.isLeaf)
             for (short i = 0; i < 8; i++)
                 this->RecursiveRender(camera , *node.children[i]);
@@ -63,4 +63,4 @@ namespace Engine
     }
 
 }
-#endif // RENDERER_H
+#endif //  RENDERER_H

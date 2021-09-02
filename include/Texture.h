@@ -15,7 +15,7 @@
 #include "fstream"
 #include "iostream"
 
-//texture loading and handling class
+// texture loading and handling class
 namespace Engine
 {
 
@@ -24,23 +24,23 @@ namespace Engine
         public:
             Texture();
 
-            //regular textures
+            // regular textures
             Texture(const char* filePath);
             Texture(const char* filePaths[6]);
 
             ~Texture();
 
-            //loads the texture from a file
-            //and binds it into an OpenGL texture object
+            // loads the texture from a file
+            // and binds it into an OpenGL texture object
             void Setup(const char* filePath);
             void Setup(const char* filePaths[6]);
 
-            //this is the handle to the texture object
-            //pass it to OpenGL before any rendering using this texture takes place
+            // this is the handle to the texture object
+            // pass it to OpenGL before any rendering using this texture takes place
             unsigned int GetTextureID();
             void SetTextureID(unsigned int id);
             
-            //raw texture data extracted from the file
+            // raw texture data extracted from the file
             unsigned char* GetData();
             void SetData(unsigned char* data);
 
@@ -61,4 +61,4 @@ namespace Engine
     };
 
 }
-#endif // TEXTURE_H
+#endif //  TEXTURE_H

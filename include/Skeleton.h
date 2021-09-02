@@ -21,4 +21,4 @@ namespace Engine
 	};
 }
 
-#endif //SKELETON_H
+#endif // SKELETON_H

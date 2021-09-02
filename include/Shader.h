@@ -16,14 +16,14 @@
 
 namespace Engine
 {
-    //OpenGL shader program wrapper class
-    //encapsulates vertex and fragment shaders
-    //as well as the shader program that binds them
+    // OpenGL shader program wrapper class
+    // encapsulates vertex and fragment shaders
+    // as well as the shader program that binds them
     class Shader
     {
         public:
 
-            //enumerator for the different shader attribute we may wish to retrive
+            // enumerator for the different shader attribute we may wish to retrive
             typedef enum class ShaderAttribute {
                 MODEL_LOCATION,
                 VIEW_LOCATION,
@@ -36,12 +36,12 @@ namespace Engine
             Shader();
             Shader(const char* vertexShader, const char* fragmentShader);
 
-            //Shader(const Shader& other);
-            //Shader& operator=(const Shader& other);
-            //~Shader();
+            // Shader(const Shader& other);
+            // Shader& operator=(const Shader& other);
+            // ~Shader();
 
-            //glGetCurrentProgram() is very slow, just like all functions that ask the gfx card for data
-            //so we're storing it ourselves in case we need it
+            // glGetCurrentProgram() is very slow, just like all functions that ask the gfx card for data
+            // so we're storing it ourselves in case we need it
             static Shader* GetCurrentShader();
 
             unsigned int GetVertexShader();
@@ -52,34 +52,34 @@ namespace Engine
 
             std::string GetLogData();
 
-            //load vertex and fragment shaders from files
+            // load vertex and fragment shaders from files
             int SetVertexShader(const char* filePath);
             int SetFragmentShader(const char* filePath);
 
-            //compiles vertex and fragment shaders into a program and binds it
-            //needs to be run after every shader change
+            // compiles vertex and fragment shaders into a program and binds it
+            // needs to be run after every shader change
             int CompileProgram();
 
-            //activates this shader program
-            //needs to be run before every draw call that will make use of this shader
+            // activates this shader program
+            // needs to be run before every draw call that will make use of this shader
             void Activate();
 
         private:
-            //will be set to 1 if shader compilation succeeds, 0 otherwise
+            // will be set to 1 if shader compilation succeeds, 0 otherwise
             int compileSuccess;
-            //vertex shader compile log
+            // vertex shader compile log
             char vsLog[512];
-            //fragment shader compile log
+            // fragment shader compile log
             char fsLog[512];
-            //shader program compile log
+            // shader program compile log
             char spLog[512];
 
-            //handles for the shaders and program themselves
+            // handles for the shaders and program themselves
             unsigned int vertexShader;
             unsigned int fragmentShader;
             unsigned int programID;
 
-            //shader attribute locations
+            // shader attribute locations
             unsigned int vertexPositionLocation;
             unsigned int vertexNormalLocation;
             unsigned int vertexUvLocation;
@@ -92,4 +92,4 @@ namespace Engine
 
 }
 
-#endif // SHADER_H
+#endif //  SHADER_H

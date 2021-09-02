@@ -37,9 +37,9 @@ Engine::Shader::Shader(const char* vertexShader, const char* fragmentShader)
 
 /*Engine::Shader::~Shader()
 {
-    //if (this->vsLog != NULL) delete this->vsLog;
-    //if (this->fsLog != NULL) delete this->fsLog;
-    //if (this->spLog != NULL) delete this->spLog;
+    // if (this->vsLog != NULL) delete this->vsLog;
+    // if (this->fsLog != NULL) delete this->fsLog;
+    // if (this->spLog != NULL) delete this->spLog;
 }*/
 
 /*Engine::Shader::Shader(const Shader& other)
@@ -67,9 +67,9 @@ int Engine::Shader::SetVertexShader(const char* filePath)
 
     int success = false;
     int length = 0;
-    //char* data;
+    // char* data;
 
-    //vertex shader read
+    // vertex shader read
     std::ifstream reader(filePath);
     while(!reader.eof())
     {
@@ -81,7 +81,7 @@ int Engine::Shader::SetVertexShader(const char* filePath)
     const char* data = code.c_str();
     length = code.size();
 
-    //vertex shader compile and bind
+    // vertex shader compile and bind
     unsigned int vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &data, NULL);
@@ -92,7 +92,7 @@ int Engine::Shader::SetVertexShader(const char* filePath)
         glGetShaderInfoLog(vertexShader, 512, NULL, this->vsLog);
         std::cerr << filePath << " - vertex shader compilation failed: " << std::endl << this->vsLog << std::endl;
         std::cerr<< "vertex shader: " << std::endl << data << ", Length: " << length << std::endl;
-        //delete data;
+        // delete data;
         return 0;
     }
     else
@@ -120,7 +120,7 @@ int Engine::Shader::SetFragmentShader(const char* filePath)
     const char* data = code.c_str();
     length = code.size();
 
-    //fragment shader compile and bind
+    // fragment shader compile and bind
     unsigned int fragmentShader;
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &data, NULL);
@@ -145,7 +145,7 @@ int Engine::Shader::CompileProgram()
 {
     int success;
 
-    //check if both the required shaders are present
+    // check if both the required shaders are present
     if(!this->vertexShader) {
         std::cerr << "unable to compile shader program, vertex shader is missing" << std::endl;
         this->compileSuccess = 0;
@@ -159,10 +159,10 @@ int Engine::Shader::CompileProgram()
         return 0;
     }
 
-    //main shader program
+    // main shader program
     unsigned int shaderProgram = 0;
 
-    //compile and link
+    // compile and link
     shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, this->vertexShader);
     glAttachShader(shaderProgram, this->fragmentShader);
@@ -171,7 +171,7 @@ int Engine::Shader::CompileProgram()
     glDeleteShader(this->vertexShader);
     glDeleteShader(this->fragmentShader);
 
-    //check for and print any errors we may have had
+    // check for and print any errors we may have had
     if(!success) {
         
         glGetProgramInfoLog(shaderProgram, 512, NULL, spLog);
@@ -181,13 +181,13 @@ int Engine::Shader::CompileProgram()
     }
     else 
     {
-        //if everything wen't smoothly...
+        // if everything wen't smoothly...
         this->compileSuccess = 1;
         this->programID = shaderProgram;
         std::cout << "shader program compiled and linked successfully" << std::endl;
 
-        //get and bind the location of shader attributes
-        //we can use these later without having to bother the gfx card since most glGetX() functions are very slow
+        // get and bind the location of shader attributes
+        // we can use these later without having to bother the gfx card since most glGetX() functions are very slow
         this->modelTransformLocation = glGetUniformLocation(this->programID, "model");
 
         this->viewTransformLocation = glGetUniformLocation(this->programID, "view");

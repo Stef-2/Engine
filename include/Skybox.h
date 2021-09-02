@@ -24,8 +24,8 @@ namespace Engine
         Engine::Shader* GetShader();
         Engine::Texture* GetTexture();
 
-        //handles for Vertex Buffer
-        //needs to be passed to OpenGL functions that are supposed to draw the mesh
+        // handles for Vertex Buffer
+        // needs to be passed to OpenGL functions that are supposed to draw the mesh
         unsigned int GetVBO();
         float* GetVertices();
 
@@ -35,7 +35,7 @@ namespace Engine
         Engine::Texture texture;
         Engine::Shader shader;
 
-        //vertex buffer object
+        // vertex buffer object
         unsigned int VBO;
 
         std::unique_ptr<float*> vertices;
@@ -43,4 +43,4 @@ namespace Engine
     };
 
 }
-#endif // SKYBOX_H
+#endif //  SKYBOX_H

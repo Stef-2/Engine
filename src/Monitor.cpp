@@ -2,22 +2,22 @@
 
 Engine::Monitor::Monitor()
 {
-    //ctor
+    // ctor
 }
 
 Engine::Monitor::~Monitor()
 {
-    //dtor
+    // dtor
 }
 
 Engine::Monitor::Monitor(const Monitor& other)
 {
-    //copy ctor
+    // copy ctor
 }
 
 Engine::Monitor& Engine::Monitor::operator=(const Monitor& rhs)
 {
-    if (this == &rhs) return *this; // handle self assignment
-    //assignment operator
+    if (this == &rhs) return *this; //  handle self assignment
+    // assignment operator
     return *this;
 }

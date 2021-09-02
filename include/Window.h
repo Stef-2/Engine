@@ -13,7 +13,8 @@
 
 namespace Engine
 {
-//GLFWwindow* wrapper class
+
+// GLFWwindow* wrapper class
 class Window
 {
     public:
@@ -41,22 +42,22 @@ class Window
         void Initialize();
 
     private:
-        //glfw's own window struct
+        // glfw's own window struct
         GLFWwindow* openGlWindow;
-        //slots for windows with whom we can share content
+        // slots for windows with which we can share content
         GLFWwindow* share;
-        //monitor associated with the window
+        // monitor associated with the window
         GLFWmonitor* monitor;
-        //the requested OpenGL version
+        // the requested OpenGL version
         glm::ivec2 openGlVersion;
-        //OpenGL isn't guaranted to give us the version we asked for, we'll store the one we're given here
+        // OpenGL isn't guaranted to give us the version we asked for, we'll store the one we're given here
         std::string openGlGivenVersion;
         int width;
         int height;
-        //OpenGL window title
+        // OpenGL window title
         std::string title;
 };
 
 }
 
-#endif // WINDOW_H
+#endif //  WINDOW_H

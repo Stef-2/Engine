@@ -16,11 +16,11 @@
 #include "glm/gtc/type_ptr.hpp"
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/string_cast.hpp>
-//#include "Shader.h"
+// #include "Shader.h"
 #include "Material.h"
 #include "window.h"
 #include "Engine.h"
-//#include "Model.h"
+// #include "Model.h"
 #include "Object.h"
 #include "Actor.h"
 #include "Camera.h"
@@ -49,4 +49,4 @@ void InitializeCallbacks(Motor* motor);
 int Initialize();
 }
 
-#endif // MAIN_H
+#endif //  MAIN_H

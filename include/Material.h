@@ -14,25 +14,25 @@
 
 namespace Engine
 {
-	//a material class that combines multiple textures
-	//and parameters to form a Physically Based Rendering (PBR) object
-	//In case just a simple surface texture is needed, use only the diffuse channel
+	// a material class that combines multiple textures
+	// and parameters to form a Physically Based Rendering (PBR) object
+	// In case just a simple surface texture is needed, use only the diffuse channel
 	class Material
 	{
 	public:
 		Material();
-		//load material from a file
+		// load material from a file
 		Material(const char* filePath);
 
-		//diffuse reflection map (aka albedo or surface color)
+		// diffuse reflection map (aka albedo or surface color)
 		void SetDiffuse(const char* filePath);
 		void SetDiffuse(Texture texture);
 
-		//roughness map, inverse of a "glossiness" or specular reflection map
+		// roughness map, inverse of a "glossiness" or specular reflection map
 		void SetRoughness(const char* filePath);
 		void SetRoughness(Texture texture);
 
-		//metalic map, for physically correct results the values within should be either 1 or 0, not in between
+		// metalic map, for physically correct results the values within should be either 1 or 0, not in between
 		void SetMetallic(const char* filePath);
 		void SetMetallic(Texture texture);
 
@@ -41,29 +41,29 @@ namespace Engine
 		Texture* GetMetallic();
 
 	private:
-		//---------------physically correct data----------------//
-		Engine::Texture diffuseMap;								//
-		Engine::Texture roughnessMap;							//
-		Engine::Texture metallicMap;							//
-																//
-		//global multipliers for the channels above				//
-		//can be used as a value in case a map is not provided	//
-		glm::vec3 diffuse;										//
-		float roughness;										//
-		float metallic;											//
-		//------------------------------------------------------//
+		// ---------------physically correct data----------------// 
+		Engine::Texture diffuseMap;								// 
+		Engine::Texture roughnessMap;							// 
+		Engine::Texture metallicMap;							// 
+																// 
+		// global multipliers for the channels above				// 
+		// can be used as a value in case a map is not provided	// 
+		glm::vec3 diffuse;										// 
+		float roughness;										// 
+		float metallic;											// 
+		// ------------------------------------------------------// 
 
-		//--------------physically incorrect data---------------//
-		Engine::Texture specularMap;							//
-		Engine::Texture normalMap;								//
-		Engine::Texture alphaMap;								//
-																//
-		//global multipliers for the channels above				//
-		//can be used as a value in case a map is not provided	//
-		float specular;											//
-		glm::vec3 normal;										//
-		float alpha;											//
-		//------------------------------------------------------//
+		// --------------physically incorrect data---------------// 
+		Engine::Texture specularMap;							// 
+		Engine::Texture normalMap;								// 
+		Engine::Texture alphaMap;								// 
+																// 
+		// global multipliers for the channels above				// 
+		// can be used as a value in case a map is not provided	// 
+		float specular;											// 
+		glm::vec3 normal;										// 
+		float alpha;											// 
+		// ------------------------------------------------------// 
 	};
 
 }

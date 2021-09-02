@@ -15,7 +15,7 @@ void Engine::Camera::Setup(float speed, float aspectRatio, float nearClip, float
 
 glm::vec3 Engine::Camera::GetForwardDirection()
 {
-    //we can extract our forward looking direction from the view matrix
+    // we can extract our forward looking direction from the view matrix
     glm::mat4 view = this->GetView();
     glm::vec3 direction = glm::vec3(-view[0][2], -view[1][2], -view[2][2]);
     
@@ -34,23 +34,23 @@ glm::vec3 Engine::Camera::GetRightDirection()
 
 glm::mat4 Engine::Camera::GetView()
 {
-    //we're way too cool to construct a view matrix using LookAt(), so, 
-    //convert our orientation quaternion into a rotation matix
+    // we're way too cool to construct a view matrix using LookAt(), so, 
+    // convert our orientation quaternion into a rotation matix
     glm::mat4 direction = glm::mat4_cast(this->orientation);
     
-    //construct a translation matrix from our position
+    // construct a translation matrix from our position
     glm::mat4 position = glm::mat4(1.0f);
     position = glm::translate(position, -this->position);
 
-    //multiply the two to create a view matrix B-)
+    // multiply the two to create a view matrix B-)
     return direction * position;
 }
 
 glm::vec4* Engine::Camera::GetFrustumPlanes()
 {
-    //full camera matrix from which we'll extract the planes
+    // full camera matrix from which we'll extract the planes
     glm::mat4 matrix = this->projection * this->GetView();
-    //OpenGL uses collumn-major matrix orientation, so we need to transpose it before extraction
+    // OpenGL uses collumn-major matrix orientation, so we need to transpose it before extraction
     matrix = glm::transpose(matrix);
 
     glm::vec4 left {matrix[3] + matrix[0]};
@@ -62,8 +62,8 @@ glm::vec4* Engine::Camera::GetFrustumPlanes()
     glm::vec4 near {matrix[3] + matrix[2]};
     glm::vec4 far {matrix[3] - matrix[2]};
 
-    //array of planes to fill in
-    //normalizing them means that the first three values of each plane will be their respective normal
+    // array of planes to fill in
+    // normalizing them means that the first three values of each plane will be their respective normal
     glm::vec4 planes[6] = {glm::normalize(left), glm::normalize(right), glm::normalize(top),
                            glm::normalize(bottom), glm::normalize(near), glm::normalize(far)};
     

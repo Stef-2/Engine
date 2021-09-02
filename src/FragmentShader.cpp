@@ -2,22 +2,22 @@
 
 FragmentShader::FragmentShader()
 {
-    //ctor
+    // ctor
 }
 
 FragmentShader::~FragmentShader()
 {
-    //dtor
+    // dtor
 }
 
 FragmentShader::FragmentShader(const FragmentShader& other)
 {
-    //copy ctor
+    // copy ctor
 }
 
 FragmentShader& FragmentShader::operator=(const FragmentShader& rhs)
 {
-    if (this == &rhs) return *this; // handle self assignment
-    //assignment operator
+    if (this == &rhs) return *this; //  handle self assignment
+    // assignment operator
     return *this;
 }

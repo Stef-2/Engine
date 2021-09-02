@@ -26,7 +26,7 @@ void Engine::Model::LoadMesh(const char* filePath)
         return;
     }
 
-    //vectors to be filled in with data
+    // vectors to be filled in with data
     std::vector<Engine::Bone> bones {};
     std::vector<Engine::VertexBoneData> vertexBoneData {};
 
@@ -39,7 +39,7 @@ void Engine::Model::LoadMesh(const char* filePath)
     unsigned int triangleCount = 0;
     aiVector3D empty{ 0.0f, 0.0f, 0.0f };
 
-    //parse animation data
+    // parse animation data
     if (scene->HasAnimations())
     {
         aiAnimation* animation;
@@ -47,11 +47,11 @@ void Engine::Model::LoadMesh(const char* filePath)
         for (size_t i = 0; i < scene->mNumAnimations; i++)
         {
             animation = scene->mAnimations[i];
-            //animation->mChannels[i].
+            // animation->mChannels[i].
         }
     }
     
-    //go through all the meshes
+    // go through all the meshes
     for (size_t i = 0; i < scene->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[i];
@@ -59,7 +59,7 @@ void Engine::Model::LoadMesh(const char* filePath)
         triangleCount += mesh->mNumFaces;
         vertices.clear();
 
-        //parse bones if they're present
+        // parse bones if they're present
         if (mesh->HasBones())
         {
             for (size_t i = 0; i < mesh->mNumBones; i++)
@@ -78,30 +78,30 @@ void Engine::Model::LoadMesh(const char* filePath)
             }
         }
 
-        //accumulate min and max values of bounding boxes from all meshes since we want one bounding box for the whole model
+        // accumulate min and max values of bounding boxes from all meshes since we want one bounding box for the whole model
         min = glm::min(min, glm::vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z));
         max = glm::max(max, glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
 
-        //go through all their vertices
+        // go through all their vertices
         for (size_t j = 0; j < mesh->mNumVertices; j++)
         {
-            //make sure the required data is present and construct a vertex out of it
+            // make sure the required data is present and construct a vertex out of it
             aiVector3D position = mesh->HasPositions() ? mesh->mVertices[j] : empty;
             aiVector3D normal = mesh->HasNormals() ? mesh->mNormals[j] : empty;
             aiVector3D uv = mesh->HasTextureCoords(0) ? mesh->mTextureCoords[0][j] : empty;
 
-                                   //positions
+                                   // positions
             Engine::Vertex vertex{ {position.x, position.y, position.z},
-                                   //normals
+                                   // normals
                                    {normal.x, normal.y, normal.z},
-                                   //UVs
+                                   // UVs
                                    {uv.x, uv.y} };
 
-            //push it onto the stack
+            // push it onto the stack
             vertices.push_back(vertex);
         }
 
-        //go through all their faces / triangles
+        // go through all their faces / triangles
         for (size_t k = 0; k < mesh->mNumFaces; k++) {
 
             indices.push_back(mesh->mFaces[k].mIndices[0]);

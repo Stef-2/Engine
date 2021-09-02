@@ -9,21 +9,21 @@
 
 namespace Engine
 {
-    //keyframe struct for vector types
+    // keyframe struct for vector types
     struct VectorKeyFrame
     {
         glm::vec3 value;
         float timestamp;
     };
 
-    //keyframe struct for quaternion types
+    // keyframe struct for quaternion types
     struct QuaternionKeyFrame
     {
         glm::quat value;
         float timestamp;
     };
 
-    //an array of transform keys for each node / bone
+    // an array of transform keys for each node / bone
     struct AnimationNode
     {
         std::vector<Engine::VectorKeyFrame> positionKeys;
@@ -59,4 +59,4 @@ namespace Engine
         unsigned int ticksPerSecond;
     };
 }
-#endif // ANIMATION_H
+#endif //  ANIMATION_H

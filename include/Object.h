@@ -20,8 +20,8 @@
 namespace Engine
 {
 
-    //base object class, containing transformation
-    //and children data
+    // base object class, containing transformation
+    // and children data
     class Object
     {
         public:
@@ -70,4 +70,4 @@ namespace Engine
     };
 
 }
-#endif // OBJECT_H
+#endif //  OBJECT_H

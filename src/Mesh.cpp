@@ -79,17 +79,17 @@ void Engine::Mesh::Setup()
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
-    //bind the vertex buffer
+    // bind the vertex buffer
     glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-    //fill the vertex buffer with data
+    // fill the vertex buffer with data
     glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
-    //bind the element buffer
+    // bind the element buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    //fill the element buffer with data
+    // fill the element buffer with data
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
-    //construct triangle data out of vertices and indices
+    // construct triangle data out of vertices and indices
     for (size_t i = 0; i < this->indices.size() - 2; i += 3)
         this->triangles.push_back({ &this->vertices.at(indices.at(i)), &this->vertices.at(indices.at(i + 1)), &this->vertices.at(indices.at(i + 2)) });
 }

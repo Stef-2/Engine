@@ -100,9 +100,6 @@
     <ClCompile Include="src\FragmentShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\glad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -155,6 +152,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Skeleton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -14,9 +14,9 @@
 namespace Engine
 {
 
-    //a camera class, inheriting transformation mechanisms from Engine::Object
-    //provides the Vew() and Projection() matrices needed for rendering
-    //provides frustum clipping planes, needed for frustum culling
+    // a camera class, inheriting transformation mechanisms from Engine::Object
+    // provides the Vew() and Projection() matrices needed for rendering
+    // provides frustum clipping planes, needed for frustum culling
     class Camera : public Engine::Object
     {
         using Engine::Object::Object;
@@ -24,21 +24,21 @@ namespace Engine
         public:
             void Setup(float speed, float aspectRatio, float nearClip, float farClip, float fov);
 
-            //view, built from camera's transformations and the Up direction
+            // view, built from camera's transformations and the Up direction
             glm::mat4 GetView();
-            //projection matrix, combining field of view, aspect ratio, near and far clip planes
+            // projection matrix, combining field of view, aspect ratio, near and far clip planes
             glm::mat4 GetProjection();
 
-            //camera's forward, normalized direction vector; effectivelly this is just it's rotation
+            // camera's forward, normalized direction vector; effectivelly this is just it's rotation
             glm::vec3 GetForwardDirection();
 
-            //a normalized vector that determines the "Up" direction; usually positive Y axis (0.0, 1.0, 0.0)
+            // a normalized vector that determines the "Up" direction; usually positive Y axis (0.0, 1.0, 0.0)
             glm::vec3 GetUpDirection();
 
-            //camera's right, normalized direction vector; cross product of Forward and Up vectors
+            // camera's right, normalized direction vector; cross product of Forward and Up vectors
             glm::vec3 GetRightDirection();
 
-            //camera's view frustum clipping planes, to be used for frustum culling by the renderer
+            // camera's view frustum clipping planes, to be used for frustum culling by the renderer
             glm::vec4* GetFrustumPlanes();
             
 
@@ -48,31 +48,31 @@ namespace Engine
             float GetFarClip();
             float GetFov();
 
-            //camera's "Up" direction, usually positive direction of Y axis
+            // camera's "Up" direction, usually positive direction of Y axis
             void SetUpDirection(glm::vec3 direction);
 
-            //set and use an arbitrary projection matrix, any calls for UpdateProjection() made afterwards will invalidate this
+            // set and use an arbitrary projection matrix, any calls for UpdateProjection() made afterwards will invalidate this
             void SetProjection(glm::mat4 projection);
 
-            //updates the projection matrix, should be called every time any of the following parameters change:
-            //<fov, aspect ratio, near clip or far clip>, all functions that changes these already call this function
+            // updates the projection matrix, should be called every time any of the following parameters change:
+            // <fov, aspect ratio, near clip or far clip>, all functions that changes these already call this function
             void UpdateProjection();
 
-            //speed expressed in arbitrary world units, to be used as a multiplier for movement
+            // speed expressed in arbitrary world units, to be used as a multiplier for movement
             void SetSpeed(float speed);
 
-            //ratio of camera's frustum width and height dimensions
-            //if the desired ratio is the same as rendering window's, it can be acquired from Engine::Window::GetAspectRatio()
+            // ratio of camera's frustum width and height dimensions
+            // if the desired ratio is the same as rendering window's, it can be acquired from Engine::Window::GetAspectRatio()
             void SetAspectRatio(float aspectRatio);
 
-            //elements closer than this value are not rendered
+            // elements closer than this value are not rendered
             void SetNearClip(float nearClip);
 
-            //elements further than this value are not rendered
+            // elements further than this value are not rendered
             void SetFarClip(float farClip);
 
-            //field of view, expressed in degrees
-            //usually 45 to 90 degrees
+            // field of view, expressed in degrees
+            // usually 45 to 90 degrees
             void SetFov(float fov);
 
         private:
@@ -86,4 +86,4 @@ namespace Engine
             float fov;
     };
 }
-#endif // CAMERA_H
+#endif //  CAMERA_H

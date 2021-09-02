@@ -23,11 +23,11 @@ int main()
     camera.SetUpDirection(glm::vec3(0.0f, 1.0f, 0.0f));
     Engine::InitializeCallbacks(&motor);
 
-    //-----------------------------------------------
-    //Engine::OcTree<int> octree(3);;
-    //octree.child.mins = { -64.0f, -64.0f, -64.0f };
-    //octree.child.maxs = { 64.0f, 64.0f, 64.0f };
-    //octree.Subdivide();
+    // -----------------------------------------------
+    // Engine::OcTree<int> octree(3);;
+    // octree.child.mins = { -64.0f, -64.0f, -64.0f };
+    // octree.child.maxs = { 64.0f, 64.0f, 64.0f };
+    // octree.Subdivide();
 
     unsigned int vertexCount = 0;
     unsigned int triangleCount = 0;
@@ -103,7 +103,7 @@ int main()
     obj1.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\PLANTS_ON_TABLE.jpg");
     */
 
-    //----------------------------------------------------------
+    // ----------------------------------------------------------
 
     Engine::Shader skyBoxShader("C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\skybox.vs",
                                 "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\skybox.fs");
@@ -122,7 +122,7 @@ int main()
     skyBox.SetTexture(skyBoxTex);
 
     skyBox.Setup();
-    //skyBox.ScaleAbsolute(10.0f, 10.0f, 10.0f);
+    // skyBox.ScaleAbsolute(10.0f, 10.0f, 10.0f);
 
     std::vector<Engine::Actor*> actors;
     actors.push_back(&obj1);
@@ -139,18 +139,18 @@ int main()
         }
     }
 
-    //-----------------------------------------------
+    // -----------------------------------------------
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-    //glDisable(GL_DEPTH_TEST);
+    // glDisable(GL_DEPTH_TEST);
     lastTime = glfwGetTime();
-    //!!!-------------- main loop --------------!!!
+    // !!!-------------- main loop --------------!!!
     while(!glfwWindowShouldClose(motor.GetWindow().GetGlWindow()))
     {
-        //theres a whole bunch of overlap in here, gotta cleanup
-        //obj1.MoveRelative(0.1f * deltaTime, 0.0f, 0.0f);
-        //obj2.MoveRelative(-0.1f * deltaTime, 0.0f, 0.0f);
+        // theres a whole bunch of overlap in here, gotta cleanup
+        // obj1.MoveRelative(0.1f * deltaTime, 0.0f, 0.0f);
+        // obj2.MoveRelative(-0.1f * deltaTime, 0.0f, 0.0f);
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -183,13 +183,13 @@ int main()
             camera.MoveRelative(camera.GetUpDirection(), -8.0f * deltaTime);
         }
 
-        //obj2.RotateRelative(0.0f, 2.0f, 0.0f);
-        //obj2.MoveRelative(0.2f, 0.0f, 0.0f);
+        // obj2.RotateRelative(0.0f, 2.0f, 0.0f);
+        // obj2.MoveRelative(0.2f, 0.0f, 0.0f);
         
         numCulls = actors.size() - renderer.FrustumCull(camera, actors).size();
         renderer.Render(camera, renderer.FrustumCull(camera, actors));
-        //camera.Draw(&obj1);
-        //camera.Draw(&obj2);
+        // camera.Draw(&obj1);
+        // camera.Draw(&obj2);
         renderer.Render(camera, skyBox);
 
         motor.GetWindow().SetTitle(std::string("Frame time: " + std::to_string(frameMs) + " ms - FPS: " + std::to_string(fps) +
@@ -203,16 +203,16 @@ int main()
 
         
 
-        //obj1.Draw(&camera); //big guy (for me)
-        //obj2.Draw(&camera); //small guy
+        // obj1.Draw(&camera); // big guy (for me)
+        // obj2.Draw(&camera); // small guy
 
-        //camera.Draw(obj1.GetModel()->GetBoundingBox());
-        //camera.Draw(obj2.GetModel()->GetBoundingBox());
+        // camera.Draw(obj1.GetModel()->GetBoundingBox());
+        // camera.Draw(obj2.GetModel()->GetBoundingBox());
 
-        //obj1.RotateRelative(0.0f * deltaTime, -50.0f * deltaTime, 0.0f * deltaTime);
-        //obj2.RotateRelative(0.0f * deltaTime, 50.0f * deltaTime, 0.0f * deltaTime );
+        // obj1.RotateRelative(0.0f * deltaTime, -50.0f * deltaTime, 0.0f * deltaTime);
+        // obj2.RotateRelative(0.0f * deltaTime, 50.0f * deltaTime, 0.0f * deltaTime );
         
-        //camera.Draw(&octree);
+        // camera.Draw(&octree);
     }
 
     glfwTerminate();
@@ -271,19 +271,19 @@ void Engine::MouseCallback(GLFWwindow* window, double xPos, double yPos)
     direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     direction.y = sin(glm::radians(pitch));
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    //std::cout << difX << " - " << difY << std::endl;
-    //camera.RotateAbsolute(direction.x, direction.y, direction.z);
+    // std::cout << difX << " - " << difY << std::endl;
+    // camera.RotateAbsolute(direction.x, direction.y, direction.z);
     camera.RotateRelative(rot.x, rot.y, 0.0f);
 }
 
 void Engine::ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 {
-    //camera.SetFov(camera.GetFov() - (float)yOffset);
+    // camera.SetFov(camera.GetFov() - (float)yOffset);
 }
 
 int Engine::Initialize()
 {
-    // Initialize the library
+    //  Initialize the library
     if (!glfwInit())
         return 0;
 
@@ -292,7 +292,7 @@ int Engine::Initialize()
 
 void Engine::InitializeCallbacks(Engine::Motor* motor)
 {
-    //setup glfw callbacks
+    // setup glfw callbacks
     glfwSetErrorCallback(ErrorCallback);
     glfwSetKeyCallback(motor->GetWindow().GetGlWindow(), KeyCallback);
     glfwSetFramebufferSizeCallback(motor->GetWindow().GetGlWindow(), FrameBufferCallback);

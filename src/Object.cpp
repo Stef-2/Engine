@@ -101,22 +101,22 @@ void Engine::Object::MoveAbsolute(float x, float y, float z)
 
 void Engine::Object::RotateRelative(float x, float y, float z)
 {
-    //construct quaternions for each of the three axis rotations
+    // construct quaternions for each of the three axis rotations
     glm::quat pitch = glm::angleAxis(glm::radians(x), glm::vec3(1, 0, 0));
     glm::quat yaw = glm::angleAxis(glm::radians(y), glm::vec3(0, 1, 0));
     glm::quat roll = glm::angleAxis(glm::radians(z), glm::vec3(0, 0, 1));
 
-    //due to the bizarre way multiple quaternion multiplications work -
-    //we have to "sandwich" our orientation between these 3 incoming ones:
-    //multiply them strictly in alternating order to prevent stray rotations from creeping in
+    // due to the bizarre way multiple quaternion multiplications work -
+    // we have to "sandwich" our orientation between these 3 incoming ones:
+    // multiply them strictly in alternating order to prevent stray rotations from creeping in
     this->orientation = glm::normalize(pitch) * this->orientation;
     this->orientation = this->orientation * glm::normalize(yaw);
     this->orientation = glm::normalize(roll) * this->orientation;
 
-    //keep track of regular euler rotations in case we need to print something we can actually understand
+    // keep track of regular euler rotations in case we need to print something we can actually understand
     this->rotation = this->rotation + glm::vec3(x, y, z);
     
-    //keep them in 0 - 360 range to prevent overflows
+    // keep them in 0 - 360 range to prevent overflows
     if (this->rotation.x > 360)
         this->rotation.x -= 360;
     if (this->rotation.y > 360)
@@ -151,13 +151,13 @@ void Engine::Object::ScaleAbsolute(float x, float y, float z)
 
 glm::mat4 Engine::Object::GetTransform()
 {
-    //build an identity matrix
+    // build an identity matrix
     glm::mat4 transform = glm::mat4(1.0f);
     
-    //build a quaternion out of our euler angles
+    // build a quaternion out of our euler angles
     glm::quat quaternion = glm::quat(glm::radians(this->rotation));
 
-    //the correct order of transformation is Scale, Rotate, Translate or SRT for short
+    // the correct order of transformation is Scale, Rotate, Translate or SRT for short
     transform = glm::scale(transform, this->scale);
     transform = glm::translate(transform, this->position);
     transform = transform * glm::mat4_cast(this->orientation);
