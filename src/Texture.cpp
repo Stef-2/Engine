@@ -39,20 +39,24 @@ void Engine::Texture::Setup(const char* filePath)
     int width, height, depth;
     unsigned int texture;
 
+    // stbi tends to flip images for some reason
     stbi_set_flip_vertically_on_load(true);
+    // load data
     this->data = stbi_load(filePath, &width, &height, &depth, 0);
 
+    //check if its valid
     if (this->data) {
 
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
+
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
+        glGenerateMipmap(GL_TEXTURE_2D);
 
         this->textureID = texture;
         this->width = width;
@@ -82,8 +86,10 @@ void Engine::Texture::Setup(const char* filePaths[6])
 
     for (size_t i = 0; i < 6; i++)
     {
+        // load data
         this->data = stbi_load(filePaths[i], &width, &height, &depth, 0);
 
+        // check if its valid
         if (this->data) {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->data);
 

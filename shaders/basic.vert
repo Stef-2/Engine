@@ -1,14 +1,11 @@
-#version 120
+#version 460 core
 
-attribute vec3 vertexPosition;
-attribute vec3 vertexNormal;
-attribute vec2 vertexCoordinate;
+layout (location = 0) in vec3 vertexPosition;
+layout (location = 1) in vec3 vertexNormal;
+layout (location = 2) in vec2 vertexCoordinate;
 
-attribute ivec3 boneID;
-attribute vec3 boneWeight;
-
-varying vec3 normal;
-varying vec2 uv;
+out vec3 normal;
+out vec2 uv;
 
 uniform mat4 model;
 uniform mat4 view;

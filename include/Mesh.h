@@ -51,6 +51,7 @@ namespace Engine
 
             // handles for Vertex Buffer and Element Buffer objects
             // they need to be passed to OpenGL functions that are supposed to draw the mesh
+            unsigned int GetVAO();
             unsigned int GetVBO();
             unsigned int GetEBO();
 
@@ -74,6 +75,7 @@ namespace Engine
             std::vector<Triangle> triangles;
 
             // vertex buffer and element buffer objects
+            unsigned int VAO;
             unsigned int VBO;
             unsigned int EBO;
     };

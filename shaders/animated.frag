@@ -1,4 +1,4 @@
-#version 120
+#version 460 core
 
 varying vec3 normal;
 varying vec2 uv;

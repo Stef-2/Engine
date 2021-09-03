@@ -1,8 +1,11 @@
-#version 120
+#version 460 core
 
 attribute vec3 vertexPosition;
 attribute vec3 vertexNormal;
 attribute vec2 vertexCoordinate;
+
+attribute ivec3 boneID;
+attribute vec3 boneWeight;
 
 varying vec3 normal;
 varying vec2 uv;

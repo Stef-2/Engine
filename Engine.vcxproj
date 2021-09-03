@@ -202,12 +202,12 @@
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\animated.fs" />
-    <None Include="shaders\animated.vs" />
-    <None Include="shaders\basic.fs" />
-    <None Include="shaders\skybox.fs" />
-    <None Include="shaders\skybox.vs" />
-    <None Include="shaders\basic.vs" />
+    <None Include="shaders\animated.frag" />
+    <None Include="shaders\animated.vert" />
+    <None Include="shaders\basic.frag" />
+    <None Include="shaders\skybox.frag" />
+    <None Include="shaders\skybox.vert" />
+    <None Include="shaders\basic.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -49,7 +49,7 @@ void Engine::Window::Initialize()
             this->openGlWindow = glfwCreateWindow(width, height, title.c_str(), monitor, share);
             glfwMakeContextCurrent(openGlWindow);
             glfwSetInputMode(openGlWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            glfwSwapInterval(1);
+            glfwSwapInterval(0);
             gladLoadGL();
 
             // OpenGL isn't required to give us the requested version, we'll store whatever it gave us

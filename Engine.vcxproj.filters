@@ -159,22 +159,22 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\basic.fs">
+    <None Include="shaders\basic.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="shaders\basic.vs">
+    <None Include="shaders\basic.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="shaders\skybox.fs">
+    <None Include="shaders\skybox.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="shaders\skybox.vs">
+    <None Include="shaders\skybox.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="shaders\animated.fs">
+    <None Include="shaders\animated.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="shaders\animated.vs">
+    <None Include="shaders\animated.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

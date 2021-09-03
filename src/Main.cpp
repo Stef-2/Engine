@@ -12,7 +12,7 @@ int main()
         glfwTerminate();
 
     Engine::Motor& motor = Engine::Motor::GetInstance();
-
+    std::filesystem::path path;
     
     Engine::Window window(1280, 720, "Engine", NULL, NULL, glm::ivec2(4, 6));
     std::cout << "version: " << window.GetGivenVersion() << std::endl;
@@ -63,17 +63,17 @@ int main()
 
     std::cout << str << std::endl;*/
 
-    Engine::Shader basic("C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\basic.vs",
-                          "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\basic.fs");
+    Engine::Shader basic("C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\basic.vert",
+                          "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\basic.frag");
     
     Engine::Actor obj1;
     obj1.SetShader(basic);
-
-    obj1.SetModel(Engine::Model("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Barrel.obj"));
+    
+    obj1.SetModel(Engine::Model("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\barrel.obj"));
 
     obj1.GetModel()->LoadMaterial(Engine::Material());
-    obj1.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Barrel_BaseColor.png");
-    
+    obj1.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\barrel_BaseColor.png");
+    /*
     Engine::Actor obj2;
     obj2.SetShader(basic);
 
@@ -92,7 +92,7 @@ int main()
     obj3.GetModel()->LoadMaterial(Engine::Material());
     obj3.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Anoplophora_Diffuse.png");
     obj3.MoveRelative(-10.0f, 0.0f, -10.0f);
-
+    */
     /*
     Engine::Actor obj1;
     obj1.SetShader(basic);
@@ -104,9 +104,9 @@ int main()
     */
 
     // ----------------------------------------------------------
-
-    Engine::Shader skyBoxShader("C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\skybox.vs",
-                                "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\skybox.fs");
+    
+    Engine::Shader skyBoxShader("C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\skybox.vert",
+                                "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\skybox.frag");
 
     Engine::Skybox skyBox;
     skyBox.SetShader(skyBoxShader);
@@ -123,11 +123,11 @@ int main()
 
     skyBox.Setup();
     // skyBox.ScaleAbsolute(10.0f, 10.0f, 10.0f);
-
+    
     std::vector<Engine::Actor*> actors;
     actors.push_back(&obj1);
-    actors.push_back(&obj2);
-    actors.push_back(&obj3);
+    //actors.push_back(&obj2);
+    //actors.push_back(&obj3);
 
 
     for (size_t i = 0; i < actors.size(); i++)
@@ -186,8 +186,9 @@ int main()
         // obj2.RotateRelative(0.0f, 2.0f, 0.0f);
         // obj2.MoveRelative(0.2f, 0.0f, 0.0f);
         
-        numCulls = actors.size() - renderer.FrustumCull(camera, actors).size();
+        //numCulls = actors.size() - renderer.FrustumCull(camera, actors).size();
         renderer.Render(camera, renderer.FrustumCull(camera, actors));
+        renderer.Render(camera, *obj1.GetModel()->GetBoundingBox());
         // camera.Draw(&obj1);
         // camera.Draw(&obj2);
         renderer.Render(camera, skyBox);
@@ -247,15 +248,15 @@ void Engine::MouseCallback(GLFWwindow* window, double xPos, double yPos)
     lastX = xPos;
     lastY = yPos;
 
-    float sensitivity = 3;
+    float sensitivity = 150;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
     yaw   += xoffset;
     pitch += yoffset;
 
-    double difX = (xPos - oldX) * (sensitivity * deltaTime);
-    double difY = (yPos - oldY) * (sensitivity * deltaTime);
+    float difX = (xPos - oldX) * (sensitivity * deltaTime);
+    float difY = (yPos - oldY) * (sensitivity * deltaTime);
 
     oldX = xPos;
     oldY = yPos;

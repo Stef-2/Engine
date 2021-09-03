@@ -41,29 +41,29 @@ namespace Engine
 		Texture* GetMetallic();
 
 	private:
-		// ---------------physically correct data----------------// 
+		// ---------------physically correct data---------------// 
 		Engine::Texture diffuseMap;								// 
 		Engine::Texture roughnessMap;							// 
 		Engine::Texture metallicMap;							// 
 																// 
-		// global multipliers for the channels above				// 
+		// global multipliers for the channels above			// 
 		// can be used as a value in case a map is not provided	// 
 		glm::vec3 diffuse;										// 
 		float roughness;										// 
 		float metallic;											// 
-		// ------------------------------------------------------// 
+		// -----------------------------------------------------// 
 
-		// --------------physically incorrect data---------------// 
+		// --------------physically incorrect data--------------// 
 		Engine::Texture specularMap;							// 
 		Engine::Texture normalMap;								// 
 		Engine::Texture alphaMap;								// 
 																// 
-		// global multipliers for the channels above				// 
+		// global multipliers for the channels above			// 
 		// can be used as a value in case a map is not provided	// 
 		float specular;											// 
 		glm::vec3 normal;										// 
 		float alpha;											// 
-		// ------------------------------------------------------// 
+		// -----------------------------------------------------// 
 	};
 
 }

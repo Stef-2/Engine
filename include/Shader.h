@@ -24,7 +24,7 @@ namespace Engine
         public:
 
             // enumerator for the different shader attribute we may wish to retrive
-            typedef enum class ShaderAttribute {
+            enum class ShaderAttribute {
                 MODEL_LOCATION,
                 VIEW_LOCATION,
                 PROJECTION_LOCATION,

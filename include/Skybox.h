@@ -27,6 +27,9 @@ namespace Engine
         // handles for Vertex Buffer
         // needs to be passed to OpenGL functions that are supposed to draw the mesh
         unsigned int GetVBO();
+        unsigned int GetVAO();
+
+        // cubemap vertices
         float* GetVertices();
 
         void Setup();
@@ -35,7 +38,8 @@ namespace Engine
         Engine::Texture texture;
         Engine::Shader shader;
 
-        // vertex buffer object
+        // vertex  and element buffer objects
+        unsigned int VAO;
         unsigned int VBO;
 
         std::unique_ptr<float*> vertices;
