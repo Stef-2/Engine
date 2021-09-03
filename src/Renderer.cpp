@@ -3,6 +3,8 @@
 Engine::Renderer::Renderer()
 {
     this->colorDepth = 24;
+    this->wireframeShader = { "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.vert",
+                              "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.frag" };
 }
 
 std::vector<Engine::Actor*> Engine::Renderer::FrustumCull(Engine::Camera& camera, std::vector<Engine::Actor*> actors)
@@ -96,21 +98,18 @@ void Engine::Renderer::Render(Engine::Camera& camera, Engine::BoundingBox& box)
     float yOffset = sizeOffset.y;
     float zOffset = sizeOffset.z;
 
-    // build a transform matrix for the bounding box
+    // build an identity transform matrix for the bounding box
     glm::mat4 transform(1.0f);
 
-    // get whatever shader is currently being used, it should do for simple wireframe rendering
-    Engine::Shader* currentShader = Engine::Shader::GetCurrentShader();
-
-    // use whatever current shader we managed to retrieve
-    glUseProgram(currentShader->GetProgramID());
+    // use the wireframe utility shader
+    this->wireframeShader.Activate();
 
     // pass the model, view and projection (MVP) matrices to the shader
-    glUniformMatrix4fv(currentShader->GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(transform));
+    glUniformMatrix4fv(this->wireframeShader.GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(transform));
 
-    glUniformMatrix4fv(currentShader->GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetView()));
+    glUniformMatrix4fv(this->wireframeShader.GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetView()));
 
-    glUniformMatrix4fv(currentShader->GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
+    glUniformMatrix4fv(this->wireframeShader.GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
 
     // create vertex buffer and element buffer objects
     unsigned int VAO;
@@ -178,8 +177,8 @@ void Engine::Renderer::Render(Engine::Camera& camera, Engine::Skybox& skybox)
     glDepthFunc(GL_LEQUAL);
     skybox.GetShader()->Activate();
 
-    // we can trick the shader into thinking the skybox has infinite / max depth by removing the last row and collumn from the view matrix
-    // we can do that by converting the 4x4 matrix into a 3x3 one and then back
+    // we trick the shader into thinking the skybox is moving along with the camera by removing its position data from the view transform matrix
+    // we can do that by converting the 4x4 view matrix into a 3x3 one and then back
     glm::mat4 view = glm::mat4(glm::mat3(camera.GetView()));
 
     glUniformMatrix4fv(skybox.GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(view));
@@ -191,7 +190,6 @@ void Engine::Renderer::Render(Engine::Camera& camera, Engine::Skybox& skybox)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.GetTexture()->GetTextureID());
 
-    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     glDepthFunc(GL_LESS);

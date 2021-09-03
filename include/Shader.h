@@ -34,7 +34,7 @@ namespace Engine
             };
 
             Shader();
-            Shader(const char* vertexShader, const char* fragmentShader);
+            Shader(std::string vertexShader, std::string fragmentShader);
 
             // Shader(const Shader& other);
             // Shader& operator=(const Shader& other);
@@ -53,8 +53,8 @@ namespace Engine
             std::string GetLogData();
 
             // load vertex and fragment shaders from files
-            int SetVertexShader(const char* filePath);
-            int SetFragmentShader(const char* filePath);
+            int SetVertexShader(std::string filePath);
+            int SetFragmentShader(std::string filePath);
 
             // compiles vertex and fragment shaders into a program and binds it
             // needs to be run after every shader change

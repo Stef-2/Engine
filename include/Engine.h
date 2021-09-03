@@ -9,6 +9,7 @@
 #include "glm/vec3.hpp"
 #include "glfw3.h"
 
+#include "filesystem"
 #include "iostream"
 
 namespace Engine
@@ -17,14 +18,14 @@ namespace Engine
     // Motor (Engine) class, named so as not to be confused with the project's namespace
     // the class is designed as a singleton for the following reasons:
     // 1. it is the outermost class of the program, encapsulating everything else. At no point does it make any sense to have multiple instances of it
-    // 2. it holds much of the high level engine settings which would be cumbersome to constantly pass around if they were local to a single object
+    // 2. it holds much of the high level Motor settings which would be cumbersome to constantly pass around if they were local to a single object
     // 3. it employs glfw callbacks which, being C functions - are unaware of objects or this->pointer and thus have to be either fully global or declared static
     // 4. I'm looking for an excuse to implement a singleton pattern in this project
-
-    // the engine instantiates Renderer and Collider subsystems, glfw's hardware input and error handling callbacks
+    //----------------------------------------------------------------------------------------------------------------------------
+    // the Motor instantiates Renderer and Collider subsystems, glfw's hardware input and error handling callbacks
     // it can hold any number of Engine::Window objects, which create and initialize OpenGL contexts for rendering
-    // the class holds general engine related options and data
-    // finaly, it employs the Run() function which serves as the main engine loop
+    // the class holds general Motor related options and data
+    // finaly, it employs the Run() function which serves as the main Motor loop
     class Motor
     {
         public:
@@ -34,6 +35,21 @@ namespace Engine
             // make sure it can't be copy constructed
             Motor(Motor const&) = delete;
             void operator=(Motor const&) = delete;
+
+            // file path provider for various folders in which engine resources can be found
+            enum class EngineFilePath
+            {
+                ENGINE_PATH,
+                RESOURCES_PATH,
+                SHADERS_PATH,
+                MODELS_PATH,
+                TEXTURES_PATH,
+                SKYBOXES_PATH,
+                IMAGES_PATH
+            };
+
+            // retrieves the requested directory path
+            std::string GetFilePath(EngineFilePath path);
 
             // wrapper class for OpenGL window struct
             // holds requested and given OpenGL version -
@@ -68,10 +84,10 @@ namespace Engine
             // updates delta time, should be used once every engine cycle
             void SetDeltaTime();
 
-            // in-engine animation that plays when the program is started
+            // in-Motor animation that plays when the program is started
             void Intro();
 
-            // the main engine loop
+            // the main Motor loop
             void Run();
             
         private:

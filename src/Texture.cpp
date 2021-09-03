@@ -14,7 +14,7 @@ Engine::Texture::~Texture()
     // if (this->data != NULL) delete data;
 }
 
-Engine::Texture::Texture(const char* filePath)
+Engine::Texture::Texture(std::string filePath)
 {
     this->data = {};
     this->width = {};
@@ -24,7 +24,7 @@ Engine::Texture::Texture(const char* filePath)
     this->Setup(filePath);
 }
 
-Engine::Texture::Texture(const char* filePaths[6])
+Engine::Texture::Texture(std::string filePaths[6])
 {
     this->data = {};
     this->width = {};
@@ -34,7 +34,7 @@ Engine::Texture::Texture(const char* filePaths[6])
     this->Setup(filePaths);
 }
 
-void Engine::Texture::Setup(const char* filePath)
+void Engine::Texture::Setup(std::string filePath)
 {
     int width, height, depth;
     unsigned int texture;
@@ -42,7 +42,7 @@ void Engine::Texture::Setup(const char* filePath)
     // stbi tends to flip images for some reason
     stbi_set_flip_vertically_on_load(true);
     // load data
-    this->data = stbi_load(filePath, &width, &height, &depth, 0);
+    this->data = stbi_load(filePath.c_str(), &width, &height, &depth, 0);
 
     //check if its valid
     if (this->data) {
@@ -74,7 +74,7 @@ void Engine::Texture::Setup(const char* filePath)
     }
 }
 
-void Engine::Texture::Setup(const char* filePaths[6])
+void Engine::Texture::Setup(std::string filePaths[6])
 {
     int width, height, depth;
     unsigned int texture;
@@ -87,7 +87,7 @@ void Engine::Texture::Setup(const char* filePaths[6])
     for (size_t i = 0; i < 6; i++)
     {
         // load data
-        this->data = stbi_load(filePaths[i], &width, &height, &depth, 0);
+        this->data = stbi_load(filePaths[i].c_str(), &width, &height, &depth, 0);
 
         // check if its valid
         if (this->data) {

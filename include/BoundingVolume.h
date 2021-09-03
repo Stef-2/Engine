@@ -20,7 +20,7 @@ namespace Engine
     // forward declaration of BoudingSphere so BoundingBox can reference it
     struct BoundingSphere;
 
-    // axis aligned bounding box, fully encloses a mesh
+    // axis aligned bounding box, fully encapsulates a mesh
     // we're defining a bounding box using two diagonal corners
     //            o-------o <-maxs
     //           /|      /|

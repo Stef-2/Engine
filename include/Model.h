@@ -27,9 +27,9 @@ namespace Engine
 	{
 	public:
 		Model();
-		Model(const char* filePath);
+		Model(std::string filePath);
 
-		void LoadMesh(const char* filePath);
+		void LoadMesh(std::string filePath);
 		void LoadMesh(const Mesh& other);
 		void LoadMaterial(const Material& material);
 		void SetBoundingBox(glm::vec3 mins, glm::vec3 maxs);

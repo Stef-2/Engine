@@ -10,18 +10,18 @@ int main()
 {
     if (!Engine::Initialize())
         glfwTerminate();
-
-    Engine::Motor& motor = Engine::Motor::GetInstance();
-    std::filesystem::path path;
     
     Engine::Window window(1280, 720, "Engine", NULL, NULL, glm::ivec2(4, 6));
+    Engine::Motor& engine = Engine::Motor::GetInstance();
+
     std::cout << "version: " << window.GetGivenVersion() << std::endl;
-    motor.SetWindow(window);
+
+    engine.SetWindow(window);
 
     Engine::Object::SetActiveObject(&camera);
-    camera.Setup(1.0f, motor.GetWindow().GetAspectRatio(), 0.1f, 1000.0f, 45.0f);
+    camera.Setup(1.0f, engine.GetWindow().GetAspectRatio(), 0.1f, 1000.0f, 45.0f);
     camera.SetUpDirection(glm::vec3(0.0f, 1.0f, 0.0f));
-    Engine::InitializeCallbacks(&motor);
+    Engine::InitializeCallbacks(&engine);
 
     // -----------------------------------------------
     // Engine::OcTree<int> octree(3);;
@@ -39,9 +39,6 @@ int main()
     float frameMs = 0.0f;
     int nFrames = 0;
     int fps = 0;
-
-    Engine::Renderer renderer;
-    Engine::Collider collider;
 
     /*Engine::Triangle tri1{ {{0.0f, 5.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
                            {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
@@ -63,16 +60,16 @@ int main()
 
     std::cout << str << std::endl;*/
 
-    Engine::Shader basic("C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\basic.vert",
-                          "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\basic.frag");
+    Engine::Shader basic(engine.GetFilePath(Engine::Motor::EngineFilePath::SHADERS_PATH).append("\\basic.vert"),
+                         engine.GetFilePath(Engine::Motor::EngineFilePath::SHADERS_PATH).append("\\basic.frag"));
     
     Engine::Actor obj1;
     obj1.SetShader(basic);
     
-    obj1.SetModel(Engine::Model("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\barrel.obj"));
+    obj1.SetModel(Engine::Model(engine.GetFilePath(Engine::Motor::EngineFilePath::MODELS_PATH).append("\\barrel.obj")));
 
     obj1.GetModel()->LoadMaterial(Engine::Material());
-    obj1.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\barrel_BaseColor.png");
+    obj1.GetModel()->GetMaterials()->at(0).SetDiffuse(engine.GetFilePath(Engine::Motor::EngineFilePath::TEXTURES_PATH).append("\\barrel_BaseColor.png"));
     /*
     Engine::Actor obj2;
     obj2.SetShader(basic);
@@ -105,18 +102,18 @@ int main()
 
     // ----------------------------------------------------------
     
-    Engine::Shader skyBoxShader("C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\skybox.vert",
-                                "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\skybox.frag");
+    Engine::Shader skyBoxShader(engine.GetFilePath(Engine::Motor::EngineFilePath::SHADERS_PATH).append("\\skybox.vert"),
+                                engine.GetFilePath(Engine::Motor::EngineFilePath::SHADERS_PATH).append("\\skybox.frag"));
 
     Engine::Skybox skyBox;
     skyBox.SetShader(skyBoxShader);
 
-    const char* skyBoxTextures[6] = {"C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Daylight Box_Right.bmp",
-                                     "C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Daylight Box_Left.bmp",
-                                     "C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Daylight Box_Top.bmp",
-                                     "C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Daylight Box_Bottom.bmp",
-                                     "C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Daylight Box_Front.bmp",
-                                     "C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Daylight Box_Back.bmp"};
+    std::string skyBoxTextures[6] = { engine.GetFilePath(Engine::Motor::EngineFilePath::SKYBOXES_PATH).append("\\day\\4.bmp"),
+                                      engine.GetFilePath(Engine::Motor::EngineFilePath::SKYBOXES_PATH).append("\\day\\2.bmp"),
+                                      engine.GetFilePath(Engine::Motor::EngineFilePath::SKYBOXES_PATH).append("\\day\\1.bmp"),
+                                      engine.GetFilePath(Engine::Motor::EngineFilePath::SKYBOXES_PATH).append("\\day\\3.bmp"),
+                                      engine.GetFilePath(Engine::Motor::EngineFilePath::SKYBOXES_PATH).append("\\day\\5.bmp"),
+                                      engine.GetFilePath(Engine::Motor::EngineFilePath::SKYBOXES_PATH).append("\\day\\6.bmp") };
 
     Engine::Texture skyBoxTex(skyBoxTextures);
     skyBox.SetTexture(skyBoxTex);
@@ -146,7 +143,7 @@ int main()
     // glDisable(GL_DEPTH_TEST);
     lastTime = glfwGetTime();
     // !!!-------------- main loop --------------!!!
-    while(!glfwWindowShouldClose(motor.GetWindow().GetGlWindow()))
+    while(!glfwWindowShouldClose(engine.GetWindow().GetGlWindow()))
     {
         // theres a whole bunch of overlap in here, gotta cleanup
         // obj1.MoveRelative(0.1f * deltaTime, 0.0f, 0.0f);
@@ -164,22 +161,22 @@ int main()
             lastTime += 1.0f;
         }
 
-        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_W) == GLFW_PRESS) {
+        if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_W) == GLFW_PRESS) {
             camera.MoveRelative(camera.GetForwardDirection(), 8.0f * deltaTime);
         }
-        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_S) == GLFW_PRESS) {
+        if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_S) == GLFW_PRESS) {
             camera.MoveRelative(camera.GetForwardDirection(), -8.0f * deltaTime);
         }
-        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_A) == GLFW_PRESS) {
+        if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_A) == GLFW_PRESS) {
             camera.MoveRelative(camera.GetRightDirection(), -8.0f * deltaTime);
         }
-        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_D) == GLFW_PRESS) {
+        if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_D) == GLFW_PRESS) {
             camera.MoveRelative(camera.GetRightDirection(), 8.0f * deltaTime);
         }
-        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
+        if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
             camera.MoveRelative(camera.GetUpDirection(), 8.0f * deltaTime);
         }
-        if (glfwGetKey(motor.GetWindow().GetGlWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+        if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
             camera.MoveRelative(camera.GetUpDirection(), -8.0f * deltaTime);
         }
 
@@ -187,18 +184,18 @@ int main()
         // obj2.MoveRelative(0.2f, 0.0f, 0.0f);
         
         //numCulls = actors.size() - renderer.FrustumCull(camera, actors).size();
-        renderer.Render(camera, renderer.FrustumCull(camera, actors));
-        renderer.Render(camera, *obj1.GetModel()->GetBoundingBox());
+        engine.GetRenderer().Render(camera, engine.GetRenderer().FrustumCull(camera, actors));
+        engine.GetRenderer().Render(camera, *obj1.GetModel()->GetBoundingBox());
         // camera.Draw(&obj1);
         // camera.Draw(&obj2);
-        renderer.Render(camera, skyBox);
+        engine.GetRenderer().Render(camera, skyBox);
 
-        motor.GetWindow().SetTitle(std::string("Frame time: " + std::to_string(frameMs) + " ms - FPS: " + std::to_string(fps) +
+        engine.GetWindow().SetTitle(std::string("Frame time: " + std::to_string(frameMs) + " ms - FPS: " + std::to_string(fps) +
             " - Position: X: " + std::to_string(camera.GetPosition().x) + " - Y: " + std::to_string(camera.GetPosition().y) + " - Z: " + std::to_string(camera.GetPosition().z) +
             " - Rotation: X: " + std::to_string(camera.GetRotation().x) + " - Y: " + std::to_string(camera.GetRotation().y) + " - Z: " + std::to_string(camera.GetRotation().z) +
             " - number of culled objects: " + std::to_string(numCulls) + " - vertex count: " + std::to_string(vertexCount) + "- tri count: " + std::to_string(triangleCount)));
         
-        glfwSwapBuffers(motor.GetWindow().GetGlWindow());
+        glfwSwapBuffers(engine.GetWindow().GetGlWindow());
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -291,12 +288,12 @@ int Engine::Initialize()
     return 1;
 }
 
-void Engine::InitializeCallbacks(Engine::Motor* motor)
+void Engine::InitializeCallbacks(Engine::Motor* Motor)
 {
     // setup glfw callbacks
     glfwSetErrorCallback(ErrorCallback);
-    glfwSetKeyCallback(motor->GetWindow().GetGlWindow(), KeyCallback);
-    glfwSetFramebufferSizeCallback(motor->GetWindow().GetGlWindow(), FrameBufferCallback);
-    glfwSetCursorPosCallback(motor->GetWindow().GetGlWindow(), MouseCallback);
-    glfwSetScrollCallback(motor->GetWindow().GetGlWindow(), ScrollCallback);
+    glfwSetKeyCallback(Motor->GetWindow().GetGlWindow(), KeyCallback);
+    glfwSetFramebufferSizeCallback(Motor->GetWindow().GetGlWindow(), FrameBufferCallback);
+    glfwSetCursorPosCallback(Motor->GetWindow().GetGlWindow(), MouseCallback);
+    glfwSetScrollCallback(Motor->GetWindow().GetGlWindow(), ScrollCallback);
 }

@@ -25,15 +25,18 @@ namespace Engine
             Texture();
 
             // regular textures
-            Texture(const char* filePath);
-            Texture(const char* filePaths[6]);
+            Texture(std::string filePath);
+            Texture(std::string filePaths[6]);
 
             ~Texture();
 
             // loads the texture from a file
             // and binds it into an OpenGL texture object
-            void Setup(const char* filePath);
-            void Setup(const char* filePaths[6]);
+            void Setup(std::string filePath);
+
+            // loads 6 texture files for skyboxes (Cubemaps)
+            // order is left, right, top, bottom, front, back
+            void Setup(std::string filePaths[6]);
 
             // this is the handle to the texture object
             // pass it to OpenGL before any rendering using this texture takes place

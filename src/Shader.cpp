@@ -16,7 +16,7 @@ Engine::Shader::Shader()
     this->vertexUvLocation = {};
 }
 
-Engine::Shader::Shader(const char* vertexShader, const char* fragmentShader)
+Engine::Shader::Shader(std::string vertexShader, std::string fragmentShader)
 {
     this->compileSuccess = 0;
     this->vertexShader = 0;
@@ -60,7 +60,7 @@ Engine::Shader::Shader(const char* vertexShader, const char* fragmentShader)
     return *this;
 }*/
 
-int Engine::Shader::SetVertexShader(const char* filePath)
+int Engine::Shader::SetVertexShader(std::string filePath)
 {
     std::string code;
     char c;
@@ -102,7 +102,7 @@ int Engine::Shader::SetVertexShader(const char* filePath)
     }
 }
 
-int Engine::Shader::SetFragmentShader(const char* filePath)
+int Engine::Shader::SetFragmentShader(std::string filePath)
 {
     std::string code;
     char c;

@@ -45,7 +45,7 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos);
 
 void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
 
-void InitializeCallbacks(Motor* motor);
+void InitializeCallbacks(Motor* Motor);
 
 int Initialize();
 }

@@ -86,11 +86,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resources\wood.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="src\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -175,6 +170,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shaders\animated.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\wireframe.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\wireframe.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

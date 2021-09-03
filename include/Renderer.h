@@ -1,11 +1,11 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-// #include "glfw3.h"
 #include "Camera.h"
 #include "Actor.h"
 #include "BoundingVolume.h"
 #include "Skybox.h"
+#include "Shader.h"
 
 #include "vector"
 
@@ -37,7 +37,12 @@ namespace Engine
         int GetColorDepth();
 
     private:
+        // wireframe utility shader, meant to be used for bounding volume rendering -
+        // no real point in defining it outside, or attaching it to individual bounding box objects - 
+        // they are meant to be lightweight by design, and bounding box rendering is intended to be mostly used for debugging
+        Shader wireframeShader;
         int colorDepth;
+
     };
 
 

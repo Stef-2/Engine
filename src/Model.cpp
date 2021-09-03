@@ -6,7 +6,7 @@ Engine::Model::Model()
 	this->materials = {};
 }
 
-Engine::Model::Model(const char* filePath)
+Engine::Model::Model(std::string filePath)
 {
 	this->meshes = {};
 	this->materials = {};
@@ -14,7 +14,7 @@ Engine::Model::Model(const char* filePath)
 	this->LoadMesh(filePath);
 }
 
-void Engine::Model::LoadMesh(const char* filePath)
+void Engine::Model::LoadMesh(std::string filePath)
 {
     Assimp::Importer importer;
 
