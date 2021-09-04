@@ -25,6 +25,7 @@ void Engine::Model::LoadMesh(std::string filePath)
                         aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes | 
                         aiProcess_GenBoundingBoxes | aiProcess_ImproveCacheLocality);
 
+    // make sure the import succeeded
     if (!scene) {
         std::cerr << importer.GetErrorString() << std::endl;
         return;
@@ -41,6 +42,7 @@ void Engine::Model::LoadMesh(std::string filePath)
 
     // utility vectors to be filled in with data
     std::vector<Engine::VertexBoneData> vertexBoneData {};
+    std::vector<Engine::Bone> bones;
     Engine::Skeleton skeleton{};
 
     std::vector<Engine::Vertex> vertices {};
@@ -61,7 +63,7 @@ void Engine::Model::LoadMesh(std::string filePath)
     if (scene->HasAnimations())
     {
         aiAnimation* animation;
-
+        std::cout << "Model: " << filePath << " has animation data." << std::endl;
         for (size_t i = 0; i < scene->mNumAnimations; i++)
         {
             animation = scene->mAnimations[i];
@@ -76,6 +78,7 @@ void Engine::Model::LoadMesh(std::string filePath)
         vertexCount += mesh->mNumVertices;
         triangleCount += mesh->mNumFaces;
         vertices.clear();
+        indices.clear();
 
         // accumulate min and max values of bounding boxes from all parsed meshes since we want one bounding box for the entire model
         min = glm::min(min, glm::vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z));
@@ -126,12 +129,12 @@ void Engine::Model::LoadMesh(std::string filePath)
             }
         }
 
-        // go through all mesh faces / triangles
-        for (size_t k = 0; k < mesh->mNumFaces; k++) {
+        // go through all mesh faces / triangles and form indices
+        for (size_t j = 0; j < mesh->mNumFaces; j++) {
 
-            indices.push_back(mesh->mFaces[k].mIndices[0]);
-            indices.push_back(mesh->mFaces[k].mIndices[1]);
-            indices.push_back(mesh->mFaces[k].mIndices[2]);
+            indices.push_back(mesh->mFaces[j].mIndices[0]);
+            indices.push_back(mesh->mFaces[j].mIndices[1]);
+            indices.push_back(mesh->mFaces[j].mIndices[2]);
         }
 
         // parse bones if they're present
@@ -141,26 +144,34 @@ void Engine::Model::LoadMesh(std::string filePath)
 
             // pass the inverted root node transform to mesh skeleton as the global inverse matrix, needed for correct placement of bones
             skeleton.SetGlobalInverseMatrix(glm::inverse(AiMatrixToGlm(rootNode->mTransformation)));
-
             
             // go through all the bones
             for (size_t j = 0; j < mesh->mNumBones; j++)
             {
                 aiBone* bone = mesh->mBones[j];
-
+                
                 // convert the offset matrix into a glm one
                 glm::mat4 matrix = AiMatrixToGlm(mesh->mBones[j]->mOffsetMatrix);
 
-                // go through all the weights for the bone
-                for (size_t l = 0; l < bone->mNumWeights; l++)
+                // find the scene node with a matching name
+                aiNode* match = rootNode->FindNode(bone->mName);
+                
+                // push a new bone to the stack
+                bones.push_back(Engine::Bone(bone->mName.C_Str(), AiMatrixToGlm(bone->mOffsetMatrix), bone->mNumWeights));
+
+                // start at the found match and work our way up the tree until we find the root
+                while (match->mName != rootNode->mName)
                 {
-                    //vertexBoneData.push_back( Engine::VertexBoneData{ bone->mWeights->mVertexId, bone->mWeights->mWeight } );
+                    match = match->mParent;
+
+                    // add up all parent transformations until we reach the end
+                    bones.back().AddInheritedTransform(AiMatrixToGlm(match->mTransformation));
                 }
             }
         }
 
-        // fully made mesh
-        meshes.push_back(Mesh(vertices, indices));
+        // fully made mesh with no animation
+        this->meshes.push_back(Mesh(vertices, indices));
 
     }
 
@@ -168,6 +179,7 @@ void Engine::Model::LoadMesh(std::string filePath)
     std::cout << "model: " << filePath << " vertex count: " << vertexCount << std::endl;
     std::cout << "model: " << filePath << " triangle count: " << triangleCount << std::endl;
 
+    // set the final bounding box for the entire model
     this->SetBoundingBox(min, max);
 }
 

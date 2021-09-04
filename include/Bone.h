@@ -41,6 +41,7 @@ namespace Engine
 
 		std::string GetName();
 		glm::mat4 GetTransform();
+		std::vector<glm::mat4> GetInheritedTransforms();
 		unsigned int GetNumAffectedVertices();
 		unsigned int GetID();
 
@@ -50,6 +51,7 @@ namespace Engine
 
 		void SetName(std::string name);
 		void SetTransform(glm::mat4 transform);
+		void AddInheritedTransform(glm::mat4 transform);
 		void SetNumAffectedVerts(unsigned int numAffectedVerts);
 		void SetID(unsigned int id);
 
@@ -64,6 +66,7 @@ namespace Engine
 
 		std::string name;
 		glm::mat4 transform;
+		std::vector<glm::mat4> inheritedTransforms;
 		unsigned int numAffectedVerts;
 		unsigned int id;
 	};

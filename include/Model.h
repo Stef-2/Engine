@@ -9,6 +9,7 @@
 
 #include "Mesh.h"
 #include "Bone.h"
+#include "Node.h"
 #include "Material.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"

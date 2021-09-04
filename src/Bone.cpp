@@ -34,6 +34,11 @@ glm::mat4 Engine::Bone::GetTransform()
 	return this->transform;
 }
 
+std::vector<glm::mat4> Engine::Bone::GetInheritedTransforms()
+{
+	return this->inheritedTransforms;
+}
+
 unsigned int Engine::Bone::GetNumAffectedVertices()
 {
 	return this->numAffectedVerts;
@@ -67,6 +72,11 @@ void Engine::Bone::SetName(std::string name)
 void Engine::Bone::SetTransform(glm::mat4 transform)
 {
 	this->transform = transform;
+}
+
+void Engine::Bone::AddInheritedTransform(glm::mat4 transform)
+{
+	this->inheritedTransforms.push_back(transform);
 }
 
 void Engine::Bone::SetNumAffectedVerts(unsigned int numAffectedVerts)

@@ -70,17 +70,19 @@ int main()
 
     obj1.GetModel()->LoadMaterial(Engine::Material());
     obj1.GetModel()->GetMaterials()->at(0).SetDiffuse(engine.GetFilePath(Engine::Motor::EngineFilePath::TEXTURES_PATH).append("\\barrel_BaseColor.png"));
-    /*
+    
+    // ---------------------------------------------------------------------------------------------------------------------
+
     Engine::Actor obj2;
     obj2.SetShader(basic);
 
-    obj2.SetModel(Engine::Model("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\midPoly human\\Body_Posed.obj"));
+    obj2.SetModel(Engine::Model(engine.GetFilePath(Engine::Motor::EngineFilePath::MODELS_PATH).append("\\AW101.fbx")));
 
     obj2.GetModel()->LoadMaterial(Engine::Material());
-    obj2.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\midPoly human\\Body_Subdermal.jpg");
+    obj2.GetModel()->GetMaterials()->at(0).SetDiffuse(engine.GetFilePath(Engine::Motor::EngineFilePath::TEXTURES_PATH).append("\\AW101.png"));
     obj2.MoveRelative(10.0f, 0.0f, 10.0f);
-    obj1.MoveRelative(0.0f, 0.0f, 0.0f);
 
+    /*
     Engine::Actor obj3;
     obj3.SetShader(basic);
 
@@ -123,7 +125,7 @@ int main()
     
     std::vector<Engine::Actor*> actors;
     actors.push_back(&obj1);
-    //actors.push_back(&obj2);
+    actors.push_back(&obj2);
     //actors.push_back(&obj3);
 
 
