@@ -46,10 +46,11 @@ glm::mat4 Engine::Camera::GetView()
     return direction * position;
 }
 
-glm::vec4* Engine::Camera::GetFrustumPlanes()
+std::vector<glm::vec4> Engine::Camera::GetFrustumPlanes()
 {
     // full camera matrix from which we'll extract the planes
     glm::mat4 matrix = this->projection * this->GetView();
+
     // OpenGL uses collumn-major matrix orientation, so we need to transpose it before extraction
     matrix = glm::transpose(matrix);
 
@@ -64,7 +65,7 @@ glm::vec4* Engine::Camera::GetFrustumPlanes()
 
     // array of planes to fill in
     // normalizing them means that the first three values of each plane will be their respective normal
-    glm::vec4 planes[6] = {glm::normalize(left), glm::normalize(right), glm::normalize(top),
+    std::vector<glm::vec4> planes = {glm::normalize(left), glm::normalize(right), glm::normalize(top),
                            glm::normalize(bottom), glm::normalize(near), glm::normalize(far)};
     
     return planes;

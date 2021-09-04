@@ -5,6 +5,7 @@
 
 #include "Shader.h"
 #include "Material.h"
+#include "Skeleton.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -27,8 +28,8 @@ namespace Engine
     // vertex extension for animated meshes
     struct VertexBoneData
     {
-        glm::uvec3 boneID;
-        glm::vec3 boneWeight;
+        std::vector<unsigned int> boneID;
+        std::vector<float> boneWeight;
     };
 
     // triangle data for collision detection
@@ -44,8 +45,12 @@ namespace Engine
     {
         public:
             Mesh();
+            
+            // non animatied mesh
             Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
-            Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<VertexBoneData> bones);
+
+            // animated mesh
+            Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Engine::Skeleton& skeleton, std::vector<VertexBoneData> bones);
 
             void Setup();
 
@@ -59,15 +64,21 @@ namespace Engine
             std::vector<unsigned int>* GetIndices();
             std::vector<Triangle> GetTriangles();
             std::vector<VertexBoneData> GetBones();
+            Engine::Skeleton& GetSkeleton();
 
             void SetVertices(std::vector<Vertex> vertices);
             void SetIndices(std::vector<unsigned int> indices);
 
 
         private:
+            // Mr.Skeltal
+            Engine::Skeleton skeleton;
+
             // mesh vertices
             std::vector<Vertex> vertices;
-            std::vector<VertexBoneData> bones;
+
+            // vertex data extension that describes connection between vertices and bone(s) affecting them
+            std::vector<VertexBoneData> boneWeights;
 
             // order in which they connect to form triangles
             std::vector<unsigned int> indices;

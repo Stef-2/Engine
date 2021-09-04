@@ -39,7 +39,7 @@ namespace Engine
             glm::vec3 GetRightDirection();
 
             // camera's view frustum clipping planes, to be used for frustum culling by the renderer
-            glm::vec4* GetFrustumPlanes();
+            std::vector<glm::vec4> GetFrustumPlanes();
             
 
             float GetSpeed();

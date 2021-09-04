@@ -21,7 +21,7 @@
     <ClInclude Include="include\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\FragmentShader.h">
+    <ClInclude Include="include\Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\glfw3.h">
@@ -92,7 +92,7 @@
     <ClCompile Include="src\Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\FragmentShader.cpp">
+    <ClCompile Include="src\Node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Main.cpp">

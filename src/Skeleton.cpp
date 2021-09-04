@@ -2,20 +2,30 @@
 
 Engine::Skeleton::Skeleton()
 {
-	this->rootBone = {};
+	this->rootNode = {};
 }
 
-Engine::Skeleton::Skeleton(Engine::Bone& rootBone)
+Engine::Skeleton::Skeleton(Engine::Node<Engine::Bone>& rootNode)
 {
-	this->rootBone = rootBone;
+	this->rootNode = rootNode;
 }
 
-Engine::Bone& Engine::Skeleton::GetRootBone()
+Engine::Node<Engine::Bone>& Engine::Skeleton::GetRootNode()
 {
-	return this->rootBone;
+	return this->rootNode;
 }
 
-void Engine::Skeleton::SetRootBone(Engine::Bone& rootBone)
+glm::mat4 Engine::Skeleton::GetGlobalInverseMatrix()
 {
-	this->rootBone = rootBone;
+	return this->globalInverseMatrix;
+}
+
+void Engine::Skeleton::SetRootNode(Engine::Node<Engine::Bone>& rootNode)
+{
+	this->rootNode = rootNode;
+}
+
+void Engine::Skeleton::SetGlobalInverseMatrix(glm::mat4 matrix)
+{
+	this->globalInverseMatrix = matrix;
 }

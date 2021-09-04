@@ -31,7 +31,7 @@ bool Engine::Collider::Intersects(Engine::BoundingBox& first, Engine::BoundingBo
 
 bool Engine::Collider::Intersects(Engine::BoundingSphere& first, Engine::BoundingSphere& second)
 {
-    // check if the sum of radi is greater than the distance between the spheres
+    // check if the sum of radii is greater than the distance between the spheres
     return glm::distance(first.center, second.center) < (first.radius + second.radius);
 }
 
@@ -62,44 +62,6 @@ bool Engine::Collider::Intersects(Engine::BoundingBox& box, Engine::BoundingSphe
 
     return distance > 0;
 }
-
-/* bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& second)
-{
-    // Moller97 triangle - triangle intersection detection algorithm
-
-    // abandonware
-
-    // plane equation for the first triangle
-    glm::vec3 firstNormal = glm::cross(first.b.position - first.a.position, first.c.position - first.a.position);
-    float firstDistance = glm::dot(-firstNormal, first.a.position);
-
-    // plane equation for the second triangle
-    glm::vec3 secondNormal = glm::cross(second.b.position - second.a.position, second.c.position - second.a.position);
-    float secondDistance = glm::dot(-secondNormal, second.a.position);
-
-    // distances of first triangle's vertices to the second plane
-    float firstD1 = glm::dot(secondNormal, first.a.position) + secondDistance;
-    float firstD2 = glm::dot(secondNormal, first.b.position) + secondDistance;
-    float firstD3 = glm::dot(secondNormal, first.c.position) + secondDistance;
-
-    // distances of second triangle's vertices to the first plane
-    float secondD1 = glm::dot(firstNormal, second.a.position) + firstDistance;
-    float secondD2 = glm::dot(firstNormal, second.b.position) + firstDistance;
-    float secondD3 = glm::dot(firstNormal, second.c.position) + firstDistance;
-
-    // direction of the line formed by the intersection of the two planes
-    glm::vec3 lineDirection = glm::cross(firstNormal, secondNormal);
-    
-    // projections of first triangle's vertices onto the planes intersection line
-    float projectionOntoLine_1a = glm::dot(lineDirection, first.a.position);
-    float projectionOntoLine_1b = glm::dot(lineDirection, first.b.position);
-    float projectionOntoLine_1c = glm::dot(lineDirection, first.c.position);
-
-    // projections of second triangle's vertices onto the planes intersection line
-    float projectionOntoLine_2a = glm::dot(lineDirection, second.a.position);
-    float projectionOntoLine_2b = glm::dot(lineDirection, second.b.position);
-    float projectionOntoLine_2c = glm::dot(lineDirection, second.c.position);
-}*/
 
 bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& second)
 {

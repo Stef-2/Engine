@@ -183,7 +183,7 @@ int main()
         // obj2.RotateRelative(0.0f, 2.0f, 0.0f);
         // obj2.MoveRelative(0.2f, 0.0f, 0.0f);
         
-        //numCulls = actors.size() - renderer.FrustumCull(camera, actors).size();
+        numCulls = actors.size() - engine.GetRenderer().FrustumCull(camera, actors).size();
         engine.GetRenderer().Render(camera, engine.GetRenderer().FrustumCull(camera, actors));
         engine.GetRenderer().Render(camera, *obj1.GetModel()->GetBoundingBox());
         // camera.Draw(&obj1);

@@ -18,25 +18,43 @@ void Engine::Model::LoadMesh(std::string filePath)
 {
     Assimp::Importer importer;
 
-    const aiScene* scene = importer.ReadFile(filePath, aiProcess_DropNormals | aiProcess_GenSmoothNormals | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |
-                                                       aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes | aiProcess_GenBoundingBoxes | aiProcess_ImproveCacheLocality);
+    const aiScene* scene = importer.ReadFile
+                        (filePath,
+                        aiProcess_DropNormals | aiProcess_GenSmoothNormals | 
+                        aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |
+                        aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes | 
+                        aiProcess_GenBoundingBoxes | aiProcess_ImproveCacheLocality);
 
     if (!scene) {
         std::cerr << importer.GetErrorString() << std::endl;
         return;
     }
 
-    // vectors to be filled in with data
-    std::vector<Engine::Bone> bones {};
+    // utility lambda function that transforms an assimp aiMatrix4x4 into glm::mat4
+    auto AiMatrixToGlm = [](aiMatrix4x4 matrix) {
+
+        return glm::mat4 { matrix.a1, matrix.a2, matrix.a3, matrix.a4,
+                           matrix.b1, matrix.b2, matrix.b3, matrix.b4,
+                           matrix.c1, matrix.c2, matrix.c3, matrix.c4,
+                           matrix.d1, matrix.d2, matrix.d3, matrix.d4 };
+    };
+
+    // utility vectors to be filled in with data
     std::vector<Engine::VertexBoneData> vertexBoneData {};
+    Engine::Skeleton skeleton{};
 
     std::vector<Engine::Vertex> vertices {};
     std::vector<unsigned int> indices {};
 
+    // utility vectors for manual bounding box building
     glm::vec3 min{ 0.0f };
     glm::vec3 max{ 0.0f };
+
+    // debug vars for vertex / polycount sanity checks
     unsigned int vertexCount = 0;
     unsigned int triangleCount = 0;
+
+    // assimp native empty vector3, to be used for any missing vertex data so its not left uninitialized
     aiVector3D empty{ 0.0f, 0.0f, 0.0f };
 
     // parse animation data
@@ -59,33 +77,18 @@ void Engine::Model::LoadMesh(std::string filePath)
         triangleCount += mesh->mNumFaces;
         vertices.clear();
 
-        // parse bones if they're present
-        if (mesh->HasBones())
-        {
-            for (size_t i = 0; i < mesh->mNumBones; i++)
-            {
-                aiMatrix4x4 offset = mesh->mBones[i]->mOffsetMatrix;
-                
-
-                glm::mat4 matrix{ offset.a1, offset.a2, offset.a3, offset.a4,
-                                  offset.b1, offset.b2, offset.b3, offset.b4,
-                                  offset.c1, offset.c2, offset.c3, offset.c4,
-                                  offset.d1, offset.d2, offset.d3, offset.d4 };
-
-                aiVertexWeight weights = mesh->mBones[i]->mWeights[3];
-                Engine::Bone bone(std::string(mesh->mBones[i]->mName.C_Str()), matrix, mesh->mBones[i]->mNumWeights);
-                bones.push_back(bone);
-            }
-        }
-
-        // accumulate min and max values of bounding boxes from all meshes since we want one bounding box for the whole model
+        // accumulate min and max values of bounding boxes from all parsed meshes since we want one bounding box for the entire model
         min = glm::min(min, glm::vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z));
         max = glm::max(max, glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
 
-        // go through all their vertices
-        for (size_t j = 0; j < mesh->mNumVertices; j++)
+        // fill the vertex bone data struct with full range of blank data
+        if (mesh->HasBones()) vertexBoneData.assign(mesh->mNumVertices, Engine::VertexBoneData{});
+
+        // go through all mesh vertices
+        for (unsigned int j = 0; j < mesh->mNumVertices; j++)
         {
             // make sure the required data is present and construct a vertex out of it
+            // in case data isn't there for whatever reason, substitute an empty vec3 so we don't end up with uninitialized values
             aiVector3D position = mesh->HasPositions() ? mesh->mVertices[j] : empty;
             aiVector3D normal = mesh->HasNormals() ? mesh->mNormals[j] : empty;
             aiVector3D uv = mesh->HasTextureCoords(0) ? mesh->mTextureCoords[0][j] : empty;
@@ -99,9 +102,31 @@ void Engine::Model::LoadMesh(std::string filePath)
 
             // push it onto the stack
             vertices.push_back(vertex);
+
+            // in case the mesh has bones, parse them for weight data
+            if (mesh->HasBones())
+            {
+                // go through all the bones
+                for (size_t k = 0; k < mesh->mNumBones; k++)
+                {
+                    aiBone* bone = mesh->mBones[k];
+
+                    // go through all the weights for a given bone
+                    for (size_t l = 0; l < bone->mNumWeights; l++)
+                    {
+                        // check if the weight ID and vertex index match
+                        if (bone->mWeights[l].mVertexId == j)
+                        {
+                            // push new vertex bone data for a matching vertex 
+                            vertexBoneData.at(j).boneID.push_back(k);
+                            vertexBoneData.at(j).boneWeight.push_back(bone->mWeights->mWeight);
+                        }
+                    }
+                }
+            }
         }
 
-        // go through all their faces / triangles
+        // go through all mesh faces / triangles
         for (size_t k = 0; k < mesh->mNumFaces; k++) {
 
             indices.push_back(mesh->mFaces[k].mIndices[0]);
@@ -109,10 +134,37 @@ void Engine::Model::LoadMesh(std::string filePath)
             indices.push_back(mesh->mFaces[k].mIndices[2]);
         }
 
+        // parse bones if they're present
+        if (mesh->HasBones())
+        {
+            aiNode* rootNode = scene->mRootNode;
+
+            // pass the inverted root node transform to mesh skeleton as the global inverse matrix, needed for correct placement of bones
+            skeleton.SetGlobalInverseMatrix(glm::inverse(AiMatrixToGlm(rootNode->mTransformation)));
+
+            
+            // go through all the bones
+            for (size_t j = 0; j < mesh->mNumBones; j++)
+            {
+                aiBone* bone = mesh->mBones[j];
+
+                // convert the offset matrix into a glm one
+                glm::mat4 matrix = AiMatrixToGlm(mesh->mBones[j]->mOffsetMatrix);
+
+                // go through all the weights for the bone
+                for (size_t l = 0; l < bone->mNumWeights; l++)
+                {
+                    //vertexBoneData.push_back( Engine::VertexBoneData{ bone->mWeights->mVertexId, bone->mWeights->mWeight } );
+                }
+            }
+        }
+
+        // fully made mesh
         meshes.push_back(Mesh(vertices, indices));
 
     }
 
+    // debug
     std::cout << "model: " << filePath << " vertex count: " << vertexCount << std::endl;
     std::cout << "model: " << filePath << " triangle count: " << triangleCount << std::endl;
 

@@ -1,7 +1,10 @@
 #ifndef SKELETON_H
 #define SKELETON_H
 
+#include "Node.h"
 #include "Bone.h"
+
+#include "glm/glm.hpp"
 
 namespace Engine
 {
@@ -10,14 +13,17 @@ namespace Engine
 	{
 	public:
 		Skeleton();
-		Skeleton(Engine::Bone& rootBone);
+		Skeleton(Engine::Node<Engine::Bone>& rootNode);
 
-		Engine::Bone& GetRootBone();
+		Engine::Node<Engine::Bone>& GetRootNode();
+		glm::mat4 GetGlobalInverseMatrix();
 
-		void SetRootBone(Engine::Bone& rootBone);
+		void SetRootNode(Engine::Node<Engine::Bone>& rootNode);
+		void SetGlobalInverseMatrix(glm::mat4 matrix);
 
 	private:
-		Engine::Bone rootBone;
+		Engine::Node<Engine::Bone> rootNode;
+		glm::mat4 globalInverseMatrix;
 	};
 }
 

@@ -4,7 +4,8 @@ Engine::Mesh::Mesh()
 {
     this->vertices = {};
     this->indices = {};
-    this->bones = {};
+    this->skeleton = {};
+    this->boneWeights = {};
     this->triangles = {};
     this->VBO = 0;
     this->EBO = 0;
@@ -14,7 +15,8 @@ Engine::Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indic
 {
     this->vertices = vertices;
     this->indices = indices;
-    this->bones = {};
+    this->skeleton = {};
+    this->boneWeights = {};
     this->triangles = {};
     this->VBO = 0;
     this->EBO = 0;
@@ -22,11 +24,12 @@ Engine::Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indic
     this->Setup();
 }
 
-Engine::Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<VertexBoneData> bones)
+Engine::Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Engine::Skeleton& skeleton, std::vector<VertexBoneData> bones)
 {
     this->vertices = vertices;
     this->indices = indices;
-    this->bones = bones;
+    this->skeleton = skeleton;
+    this->boneWeights = bones;
     this->triangles = {};
     this->VBO = 0;
     this->EBO = 0;
@@ -66,7 +69,7 @@ std::vector<Engine::Triangle> Engine::Mesh::GetTriangles()
 
 std::vector<Engine::VertexBoneData> Engine::Mesh::GetBones()
 {
-    return this->bones;
+    return this->boneWeights;
 }
 
 void Engine::Mesh::SetVertices(std::vector<Engine::Vertex> vertices)

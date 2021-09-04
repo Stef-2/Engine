@@ -1,6 +1,8 @@
 #ifndef BONE_H
 #define BONE_H
 
+#include "Node.h"
+
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
 
@@ -29,7 +31,8 @@ namespace Engine
 	};
 
 
-	// you have been spooked by mr. skeltal
+	// Bone class used for animation
+	// bone hierarchies are packed into an Engine::Skeleton, which is a component of any animated mesh
 	class Bone
 	{
 	public:
@@ -58,9 +61,6 @@ namespace Engine
 		std::vector<PositionKey> positions;
 		std::vector<RotationKey> rotations;
 		std::vector<ScaleKey> scales;
-
-		Bone* parent;
-		std::vector<Bone*> children;
 
 		std::string name;
 		glm::mat4 transform;

@@ -10,7 +10,7 @@ Engine::Renderer::Renderer()
 std::vector<Engine::Actor*> Engine::Renderer::FrustumCull(Engine::Camera& camera, std::vector<Engine::Actor*> actors)
 {
     // get the frustum clipping planes from the camera
-    glm::vec4* frustumPlanes = camera.GetFrustumPlanes();
+    std::vector<glm::vec4> frustumPlanes = camera.GetFrustumPlanes();
 
     glm::vec3 front;
     
