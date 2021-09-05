@@ -65,44 +65,49 @@ void Engine::Model::LoadMesh(std::string filePath)
     // parse animation data
     if (scene->HasAnimations())
     {
+        // debug
         std::cout << "Model: " << filePath << " has animation data." << std::endl;
 
         // go through all the animations
         for (unsigned i = 0; i < scene->mNumAnimations; i++)
         {
             aiAnimation* aiAnimation = scene->mAnimations[i];
+
+            // construct a keyframe vector
+            std::vector<Engine::AnimationNode> keyFrames;
             
             // go through all the animation channels
             for (unsigned j = 0; j < aiAnimation->mNumChannels; j++)
             {
                 aiNodeAnim& channel = *aiAnimation->mChannels[j];
-
+                
                 // construct a native animation node
-                Engine::AnimationNode keyFrames{};
+                Engine::AnimationNode keyFrame{};
 
                 // assign the basic animation parameters
-                keyFrames.name = keyFrames.name = channel.mNodeName.C_Str();
+                keyFrame.name = keyFrame.name = channel.mNodeName.C_Str();
 
                 // create position keyframes
                 for (unsigned k = 0; k < channel.mNumPositionKeys; k++) {
                     aiVectorKey key = channel.mPositionKeys[k];
-                    keyFrames.positionKeys.push_back(Engine::VectorKeyFrame{ glm::vec3{key.mValue[0], key.mValue[1], key.mValue[2]} , float(key.mTime) });
+                    keyFrame.positionKeys.push_back(Engine::VectorKeyFrame{ glm::vec3{key.mValue[0], key.mValue[1], key.mValue[2]} , float(key.mTime) });
                 }
 
-                //create rotation keyframes
+                // create rotation keyframes
                 for (unsigned k = 0; k < channel.mNumRotationKeys; k++) {
                     aiQuatKey key = channel.mRotationKeys[k];
-                    keyFrames.rotationKeys.push_back(Engine::QuaternionKeyFrame{ glm::quat{key.mValue.x, key.mValue.y, key.mValue.z, key.mValue.w }, float(key.mTime) });
+                    keyFrame.rotationKeys.push_back(Engine::QuaternionKeyFrame{ glm::quat{key.mValue.x, key.mValue.y, key.mValue.z, key.mValue.w }, float(key.mTime) });
                 }
 
                 // create scale keyframes
                 for (unsigned k = 0; k < channel.mNumScalingKeys; k++) {
                     aiVectorKey key = channel.mScalingKeys[k];
-                    keyFrames.scaleKeys.push_back(Engine::VectorKeyFrame{ glm::vec3{key.mValue[0], key.mValue[1], key.mValue[2]} , float(key.mTime) });
+                    keyFrame.scaleKeys.push_back(Engine::VectorKeyFrame{ glm::vec3{key.mValue[0], key.mValue[1], key.mValue[2]} , float(key.mTime) });
                 }
-
-                this->animation = Engine::Animation(aiAnimation->mName.C_Str(), float(aiAnimation->mDuration), float(aiAnimation->mTicksPerSecond), keyFrames);
             }
+
+            // assemble and push the whole animation
+            this->AddAnimation(Engine::Animation(aiAnimation->mName.C_Str(), float(aiAnimation->mDuration), float(aiAnimation->mTicksPerSecond), keyFrames));
         }
     }
     
@@ -260,6 +265,11 @@ void Engine::Model::SetSkeleton(Engine::Skeleton& skelly)
     this->skeleton = skelly;
 }
 
+void Engine::Model::AddAnimation(Engine::Animation animation)
+{
+    this->animations.push_back(animation);
+}
+
 std::vector<Engine::Mesh>& Engine::Model::GetMeshes()
 {
     return this->meshes;
@@ -278,4 +288,9 @@ Engine::BoundingBox& Engine::Model::GetBoundingBox()
 Engine::Skeleton& Engine::Model::GetSkeleton()
 {
     return this->skeleton;
+}
+
+std::vector<Engine::Animation>& Engine::Model::GetAnimations()
+{
+    return this->animations;
 }

@@ -37,14 +37,14 @@ namespace Engine
     {
     public:
         Animation();
-        Animation(std::string name, float duration, float ticksPerSecond, AnimationNode nodes);
+        Animation(std::string name, float duration, unsigned int ticksPerSecond, std::vector<Engine::AnimationNode> nodes);
 
-        Engine::AnimationNode& GetNodes();
+        std::vector<Engine::AnimationNode>& GetNodes();
         std::string GetName();
         float GetDuration();
         float GetTicksPerSecond();
 
-        void SetNodes(Engine::AnimationNode& nodes);
+        void SetNodes(std::vector<Engine::AnimationNode>& nodes);
         void SetName(std::string& name);
         void SetDuration(float duration);
         void SetTicksPerSecond(float ticksPerSecond);
@@ -52,7 +52,7 @@ namespace Engine
         void Setup();
 
     private:
-        Engine::AnimationNode nodes;
+        std::vector<Engine::AnimationNode> nodes;
 
         std::string name;
         float duration;
