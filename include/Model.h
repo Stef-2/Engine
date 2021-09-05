@@ -11,6 +11,7 @@
 #include "Bone.h"
 #include "Node.h"
 #include "Material.h"
+#include "Animation.h"
 #include "Skeleton.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -24,7 +25,8 @@
 
 namespace Engine
 {
-
+	// Model class, primarely encapsulates mesh(es) and material(s)
+	// Is able to hold animation data for models using skeletal animation
 	class Model
 	{
 	public:
@@ -45,9 +47,11 @@ namespace Engine
 	private:
 		// Mr.Skeltal
 		Engine::Skeleton skeleton;
+		Engine::Animation animation;
 
 		std::vector<Mesh> meshes;
 		std::vector<Material> materials;
+
 		Engine::BoundingBox boundingBox;
 	};
 

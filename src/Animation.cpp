@@ -8,7 +8,7 @@ Engine::Animation::Animation()
     this->nodes = {};
 }
 
-Engine::Animation::Animation(std::vector<Engine::AnimationNode> nodes, std::string name, float duration, unsigned int ticksPerSecond)
+Engine::Animation::Animation(std::string name, float duration, float ticksPerSecond, Engine::AnimationNode nodes)
 {
     this->duration = duration;
     this->ticksPerSecond = ticksPerSecond;
@@ -18,7 +18,7 @@ Engine::Animation::Animation(std::vector<Engine::AnimationNode> nodes, std::stri
     this->Setup();
 }
 
-std::vector<Engine::AnimationNode>& Engine::Animation::GetNodes()
+Engine::AnimationNode& Engine::Animation::GetNodes()
 {
     return this->nodes;
 }
@@ -33,12 +33,12 @@ float Engine::Animation::GetDuration()
     return this->duration;
 }
 
-unsigned int Engine::Animation::GetTicksPerSecond()
+float Engine::Animation::GetTicksPerSecond()
 {
     return this->ticksPerSecond;
 }
 
-void Engine::Animation::SetNodes(std::vector<Engine::AnimationNode>& nodes)
+void Engine::Animation::SetNodes(Engine::AnimationNode& nodes)
 {
     this->nodes = nodes;
 }
@@ -53,7 +53,7 @@ void Engine::Animation::SetDuration(float duration)
     this->duration = duration;
 }
 
-void Engine::Animation::SetTicksPerSecond(unsigned int ticksPerSecond)
+void Engine::Animation::SetTicksPerSecond(float ticksPerSecond)
 {
     this->ticksPerSecond = ticksPerSecond;
 }
