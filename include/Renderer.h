@@ -20,20 +20,20 @@ namespace Engine
     public:
         Renderer();
 
-        void Render(Engine::Camera& camera, Engine::Actor& actor);
-        void Render(Engine::Camera& camera, std::vector<Engine::Actor*> actors);
-        void Render(Engine::Camera& camera, Engine::BoundingBox& box);
-        void Render(Engine::Camera& camera, Engine::Skybox& skybox);
-        void Render(Engine::Camera& camera, std::vector<Engine::Bone*> bones);
+        void Render(const Engine::Camera& camera, Engine::Actor& actor);
+        void Render(const Engine::Camera& camera, const std::vector<Engine::Actor*>& actors);
+        void Render(const Engine::Camera& camera, const Engine::BoundingBox& box);
+        void Render(const Engine::Camera& camera, Engine::Skybox& skybox);
+        void Render(const Engine::Camera& camera, const std::vector<Engine::Bone*>& bones);
 
         template<typename T>
-        void Render(Engine::Camera& camera, Engine::OcTree<T>& tree);
+        void Render(const Engine::Camera& camera, const Engine::OcTree<T>& tree);
         template<typename T>
-        void RecursiveRender(Engine::Camera& camera, Engine::BoundingNode<T>& node);
+        void RecursiveRender(const Engine::Camera& camera, const Engine::BoundingNode<T>& node);
 
-        std::vector<Engine::Actor*> FrustumCull(Engine::Camera& camera, std::vector<Engine::Actor*> actors);
+        std::vector<Engine::Actor*> FrustumCull(const Engine::Camera& camera, const std::vector<Engine::Actor*> actors);
 
-        void SetColorDepth(int colorDepth);
+        void SetColorDepth(const int colorDepth);
         int GetColorDepth();
 
     private:
@@ -50,7 +50,7 @@ namespace Engine
     // bounding volumes are templated types, we have to define their draw methods here
 
     template<typename T>
-    void Engine::Renderer::RecursiveRender(Engine::Camera& camera, Engine::BoundingNode<T>& node)
+    void Engine::Renderer::RecursiveRender(const Engine::Camera& camera, const Engine::BoundingNode<T>& node)
     {
         // draw ourselves
         this->Render(camera, node);
@@ -62,7 +62,7 @@ namespace Engine
     }
 
     template<typename T>
-    void Engine::Renderer::Render(Engine::Camera& camera, Engine::OcTree<T>& tree)
+    void Engine::Renderer::Render(const Engine::Camera& camera, const Engine::OcTree<T>& tree)
     {
         RecursiveDraw(&tree.child);
     }

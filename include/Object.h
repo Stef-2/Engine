@@ -40,8 +40,8 @@ namespace Engine
             glm::vec3 GetRotation();
             glm::vec3 GetScale();
 
-            static Object* GetActiveObject();
-            static void SetActiveObject(Object* object);
+            static Object& GetActiveObject();
+            static void SetActiveObject(Object& object);
             bool IsMoving();
 
             std::string ToString();

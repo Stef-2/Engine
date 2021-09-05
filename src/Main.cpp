@@ -18,7 +18,7 @@ int main()
 
     engine.SetWindow(window);
 
-    Engine::Object::SetActiveObject(&camera);
+    Engine::Object::SetActiveObject(camera);
     camera.Setup(1.0f, engine.GetWindow().GetAspectRatio(), 0.1f, 1000.0f, 45.0f);
     camera.SetUpDirection(glm::vec3(0.0f, 1.0f, 0.0f));
     Engine::InitializeCallbacks(&engine);
@@ -60,26 +60,26 @@ int main()
 
     std::cout << str << std::endl;*/
 
-    Engine::Shader basic(engine.GetFilePath(Engine::Motor::EngineFilePath::SHADERS_PATH).append("\\basic.vert"),
-                         engine.GetFilePath(Engine::Motor::EngineFilePath::SHADERS_PATH).append("\\basic.frag"));
+    Engine::Shader basic(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\basic.vert"),
+                         engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\basic.frag"));
     
     Engine::Actor obj1;
     obj1.SetShader(basic);
     
-    obj1.SetModel(Engine::Model(engine.GetFilePath(Engine::Motor::EngineFilePath::MODELS_PATH).append("\\barrel.obj")));
+    obj1.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\barrel.obj")));
 
-    obj1.GetModel()->LoadMaterial(Engine::Material());
-    obj1.GetModel()->GetMaterials()->at(0).SetDiffuse(engine.GetFilePath(Engine::Motor::EngineFilePath::TEXTURES_PATH).append("\\barrel_BaseColor.png"));
+    obj1.GetModel().LoadMaterial(Engine::Material());
+    obj1.GetModel().GetMaterials().at(0).SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_BaseColor.png"));
     
     // ---------------------------------------------------------------------------------------------------------------------
 
     Engine::Actor obj2;
     obj2.SetShader(basic);
 
-    obj2.SetModel(Engine::Model(engine.GetFilePath(Engine::Motor::EngineFilePath::MODELS_PATH).append("\\AW101.fbx")));
+    obj2.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\AW101.fbx")));
 
-    obj2.GetModel()->LoadMaterial(Engine::Material());
-    obj2.GetModel()->GetMaterials()->at(0).SetDiffuse(engine.GetFilePath(Engine::Motor::EngineFilePath::TEXTURES_PATH).append("\\AW101.png"));
+    obj2.GetModel().LoadMaterial(Engine::Material());
+    obj2.GetModel().GetMaterials().at(0).SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\AW101.png"));
     obj2.MoveRelative(10.0f, 0.0f, 10.0f);
 
     /*
@@ -104,18 +104,18 @@ int main()
 
     // ----------------------------------------------------------
     
-    Engine::Shader skyBoxShader(engine.GetFilePath(Engine::Motor::EngineFilePath::SHADERS_PATH).append("\\skybox.vert"),
-                                engine.GetFilePath(Engine::Motor::EngineFilePath::SHADERS_PATH).append("\\skybox.frag"));
+    Engine::Shader skyBoxShader(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\skybox.vert"),
+                                engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\skybox.frag"));
 
     Engine::Skybox skyBox;
     skyBox.SetShader(skyBoxShader);
 
-    std::string skyBoxTextures[6] = { engine.GetFilePath(Engine::Motor::EngineFilePath::SKYBOXES_PATH).append("\\day\\4.bmp"),
-                                      engine.GetFilePath(Engine::Motor::EngineFilePath::SKYBOXES_PATH).append("\\day\\2.bmp"),
-                                      engine.GetFilePath(Engine::Motor::EngineFilePath::SKYBOXES_PATH).append("\\day\\1.bmp"),
-                                      engine.GetFilePath(Engine::Motor::EngineFilePath::SKYBOXES_PATH).append("\\day\\3.bmp"),
-                                      engine.GetFilePath(Engine::Motor::EngineFilePath::SKYBOXES_PATH).append("\\day\\5.bmp"),
-                                      engine.GetFilePath(Engine::Motor::EngineFilePath::SKYBOXES_PATH).append("\\day\\6.bmp") };
+    std::string skyBoxTextures[6] = { engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\4.bmp"),
+                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\2.bmp"),
+                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\1.bmp"),
+                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\3.bmp"),
+                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\5.bmp"),
+                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\6.bmp") };
 
     Engine::Texture skyBoxTex(skyBoxTextures);
     skyBox.SetTexture(skyBoxTex);
@@ -131,10 +131,10 @@ int main()
 
     for (size_t i = 0; i < actors.size(); i++)
     {
-        for (size_t j = 0; j < actors.at(i)->GetModel()->GetMeshes()->size(); j++)
+        for (size_t j = 0; j < actors.at(i)->GetModel().GetMeshes().size(); j++)
         {
-            vertexCount += actors.at(i)->GetModel()->GetMeshes()->at(j).GetVertices()->size();
-            triangleCount += actors.at(i)->GetModel()->GetMeshes()->at(j).GetTriangles().size();
+            vertexCount += actors.at(i)->GetModel().GetMeshes().at(j).GetVertices().size();
+            triangleCount += actors.at(i)->GetModel().GetMeshes().at(j).GetTriangles().size();
         }
     }
 
@@ -185,9 +185,10 @@ int main()
         // obj2.RotateRelative(0.0f, 2.0f, 0.0f);
         // obj2.MoveRelative(0.2f, 0.0f, 0.0f);
         
-        numCulls = actors.size() - engine.GetRenderer().FrustumCull(camera, actors).size();
-        engine.GetRenderer().Render(camera, engine.GetRenderer().FrustumCull(camera, actors));
-        engine.GetRenderer().Render(camera, *obj1.GetModel()->GetBoundingBox());
+        std::vector<Engine::Actor*> culled = engine.GetRenderer().FrustumCull(camera, actors);
+        numCulls = actors.size() - culled.size();
+        engine.GetRenderer().Render(camera, culled);
+        engine.GetRenderer().Render(camera, obj1.GetModel().GetBoundingBox());
         // camera.Draw(&obj1);
         // camera.Draw(&obj2);
         engine.GetRenderer().Render(camera, skyBox);

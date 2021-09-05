@@ -12,8 +12,8 @@ namespace Engine
 		using Engine::Object::Object;
 
 	public:
-		Engine::Shader* GetShader();
-		Engine::Model* GetModel();
+		Engine::Shader& GetShader();
+		Engine::Model& GetModel();
 
 		void MoveRelative(glm::vec3 direction, float magnitude) override;
 		void MoveRelative(float x, float y, float z) override;

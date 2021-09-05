@@ -50,7 +50,7 @@ namespace Engine
             Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
 
             // animated mesh
-            Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Engine::Skeleton& skeleton, std::vector<VertexBoneData> bones);
+            Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Engine::Skeleton& skeleton, std::vector<VertexBoneData> boneWeights);
 
             void Setup();
 
@@ -60,14 +60,16 @@ namespace Engine
             unsigned int GetVBO();
             unsigned int GetEBO();
 
-            std::vector<Vertex>* GetVertices();
-            std::vector<unsigned int>* GetIndices();
-            std::vector<Triangle> GetTriangles();
-            std::vector<VertexBoneData> GetBones();
+            std::vector<Vertex>& GetVertices();
+            std::vector<unsigned int>& GetIndices();
+            std::vector<Triangle>& GetTriangles();
+            std::vector<VertexBoneData>& GetBoneWeights();
             Engine::Skeleton& GetSkeleton();
 
             void SetVertices(std::vector<Vertex> vertices);
             void SetIndices(std::vector<unsigned int> indices);
+            void SetBoneWeights(std::vector<VertexBoneData> boneWeights);
+            void SetSkeleton(Engine::Skeleton& skelly);
 
 
         private:
@@ -83,9 +85,10 @@ namespace Engine
             // order in which they connect to form triangles
             std::vector<unsigned int> indices;
 
+            // triangles for collision detection
             std::vector<Triangle> triangles;
 
-            // vertex buffer and element buffer objects
+            // array, vertex buffer and element buffer objects for rendering
             unsigned int VAO;
             unsigned int VBO;
             unsigned int EBO;

@@ -7,7 +7,7 @@ Engine::Renderer::Renderer()
                               "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.frag" };
 }
 
-std::vector<Engine::Actor*> Engine::Renderer::FrustumCull(Engine::Camera& camera, std::vector<Engine::Actor*> actors)
+std::vector<Engine::Actor*> Engine::Renderer::FrustumCull(const Engine::Camera& camera, const std::vector<Engine::Actor*> actors)
 {
     // get the frustum clipping planes from the camera
     std::vector<glm::vec4> frustumPlanes = camera.GetFrustumPlanes();
@@ -32,14 +32,14 @@ std::vector<Engine::Actor*> Engine::Renderer::FrustumCull(Engine::Camera& camera
             visible = true;
 
             // find the vertex of object's bounding box that is farthest along the current frustum plane's normal
-            front = actors.at(i)->GetModel()->GetBoundingBox()->mins;
+            front = actors.at(i)->GetModel().GetBoundingBox().mins;
 
             if (frustumPlanes[j].x >= 0)
-                front.x = actors.at(i)->GetModel()->GetBoundingBox()->maxs.x;
+                front.x = actors.at(i)->GetModel().GetBoundingBox().maxs.x;
             if (frustumPlanes[j].y >= 0)
-                front.y = actors.at(i)->GetModel()->GetBoundingBox()->maxs.y;
+                front.y = actors.at(i)->GetModel().GetBoundingBox().maxs.y;
             if (frustumPlanes[j].z >= 0)
-                front.z = actors.at(i)->GetModel()->GetBoundingBox()->maxs.z;
+                front.z = actors.at(i)->GetModel().GetBoundingBox().maxs.z;
             
             // if the distance from the furthest point to the current plane is less than zero, the whole object is outside the frustum
             if (glm::dot(glm::vec3(frustumPlanes[j]),front) + frustumPlanes[j].w < 0.0f) {
@@ -61,36 +61,36 @@ std::vector<Engine::Actor*> Engine::Renderer::FrustumCull(Engine::Camera& camera
     return visibleActors;
 }
 
-void Engine::Renderer::Render(Engine::Camera& camera, Engine::Actor& actor)
+void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor)
 {
-    actor.GetShader()->Activate();
+    actor.GetShader().Activate();
 
     // find the locations of uniform variables in the shader and assign transform matrices to them
-    glUniformMatrix4fv(actor.GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(actor.GetTransform()));
+    glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(actor.GetTransform()));
     
-    glUniformMatrix4fv(actor.GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetView()));
+    glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetView()));
 
-    glUniformMatrix4fv(actor.GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
+    glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
 
     // go through all the meshes in actor's model and draw them
-    for (size_t i = 0; i < actor.GetModel()->GetMeshes()->size(); i++) {
+    for (size_t i = 0; i < actor.GetModel().GetMeshes().size(); i++) {
 
         // bind the vertex array buffer
-        glBindVertexArray(actor.GetModel()->GetMeshes()->at(i).GetVAO());
+        glBindVertexArray(actor.GetModel().GetMeshes().at(i).GetVAO());
 
         // bind the element buffer
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, actor.GetModel()->GetMeshes()->at(i).GetEBO());
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, actor.GetModel().GetMeshes().at(i).GetEBO());
 
         // bind the corresponding texture
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, actor.GetModel()->GetMaterials()->at(0).GetDiffuse()->GetTextureID());
+        glBindTexture(GL_TEXTURE_2D, actor.GetModel().GetMaterials().at(0).GetDiffuse().GetTextureID());
         
         // render
-        glDrawElements(GL_TRIANGLES, actor.GetModel()->GetMeshes()->at(i).GetIndices()->size(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, actor.GetModel().GetMeshes().at(i).GetIndices().size(), GL_UNSIGNED_INT, 0);
     }
 }
 
-void Engine::Renderer::Render(Engine::Camera& camera, Engine::BoundingBox& box)
+void Engine::Renderer::Render(const Engine::Camera& camera, const Engine::BoundingBox& box)
 {
     // calculate the size of this bounding box, will be useful for vertex calculations and transform matrix
     glm::vec3 sizeOffset = glm::vec3(box.maxs - box.mins);
@@ -172,23 +172,23 @@ void Engine::Renderer::Render(Engine::Camera& camera, Engine::BoundingBox& box)
     glDeleteVertexArrays(1, &VAO);
 }
 
-void Engine::Renderer::Render(Engine::Camera& camera, Engine::Skybox& skybox)
+void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Skybox& skybox)
 {
     glDepthFunc(GL_LEQUAL);
-    skybox.GetShader()->Activate();
+    skybox.GetShader().Activate();
 
     // we trick the shader into thinking the skybox is moving along with the camera by removing its position data from the view transform matrix
     // we can do that by converting the 4x4 view matrix into a 3x3 one and then back
     glm::mat4 view = glm::mat4(glm::mat3(camera.GetView()));
 
-    glUniformMatrix4fv(skybox.GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(skybox.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(view));
 
-    glUniformMatrix4fv(skybox.GetShader()->GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
+    glUniformMatrix4fv(skybox.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
 
     // bind the vertex array buffer
     glBindVertexArray(skybox.GetVAO());
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.GetTexture()->GetTextureID());
+    glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.GetTexture().GetTextureID());
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -196,7 +196,7 @@ void Engine::Renderer::Render(Engine::Camera& camera, Engine::Skybox& skybox)
 }
 
 
-void Engine::Renderer::Render(Engine::Camera& camera, std::vector<Engine::Actor*> actors)
+void Engine::Renderer::Render(const Engine::Camera& camera, const std::vector<Engine::Actor*>& actors)
 {
     for (size_t i = 0; i < actors.size(); i++) {
         this->Render(camera, *actors[i]);

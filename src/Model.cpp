@@ -31,7 +31,7 @@ void Engine::Model::LoadMesh(std::string filePath)
         return;
     }
 
-    // utility lambda function that transforms an assimp aiMatrix4x4 into glm::mat4
+    // utility lambda function that transforms a native assimp aiMatrix4x4 into a glm::mat4 one
     auto AiMatrixToGlm = [](aiMatrix4x4 matrix) {
 
         return glm::mat4 { matrix.a1, matrix.a2, matrix.a3, matrix.a4,
@@ -40,13 +40,14 @@ void Engine::Model::LoadMesh(std::string filePath)
                            matrix.d1, matrix.d2, matrix.d3, matrix.d4 };
     };
 
-    // utility vectors to be filled in with data
+    // utility vectors to be filled with data
     std::vector<Engine::VertexBoneData> vertexBoneData {};
     std::vector<Engine::Bone> bones;
-    Engine::Skeleton skeleton{};
 
     std::vector<Engine::Vertex> vertices {};
     std::vector<unsigned int> indices {};
+
+    Engine::Skeleton skeleton{};
 
     // utility vectors for manual bounding box building
     glm::vec3 min{ 0.0f };
@@ -55,6 +56,7 @@ void Engine::Model::LoadMesh(std::string filePath)
     // debug vars for vertex / polycount sanity checks
     unsigned int vertexCount = 0;
     unsigned int triangleCount = 0;
+    unsigned int boneCount = 0;
 
     // assimp native empty vector3, to be used for any missing vertex data so its not left uninitialized
     aiVector3D empty{ 0.0f, 0.0f, 0.0f };
@@ -75,8 +77,11 @@ void Engine::Model::LoadMesh(std::string filePath)
     for (size_t i = 0; i < scene->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[i];
+
         vertexCount += mesh->mNumVertices;
         triangleCount += mesh->mNumFaces;
+        boneCount += mesh->mNumBones;
+
         vertices.clear();
         indices.clear();
 
@@ -146,7 +151,7 @@ void Engine::Model::LoadMesh(std::string filePath)
             skeleton.SetGlobalInverseMatrix(glm::inverse(AiMatrixToGlm(rootNode->mTransformation)));
             
             // go through all the bones
-            for (size_t j = 0; j < mesh->mNumBones; j++)
+            for (unsigned int j = 0; j < mesh->mNumBones; j++)
             {
                 aiBone* bone = mesh->mBones[j];
                 
@@ -155,13 +160,20 @@ void Engine::Model::LoadMesh(std::string filePath)
 
                 // find the scene node with a matching name
                 aiNode* match = rootNode->FindNode(bone->mName);
+
+                // find the mesh node so we know how far up the tree we need to go
+                aiNode* meshNode = rootNode->FindNode(mesh->mName);
                 
                 // push a new bone to the stack
                 bones.push_back(Engine::Bone(bone->mName.C_Str(), AiMatrixToGlm(bone->mOffsetMatrix), bone->mNumWeights));
 
-                // start at the found match and work our way up the tree until we find the root
-                while (match->mName != rootNode->mName)
+                // assign the bones index as its ID
+                bones.back().SetID(j);
+
+                // start at the found match and work our way up the tree until we find the mesh root node
+                while (match->mName != meshNode->mName)
                 {
+                    // keep going up
                     match = match->mParent;
 
                     // add up all parent transformations until we reach the end
@@ -178,6 +190,7 @@ void Engine::Model::LoadMesh(std::string filePath)
     // debug
     std::cout << "model: " << filePath << " vertex count: " << vertexCount << std::endl;
     std::cout << "model: " << filePath << " triangle count: " << triangleCount << std::endl;
+    std::cout << "model: " << filePath << " bone count: " << boneCount << std::endl;
 
     // set the final bounding box for the entire model
     this->SetBoundingBox(min, max);
@@ -198,17 +211,17 @@ void Engine::Model::SetBoundingBox(glm::vec3 mins, glm::vec3 maxs)
     this->boundingBox = Engine::BoundingBox{mins, maxs};
 }
 
-std::vector<Engine::Mesh>* Engine::Model::GetMeshes()
+std::vector<Engine::Mesh>& Engine::Model::GetMeshes()
 {
-    return &this->meshes;
+    return this->meshes;
 }
 
-std::vector<Engine::Material>* Engine::Model::GetMaterials()
+std::vector<Engine::Material>& Engine::Model::GetMaterials()
 {
-    return &this->materials;
+    return this->materials;
 }
 
-Engine::BoundingBox* Engine::Model::GetBoundingBox()
+Engine::BoundingBox& Engine::Model::GetBoundingBox()
 {
-    return &this->boundingBox;
+    return this->boundingBox;
 }

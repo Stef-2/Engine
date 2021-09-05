@@ -49,17 +49,17 @@ void Engine::Motor::SetDeltaTime()
     this->lastTime = this->currentTime;
 }
 
-std::string Engine::Motor::GetFilePath(Engine::Motor::EngineFilePath location)
+std::string Engine::Motor::GetFilePath(Engine::EngineFilePath location)
 {
     //engine root directory
     std::filesystem::path path = std::filesystem::current_path();
 
     switch (location)
     {
-    case Engine::Motor::EngineFilePath::ENGINE_PATH:
+    case Engine::EngineFilePath::ENGINE_PATH:
         return path.string();
 
-    case Engine::Motor::EngineFilePath::RESOURCES_PATH:
+    case Engine::EngineFilePath::RESOURCES_PATH:
         for (const auto& dir : std::filesystem::directory_iterator(path))
             if (!dir.path().filename().string().compare("resources"))
                 return dir.path().string();
@@ -68,7 +68,7 @@ std::string Engine::Motor::GetFilePath(Engine::Motor::EngineFilePath location)
             return std::string{ "" };
         
 
-    case Engine::Motor::EngineFilePath::SHADERS_PATH:
+    case Engine::EngineFilePath::SHADERS_PATH:
         for (const auto& dir : std::filesystem::recursive_directory_iterator(path)) 
             if (!dir.path().filename().string().compare("shaders"))
                 return dir.path().string();
@@ -77,7 +77,7 @@ std::string Engine::Motor::GetFilePath(Engine::Motor::EngineFilePath location)
             return std::string{ "" };
         
 
-    case Engine::Motor::EngineFilePath::TEXTURES_PATH:
+    case Engine::EngineFilePath::TEXTURES_PATH:
         for (const auto& dir : std::filesystem::recursive_directory_iterator(path)) 
             if (!dir.path().filename().string().compare("textures"))
                 return dir.path().string();
@@ -86,7 +86,7 @@ std::string Engine::Motor::GetFilePath(Engine::Motor::EngineFilePath location)
             return std::string{ "" };
         
 
-    case Engine::Motor::EngineFilePath::MODELS_PATH:
+    case Engine::EngineFilePath::MODELS_PATH:
         for (const auto& dir : std::filesystem::recursive_directory_iterator(path)) 
             if (!dir.path().filename().string().compare("models"))
                 return dir.path().string();
@@ -94,7 +94,7 @@ std::string Engine::Motor::GetFilePath(Engine::Motor::EngineFilePath location)
             std::cerr << "could not find the models directory" << std::endl;
             return std::string{ "" };
 
-    case Engine::Motor::EngineFilePath::IMAGES_PATH:
+    case Engine::EngineFilePath::IMAGES_PATH:
         for (const auto& dir : std::filesystem::recursive_directory_iterator(path))
             if (!dir.path().filename().string().compare("images"))
                 return dir.path().string();
@@ -102,7 +102,7 @@ std::string Engine::Motor::GetFilePath(Engine::Motor::EngineFilePath location)
         std::cerr << "could not find the images directory" << std::endl;
         return std::string{ "" };
 
-    case Engine::Motor::EngineFilePath::SKYBOXES_PATH:
+    case Engine::EngineFilePath::SKYBOXES_PATH:
         for (const auto& dir : std::filesystem::recursive_directory_iterator(path))
             if (!dir.path().filename().string().compare("skyboxes"))
                 return dir.path().string();

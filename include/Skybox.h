@@ -21,8 +21,8 @@ namespace Engine
         void SetShader(const Engine::Shader& shader);
         void SetTexture(const Engine::Texture& texture);
 
-        Engine::Shader* GetShader();
-        Engine::Texture* GetTexture();
+        Engine::Shader& GetShader();
+        Engine::Texture& GetTexture();
 
         // handles for Vertex Buffer
         // needs to be passed to OpenGL functions that are supposed to draw the mesh

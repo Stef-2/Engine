@@ -14,47 +14,62 @@ Engine::Material::Material(const char* filePath)
 	metallic = {};
 }
 
-void Engine::Material::SetDiffuse(const char* filePath)
+void Engine::Material::SetDiffuseMap(const char* filePath)
 {
 	this->diffuseMap = Engine::Texture(filePath);
 }
 
-void Engine::Material::SetDiffuse(Texture texture)
+void Engine::Material::SetDiffuseMap(std::string filePath)
+{
+	this->diffuseMap = Engine::Texture(filePath);
+}
+
+void Engine::Material::SetDiffuseMap(const Texture& texture)
 {
 	this->diffuseMap = texture;
 }
 
-void Engine::Material::SetRoughness(const char* filePath)
+void Engine::Material::SetRoughnessMap(const char* filePath)
 {
 	this->roughnessMap = Engine::Texture(filePath);
 }
 
-void Engine::Material::SetRoughness(Texture texture)
+void Engine::Material::SetRoughnessMap(std::string filePath)
+{
+	this->diffuseMap = Engine::Texture(filePath);
+}
+
+void Engine::Material::SetRoughnessMap(const Texture& texture)
 {
 	this->roughnessMap = texture;
 }
 
-void Engine::Material::SetMetallic(const char* filePath)
+void Engine::Material::SetMetallicMap(const char* filePath)
 {
 	this->metallicMap = Engine::Texture(filePath);
 }
 
-void Engine::Material::SetMetallic(Texture texture)
+void Engine::Material::SetMetallicMap(std::string filePath)
+{
+	this->diffuseMap = Engine::Texture(filePath);
+}
+
+void Engine::Material::SetMetallicMap(const Texture& texture)
 {
 	this->metallicMap = texture;
 }
 
-Engine::Texture* Engine::Material::GetDiffuse()
+Engine::Texture& Engine::Material::GetDiffuse()
 {
-	return &this->diffuseMap;
+	return this->diffuseMap;
 }
 
-Engine::Texture* Engine::Material::GetRougness()
+Engine::Texture& Engine::Material::GetRougness()
 {
-	return &this->roughnessMap;
+	return this->roughnessMap;
 }
 
-Engine::Texture* Engine::Material::GetMetallic()
+Engine::Texture& Engine::Material::GetMetallic()
 {
-	return &this->metallicMap;
+	return this->metallicMap;
 }

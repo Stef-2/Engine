@@ -25,9 +25,9 @@ namespace Engine
             void Setup(float speed, float aspectRatio, float nearClip, float farClip, float fov);
 
             // view, built from camera's transformations and the Up direction
-            glm::mat4 GetView();
+            glm::mat4 GetView() const;
             // projection matrix, combining field of view, aspect ratio, near and far clip planes
-            glm::mat4 GetProjection();
+            glm::mat4 GetProjection() const;
 
             // camera's forward, normalized direction vector; effectivelly this is just it's rotation
             glm::vec3 GetForwardDirection();
@@ -39,7 +39,7 @@ namespace Engine
             glm::vec3 GetRightDirection();
 
             // camera's view frustum clipping planes, to be used for frustum culling by the renderer
-            std::vector<glm::vec4> GetFrustumPlanes();
+            std::vector<glm::vec4> GetFrustumPlanes() const;
             
 
             float GetSpeed();

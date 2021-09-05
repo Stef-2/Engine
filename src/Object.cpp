@@ -170,14 +170,14 @@ bool Engine::Object::IsMoving()
     return this->isMoving;
 }
 
-Engine::Object* Engine::Object::GetActiveObject()
+Engine::Object& Engine::Object::GetActiveObject()
 {
-    return Engine::Object::active;
+    return *Engine::Object::active;
 }
 
-void Engine::Object::SetActiveObject(Engine::Object* object)
+void Engine::Object::SetActiveObject(Engine::Object& object)
 {
-    Engine::Object::active = object;
+    Engine::Object::active = &object;
 }
 
 std::string Engine::Object::ToString()

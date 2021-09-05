@@ -35,9 +35,9 @@ namespace Engine
 		void LoadMaterial(const Material& material);
 		void SetBoundingBox(glm::vec3 mins, glm::vec3 maxs);
 
-		std::vector<Mesh>* GetMeshes();
-		std::vector<Material>* GetMaterials();
-		Engine::BoundingBox* GetBoundingBox();
+		std::vector<Mesh>& GetMeshes();
+		std::vector<Material>& GetMaterials();
+		Engine::BoundingBox& GetBoundingBox();
 
 	private:
 		std::vector<Mesh> meshes;

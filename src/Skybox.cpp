@@ -63,14 +63,14 @@ void Engine::Skybox::SetTexture(const Engine::Texture& texture)
     this->texture = texture;
 }
 
-Engine::Shader* Engine::Skybox::GetShader()
+Engine::Shader& Engine::Skybox::GetShader()
 {
-	return &this->shader;
+	return this->shader;
 }
 
-Engine::Texture* Engine::Skybox::GetTexture()
+Engine::Texture& Engine::Skybox::GetTexture()
 {
-	return &this->texture;
+	return this->texture;
 }
 
 unsigned int Engine::Skybox::GetVAO()

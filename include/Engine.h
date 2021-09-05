@@ -14,6 +14,17 @@
 
 namespace Engine
 {
+    // file path provider for various folders in which engine resources can be found
+    enum class EngineFilePath
+    {
+        ENGINE_PATH,
+        RESOURCES_PATH,
+        SHADERS_PATH,
+        MODELS_PATH,
+        TEXTURES_PATH,
+        SKYBOXES_PATH,
+        IMAGES_PATH
+    };
 
     // Motor (Engine) class, named so as not to be confused with the project's namespace
     // the class is designed as a singleton for the following reasons:
@@ -36,20 +47,8 @@ namespace Engine
             Motor(Motor const&) = delete;
             void operator=(Motor const&) = delete;
 
-            // file path provider for various folders in which engine resources can be found
-            enum class EngineFilePath
-            {
-                ENGINE_PATH,
-                RESOURCES_PATH,
-                SHADERS_PATH,
-                MODELS_PATH,
-                TEXTURES_PATH,
-                SKYBOXES_PATH,
-                IMAGES_PATH
-            };
-
             // retrieves the requested directory path
-            std::string GetFilePath(EngineFilePath path);
+            std::string GetFilePath(Engine::EngineFilePath path);
 
             // wrapper class for OpenGL window struct
             // holds requested and given OpenGL version -

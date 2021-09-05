@@ -32,7 +32,7 @@ glm::vec3 Engine::Camera::GetRightDirection()
     return glm::normalize(glm::cross(this->GetForwardDirection(), this->GetUpDirection()));
 }
 
-glm::mat4 Engine::Camera::GetView()
+glm::mat4 Engine::Camera::GetView() const
 {
     // we're way too cool to construct a view matrix using LookAt(), so, 
     // convert our orientation quaternion into a rotation matix
@@ -46,7 +46,7 @@ glm::mat4 Engine::Camera::GetView()
     return direction * position;
 }
 
-std::vector<glm::vec4> Engine::Camera::GetFrustumPlanes()
+std::vector<glm::vec4> Engine::Camera::GetFrustumPlanes() const
 {
     // full camera matrix from which we'll extract the planes
     glm::mat4 matrix = this->projection * this->GetView();
@@ -71,7 +71,7 @@ std::vector<glm::vec4> Engine::Camera::GetFrustumPlanes()
     return planes;
 }
 
-glm::mat4 Engine::Camera::GetProjection()
+glm::mat4 Engine::Camera::GetProjection() const
 {
     return this->projection;
 }
