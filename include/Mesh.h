@@ -5,7 +5,6 @@
 
 #include "Shader.h"
 #include "Material.h"
-#include "Skeleton.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -50,7 +49,7 @@ namespace Engine
             Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
 
             // animated mesh
-            Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Engine::Skeleton& skeleton, std::vector<VertexBoneData> boneWeights);
+            Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<VertexBoneData> boneWeights);
 
             void Setup();
 
@@ -64,18 +63,13 @@ namespace Engine
             std::vector<unsigned int>& GetIndices();
             std::vector<Triangle>& GetTriangles();
             std::vector<VertexBoneData>& GetBoneWeights();
-            Engine::Skeleton& GetSkeleton();
+
 
             void SetVertices(std::vector<Vertex> vertices);
             void SetIndices(std::vector<unsigned int> indices);
             void SetBoneWeights(std::vector<VertexBoneData> boneWeights);
-            void SetSkeleton(Engine::Skeleton& skelly);
-
 
         private:
-            // Mr.Skeltal
-            Engine::Skeleton skeleton;
-
             // mesh vertices
             std::vector<Vertex> vertices;
 

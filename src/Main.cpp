@@ -76,11 +76,11 @@ int main()
     Engine::Actor obj2;
     obj2.SetShader(basic);
 
-    obj2.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\AW101.fbx")));
+    obj2.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\dancing_vampire.dae")));
 
     obj2.GetModel().LoadMaterial(Engine::Material());
-    obj2.GetModel().GetMaterials().at(0).SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\AW101.png"));
-    obj2.MoveRelative(10.0f, 0.0f, 10.0f);
+    obj2.GetModel().GetMaterials().at(0).SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_diffuse.png"));
+    obj2.MoveRelative(15.0f, 0.0f, 15.0f);
 
     /*
     Engine::Actor obj3;

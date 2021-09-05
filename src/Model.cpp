@@ -74,7 +74,7 @@ void Engine::Model::LoadMesh(std::string filePath)
     }
     
     // go through all the meshes
-    for (size_t i = 0; i < scene->mNumMeshes; i++)
+    for (unsigned int i = 0; i < scene->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[i];
 
@@ -84,6 +84,8 @@ void Engine::Model::LoadMesh(std::string filePath)
 
         vertices.clear();
         indices.clear();
+        bones.clear();
+        skeleton = {};
 
         // accumulate min and max values of bounding boxes from all parsed meshes since we want one bounding box for the entire model
         min = glm::min(min, glm::vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z));
@@ -153,16 +155,11 @@ void Engine::Model::LoadMesh(std::string filePath)
             // go through all the bones
             for (unsigned int j = 0; j < mesh->mNumBones; j++)
             {
+                bool found = false;
                 aiBone* bone = mesh->mBones[j];
-                
-                // convert the offset matrix into a glm one
-                glm::mat4 matrix = AiMatrixToGlm(mesh->mBones[j]->mOffsetMatrix);
 
                 // find the scene node with a matching name
                 aiNode* match = rootNode->FindNode(bone->mName);
-
-                // find the mesh node so we know how far up the tree we need to go
-                aiNode* meshNode = rootNode->FindNode(mesh->mName);
                 
                 // push a new bone to the stack
                 bones.push_back(Engine::Bone(bone->mName.C_Str(), AiMatrixToGlm(bone->mOffsetMatrix), bone->mNumWeights));
@@ -171,20 +168,34 @@ void Engine::Model::LoadMesh(std::string filePath)
                 bones.back().SetID(j);
 
                 // start at the found match and work our way up the tree until we find the mesh root node
-                while (match->mName != meshNode->mName)
+                while (!(match->mName != rootNode->mName) xor !found)
                 {
-                    // keep going up
-                    match = match->mParent;
-
                     // add up all parent transformations until we reach the end
                     bones.back().AddInheritedTransform(AiMatrixToGlm(match->mTransformation));
+
+                    // check if any of the meshes in any of the nodes match with the one we're currently parsing
+                    for (unsigned k = 0; k < match->mNumMeshes; k++)
+                        if (match->mMeshes[k] == i) {
+                            found = true;
+                            break;
+                        }
+
+                    // keep going up
+                    match = match->mParent;
                 }
+                std::cout << "number of inherited transforms: " << bones.back().GetInheritedTransforms().size() << std::endl;
             }
         }
 
-        // fully made mesh with no animation
-        this->meshes.push_back(Mesh(vertices, indices));
-
+        if (mesh->HasBones()) {
+            // fully made mesh with animation
+            skeleton.SetBones(bones);
+            this->meshes.push_back(Mesh(vertices, indices, vertexBoneData));
+            this->SetSkeleton(skeleton);
+        }
+        else
+            // fully made mesh with no animation
+            this->meshes.push_back(Mesh(vertices, indices));
     }
 
     // debug
@@ -211,6 +222,11 @@ void Engine::Model::SetBoundingBox(glm::vec3 mins, glm::vec3 maxs)
     this->boundingBox = Engine::BoundingBox{mins, maxs};
 }
 
+void Engine::Model::SetSkeleton(Engine::Skeleton& skelly)
+{
+    this->skeleton = skelly;
+}
+
 std::vector<Engine::Mesh>& Engine::Model::GetMeshes()
 {
     return this->meshes;
@@ -224,4 +240,9 @@ std::vector<Engine::Material>& Engine::Model::GetMaterials()
 Engine::BoundingBox& Engine::Model::GetBoundingBox()
 {
     return this->boundingBox;
+}
+
+Engine::Skeleton& Engine::Model::GetSkeleton()
+{
+    return this->skeleton;
 }
