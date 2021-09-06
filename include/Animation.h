@@ -9,54 +9,46 @@
 
 namespace Engine
 {
-    // keyframe struct for vector types
-    struct VectorKeyFrame
-    {
-        glm::vec3 value;
-        float timestamp;
-    };
-
-    // keyframe struct for quaternion types
-    struct QuaternionKeyFrame
-    {
-        glm::quat value;
-        float timestamp;
-    };
-
-    // an array of transform keys for each node / bone
-    struct AnimationNode
-    {
-        std::vector<Engine::VectorKeyFrame> positionKeys;
-        std::vector<Engine::QuaternionKeyFrame> rotationKeys;
-        std::vector<Engine::VectorKeyFrame> scaleKeys;
-
-        std::string name;
-    };
 
     class Animation
     {
     public:
         Animation();
-        Animation(std::string name, float duration, unsigned int ticksPerSecond, std::vector<Engine::AnimationNode> nodes);
+        /*Animation(std::string name, double duration, double ticksPerSecond,
+                  std::vector<Engine::VectorKeyFrame> positionKeyFrames,
+                  std::vector<Engine::QuaternionKeyFrame> rotationKeyFrames,
+                  std::vector<Engine::VectorKeyFrame> scaleKeyFrames);
 
-        std::vector<Engine::AnimationNode>& GetNodes();
+        std::vector<Engine::VectorKeyFrame>& GetPositionKeyFrames();
+        std::vector<Engine::QuaternionKeyFrame>& GetRotationKeyFrames();
+        std::vector<Engine::VectorKeyFrame>& GetScaleKeyFrames();
+        */
         std::string GetName();
-        float GetDuration();
-        float GetTicksPerSecond();
+        double GetDuration();
+        double GetTicksPerSecond();
+        double GetStartTime();
 
-        void SetNodes(std::vector<Engine::AnimationNode>& nodes);
+        //void SetPositionKeyFrames(std::vector<Engine::VectorKeyFrame> keyFrames);
+        //void SetRotationKeyFrames(std::vector<Engine::QuaternionKeyFrame> keyFrames);
+        //void SetScaleKeyFrames(std::vector<Engine::VectorKeyFrame> keyFrames);
+
         void SetName(std::string& name);
-        void SetDuration(float duration);
-        void SetTicksPerSecond(float ticksPerSecond);
+        void SetDuration(double duration);
+        void SetTicksPerSecond(double ticksPerSecond);
+        void SetStartTime(double startTime);
 
         void Setup();
 
     private:
-        std::vector<Engine::AnimationNode> nodes;
+        //std::vector<Engine::VectorKeyFrame> positionKeyFrames;
+        //std::vector<Engine::QuaternionKeyFrame> rotationKeyFrames;
+        //std::vector<Engine::VectorKeyFrame> scaleKeyFrames;
 
         std::string name;
-        float duration;
-        float ticksPerSecond;
+        double duration;
+        double ticksPerSecond;
+
+        double startTime;
     };
 }
 #endif //  ANIMATION_H

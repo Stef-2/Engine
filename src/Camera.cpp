@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-void Engine::Camera::Setup(float speed, float aspectRatio, float nearClip, float farClip, float fov)
+void Engine::Camera::Setup(double speed, double aspectRatio, double nearClip, double farClip, double fov)
 {
     this->speed = speed;
     this->aspectRatio = aspectRatio;
@@ -76,27 +76,27 @@ glm::mat4 Engine::Camera::GetProjection() const
     return this->projection;
 }
 
-float Engine::Camera::GetSpeed()
+double Engine::Camera::GetSpeed()
 {
     return this->speed;
 }
 
-float Engine::Camera::GetAspectRatio()
+double Engine::Camera::GetAspectRatio()
 {
     return this->aspectRatio;
 }
 
-float Engine::Camera::GetNearClip()
+double Engine::Camera::GetNearClip()
 {
     return this->nearClip;
 }
 
-float Engine::Camera::GetFarClip()
+double Engine::Camera::GetFarClip()
 {
     return this->farclip;
 }
 
-float Engine::Camera::GetFov()
+double Engine::Camera::GetFov()
 {
     return this->fov;
 }
@@ -116,30 +116,30 @@ void Engine::Camera::UpdateProjection()
     this->projection = glm::perspective(this->fov, this->aspectRatio, this->nearClip, this->farclip);
 }
 
-void Engine::Camera::SetSpeed(float speed)
+void Engine::Camera::SetSpeed(double speed)
 {
     this->speed = speed;
 }
 
-void Engine::Camera::SetAspectRatio(float aspectRatio)
+void Engine::Camera::SetAspectRatio(double aspectRatio)
 {
     this->aspectRatio = aspectRatio;
     this->UpdateProjection();
 }
 
-void Engine::Camera::SetNearClip(float nearClip)
+void Engine::Camera::SetNearClip(double nearClip)
 {
     this->nearClip = nearClip;
     this->UpdateProjection();
 }
 
-void Engine::Camera::SetFarClip(float farClip)
+void Engine::Camera::SetFarClip(double farClip)
 {
     this->farclip = farClip;
     this->UpdateProjection();
 }
 
-void Engine::Camera::SetFov(float fov)
+void Engine::Camera::SetFov(double fov)
 {
     this->fov = fov;
     this->UpdateProjection();

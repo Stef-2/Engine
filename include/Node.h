@@ -16,22 +16,24 @@ namespace Engine
     {
     public:
         Node();
+        Node(std::string name, glm::mat4 transform);
+        Node(std::string name, glm::mat4 transform, T data);
         Node(Node* parent, std::vector<Node*> children, std::string name, glm::mat4 transform, bool isLeaf);
 
         Node* GetParent();
-        std::vector<Node*> GetChildren();
+        std::vector<Node*>& GetChildren();
+        std::vector<T>& GetData();
         std::string GetName();
-        glm::mat4 GetTransform();
-        bool IsLeaf();
+        glm::mat4& GetTransform();
 
         void SetParent(Node* parent);
         void SetChildren(std::vector<Node*> vector);
         void SetName(std::string name);
         void SetTransform(glm::mat4 transform);
-        void SetLeafStatus(bool status);
+        void AddChild(Node* child);
+        void AddData(T data);
 
     private:
-        bool isLeaf;
         Node* parent;
         std::vector<Node*> children;
         std::string name;
@@ -50,7 +52,27 @@ namespace Engine
         this->children = {};
         this->name = {};
         this->transform = {};
-        this->isLeaf = {};
+        this->data = {};
+    }
+
+    template <typename T>
+    Node<T>::Node(std::string name, glm::mat4 transform)
+    {
+        this->parent = {};
+        this->children = {};
+        this->name = name;
+        this->transform = transform;
+        this->data = {};
+    }
+
+    template <typename T>
+    Node<T>::Node(std::string name, glm::mat4 transform, T data)
+    {
+        this->parent = {};
+        this->children = {};
+        this->name = name;
+        this->transform = transform;
+        this->data.push_back(data);
     }
 
     template <typename T>
@@ -60,7 +82,6 @@ namespace Engine
         this->children = children;
         this->name = name;
         this->transform = transform;
-        this->isLeaf = isLeaf;
         this->data = {};
     }
 
@@ -71,7 +92,7 @@ namespace Engine
     }
 
     template <typename T>
-    std::vector<Engine::Node<T>*> Engine::Node<T>::GetChildren()
+    std::vector<Engine::Node<T>*>& Engine::Node<T>::GetChildren()
     {
         return this->children;
     }
@@ -83,15 +104,15 @@ namespace Engine
     }
 
     template <typename T>
-    glm::mat4 Engine::Node<T>::GetTransform()
+    glm::mat4& Engine::Node<T>::GetTransform()
     {
         return this->transform;
     }
 
     template <typename T>
-    bool Engine::Node<T>::IsLeaf()
+    std::vector<T>& Engine::Node<T>::GetData()
     {
-        return this->isLeaf;
+        return this->data;
     }
 
     template <typename T>
@@ -119,9 +140,15 @@ namespace Engine
     }
 
     template <typename T>
-    void Engine::Node<T>::SetLeafStatus(bool status)
+    void Engine::Node<T>::AddData(T data)
     {
-        this->isLeaf = status;
+        this->data.push_back(data);
+    }
+
+    template <typename T>
+    void Engine::Node<T>::AddChild(Node* child)
+    {
+        this->children.push_back(child);
     }
 }
 

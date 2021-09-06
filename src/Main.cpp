@@ -1,8 +1,8 @@
 #include <Main.h>
 
-Engine::Camera camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+Engine::Camera camera(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
 
-float deltaTime = 0.0f;
+double deltaTime = 0.0f;
 double oldX = 1280.0 / 2.0;
 double oldY = 720.0 / 2.0;
 
@@ -34,9 +34,9 @@ int main()
     unsigned int numCulls = 0;
     bool check = {};
 
-    float lastFrame = 0.0f;
-    float lastTime = 0.0f;
-    float frameMs = 0.0f;
+    double lastFrame = 0.0f;
+    double lastTime = 0.0f;
+    double frameMs = 0.0f;
     int nFrames = 0;
     int fps = 0;
 
@@ -80,7 +80,7 @@ int main()
 
     obj2.GetModel().LoadMaterial(Engine::Material());
     obj2.GetModel().GetMaterials().at(0).SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_diffuse.png"));
-    obj2.MoveRelative(15.0f, 0.0f, 15.0f);
+    obj2.MoveRelative(30.0f, 0.0f, 30.0f);
 
     /*
     Engine::Actor obj3;
@@ -157,7 +157,7 @@ int main()
         nFrames++;
 
         if (currentFrame - lastTime >= 1.0f) {
-            frameMs = 1000.0f / (float)nFrames;
+            frameMs = 1000.0f / nFrames;
             fps = (CLOCKS_PER_SEC / deltaTime) / 1000;
             nFrames = 0;
             lastTime += 1.0f;
@@ -189,6 +189,7 @@ int main()
         numCulls = actors.size() - culled.size();
         engine.GetRenderer().Render(camera, culled);
         engine.GetRenderer().Render(camera, obj1.GetModel().GetBoundingBox());
+        engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());
         // camera.Draw(&obj1);
         // camera.Draw(&obj2);
         engine.GetRenderer().Render(camera, skyBox);
@@ -241,22 +242,22 @@ void Engine::FrameBufferCallback(GLFWwindow* window, int width, int height)
 
 void Engine::MouseCallback(GLFWwindow* window, double xPos, double yPos)
 {
-    float lastX = 1280/2, lastY = 720/2;
-    float xoffset = xPos - lastX;
-    float yoffset = lastY - yPos;
-    float yaw = 0, pitch = 0;
+    double lastX = 1280/2, lastY = 720/2;
+    double xoffset = xPos - lastX;
+    double yoffset = lastY - yPos;
+    double yaw = 0, pitch = 0;
     lastX = xPos;
     lastY = yPos;
 
-    float sensitivity = 150;
+    double sensitivity = 150;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
     yaw   += xoffset;
     pitch += yoffset;
 
-    float difX = (xPos - oldX) * (sensitivity * deltaTime);
-    float difY = (yPos - oldY) * (sensitivity * deltaTime);
+    double difX = (xPos - oldX) * (sensitivity * deltaTime);
+    double difY = (yPos - oldY) * (sensitivity * deltaTime);
 
     oldX = xPos;
     oldY = yPos;

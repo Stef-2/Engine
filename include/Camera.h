@@ -22,7 +22,7 @@ namespace Engine
         using Engine::Object::Object;
 
         public:
-            void Setup(float speed, float aspectRatio, float nearClip, float farClip, float fov);
+            void Setup(double speed, double aspectRatio, double nearClip, double farClip, double fov);
 
             // view, built from camera's transformations and the Up direction
             glm::mat4 GetView() const;
@@ -42,11 +42,11 @@ namespace Engine
             std::vector<glm::vec4> GetFrustumPlanes() const;
             
 
-            float GetSpeed();
-            float GetAspectRatio();
-            float GetNearClip();
-            float GetFarClip();
-            float GetFov();
+            double GetSpeed();
+            double GetAspectRatio();
+            double GetNearClip();
+            double GetFarClip();
+            double GetFov();
 
             // camera's "Up" direction, usually positive direction of Y axis
             void SetUpDirection(glm::vec3 direction);
@@ -59,31 +59,31 @@ namespace Engine
             void UpdateProjection();
 
             // speed expressed in arbitrary world units, to be used as a multiplier for movement
-            void SetSpeed(float speed);
+            void SetSpeed(double speed);
 
             // ratio of camera's frustum width and height dimensions
             // if the desired ratio is the same as rendering window's, it can be acquired from Engine::Window::GetAspectRatio()
-            void SetAspectRatio(float aspectRatio);
+            void SetAspectRatio(double aspectRatio);
 
             // elements closer than this value are not rendered
-            void SetNearClip(float nearClip);
+            void SetNearClip(double nearClip);
 
             // elements further than this value are not rendered
-            void SetFarClip(float farClip);
+            void SetFarClip(double farClip);
 
             // field of view, expressed in degrees
             // usually 45 to 90 degrees
-            void SetFov(float fov);
+            void SetFov(double fov);
 
         private:
             glm::vec3 upDirection;
             glm::mat4 projection;
 
-            float speed;
-            float aspectRatio;
-            float nearClip;
-            float farclip;
-            float fov;
+            double speed;
+            double aspectRatio;
+            double nearClip;
+            double farclip;
+            double fov;
     };
 }
 #endif //  CAMERA_H

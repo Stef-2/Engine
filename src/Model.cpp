@@ -14,16 +14,16 @@ Engine::Model::Model(std::string filePath)
 	this->LoadMesh(filePath);
 }
 
-void Engine::Model::LoadMesh(std::string filePath)
+void Engine::Model::LoadMesh(std::string filePath) 
 {
     Assimp::Importer importer;
 
     const aiScene* scene = importer.ReadFile
-                        (filePath,
-                        aiProcess_DropNormals | aiProcess_GenSmoothNormals | 
-                        aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |
-                        aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes | 
-                        aiProcess_GenBoundingBoxes | aiProcess_ImproveCacheLocality);
+    (filePath,
+        aiProcess_DropNormals | aiProcess_GenSmoothNormals |
+        aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |
+        aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes |
+        aiProcess_GenBoundingBoxes | aiProcess_ImproveCacheLocality);
 
     // make sure the import succeeded
     if (!scene) {
@@ -31,22 +31,53 @@ void Engine::Model::LoadMesh(std::string filePath)
         return;
     }
 
-    // utility lambda function that transforms a native assimp aiMatrix4x4 into a glm::mat4 one
-    auto AiMatrixToGlm = [](aiMatrix4x4 matrix) {
+    // utility lambda function that transforms assimp's native aiMatrix4x4 into a glm::mat4 one
+    auto AiMatrix4ToGlm = [](aiMatrix4x4 matrix) {
 
-        return glm::mat4 { matrix.a1, matrix.a2, matrix.a3, matrix.a4,
+        return glm::mat4{ matrix.a1, matrix.a2, matrix.a3, matrix.a4,
                            matrix.b1, matrix.b2, matrix.b3, matrix.b4,
                            matrix.c1, matrix.c2, matrix.c3, matrix.c4,
                            matrix.d1, matrix.d2, matrix.d3, matrix.d4 };
     };
 
+    // utility lambda function that finds assimp's native aiNodeAnim for a given aiNode name
+    auto FindNodeAnimation = [](const aiScene* scene, aiNode* node) -> aiNodeAnim*
+    {
+        for (size_t i = 0; i < scene->mNumAnimations; i++)
+        {
+            aiAnimation& animation = *scene->mAnimations[i];
+
+            for (size_t j = 0; j < animation.mNumChannels; j++)
+            {
+                aiNodeAnim* nodeAnim = animation.mChannels[j];
+
+                if (nodeAnim->mNodeName == node->mName)
+                    return nodeAnim;
+            }
+        }
+
+        return nullptr;
+    };
+
+    // utility lambda function that converts assimp's native aiVector3D into a glm::vec3 one
+    auto aiVector3ToGlm = [](aiVector3D vector)
+    {
+        return glm::vec3(vector.x, vector.y, vector.z);
+    };
+
+    // utility lambda function that converts assimp's native aiQuaternion into a glm::quat one
+    auto aiQuaternionToGlm = [](aiQuaternion quaternion)
+    {
+        return glm::quat(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+    };
+
     // utility vectors to be filled with data
-    std::vector<Engine::VertexBoneData> vertexBoneData {};
-    std::vector<Engine::Animation> animations {};
+    std::vector<Engine::VertexBoneData> vertexBoneData{};
+    std::vector<Engine::Animation> animations{};
     std::vector<Engine::Bone> bones{};
 
-    std::vector<Engine::Vertex> vertices {};
-    std::vector<unsigned int> indices {};
+    std::vector<Engine::Vertex> vertices{};
+    std::vector<unsigned int> indices{};
 
     Engine::Skeleton skeleton{};
 
@@ -64,25 +95,18 @@ void Engine::Model::LoadMesh(std::string filePath)
 
     // parse animation data
     if (scene->HasAnimations())
-    {
-        // debug
-        std::cout << "Model: " << filePath << " has animation data." << std::endl;
-
+    {/*
         // go through all the animations
         for (unsigned i = 0; i < scene->mNumAnimations; i++)
         {
             aiAnimation* aiAnimation = scene->mAnimations[i];
 
-            // construct a keyframe vector
-            std::vector<Engine::AnimationNode> keyFrames;
-            
             // go through all the animation channels
             for (unsigned j = 0; j < aiAnimation->mNumChannels; j++)
             {
-                aiNodeAnim& channel = *aiAnimation->mChannels[j];
-                
-                // construct a native animation node
-                Engine::AnimationNode keyFrame{};
+                aiNodeAnim& nodeAnimation = *aiAnimation->mChannels[j];
+
+                channel.
 
                 // assign the basic animation parameters
                 keyFrame.name = keyFrame.name = channel.mNodeName.C_Str();
@@ -90,25 +114,27 @@ void Engine::Model::LoadMesh(std::string filePath)
                 // create position keyframes
                 for (unsigned k = 0; k < channel.mNumPositionKeys; k++) {
                     aiVectorKey key = channel.mPositionKeys[k];
-                    keyFrame.positionKeys.push_back(Engine::VectorKeyFrame{ glm::vec3{key.mValue[0], key.mValue[1], key.mValue[2]} , float(key.mTime) });
+                    keyFrame.positionKey = { Engine::VectorKeyFrame{ glm::vec3{key.mValue[0], key.mValue[1], key.mValue[2]} , key.mTime } };
                 }
 
                 // create rotation keyframes
                 for (unsigned k = 0; k < channel.mNumRotationKeys; k++) {
                     aiQuatKey key = channel.mRotationKeys[k];
-                    keyFrame.rotationKeys.push_back(Engine::QuaternionKeyFrame{ glm::quat{key.mValue.x, key.mValue.y, key.mValue.z, key.mValue.w }, float(key.mTime) });
+                    keyFrame.rotationKey = { Engine::QuaternionKeyFrame{ glm::quat{key.mValue.x, key.mValue.y, key.mValue.z, key.mValue.w }, key.mTime } };
                 }
 
                 // create scale keyframes
                 for (unsigned k = 0; k < channel.mNumScalingKeys; k++) {
                     aiVectorKey key = channel.mScalingKeys[k];
-                    keyFrame.scaleKeys.push_back(Engine::VectorKeyFrame{ glm::vec3{key.mValue[0], key.mValue[1], key.mValue[2]} , float(key.mTime) });
+                    keyFrame.scaleKey = { Engine::VectorKeyFrame{ glm::vec3{key.mValue[0], key.mValue[1], key.mValue[2]} , key.mTime } };
                 }
+
             }
 
             // assemble and push the whole animation
-            this->AddAnimation(Engine::Animation(aiAnimation->mName.C_Str(), float(aiAnimation->mDuration), float(aiAnimation->mTicksPerSecond), keyFrames));
-        }
+            this->AddAnimation(Engine::Animation(aiAnimation->mName.C_Str(), aiAnimation->mDuration, aiAnimation->mTicksPerSecond, keyFrames));
+            std::cout << "model: " << filePath << " keyframe count: " << keyFrames.size() << std::endl;
+        }*/
     }
     
     // go through all the meshes
@@ -141,12 +167,12 @@ void Engine::Model::LoadMesh(std::string filePath)
             aiVector3D normal = mesh->HasNormals() ? mesh->mNormals[j] : empty;
             aiVector3D uv = mesh->HasTextureCoords(0) ? mesh->mTextureCoords[0][j] : empty;
 
-                                   // positions
-            Engine::Vertex vertex{ {position.x, position.y, position.z},
-                                   // normals
-                                   {normal.x, normal.y, normal.z},
-                                   // UVs
-                                   {uv.x, uv.y} };
+                                        // positions
+            Engine::Vertex vertex{ aiVector3ToGlm(position),
+                                          // normals
+                                    aiVector3ToGlm(normal),
+                                           // UVs
+                                    glm::vec2(aiVector3ToGlm(uv)) };
 
             // push it onto the stack
             vertices.push_back(vertex);
@@ -186,44 +212,90 @@ void Engine::Model::LoadMesh(std::string filePath)
         if (mesh->HasBones())
         {
             aiNode* rootNode = scene->mRootNode;
-
+            int counter = 0;
             // pass the inverted root node transform to mesh skeleton as the global inverse matrix, needed for correct placement of bones
-            skeleton.SetGlobalInverseMatrix(glm::inverse(AiMatrixToGlm(rootNode->mTransformation)));
-            
+            skeleton.SetGlobalInverseMatrix(glm::inverse(AiMatrix4ToGlm(rootNode->mTransformation)));
+
             // go through all the bones
-            for (unsigned int j = 0; j < mesh->mNumBones; j++)
+            for (unsigned int b = 0; b < mesh->mNumBones; b++) 
             {
                 bool found = false;
-                aiBone* bone = mesh->mBones[j];
+                aiBone* aibone = mesh->mBones[b];
 
                 // find the scene node with a matching name
-                aiNode* match = rootNode->FindNode(bone->mName);
+                aiNode* match = rootNode->FindNode(aibone->mName);
+
+                // create Engine native node with a bone attached
+                Engine::Node<Engine::Bone>* child = new Engine::Node<Engine::Bone>(match->mName.C_Str(), AiMatrix4ToGlm(match->mTransformation),
+                    Engine::Bone(aibone->mName.C_Str(), AiMatrix4ToGlm(aibone->mOffsetMatrix), aibone->mNumWeights, b));
+
+
+                Engine::Node<Engine::Bone>* parent = nullptr;
                 
-                // push a new bone to the stack
-                bones.push_back(Engine::Bone(bone->mName.C_Str(), AiMatrixToGlm(bone->mOffsetMatrix), bone->mNumWeights));
-
-                // assign the bones index as its ID
-                bones.back().SetID(j);
-
                 // start at the found match and work our way up the tree until we find the mesh root node
-                while (!(match->mName != rootNode->mName) xor !found)
+                while (!(match->mName != rootNode->mName) != !found)
                 {
-                    // add up all parent transformations until we reach the end
-                    bones.back().AddInheritedTransform(AiMatrixToGlm(match->mTransformation));
-
                     // check if any of the meshes in any of the nodes match with the one we're currently parsing
                     for (unsigned k = 0; k < match->mNumMeshes; k++)
                         if (match->mMeshes[k] == i) {
                             found = true;
                             break;
                         }
-
-                    // keep going up
+                    counter++;
+                    // keep going up the tree
                     match = match->mParent;
+
+                    // create Engine native node with a bone attached
+                    parent = new Engine::Node<Engine::Bone>(match->mName.C_Str(), AiMatrix4ToGlm(match->mTransformation));
+
+                    // find the aiNodeAnim data corresponding to the currently parsed aiNode
+                    aiNodeAnim* nodeAnim = FindNodeAnimation(scene, match);
+                        
+                    // check if we actually managed to find an appropriate aiNodeAnim
+                    if (nodeAnim)
+                    {
+                        // attach a bone to the node
+                        parent->GetData().push_back(Engine::Bone());
+
+                        // fill up the current node's bone with keyFrames from animation data:
+                        // position keyframes
+                        for (size_t i = 0; i < nodeAnim->mNumPositionKeys; i++)
+                            parent->GetData().back().GetPositions().push_back(Engine::VectorKeyFrame{ aiVector3ToGlm(nodeAnim->mPositionKeys[i].mValue),
+                                                                                                        nodeAnim->mPositionKeys[i].mTime });
+                        // rotation keyframes
+                        for (size_t i = 0; i < nodeAnim->mNumRotationKeys; i++)
+                            parent->GetData().back().GetRotations().push_back(Engine::QuaternionKeyFrame{ aiQuaternionToGlm(nodeAnim->mRotationKeys[i].mValue),
+                                                                                                            nodeAnim->mRotationKeys[i].mTime });
+                        // scale keyframes
+                        for (size_t i = 0; i < nodeAnim->mNumScalingKeys; i++)
+                            parent->GetData().back().GetScales().push_back(Engine::VectorKeyFrame{ aiVector3ToGlm(nodeAnim->mScalingKeys[i].mValue),
+                                                                                                        nodeAnim->mScalingKeys[i].mTime });
+                        //std::cout << "Cycle: " << counter << std::endl;
+                    }
+                        
+                    // switcharoo
+                    child->SetParent(parent);
+                    parent->AddChild(child);
+                    child = parent;
                 }
-                std::cout << "number of inherited transforms: " << bones.back().GetInheritedTransforms().size() << std::endl;
+                    
+                skeleton.SetRootNode(*parent);
+                this->skeleton = skeleton;
+
+                //delete child;
             }
         }
+
+        aiNode* node = scene->mRootNode;
+        std::map<aiNode*, bool> nodeMap;
+
+        do
+        {   
+            for (size_t k = 0; k < node->mNumChildren; k++)
+            {
+                nodeMap.emplace(node->mChildren[k], false);
+            }
+        } while (node->mNumChildren > 0)
 
         if (mesh->HasBones()) {
             // fully made mesh with animation
@@ -240,9 +312,11 @@ void Engine::Model::LoadMesh(std::string filePath)
     std::cout << "model: " << filePath << " vertex count: " << vertexCount << std::endl;
     std::cout << "model: " << filePath << " triangle count: " << triangleCount << std::endl;
     std::cout << "model: " << filePath << " bone count: " << boneCount << std::endl;
+    std::cout << "model: " << filePath << " animation count: " << scene->mNumAnimations << std::endl;
 
     // set the final bounding box for the entire model
     this->SetBoundingBox(min, max);
+    
 }
 
 void Engine::Model::LoadMaterial(const Engine::Material& material)

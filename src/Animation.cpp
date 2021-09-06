@@ -5,57 +5,97 @@ Engine::Animation::Animation()
     this->duration = {};
     this->ticksPerSecond = {};
     this->name = {};
-    this->nodes = {};
+    //this->positionKeyFrames = {};
+    //this->rotationKeyFrames = {};
+    //this->scaleKeyFrames = {};
+    this->startTime = {};
 }
 
-Engine::Animation::Animation(std::string name, float duration, float ticksPerSecond, std::vector<Engine::AnimationNode> nodes)
+/*Engine::Animation::Animation(std::string name, double duration, double ticksPerSecond,
+                             std::vector<Engine::VectorKeyFrame> positionKeyFrames,
+                             std::vector<Engine::QuaternionKeyFrame> rotationKeyFrames,
+                             std::vector<Engine::VectorKeyFrame> scaleKeyFrames)
 {
     this->duration = duration;
     this->ticksPerSecond = ticksPerSecond;
     this->name = name;
-    this->nodes = nodes;
+    this->positionKeyFrames = positionKeyFrames;
+    this->rotationKeyFrames = rotationKeyFrames;
+    this->scaleKeyFrames = scaleKeyFrames;
+    this->startTime = {};
 
     this->Setup();
 }
 
-std::vector<Engine::AnimationNode>& Engine::Animation::GetNodes()
+std::vector<Engine::VectorKeyFrame>& Engine::Animation::GetPositionKeyFrames()
 {
-    return this->nodes;
+    return this->positionKeyFrames;
 }
+
+std::vector<Engine::QuaternionKeyFrame>& Engine::Animation::GetRotationKeyFrames()
+{
+    return this->rotationKeyFrames;
+}
+
+std::vector<Engine::VectorKeyFrame>& Engine::Animation::GetScaleKeyFrames()
+{
+    return this->scaleKeyFrames;
+}
+*/
 
 std::string Engine::Animation::GetName()
 {
     return this->name;
 }
 
-float Engine::Animation::GetDuration()
+double Engine::Animation::GetDuration()
 {
     return this->duration;
 }
 
-float Engine::Animation::GetTicksPerSecond()
+double Engine::Animation::GetTicksPerSecond()
 {
     return this->ticksPerSecond;
 }
 
-void Engine::Animation::SetNodes(std::vector<Engine::AnimationNode>& nodes)
+double Engine::Animation::GetStartTime()
 {
-    this->nodes = nodes;
+    return this->startTime;
+}
+/*
+void Engine::Animation::SetPositionKeyFrames(std::vector<Engine::VectorKeyFrame> keyFrames)
+{
+    this->positionKeyFrames = keyFrames;
 }
 
+void Engine::Animation::SetRotationKeyFrames(std::vector<Engine::QuaternionKeyFrame> keyFrames)
+{
+    this->rotationKeyFrames = keyFrames;
+}
+
+void Engine::Animation::SetScaleKeyFrames(std::vector<Engine::VectorKeyFrame> keyFrames)
+{
+    this->scaleKeyFrames = keyFrames;
+}
+*/
 void Engine::Animation::SetName(std::string& name)
 {
     this->name = name;
 }
 
-void Engine::Animation::SetDuration(float duration)
+void Engine::Animation::SetDuration(double duration)
 {
     this->duration = duration;
 }
 
-void Engine::Animation::SetTicksPerSecond(float ticksPerSecond)
+void Engine::Animation::SetTicksPerSecond(double ticksPerSecond)
 {
     this->ticksPerSecond = ticksPerSecond;
+}
+
+void Engine::Animation::SetStartTime(double startTime)
+{
+    this->startTime = startTime;
 }
 
 void Engine::Animation::Setup()

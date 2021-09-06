@@ -49,16 +49,16 @@ namespace Engine
 
             unsigned int GetWidth();
             unsigned int GetHeight();
-            unsigned int GetDepth();
+            unsigned int GetNumChannels();
 
             void SetWidth(unsigned int width);
             void SetHeight(unsigned int height);
-            void SetDepth(unsigned int Depth);
+            void SetNumChannels(unsigned int numChannels);
 
         private:
             unsigned int width;
             unsigned int height;
-            unsigned int depth;
+            unsigned int numChannels;
             unsigned char* data;
             unsigned int textureID;
     };

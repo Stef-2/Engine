@@ -28,7 +28,7 @@ class Window
         GLFWwindow* GetShared();
         GLFWmonitor* GetMonitor();
         std::string GetTitle();
-        float GetAspectRatio();
+        double GetAspectRatio();
         glm::ivec2 GetRequestedVersion();
         std::string GetGivenVersion();
         glm::ivec2 GetDimensions();

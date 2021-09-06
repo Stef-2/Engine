@@ -5,7 +5,7 @@ Engine::Texture::Texture()
     this->data = {};
     this->width = {};
     this->height = {};
-    this->depth = {};
+    this->numChannels = {};
     this->textureID = {};
 }
 
@@ -19,7 +19,7 @@ Engine::Texture::Texture(std::string filePath)
     this->data = {};
     this->width = {};
     this->height = {};
-    this->depth = {};
+    this->numChannels = {};
 
     this->Setup(filePath);
 }
@@ -29,39 +29,60 @@ Engine::Texture::Texture(std::string filePaths[6])
     this->data = {};
     this->width = {};
     this->height = {};
-    this->depth = {};
+    this->numChannels = {};
 
     this->Setup(filePaths);
 }
 
 void Engine::Texture::Setup(std::string filePath)
 {
-    int width, height, depth;
-    unsigned int texture;
+    int width;
+    int height;
+    int nPixelComponents;
 
+    unsigned int texture;
+    
     // stbi tends to flip images for some reason
     stbi_set_flip_vertically_on_load(true);
     // load data
-    this->data = stbi_load(filePath.c_str(), &width, &height, &depth, 0);
+    this->data = stbi_load(filePath.c_str(), &width, &height, &nPixelComponents, 0);
 
     //check if its valid
     if (this->data) {
 
+        GLenum numChannels;
+
+        // figure out which texture format it is
+        switch (nPixelComponents) {
+        case 1:
+            numChannels = GL_RED;
+            break;
+        case 2:
+            numChannels = GL_RG;
+            break;
+        case 3:
+            numChannels = GL_RGB;
+            break;
+        case 4:
+            numChannels = GL_RGBA;
+            break;
+        }
+
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, numChannels, width, height, 0, numChannels, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
         this->textureID = texture;
         this->width = width;
         this->height = height;
-        this->depth = depth;
+        this->numChannels = numChannels;
 
         stbi_image_free(this->data);
     }
@@ -70,28 +91,50 @@ void Engine::Texture::Setup(std::string filePath)
         this->data = 0;
         this->width = 0;
         this->height = 0;
-        this->depth = 0;
+        this->numChannels = 0;
     }
 }
 
 void Engine::Texture::Setup(std::string filePaths[6])
 {
-    int width, height, depth;
+    int width;
+    int height;
+    int nPixelComponents;
     unsigned int texture;
 
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
 
+    // stbi tends to flip images for some reason
     stbi_set_flip_vertically_on_load(false);
 
     for (size_t i = 0; i < 6; i++)
     {
         // load data
-        this->data = stbi_load(filePaths[i].c_str(), &width, &height, &depth, 0);
+        this->data = stbi_load(filePaths[i].c_str(), &width, &height, &nPixelComponents, 0);
 
         // check if its valid
         if (this->data) {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->data);
+
+            GLenum numChannels;
+
+            // figure out which texture format it is
+            switch (nPixelComponents) {
+            case 1:
+                numChannels = GL_RED;
+                break;
+            case 2:
+                numChannels = GL_RG;
+                break;
+            case 3:
+                numChannels = GL_RGB;
+                break;
+            case 4:
+                numChannels = GL_RGBA;
+                break;
+            }
+
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, numChannels, width, height, 0, numChannels, GL_UNSIGNED_BYTE, this->data);
 
             stbi_image_free(this->data);
         }
@@ -101,7 +144,7 @@ void Engine::Texture::Setup(std::string filePaths[6])
             this->data = 0;
             this->width = 0;
             this->height = 0;
-            this->depth = 0;
+            this->numChannels = 0;
         }
 
     }
@@ -115,7 +158,7 @@ void Engine::Texture::Setup(std::string filePaths[6])
     this->textureID = texture;
     this->width = width;
     this->height = height;
-    this->depth = depth;
+    this->numChannels = nPixelComponents;
 }
 
 unsigned char* Engine::Texture::GetData()
@@ -133,9 +176,9 @@ unsigned int Engine::Texture::GetHeight()
     return this->height;
 }
 
-unsigned int Engine::Texture::GetDepth()
+unsigned int Engine::Texture::GetNumChannels()
 {
-    return this->depth;
+    return this->numChannels;
 }
 
 unsigned int Engine::Texture::GetTextureID()
@@ -153,9 +196,9 @@ void Engine::Texture::SetHeight(unsigned int height)
     this->height = height;
 }
 
-void Engine::Texture::SetDepth(unsigned int depth)
+void Engine::Texture::SetNumChannels(unsigned int numChannels)
 {
-    this->depth = depth;
+    this->numChannels = numChannels;
 }
 
 void Engine::Texture::SetData(unsigned char* data)

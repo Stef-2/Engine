@@ -2,8 +2,11 @@
 #define Engine_H
 
 #include "window.h"
+
 #include "Renderer.h"
 #include "Collider.h"
+#include "Animator.h"
+
 #include "glm/glm.hpp"
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
@@ -15,6 +18,7 @@
 namespace Engine
 {
     // file path provider for various folders in which engine resources can be found
+    // the engine uses these to find directories which contain the requested data
     enum class EngineFilePath
     {
         ENGINE_PATH,
@@ -29,14 +33,14 @@ namespace Engine
     // Motor (Engine) class, named so as not to be confused with the project's namespace
     // the class is designed as a singleton for the following reasons:
     // 1. it is the outermost class of the program, encapsulating everything else. At no point does it make any sense to have multiple instances of it
-    // 2. it holds much of the high level Motor settings which would be cumbersome to constantly pass around if they were local to a single object
+    // 2. it holds much of the high level Engine settings and parameters which would be cumbersome to constantly pass around if they were local to a single object
     // 3. it employs glfw callbacks which, being C functions - are unaware of objects or this->pointer and thus have to be either fully global or declared static
     // 4. I'm looking for an excuse to implement a singleton pattern in this project
     //----------------------------------------------------------------------------------------------------------------------------
-    // the Motor instantiates Renderer and Collider subsystems, glfw's hardware input and error handling callbacks
+    // the Engine instantiates Renderer, Animator and Collider subsystems, glfw's hardware input and error handling callbacks
     // it can hold any number of Engine::Window objects, which create and initialize OpenGL contexts for rendering
-    // the class holds general Motor related options and data
-    // finaly, it employs the Run() function which serves as the main Motor loop
+    // the class holds general Engine related options and data
+    // it employs the Run() function which serves as the main Engine loop
     class Motor
     {
         public:
@@ -83,10 +87,10 @@ namespace Engine
             // updates delta time, should be used once every engine cycle
             void SetDeltaTime();
 
-            // in-Motor animation that plays when the program is started
+            // in-Engine animation that plays when the program is started
             void Intro();
 
-            // the main Motor loop
+            // the main Engine loop
             void Run();
             
         private:
@@ -98,8 +102,12 @@ namespace Engine
             void InitializeCallbacks();
 
             Window window;
-            Renderer renderer;
-            Collider collider;
+
+            // subsystems
+            Engine::Renderer renderer;
+            Engine::Collider collider;
+            Engine::Animator animator;
+
             double currentTime;
             double lastTime;
     };

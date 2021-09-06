@@ -60,7 +60,7 @@ std::string Engine::Motor::GetFilePath(Engine::EngineFilePath location)
         return path.string();
 
     case Engine::EngineFilePath::RESOURCES_PATH:
-        for (const auto& dir : std::filesystem::directory_iterator(path))
+        for (const auto& dir : std::filesystem::recursive_directory_iterator(path))
             if (!dir.path().filename().string().compare("resources"))
                 return dir.path().string();
 
