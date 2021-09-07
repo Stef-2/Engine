@@ -4,6 +4,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
 
+#include "functional"
 #include "string"
 #include "vector"
 
@@ -34,6 +35,7 @@ namespace Engine
         Node<T>(std::string name, glm::mat4 transform, T data);
         Node<T>(Node<T>* parent, std::vector<Node<T>*> children, std::string name, glm::mat4 transform);
 
+        Node<T>* GetRootNode();
         Node<T>* GetParent();
         std::vector<Node<T>*>& GetChildren();
         std::vector<T>& GetData();
@@ -50,6 +52,11 @@ namespace Engine
         void SetTransform(glm::mat4 transform);
         void AddChild(Node<T>* child);
         void AddData(T data);
+
+        // recursively deletes everything above this node, making this node the new root
+        void DeleteAbove();
+        // recursively deletes everything below this node, making this node a leaf
+        void DeleteBelow();
 
         void SetPositionKeyFrames(std::vector<VectorKeyFrame> positions);
         void SetRotationKeyFrames(std::vector<QuaternionKeyFrame> rotations);
@@ -69,7 +76,7 @@ namespace Engine
         std::vector<T> data;
     };
 
-    // templated class, need to define member function implementations in this file
+    // templated class, member function implementations need to be defined in this file, below
 
     template <typename T>
     Node<T>::Node<T>()
@@ -227,6 +234,77 @@ namespace Engine
     void Engine::Node<T>::SetScaleKeyFrames(std::vector<VectorKeyFrame> scales)
     {
         this->scaleKeyFrames = scales;
+    }
+
+    template <typename T>
+    Node<T>* Engine::Node<T>::GetRootNode()
+    {
+        Engine::Node<T>* node = this;
+
+        while (node->GetParent())
+            node = node->GetParent();
+
+        return node;
+    }
+
+    template <typename T>
+    void Engine::Node<T>::DeleteBelow()
+    {
+        // a simple container for nodes
+        std::vector<Engine::Node<T>*> nodes;
+
+        // recursive lambda that is going to traverse the node tree to the bottom and collect everything into a vector
+        std::function<void(Engine::Node<T>*)>
+        traverseDown = [&nodes, &traverseDown](Engine::Node<T>* node)
+        {
+            for (size_t i = 0; i < node->GetChildren().size(); i++)
+            {
+                nodes.push_back(node->GetChildren().at(i));
+                traverseDown(node->GetChildren().at(i));
+            }
+        };
+
+        traverseDown(this);
+
+        // delete everything inside
+        for (size_t i = 0; i < nodes.size(); i++)
+            delete nodes.at(i);
+
+        // remove any references to original node's children to cover up the tracks
+        this->GetChildren().assign(this->GetChildren().size(), nullptr);
+        this->GetChildren().clear();
+    }
+
+    template <typename T>
+    void Engine::Node<T>::DeleteAbove()
+    {
+        auto root = this->GetRootNode();
+
+        // a simple container for nodes
+        std::vector<Engine::Node<T>*> nodes;
+
+        // recursive lambda that is going to traverse the node tree top to bottom -
+        //and collect everything into a vector except for this->node and our children
+        std::function<void(Engine::Node<T>*)>
+        traverseDown = [this, &nodes, &traverseDown](Engine::Node<T>* node)
+        {
+            for (size_t i = 0; i < node->GetChildren().size(); i++)
+            {
+                if (node->GetChildren().at(i) != this) {
+                    nodes.push_back(node->GetChildren().at(i));
+                    traverseDown(node->GetChildren().at(i));
+                }
+            }
+        };
+
+        traverseDown(this);
+
+        // delete everything inside
+        for (size_t i = 0; i < nodes.size(); i++)
+            delete nodes.at(i);
+
+        // remove any references to original node's parent to cover up the tracks
+        this->parent = nullptr;
     }
 }
 

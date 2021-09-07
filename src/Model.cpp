@@ -263,8 +263,7 @@ void Engine::Model::LoadMesh(std::string filePath)
         // assemble the whole model depending if its animated or not
         if (mesh->HasBones()) {
             // animated mesh
-            this->GetMeshes().push_back(Mesh(vertices, indices, vertexBoneData));
-            this->SetSkeleton(skeleton);
+            this->GetMeshes().push_back(Mesh(vertices, indices, vertexBoneData, skeleton));
         }
         else
             // static made mesh with no animation nor bones
@@ -297,10 +296,7 @@ void Engine::Model::SetBoundingBox(glm::vec3 mins, glm::vec3 maxs)
     this->boundingBox = Engine::BoundingBox{mins, maxs};
 }
 
-void Engine::Model::SetSkeleton(Engine::Skeleton& skelly)
-{
-    this->skeleton = skelly;
-}
+
 
 void Engine::Model::AddAnimation(Engine::Animation animation)
 {
@@ -320,11 +316,6 @@ std::vector<Engine::Material>& Engine::Model::GetMaterials()
 Engine::BoundingBox& Engine::Model::GetBoundingBox()
 {
     return this->boundingBox;
-}
-
-Engine::Skeleton& Engine::Model::GetSkeleton()
-{
-    return this->skeleton;
 }
 
 std::vector<Engine::Animation>& Engine::Model::GetAnimations()
