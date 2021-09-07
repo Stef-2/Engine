@@ -22,7 +22,7 @@ namespace Engine
 		void SetShader(const Engine::Shader& shader);
 		void SetModel(const Engine::Model& model);
 
-	protected:
+	private:
 		Model model;
 		Shader shader;
 

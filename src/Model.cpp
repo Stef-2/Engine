@@ -76,7 +76,7 @@ void Engine::Model::LoadMesh(std::string filePath)
 
                     // compare names
                     if (bone->mName == node->mName)
-                        return Engine::Bone(bone->mName.C_Str(), AiMatrix4ToGlm(bone->mOffsetMatrix), bone->mNumWeights);
+                        return Engine::Bone(bone->mName.C_Str(), AiMatrix4ToGlm(bone->mOffsetMatrix), bone->mNumWeights, j);
                 }
         }
 
@@ -123,22 +123,26 @@ void Engine::Model::LoadMesh(std::string filePath)
             // find the animation corresponding to this node
             aiNodeAnim* nodeAnimation = FindNodeAnimation(scene, aiNode->mChildren[i]);
 
-            // if we managed to find the animation for the node, write the animation keyframes into the bone
+            // create a child and give it the bone we made
+            rootNode->AddChild(new Engine::Node<Engine::Bone>(aiNode->mChildren[i]->mName.C_Str(), AiMatrix4ToGlm(aiNode->mChildren[i]->mTransformation)));
+
+            // if we managed to find the animation for the node, write the animation keyframes into it
             // extract position, rotation, and scale animation keys
             if (nodeAnimation)
             {
                 for (size_t i = 0; i < nodeAnimation->mNumPositionKeys; i++)
-                    bone.GetPositionKeyFrames().push_back(Engine::VectorKeyFrame{ aiVector3ToGlm(nodeAnimation->mPositionKeys[i].mValue), nodeAnimation->mPositionKeys[i].mTime });
+                    rootNode->GetChildren().back()->GetPositionKeyFrames().push_back(Engine::VectorKeyFrame{ aiVector3ToGlm(nodeAnimation->mPositionKeys[i].mValue), nodeAnimation->mPositionKeys[i].mTime });
 
                 for (size_t i = 0; i < nodeAnimation->mNumRotationKeys; i++)
-                    bone.GetRotationKeyFrames().push_back(Engine::QuaternionKeyFrame{ aiQuaternionToGlm(nodeAnimation->mRotationKeys[i].mValue), nodeAnimation->mRotationKeys[i].mTime });
+                    rootNode->GetChildren().back()->GetRotationKeyFrames().push_back(Engine::QuaternionKeyFrame{ aiQuaternionToGlm(nodeAnimation->mRotationKeys[i].mValue), nodeAnimation->mRotationKeys[i].mTime });
 
                 for (size_t i = 0; i < nodeAnimation->mNumScalingKeys; i++)
-                    bone.GetScaleKeyFrames().push_back(Engine::VectorKeyFrame{ aiVector3ToGlm(nodeAnimation->mScalingKeys[i].mValue), nodeAnimation->mScalingKeys[i].mTime });
+                    rootNode->GetChildren().back()->GetScaleKeyFrames().push_back(Engine::VectorKeyFrame{ aiVector3ToGlm(nodeAnimation->mScalingKeys[i].mValue), nodeAnimation->mScalingKeys[i].mTime });
             }
 
-            // create a child and give it the bone we made
-            rootNode->AddChild(new Engine::Node<Engine::Bone>(aiNode->mChildren[i]->mName.C_Str(), AiMatrix4ToGlm(aiNode->mChildren[i]->mTransformation), bone));
+            // if the found bone is valid, add it
+            if (bone.GetNumAffectedVertices())
+                rootNode->GetChildren().back()->AddData(bone);
 
             // set ourselves as the parent
             rootNode->GetChildren().back()->SetParent(rootNode);
@@ -175,7 +179,7 @@ void Engine::Model::LoadMesh(std::string filePath)
         {
             aiAnimation* aiAnim = scene->mAnimations[i];
 
-            // assemble and push the whole animation
+            // assemble and push the animation
             this->AddAnimation(Engine::Animation(aiAnim->mName.C_Str(), aiAnim->mDuration, aiAnim->mTicksPerSecond));
         }
     }
