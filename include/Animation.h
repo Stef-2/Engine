@@ -14,23 +14,12 @@ namespace Engine
     {
     public:
         Animation();
-        /*Animation(std::string name, double duration, double ticksPerSecond,
-                  std::vector<Engine::VectorKeyFrame> positionKeyFrames,
-                  std::vector<Engine::QuaternionKeyFrame> rotationKeyFrames,
-                  std::vector<Engine::VectorKeyFrame> scaleKeyFrames);
-
-        std::vector<Engine::VectorKeyFrame>& GetPositionKeyFrames();
-        std::vector<Engine::QuaternionKeyFrame>& GetRotationKeyFrames();
-        std::vector<Engine::VectorKeyFrame>& GetScaleKeyFrames();
-        */
+        Animation(std::string name, double duration, double ticksPerSecond);
+        
         std::string GetName();
         double GetDuration();
         double GetTicksPerSecond();
         double GetStartTime();
-
-        //void SetPositionKeyFrames(std::vector<Engine::VectorKeyFrame> keyFrames);
-        //void SetRotationKeyFrames(std::vector<Engine::QuaternionKeyFrame> keyFrames);
-        //void SetScaleKeyFrames(std::vector<Engine::VectorKeyFrame> keyFrames);
 
         void SetName(std::string& name);
         void SetDuration(double duration);
@@ -40,10 +29,6 @@ namespace Engine
         void Setup();
 
     private:
-        //std::vector<Engine::VectorKeyFrame> positionKeyFrames;
-        //std::vector<Engine::QuaternionKeyFrame> rotationKeyFrames;
-        //std::vector<Engine::VectorKeyFrame> scaleKeyFrames;
-
         std::string name;
         double duration;
         double ticksPerSecond;

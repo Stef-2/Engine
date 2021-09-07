@@ -5,7 +5,7 @@ Engine::Skeleton::Skeleton()
 	this->rootNode = {};
 }
 
-Engine::Skeleton::Skeleton(Engine::Node<Engine::Bone>& rootNode)
+Engine::Skeleton::Skeleton(Engine::Node<Engine::Bone> rootNode)
 {
 	this->rootNode = rootNode;
 }
@@ -25,7 +25,7 @@ glm::mat4 Engine::Skeleton::GetGlobalInverseMatrix()
 	return this->globalInverseMatrix;
 }
 
-void Engine::Skeleton::SetRootNode(Engine::Node<Engine::Bone>& rootNode)
+void Engine::Skeleton::SetRootNode(Engine::Node<Engine::Bone> rootNode)
 {
 	this->rootNode = rootNode;
 }

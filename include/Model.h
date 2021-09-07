@@ -21,6 +21,7 @@
 
 #include "vector"
 #include "iostream"
+#include "functional"
 #include "string"
 #include "map"
 

@@ -13,13 +13,13 @@ namespace Engine
 	{
 	public:
 		Skeleton();
-		Skeleton(Engine::Node<Engine::Bone>& rootNode);
+		Skeleton(Engine::Node<Engine::Bone> rootNode);
 
 		Engine::Node<Engine::Bone>& GetRootNode();
 		std::vector<Engine::Bone>& GetBones();
 		glm::mat4 GetGlobalInverseMatrix();
 
-		void SetRootNode(Engine::Node<Engine::Bone>& rootNode);
+		void SetRootNode(Engine::Node<Engine::Bone> rootNode);
 		void SetBones(std::vector<Engine::Bone> bones);
 		void SetGlobalInverseMatrix(glm::mat4 matrix);
 

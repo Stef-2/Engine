@@ -37,35 +37,29 @@ namespace Engine
 
 		std::string GetName();
 		glm::mat4 GetTransform();
-		std::vector<glm::mat4>& GetInheritedTransforms();
-		std::vector<std::string>& GetInheritedNames();
 		unsigned int GetNumAffectedVertices();
 		unsigned int GetID();
 
-		std::vector<VectorKeyFrame>& GetPositions();
-		std::vector<QuaternionKeyFrame>& GetRotations();
-		std::vector<VectorKeyFrame>& GetScales();
+		std::vector<VectorKeyFrame>& GetPositionKeyFrames();
+		std::vector<QuaternionKeyFrame>& GetRotationKeyFrames();
+		std::vector<VectorKeyFrame>& GetScaleKeyFrames();
 
 		void SetName(std::string name);
 		void SetTransform(glm::mat4 transform);
-		void AddInheritedTransform(glm::mat4 transform);
-		void AddInheritedName(std::string name);
 		void SetNumAffectedVerts(unsigned int numAffectedVerts);
 		void SetID(unsigned int id);
 
-		void SetPositions(std::vector<VectorKeyFrame> positions);
-		void SetRotations(std::vector<QuaternionKeyFrame> rotations);
-		void SetScales(std::vector<VectorKeyFrame> scales);
+		void SetPositionKeyFrames(std::vector<VectorKeyFrame> positions);
+		void SetRotationKeyFrames(std::vector<QuaternionKeyFrame> rotations);
+		void SetScaleKeyFrames(std::vector<VectorKeyFrame> scales);
 
 	private:
-		std::vector<VectorKeyFrame> positions;
-		std::vector<QuaternionKeyFrame> rotations;
-		std::vector<VectorKeyFrame> scales;
+		std::vector<VectorKeyFrame> positionKeyFrames;
+		std::vector<QuaternionKeyFrame> rotationKeyFrames;
+		std::vector<VectorKeyFrame> scaleKeyFrames;
 
 		std::string name;
 		glm::mat4 transform;
-		std::vector<glm::mat4> inheritedTransforms;
-		std::vector<std::string> inheritedNames;
 		unsigned int numAffectedVerts;
 		unsigned int id;
 	};

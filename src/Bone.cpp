@@ -7,9 +7,9 @@ Engine::Bone::Bone()
 	this->numAffectedVerts = {};
 	this->transform = {};
 
-	this->positions = {};
-	this->rotations = {};
-	this->scales = {};
+	this->positionKeyFrames = {};
+	this->rotationKeyFrames = {};
+	this->scaleKeyFrames = {};
 }
 
 Engine::Bone::Bone(std::string name, glm::mat4 transform, unsigned int numAffectedVerts)
@@ -19,9 +19,9 @@ Engine::Bone::Bone(std::string name, glm::mat4 transform, unsigned int numAffect
 	this->numAffectedVerts = numAffectedVerts;
 	this->transform = transform;
 
-	this->positions = {};
-	this->rotations = {};
-	this->scales = {};
+	this->positionKeyFrames = {};
+	this->rotationKeyFrames = {};
+	this->scaleKeyFrames = {};
 }
 
 Engine::Bone::Bone(std::string name, glm::mat4 transform, unsigned int numAffectedVerts, unsigned int ID)
@@ -31,9 +31,9 @@ Engine::Bone::Bone(std::string name, glm::mat4 transform, unsigned int numAffect
 	this->numAffectedVerts = numAffectedVerts;
 	this->transform = transform;
 
-	this->positions = {};
-	this->rotations = {};
-	this->scales = {};
+	this->positionKeyFrames = {};
+	this->rotationKeyFrames = {};
+	this->scaleKeyFrames = {};
 }
 
 std::string Engine::Bone::GetName()
@@ -46,16 +46,6 @@ glm::mat4 Engine::Bone::GetTransform()
 	return this->transform;
 }
 
-std::vector<glm::mat4>& Engine::Bone::GetInheritedTransforms()
-{
-	return this->inheritedTransforms;
-}
-
-std::vector<std::string>& Engine::Bone::GetInheritedNames()
-{
-	return this->inheritedNames;
-}
-
 unsigned int Engine::Bone::GetNumAffectedVertices()
 {
 	return this->numAffectedVerts;
@@ -66,19 +56,19 @@ unsigned int Engine::Bone::GetID()
 	return this->id;
 }
 
-std::vector<Engine::VectorKeyFrame>& Engine::Bone::GetPositions()
+std::vector<Engine::VectorKeyFrame>& Engine::Bone::GetPositionKeyFrames()
 {
-	return this->positions;
+	return this->positionKeyFrames;
 }
 
-std::vector<Engine::QuaternionKeyFrame>& Engine::Bone::GetRotations()
+std::vector<Engine::QuaternionKeyFrame>& Engine::Bone::GetRotationKeyFrames()
 {
-	return this->rotations;
+	return this->rotationKeyFrames;
 }
 
-std::vector<Engine::VectorKeyFrame>& Engine::Bone::GetScales()
+std::vector<Engine::VectorKeyFrame>& Engine::Bone::GetScaleKeyFrames()
 {
-	return this->scales;
+	return this->scaleKeyFrames;
 }
 
 void Engine::Bone::SetName(std::string name)
@@ -91,16 +81,6 @@ void Engine::Bone::SetTransform(glm::mat4 transform)
 	this->transform = transform;
 }
 
-void Engine::Bone::AddInheritedTransform(glm::mat4 transform)
-{
-	this->inheritedTransforms.push_back(transform);
-}
-
-void Engine::Bone::AddInheritedName(std::string name)
-{
-	this->inheritedNames.push_back(name);
-}
-
 void Engine::Bone::SetNumAffectedVerts(unsigned int numAffectedVerts)
 {
 	this->numAffectedVerts = numAffectedVerts;
@@ -111,17 +91,17 @@ void Engine::Bone::SetID(unsigned int id)
 	this->id = id;
 }
 
-void Engine::Bone::SetPositions(std::vector<Engine::VectorKeyFrame> positions)
+void Engine::Bone::SetPositionKeyFrames(std::vector<Engine::VectorKeyFrame> positions)
 {
-	this->positions = positions;
+	this->positionKeyFrames = positions;
 }
 
-void Engine::Bone::SetRotations(std::vector<Engine::QuaternionKeyFrame> rotations)
+void Engine::Bone::SetRotationKeyFrames(std::vector<Engine::QuaternionKeyFrame> rotations)
 {
-	this->rotations = rotations;
+	this->rotationKeyFrames = rotations;
 }
 
-void Engine::Bone::SetScales(std::vector<Engine::VectorKeyFrame> scales)
+void Engine::Bone::SetScaleKeyFrames(std::vector<Engine::VectorKeyFrame> scales)
 {
-	this->scales = scales;
+	this->scaleKeyFrames = scales;
 }

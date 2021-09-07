@@ -63,13 +63,13 @@ int main()
     Engine::Shader basic(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\basic.vert"),
                          engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\basic.frag"));
     
-    Engine::Actor obj1;
-    obj1.SetShader(basic);
+    //Engine::Actor obj1;
+    //obj1.SetShader(basic);
     
-    obj1.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\barrel.obj")));
+    //obj1.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\barrel.obj")));
 
-    obj1.GetModel().LoadMaterial(Engine::Material());
-    obj1.GetModel().GetMaterials().at(0).SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_BaseColor.png"));
+    //obj1.GetModel().LoadMaterial(Engine::Material());
+    //obj1.GetModel().GetMaterials().at(0).SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_BaseColor.png"));
     
     // ---------------------------------------------------------------------------------------------------------------------
 
@@ -124,7 +124,7 @@ int main()
     // skyBox.ScaleAbsolute(10.0f, 10.0f, 10.0f);
     
     std::vector<Engine::Actor*> actors;
-    actors.push_back(&obj1);
+    //actors.push_back(&obj1);
     actors.push_back(&obj2);
     //actors.push_back(&obj3);
 
@@ -188,7 +188,7 @@ int main()
         std::vector<Engine::Actor*> culled = engine.GetRenderer().FrustumCull(camera, actors);
         numCulls = actors.size() - culled.size();
         engine.GetRenderer().Render(camera, culled);
-        engine.GetRenderer().Render(camera, obj1.GetModel().GetBoundingBox());
+        //engine.GetRenderer().Render(camera, obj1.GetModel().GetBoundingBox());
         engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());
         // camera.Draw(&obj1);
         // camera.Draw(&obj2);

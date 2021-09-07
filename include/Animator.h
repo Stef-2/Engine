@@ -1,7 +1,7 @@
 #ifndef ANIMATOR_H
 #define ANIMATOR_H
 
-#include "Animation.h"
+#include "Actor.h"
 
 #include "glm/glm.hpp"
 #include "glfw3.h"
@@ -15,14 +15,14 @@ namespace Engine
 		Animator();
 		Animator(float speedMultiplier);
 
-		void Animate(Engine::Animation& animation);
+		void Animate(Engine::Actor& actor, std::string animationName);
 
 		float GetSpeedMultiplier();
 
 		void SetSpeedMultiplier(float multiplier);
 
 	private:
-		void UpdateAnimation(Engine::Animation& animation);
+		void UpdateAnimation(Engine::Actor& actor, Engine::Animation);
 
 		float speedMultiplier;
 	};
