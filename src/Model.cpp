@@ -255,8 +255,8 @@ void Engine::Model::LoadMesh(std::string filePath)
         }
         
         // assemble Mr.Skeltal from the scene's aiNode tree
-        auto root = Engine::Node<Engine::Bone>();
-        aiTreeToNode(scene->mRootNode, &root);
+        auto root = new Engine::Node<Engine::Bone>();
+        aiTreeToNode(scene->mRootNode, root);
 
         skeleton.SetRootNode(root);
         
