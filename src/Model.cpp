@@ -251,7 +251,10 @@ void Engine::Model::LoadMesh(std::string filePath)
                         // check if the weight ID and vertex index match
                         if (bone->mWeights[l].mVertexId == j)
                         {
-                            // push new vertex bone data for a matching vertex 
+                            // push new vertex bone data for a matching vertex
+                            vertexBoneData.at(j).position[l] = vertex.position[l];
+                            vertexBoneData.at(j).normal[l] = vertex.normal[l];
+                            vertexBoneData.at(j).uv[l] = vertex.uv[l];
                             vertexBoneData.at(j).boneID[l] = k;
                             vertexBoneData.at(j).boneWeight[l] = bone->mWeights->mWeight;
                         }
@@ -323,11 +326,7 @@ void Engine::Model::LoadMesh(std::string filePath)
         // assemble the whole mesh depending if its animated or not
         if (mesh->HasBones()) {
             // animated mesh
-            std::vector<Engine::VertexBoneData> boneData = {};
-            for (size_t i = 0; i < vertices.size(); i++)
-                boneData.push_back({ vertices.at(i).position, vertices.at(i).normal, vertices.at(i).uv, vertexBoneData.at(i).boneID, vertexBoneData.at(i).boneWeight });
-            
-            this->animatedMeshes.push_back(AnimatedMesh(boneData, indices, skeleton));
+            this->animatedMeshes.push_back(AnimatedMesh(vertexBoneData, indices, skeleton));
         }
         else
             // static made mesh with no animation nor bones

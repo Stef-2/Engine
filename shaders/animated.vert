@@ -14,7 +14,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-uniform mat4 boneTransforms[];
+uniform mat4 boneTransformations[];
 
 void main()
 {
@@ -23,8 +23,8 @@ void main()
 
     for (int i = 0; i < 4; i++)
     {
-        finalPosition += boneTransforms[boneIDs[i]] * vec4(vertexPosition, 1.0f) * boneWeights[i];
-        finalNormal += mat3(boneTransforms[boneIDs[i]]) * vertexNormal;
+        finalPosition += boneTransformations[boneIDs[i]] * vec4(vertexPosition, 1.0f) * boneWeights[i];
+        finalNormal += mat3(boneTransformations[boneIDs[i]]) * vertexNormal;
     }
 
     gl_Position = projection * view * model * finalPosition;

@@ -8,12 +8,17 @@ Engine::Shader::Shader()
     this->vertexShader = 0;
     this->fragmentShader = 0;
     this->programID = 0;
+
     this->modelTransformLocation = {};
     this->viewTransformLocation = {};
     this->projectionTransformLocation = {};
+    this->BoneTransformsLocation = {};
 
     this->vertexPositionLocation = {};
+    this->vertexNormalLocation = {};
     this->vertexUvLocation = {};
+    this->vertexBoneIdLocation = {};
+    this->vertexBoneWeights = {};
 }
 
 Engine::Shader::Shader(std::string vertexShader, std::string fragmentShader)
@@ -22,43 +27,23 @@ Engine::Shader::Shader(std::string vertexShader, std::string fragmentShader)
     this->vertexShader = 0;
     this->fragmentShader = 0;
     this->programID = 0;
+
     this->modelTransformLocation = {};
     this->viewTransformLocation = {};
     this->projectionTransformLocation = {};
+    this->BoneTransformsLocation = {};
 
     this->vertexPositionLocation = {};
+    this->vertexNormalLocation = {};
     this->vertexUvLocation = {};
+    this->vertexBoneIdLocation = {};
+    this->vertexBoneWeights = {};
 
     this->compileSuccess = this->SetVertexShader(vertexShader);
     this->compileSuccess = this->SetFragmentShader(fragmentShader);
 
     this->compileSuccess = this->CompileProgram();
 }
-
-/*Engine::Shader::~Shader()
-{
-    // if (this->vsLog != NULL) delete this->vsLog;
-    // if (this->fsLog != NULL) delete this->fsLog;
-    // if (this->spLog != NULL) delete this->spLog;
-}*/
-
-/*Engine::Shader::Shader(const Shader& other)
-{
-    this->compileSuccess = other.compileSuccess;
-    this->fragmentShader = other.fragmentShader;
-    this->vertexShader = other.vertexShader;
-    strcpy_s(this->fsLog, other.fsLog);
-    strcpy_s(this->spLog, other.spLog);
-    strcpy_s(this->vsLog, other.vsLog);
-    this->programID = other.programID;
-}*/
-
-/*Engine::Shader& Engine::Shader::operator=(const Shader& rhs)
-{
-    if (this == &rhs) return *this;
-
-    return *this;
-}*/
 
 int Engine::Shader::SetVertexShader(std::string filePath)
 {
@@ -194,6 +179,8 @@ int Engine::Shader::CompileProgram()
 
         this->projectionTransformLocation = glGetUniformLocation(this->programID, "projection");
 
+        this->BoneTransformsLocation = glGetUniformLocation(this->programID, "boneTransformations");
+
         this->vertexPositionLocation = glGetAttribLocation(this->programID, "vertexPosition");
         glBindAttribLocation(this->programID, this->vertexPositionLocation, "vertexPosition");
 
@@ -202,6 +189,12 @@ int Engine::Shader::CompileProgram()
 
         this->vertexUvLocation = glGetAttribLocation(this->programID, "vertexCoordinate");
         glBindAttribLocation(this->programID, this->vertexUvLocation, "vertexCoordinate");
+
+        this->vertexBoneIdLocation = glGetAttribLocation(this->programID, "boneIDs");
+        glBindAttribLocation(this->programID, this->vertexBoneIdLocation, "boneIDs");
+
+        this->vertexBoneWeights = glGetAttribLocation(this->programID, "boneWeights");
+        glBindAttribLocation(this->programID, this->vertexBoneWeights, "boneWeights");
 
         return shaderProgram;
     }
@@ -220,6 +213,9 @@ unsigned int Engine::Shader::GetAttributeLocation(Engine::Shader::ShaderAttribut
     case Engine::Shader::ShaderAttribute::PROJECTION_LOCATION:
         return this->projectionTransformLocation;
 
+    case Engine::Shader::ShaderAttribute::BONE_TRANSFORMATIONS:
+        return this->BoneTransformsLocation;
+
     case Engine::Shader::ShaderAttribute::VERTEX_POSITION_LOCATION:
         return this->vertexPositionLocation;
 
@@ -228,6 +224,12 @@ unsigned int Engine::Shader::GetAttributeLocation(Engine::Shader::ShaderAttribut
 
     case Engine::Shader::ShaderAttribute::VERTEX_UV_LOCATION:
         return this->vertexUvLocation;
+
+    case Engine::Shader::ShaderAttribute::VERTEX_BONE_ID_LOCATION:
+        return this->vertexBoneIdLocation;
+
+    case Engine::Shader::ShaderAttribute::VERTEX_BONE_WEIGHTS_LOCATION:
+        return this->vertexBoneWeights;
     }
 }
 

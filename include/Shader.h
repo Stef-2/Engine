@@ -25,12 +25,15 @@ namespace Engine
 
             // enumerator for the different shader attribute we may wish to retrive
             enum class ShaderAttribute {
+                VERTEX_POSITION_LOCATION,
+                VERTEX_NORMAL_LOCATION,
+                VERTEX_UV_LOCATION,
+                VERTEX_BONE_ID_LOCATION,
+                VERTEX_BONE_WEIGHTS_LOCATION,
                 MODEL_LOCATION,
                 VIEW_LOCATION,
                 PROJECTION_LOCATION,
-                VERTEX_POSITION_LOCATION,
-                VERTEX_NORMAL_LOCATION,
-                VERTEX_UV_LOCATION
+                BONE_TRANSFORMATIONS
             };
 
             Shader();
@@ -83,9 +86,13 @@ namespace Engine
             unsigned int vertexPositionLocation;
             unsigned int vertexNormalLocation;
             unsigned int vertexUvLocation;
+            unsigned int vertexBoneIdLocation;
+            unsigned int vertexBoneWeights;
+
             unsigned int modelTransformLocation;
             unsigned int viewTransformLocation;
             unsigned int projectionTransformLocation;
+            unsigned int BoneTransformsLocation;
 
             static Shader* currentShader;
     };
