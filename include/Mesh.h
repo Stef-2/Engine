@@ -28,16 +28,20 @@ namespace Engine
     // vertex extension for animated meshes
     struct VertexBoneData
     {
-        std::vector<unsigned int> boneID;
-        std::vector<float> boneWeight;
+        glm::vec3 position;
+        glm::vec3 normal;
+        glm::vec2 uv;
+        glm::ivec4 boneID;
+        glm::vec4 boneWeight;
     };
 
     // triangle data for collision detection
+    template<typename T>
     struct Triangle
     {
-        Engine::Vertex* a;
-        Engine::Vertex* b;
-        Engine::Vertex* c;
+        Engine::T* a;
+        Engine::T* b;
+        Engine::T* c;
     };
 
     // a mesh class that stores vertex data to be used for rendering
@@ -49,9 +53,6 @@ namespace Engine
             // non animatied mesh
             Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
 
-            // animated mesh
-            Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<VertexBoneData> boneWeights, Engine::Skeleton skeleton);
-
             void Setup();
 
             // handles for Vertex Buffer and Element Buffer objects
@@ -62,35 +63,51 @@ namespace Engine
 
             std::vector<Vertex>& GetVertices();
             std::vector<unsigned int>& GetIndices();
-            std::vector<Triangle>& GetTriangles();
-            std::vector<VertexBoneData>& GetBoneWeights();
-            Engine::Skeleton& GetSkeleton();
+            std::vector<Triangle<Vertex>>& GetTriangles();
 
             void SetVertices(std::vector<Vertex> vertices);
             void SetIndices(std::vector<unsigned int> indices);
-            void SetBoneWeights(std::vector<VertexBoneData> boneWeights);
-            void SetSkeleton(Engine::Skeleton& skelly);
 
         private:
-            // Mr.Skeltal
-            Engine::Skeleton skeleton;
-
             // mesh vertices
             std::vector<Vertex> vertices;
-
-            // vertex data extension that describes connection between vertices and bone(s) affecting them
-            std::vector<VertexBoneData> boneWeights;
-
-            // order in which they connect to form triangles
-            std::vector<unsigned int> indices;
-
             // triangles for collision detection
-            std::vector<Triangle> triangles;
+            std::vector<Triangle<Vertex>> triangles;
+
+        protected:
+            // order in which vertices connect to form triangles
+            std::vector<unsigned int> indices;
 
             // array, vertex buffer and element buffer objects for rendering
             unsigned int VAO;
             unsigned int VBO;
             unsigned int EBO;
+    };
+
+    class AnimatedMesh : public Mesh
+    {
+        using Engine::Mesh::Mesh;
+
+    public:
+        // animated mesh
+        AnimatedMesh(std::vector<VertexBoneData> vertices, std::vector<unsigned int> indices, Engine::Skeleton skeleton);
+
+        std::vector<Triangle<VertexBoneData>>& GetTriangles();
+        Engine::Skeleton& GetSkeleton();
+
+        void SetBoneWeights(std::vector<VertexBoneData> boneWeights);
+        void SetSkeleton(Engine::Skeleton& skelly);
+        void Setup();
+
+    private:
+        // mesh vertices
+        std::vector<VertexBoneData> vertices;
+
+        // triangles for collision detection
+        std::vector<Triangle<VertexBoneData>> triangles;
+
+        // Mr.Skeltal
+        Engine::Skeleton skeleton;
     };
 
 }

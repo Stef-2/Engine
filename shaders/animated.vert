@@ -1,22 +1,33 @@
 #version 460 core
 
-attribute vec3 vertexPosition;
-attribute vec3 vertexNormal;
-attribute vec2 vertexCoordinate;
+layout (location = 0) in vec3 vertexPosition;
+layout (location = 1) in vec3 vertexNormal;
+layout (location = 2) in vec2 vertexCoordinate;
 
-attribute ivec3 boneID;
-attribute vec3 boneWeight;
+layout (location = 3) in ivec4 boneIDs;
+layout (location = 4) in vec4 boneWeights;
 
-varying vec3 normal;
-varying vec2 uv;
+out vec3 normal;
+out vec2 uv;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+uniform mat4 boneTransforms[];
+
 void main()
 {
-    gl_Position = projection * view * model * vec4(vertexPosition, 1.0f);
-    normal = vertexNormal;
+    vec4 finalPosition = vec4(0.0f);
+    vec3 finalNormal = vec3(0.0f);
+
+    for (int i = 0; i < 4; i++)
+    {
+        finalPosition += boneTransforms[boneIDs[i]] * vec4(vertexPosition, 1.0f) * boneWeights[i];
+        finalNormal += mat3(boneTransforms[boneIDs[i]]) * vertexNormal;
+    }
+
+    gl_Position = projection * view * model * finalPosition;
+    normal = finalNormal;
     uv = vertexCoordinate;
 }

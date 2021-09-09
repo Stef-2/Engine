@@ -34,6 +34,16 @@ glm::mat4 Engine::Bone::GetTransform()
 	return this->transform;
 }
 
+glm::mat4 Engine::Bone::GetGlobalTransform()
+{
+	return this->transform * this->node->GetGlobalTransform();
+}
+
+glm::mat4 Engine::Bone::GetGlobalTransform(double timeOffset)
+{
+	return this->transform * this->node->GetGlobalTransform(timeOffset);
+}
+
 unsigned int Engine::Bone::GetNumAffectedVertices()
 {
 	return this->numAffectedVerts;

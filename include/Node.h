@@ -68,6 +68,13 @@ namespace Engine
         std::vector<QuaternionKeyFrame>& GetRotationKeyFrames();
         std::vector<VectorKeyFrame>& GetScaleKeyFrames();
 
+        // returns the transformations inherited by all parents, without the local one
+        glm::mat4 GetInheritedTransforms();
+        // returns this->transform multiplied by those of all parent nodes
+        glm::mat4 GetGlobalTransform();
+        // returns the final global transform matrix for this node at a given time
+        glm::mat4 GetGlobalTransform(double timeOffset);
+
         void SetParent(Node* parent);
         void SetChildren(std::vector<Node*> vector);
         void SetName(std::string name);

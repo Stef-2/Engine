@@ -2,14 +2,18 @@
 
 Engine::Model::Model()
 {
-	this->meshes = {};
+	this->staticMeshes = {};
+    this->animatedMeshes = {};
 	this->materials = {};
+    this->animations = {};
 }
 
 Engine::Model::Model(std::string filePath)
 {
-	this->meshes = {};
+	this->staticMeshes = {};
+    this->animatedMeshes = {};
 	this->materials = {};
+    this->animations = {};
 
 	this->LoadMesh(filePath);
 }
@@ -248,8 +252,8 @@ void Engine::Model::LoadMesh(std::string filePath)
                         if (bone->mWeights[l].mVertexId == j)
                         {
                             // push new vertex bone data for a matching vertex 
-                            vertexBoneData.at(j).boneID.push_back(k);
-                            vertexBoneData.at(j).boneWeight.push_back(bone->mWeights->mWeight);
+                            vertexBoneData.at(j).boneID[l] = k;
+                            vertexBoneData.at(j).boneWeight[l] = bone->mWeights->mWeight;
                         }
                     }
                 }
@@ -316,14 +320,18 @@ void Engine::Model::LoadMesh(std::string filePath)
         std::sort(bones.begin(), bones.end(), [](const Engine::Bone& x, const Engine::Bone& y) -> bool {return x.GetID() < y.GetID(); });
         skeleton.SetBones(bones);
         
-        // assemble the whole model depending if its animated or not
+        // assemble the whole mesh depending if its animated or not
         if (mesh->HasBones()) {
             // animated mesh
-            this->GetMeshes().push_back(Mesh(vertices, indices, vertexBoneData, skeleton));
+            std::vector<Engine::VertexBoneData> boneData = {};
+            for (size_t i = 0; i < vertices.size(); i++)
+                boneData.push_back({ vertices.at(i).position, vertices.at(i).normal, vertices.at(i).uv, vertexBoneData.at(i).boneID, vertexBoneData.at(i).boneWeight });
+            
+            this->animatedMeshes.push_back(AnimatedMesh(boneData, indices, skeleton));
         }
         else
             // static made mesh with no animation nor bones
-            this->meshes.push_back(Mesh(vertices, indices));
+            this->staticMeshes.push_back(Mesh(vertices, indices));
     }
 
     // debug
@@ -344,7 +352,12 @@ void Engine::Model::LoadMaterial(const Engine::Material& material)
 
 void Engine::Model::LoadMesh(const Engine::Mesh& other)
 {
-    this->meshes.push_back(other);
+    this->staticMeshes.push_back(other);
+}
+
+void Engine::Model::LoadMesh(const Engine::AnimatedMesh& other)
+{
+    this->animatedMeshes.push_back(other);
 }
 
 void Engine::Model::SetBoundingBox(glm::vec3 mins, glm::vec3 maxs)
@@ -357,9 +370,14 @@ void Engine::Model::AddAnimation(Engine::Animation animation)
     this->animations.push_back(animation);
 }
 
-std::vector<Engine::Mesh>& Engine::Model::GetMeshes()
+std::vector<Engine::Mesh>& Engine::Model::GetStaticMeshes()
 {
-    return this->meshes;
+    return this->staticMeshes;
+}
+
+std::vector<Engine::AnimatedMesh>& Engine::Model::GetAnimatedMeshes()
+{
+    return this->animatedMeshes;
 }
 
 std::vector<Engine::Material>& Engine::Model::GetMaterials()
