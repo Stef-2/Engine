@@ -27,7 +27,7 @@ namespace Engine
 
 
 	private:
-		float gravity = 9.81f;
+		double gravity = 9.81;
 	};
 }
 #endif

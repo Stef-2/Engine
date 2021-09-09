@@ -3,30 +3,30 @@
 Engine::Bone::Bone()
 {
 	this->id = {};
-	this->name = {};
+	this->node = {};
 	this->numAffectedVerts = {};
 	this->transform = {};
 }
 
-Engine::Bone::Bone(std::string name, glm::mat4 transform, unsigned int numAffectedVerts)
-{
-	this->id = {};
-	this->name = name;
-	this->numAffectedVerts = numAffectedVerts;
-	this->transform = transform;
-}
-
-Engine::Bone::Bone(std::string name, glm::mat4 transform, unsigned int numAffectedVerts, unsigned int ID)
+Engine::Bone::Bone(glm::mat4 transform, unsigned int numAffectedVerts, unsigned int ID)
 {
 	this->id = ID;
-	this->name = name;
+	this->node = {};
 	this->numAffectedVerts = numAffectedVerts;
 	this->transform = transform;
 }
 
-std::string Engine::Bone::GetName()
+Engine::Bone::Bone(Engine::Node& node, glm::mat4 transform, unsigned int numAffectedVerts, unsigned int ID)
 {
-	return this->name;
+	this->id = ID;
+	*this->node = node;
+	this->numAffectedVerts = numAffectedVerts;
+	this->transform = transform;
+}
+
+Engine::Node& Engine::Bone::GetNode()
+{
+	return *this->node;
 }
 
 glm::mat4 Engine::Bone::GetTransform()
@@ -39,14 +39,14 @@ unsigned int Engine::Bone::GetNumAffectedVertices()
 	return this->numAffectedVerts;
 }
 
-unsigned int Engine::Bone::GetID()
+unsigned int Engine::Bone::GetID() const
 {
 	return this->id;
 }
 
-void Engine::Bone::SetName(std::string name)
+void Engine::Bone::SetNode(Engine::Node& node)
 {
-	this->name = name;
+	this->node = &node;
 }
 
 void Engine::Bone::SetTransform(glm::mat4 transform)

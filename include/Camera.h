@@ -14,7 +14,7 @@
 namespace Engine
 {
 
-    // a camera class, inheriting transformation mechanisms from Engine::Object
+    // a Camera class, inheriting transformation mechanisms from Engine::Object
     // provides the Vew() and Projection() matrices needed for rendering
     // provides frustum clipping planes, needed for frustum culling
     class Camera : public Engine::Object
@@ -41,7 +41,6 @@ namespace Engine
             // camera's view frustum clipping planes, to be used for frustum culling by the renderer
             std::vector<glm::vec4> GetFrustumPlanes() const;
             
-
             double GetSpeed();
             double GetAspectRatio();
             double GetNearClip();

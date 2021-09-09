@@ -17,22 +17,22 @@ namespace Engine
 	{
 	public:
 		Bone();
-		Bone(std::string name, glm::mat4 transform, unsigned int numAffectedVerts);
-		Bone(std::string name, glm::mat4 transform, unsigned int numAffectedVerts, unsigned int ID);
+		Bone(glm::mat4 transform, unsigned int numAffectedVerts, unsigned int ID);
+		Bone(Engine::Node& node, glm::mat4 transform, unsigned int numAffectedVerts, unsigned int ID);
 
-		std::string GetName();
+		Engine::Node& GetNode();
 		glm::mat4 GetTransform();
 		unsigned int GetNumAffectedVertices();
-		unsigned int GetID();
+		unsigned int GetID() const;
 
-		void SetName(std::string name);
+		void SetNode(Engine::Node& node);
 		void SetTransform(glm::mat4 transform);
 		void SetNumAffectedVerts(unsigned int numAffectedVerts);
 		void SetID(unsigned int id);
 
 	private:
 
-		std::string name;
+		Engine::Node* node;
 		glm::mat4 transform;
 		unsigned int numAffectedVerts;
 		unsigned int id;

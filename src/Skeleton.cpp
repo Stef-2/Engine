@@ -3,16 +3,29 @@
 Engine::Skeleton::Skeleton()
 {
 	this->rootNode = {};
+	this->bones = {};
 }
 
-Engine::Skeleton::Skeleton(Engine::Node<Engine::Bone>* rootNode)
+Engine::Skeleton::Skeleton(Engine::Node* rootNode)
 {
 	this->rootNode = rootNode;
+	this->bones = {};
 }
 
-Engine::Node<Engine::Bone>& Engine::Skeleton::GetRootNode()
+Engine::Skeleton::Skeleton(Engine::Node* rootNode, std::vector<Engine::Bone> bones)
+{
+	this->rootNode = rootNode;
+	this->bones = bones;
+}
+
+Engine::Node& Engine::Skeleton::GetRootNode()
 {
 	return *this->rootNode;
+}
+
+std::vector<Engine::Bone>& Engine::Skeleton::GetBones()
+{
+	return this->bones;
 }
 
 glm::mat4 Engine::Skeleton::GetGlobalInverseMatrix()
@@ -20,7 +33,17 @@ glm::mat4 Engine::Skeleton::GetGlobalInverseMatrix()
 	return this->globalInverseMatrix;
 }
 
-void Engine::Skeleton::SetRootNode(Engine::Node<Engine::Bone>* rootNode)
+void Engine::Skeleton::SetBones(std::vector<Engine::Bone> bones)
+{
+	this->bones = bones;
+}
+
+void Engine::Skeleton::AddBone(Engine::Bone bone)
+{
+	this->bones.push_back(bone);
+}
+
+void Engine::Skeleton::SetRootNode(Engine::Node* rootNode)
 {
 	this->rootNode = rootNode;
 }

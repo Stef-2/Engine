@@ -76,7 +76,7 @@ void Engine::Model::LoadMesh(std::string filePath)
 
                     // compare names
                     if (bone->mName == node->mName)
-                        return Engine::Bone(bone->mName.C_Str(), AiMatrix4ToGlm(bone->mOffsetMatrix), bone->mNumWeights, j);
+                        return Engine::Bone(AiMatrix4ToGlm(bone->mOffsetMatrix), bone->mNumWeights, j);
                 }
         }
 
@@ -97,13 +97,13 @@ void Engine::Model::LoadMesh(std::string filePath)
         return glm::quat(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
     };
 
-    // recursive utility lambda that constructs an Engine::Node<Engine::Bone> tree out of assimp's native aiNode tree and returns the root
-    std::function<Engine::Node<Engine::Bone>*(aiNode*, Engine::Node<Engine::Bone>*)>
+    // recursive utility lambda that constructs an Engine::Node tree out of assimp's native aiNode tree and returns the root
+    std::function<Engine::Node*(aiNode*, Engine::Node*, std::map<aiNode*, bool>, std::vector<Engine::Bone>&)>
     aiTreeToNode = [&aiTreeToNode, &AiMatrix4ToGlm, &FindNodeAnimation, &aiVector3ToGlm, &aiQuaternionToGlm, &FindNodeBone, &scene]
-                   (aiNode* aiNode, Engine::Node<Engine::Bone>* rootNode)
+                   (aiNode* aiRoot, Engine::Node* rootNode, std::map<aiNode*, bool> map, std::vector<Engine::Bone>& bones)
     {
         // check if we've reached the leaves
-        if (!aiNode->mNumChildren) {
+        if (!aiRoot->mNumChildren) {
 
             auto root = rootNode;
 
@@ -115,39 +115,49 @@ void Engine::Model::LoadMesh(std::string filePath)
         }
         
         // if we haven't, keep traversing down the tree
-        for (size_t i = 0; i < aiNode->mNumChildren; i++)
+        for (size_t i = 0; i < aiRoot->mNumChildren; i++)
         {
-            // try to find an appropriate bone for the node, if it doesn't exist, make a new one
-            Engine::Bone bone = FindNodeBone(scene, aiNode->mChildren[i]);
-
-            // find the animation corresponding to this node
-            aiNodeAnim* nodeAnimation = FindNodeAnimation(scene, aiNode->mChildren[i]);
-
-            // create a child and give it the bone we made
-            rootNode->AddChild(new Engine::Node<Engine::Bone>(aiNode->mChildren[i]->mName.C_Str(), AiMatrix4ToGlm(aiNode->mChildren[i]->mTransformation)));
-
-            // if we managed to find the animation for the node, write the animation keyframes into it
-            // extract position, rotation, and scale animation keys
-            if (nodeAnimation)
+            // check the map to see if the node is neccessary for the skeleton
+            if (map.at(aiRoot->mChildren[i]))
             {
-                for (size_t i = 0; i < nodeAnimation->mNumPositionKeys; i++)
-                    rootNode->GetChildren().back()->GetPositionKeyFrames().push_back(Engine::VectorKeyFrame{ aiVector3ToGlm(nodeAnimation->mPositionKeys[i].mValue), nodeAnimation->mPositionKeys[i].mTime });
+                // try to find an appropriate bone for the node, if it doesn't exist, make a new one
+                Engine::Bone bone = FindNodeBone(scene, aiRoot->mChildren[i]);
 
-                for (size_t i = 0; i < nodeAnimation->mNumRotationKeys; i++)
-                    rootNode->GetChildren().back()->GetRotationKeyFrames().push_back(Engine::QuaternionKeyFrame{ aiQuaternionToGlm(nodeAnimation->mRotationKeys[i].mValue), nodeAnimation->mRotationKeys[i].mTime });
+                // find the animation corresponding to this node
+                aiNodeAnim* nodeAnimation = FindNodeAnimation(scene, aiRoot->mChildren[i]);
 
-                for (size_t i = 0; i < nodeAnimation->mNumScalingKeys; i++)
-                    rootNode->GetChildren().back()->GetScaleKeyFrames().push_back(Engine::VectorKeyFrame{ aiVector3ToGlm(nodeAnimation->mScalingKeys[i].mValue), nodeAnimation->mScalingKeys[i].mTime });
+                // create a child and give it the bone we made
+                rootNode->AddChild(new Engine::Node(aiRoot->mChildren[i]->mName.C_Str(), AiMatrix4ToGlm(aiRoot->mChildren[i]->mTransformation)));
+
+                // if we managed to find the animation for the node, write the animation keyframes into it
+                // extract position, rotation, and scale animation keys
+                if (nodeAnimation)
+                {
+                    for (size_t i = 0; i < nodeAnimation->mNumPositionKeys; i++)
+                        rootNode->GetChildren().back()->GetPositionKeyFrames().push_back
+                        (Engine::VectorKeyFrame{ aiVector3ToGlm(nodeAnimation->mPositionKeys[i].mValue), nodeAnimation->mPositionKeys[i].mTime });
+
+                    for (size_t i = 0; i < nodeAnimation->mNumRotationKeys; i++)
+                        rootNode->GetChildren().back()->GetRotationKeyFrames().push_back
+                        (Engine::QuaternionKeyFrame{ aiQuaternionToGlm(nodeAnimation->mRotationKeys[i].mValue), nodeAnimation->mRotationKeys[i].mTime });
+
+                    for (size_t i = 0; i < nodeAnimation->mNumScalingKeys; i++)
+                        rootNode->GetChildren().back()->GetScaleKeyFrames().push_back
+                        (Engine::VectorKeyFrame{ aiVector3ToGlm(nodeAnimation->mScalingKeys[i].mValue), nodeAnimation->mScalingKeys[i].mTime });
+                }
+
+                // if the found bone is valid, add it onto the pile
+                if (bone.GetNumAffectedVertices()) {
+                    bone.SetNode(*rootNode->GetChildren().back());
+                    bones.push_back(bone);
+                }
+
+                // set ourselves as the parent
+                rootNode->GetChildren().back()->SetParent(rootNode);
+
+                // pass the call to the youngster
+                aiTreeToNode(aiRoot->mChildren[i], rootNode->GetChildren().back(), map, bones);
             }
-
-            // if the found bone is valid, add it
-            if (bone.GetNumAffectedVertices())
-                rootNode->GetChildren().back()->AddData(bone);
-
-            // set ourselves as the parent
-            rootNode->GetChildren().back()->SetParent(rootNode);
-            // pass the call to the youngster
-            aiTreeToNode(aiNode->mChildren[i], rootNode->GetChildren().back());
         }
     };
 
@@ -156,7 +166,7 @@ void Engine::Model::LoadMesh(std::string filePath)
 
     std::vector<Engine::Vertex> vertices{};
     std::vector<unsigned int> indices{};
-
+    std::vector<Engine::Bone> bones;
     Engine::Skeleton skeleton{};
 
     // utility vectors for manual bounding box building
@@ -254,11 +264,57 @@ void Engine::Model::LoadMesh(std::string filePath)
             indices.push_back(mesh->mFaces[j].mIndices[2]);
         }
         
+        // create a map that will help record which scene nodes are needed for the bone hierarchy
+        std::map<aiNode*, bool> nodeMap;
+        aiNode* meshNode = nullptr;
+
+        // utility recursive lambda that will fill the map with the node tree and set all values to false
+        std::function<void(aiNode*)>
+        FillNodeMap = [&nodeMap, &FillNodeMap](aiNode* root)
+        {
+            // check if we've reached the leaves
+            if (!root->mNumChildren)
+                return;
+
+            // else, recursively iterate through the tree and assign every map value with a false
+            for (size_t i = 0; i < root->mNumChildren; i++)
+            {
+                nodeMap.insert(std::pair<aiNode*, bool>(root->mChildren[i], false));
+                FillNodeMap(root->mChildren[i]);
+            }
+        };
+
+        FillNodeMap(scene->mRootNode);
+
+        // go through the map and set all nodes between bones and mesh root to true, this will be our skeleton
+        for (size_t i = 0; i < mesh->mNumBones; i++)
+        {
+            // find the node for the current bone
+            aiNode* boneNode = scene->mRootNode->FindNode(mesh->mBones[i]->mName);
+            // set it to true
+            nodeMap.at(boneNode) = true;
+            int c = 0;
+            // go through all the nodes parents until we find either the mesh node, or its parent node, that is the end of our skeleton
+            while (boneNode->mParent && (boneNode->mParent->mName != mesh->mName))
+            {
+                // set the full range of nodes to true, they are needed for the skeleton
+                nodeMap.at(boneNode) = true;
+                // keep going up
+                boneNode = boneNode->mParent;
+                meshNode = boneNode;
+            }
+        }
+
         // assemble Mr.Skeltal from the scene's aiNode tree
-        auto root = new Engine::Node<Engine::Bone>();
-        aiTreeToNode(scene->mRootNode, root);
+        auto root = new Engine::Node();
+        aiTreeToNode(meshNode, root, nodeMap, bones);
 
         skeleton.SetRootNode(root);
+
+        // sort the bone vector for faster retrieval after, their current order is irrelevant
+        // sort them according to their internal index
+        std::sort(bones.begin(), bones.end(), [](const Engine::Bone& x, const Engine::Bone& y) -> bool {return x.GetID() < y.GetID(); });
+        skeleton.SetBones(bones);
         
         // assemble the whole model depending if its animated or not
         if (mesh->HasBones()) {
@@ -295,8 +351,6 @@ void Engine::Model::SetBoundingBox(glm::vec3 mins, glm::vec3 maxs)
 {
     this->boundingBox = Engine::BoundingBox{mins, maxs};
 }
-
-
 
 void Engine::Model::AddAnimation(Engine::Animation animation)
 {
