@@ -166,10 +166,10 @@ void Engine::AnimatedMesh::Setup()
 
     // vertex bone IDs
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_INT, GL_FALSE, sizeof(VertexBoneData), (void*)offsetof(VertexBoneData, boneID));
+    glVertexAttribIPointer(3, 4, GL_INT, sizeof(VertexBoneData), (void*)offsetof(VertexBoneData, boneID));
 
     // vertex bone weights
-    glEnableVertexAttribArray(3);
+    glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData), (void*)offsetof(VertexBoneData, boneWeight));
 
     // unbind VAO

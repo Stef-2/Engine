@@ -38,10 +38,10 @@ void Engine::Model::LoadMesh(std::string filePath)
     // utility lambda that transforms assimp's native aiMatrix4x4 into a glm::mat4 one
     auto AiMatrix4ToGlm = [](aiMatrix4x4 matrix) {
 
-        return glm::mat4{ matrix.a1, matrix.a2, matrix.a3, matrix.a4,
+        return glm::transpose(glm::mat4{ matrix.a1, matrix.a2, matrix.a3, matrix.a4,
                           matrix.b1, matrix.b2, matrix.b3, matrix.b4,
                           matrix.c1, matrix.c2, matrix.c3, matrix.c4,
-                          matrix.d1, matrix.d2, matrix.d3, matrix.d4 };
+                          matrix.d1, matrix.d2, matrix.d3, matrix.d4 });
     };
 
     // utility lambda that finds assimp's native aiNodeAnim for a given aiNode name
@@ -98,7 +98,7 @@ void Engine::Model::LoadMesh(std::string filePath)
     // utility lambda that converts assimp's native aiQuaternion into a glm::quat one
     auto aiQuaternionToGlm = [](aiQuaternion quaternion)
     {
-        return glm::quat(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+        return glm::quat(quaternion.w, quaternion.x, quaternion.y, quaternion.z);
     };
 
     // recursive utility lambda that constructs an Engine::Node tree out of assimp's native aiNode tree and returns the root
@@ -184,6 +184,7 @@ void Engine::Model::LoadMesh(std::string filePath)
 
     // assimp native empty vector3, to be used for any missing vertex data so its not left uninitialized
     aiVector3D empty{ 0.0f, 0.0f, 0.0f };
+    aiNode* meshNode = nullptr;
 
     // parse animation data
     if (scene->HasAnimations())
@@ -216,7 +217,7 @@ void Engine::Model::LoadMesh(std::string filePath)
         max = glm::max(max, glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
 
         // fill the vertex bone data struct with full range of blank data
-        if (mesh->HasBones()) vertexBoneData.assign(mesh->mNumVertices, Engine::VertexBoneData{});
+        if (mesh->HasBones()) vertexBoneData.assign(mesh->mNumVertices, Engine::VertexBoneData{glm::vec3(0.0f),glm::vec3(0.0f),glm::vec2(0.0f), glm::ivec4(-1.0), glm::vec4(0.0f) });
 
         // go through all mesh vertices
         for (unsigned int j = 0; j < mesh->mNumVertices; j++)
@@ -252,11 +253,15 @@ void Engine::Model::LoadMesh(std::string filePath)
                         if (bone->mWeights[l].mVertexId == j)
                         {
                             // push new vertex bone data for a matching vertex
-                            vertexBoneData.at(j).position[l] = vertex.position[l];
-                            vertexBoneData.at(j).normal[l] = vertex.normal[l];
-                            vertexBoneData.at(j).uv[l] = vertex.uv[l];
-                            vertexBoneData.at(j).boneID[l] = k;
-                            vertexBoneData.at(j).boneWeight[l] = bone->mWeights->mWeight;
+                            for (short m = 0; m < 4; m++)
+                            {
+                                if (vertexBoneData.at(j).boneID[m] == -1) {
+                                    vertexBoneData.at(j).boneID[m] = k;
+                                    vertexBoneData.at(j).boneWeight[m] = bone->mWeights[l].mWeight;
+                                    break;
+                                }
+                            }
+                            
                         }
                     }
                 }
@@ -291,30 +296,43 @@ void Engine::Model::LoadMesh(std::string filePath)
             }
         };
 
+        nodeMap.insert(std::pair<aiNode*, bool>(scene->mRootNode, false));
         FillNodeMap(scene->mRootNode);
 
         // go through the map and set all nodes between bones and mesh root to true, this will be our skeleton
-        for (size_t i = 0; i < mesh->mNumBones; i++)
+        for (size_t o = 0; o < mesh->mNumBones; o++)
         {
             // find the node for the current bone
-            aiNode* boneNode = scene->mRootNode->FindNode(mesh->mBones[i]->mName);
+            aiNode* boneNode = scene->mRootNode->FindNode(mesh->mBones[o]->mName);
             // set it to true
             nodeMap.at(boneNode) = true;
-            int c = 0;
+            
             // go through all the nodes parents until we find either the mesh node, or its parent node, that is the end of our skeleton
-            while (boneNode->mParent && (boneNode->mParent->mName != mesh->mName))
+            while (!meshNode)
             {
+                for (size_t j = 0; j < boneNode->mNumChildren; j++) {
+                    for (size_t k = 0; k < boneNode->mChildren[j]->mNumMeshes; k++)
+                        if (boneNode->mChildren[j]->mMeshes[k] == i)
+                            meshNode = boneNode;
+                }
+
                 // set the full range of nodes to true, they are needed for the skeleton
                 nodeMap.at(boneNode) = true;
                 // keep going up
                 boneNode = boneNode->mParent;
-                meshNode = boneNode;
             }
         }
 
         // assemble Mr.Skeltal from the scene's aiNode tree
         auto root = new Engine::Node();
         aiTreeToNode(meshNode, root, nodeMap, bones);
+        root->GetChildren().back()->DeleteAbove();
+
+        //auto nodes = root->GetTreeNodes();
+
+        //for (size_t i = 0; i < nodes.size(); i++)
+            //if (nodes.at(i)->GetName() == "RootNode")
+                //nodes.at(i)->DeleteAbove();
 
         skeleton.SetRootNode(root);
 
@@ -322,10 +340,24 @@ void Engine::Model::LoadMesh(std::string filePath)
         // sort them according to their internal index
         std::sort(bones.begin(), bones.end(), [](const Engine::Bone& x, const Engine::Bone& y) -> bool {return x.GetID() < y.GetID(); });
         skeleton.SetBones(bones);
+
+        glm::mat4 globalInvserse = AiMatrix4ToGlm(scene->mRootNode->mTransformation);
+
+        if ((globalInvserse == glm::mat4(0.0f)) || (globalInvserse == glm::mat4(1.0f)))
+            globalInvserse = glm::inverse(globalInvserse);
+
+        skeleton.SetGlobalInverseMatrix(globalInvserse);
         
         // assemble the whole mesh depending if its animated or not
         if (mesh->HasBones()) {
             // animated mesh
+            for (size_t i = 0; i < vertices.size(); i++)
+            {
+                vertexBoneData.at(i).position = vertices.at(i).position;
+                vertexBoneData.at(i).normal = vertices.at(i).normal;
+                vertexBoneData.at(i).uv = vertices.at(i).uv;
+            }
+
             this->animatedMeshes.push_back(AnimatedMesh(vertexBoneData, indices, skeleton));
         }
         else

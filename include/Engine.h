@@ -66,6 +66,9 @@ namespace Engine
             // physics simulation subsystem
             Engine::Collider& GetCollider();
 
+            // animation subsystem
+            Engine::Animator& GetAnimator();
+
             void Initialize();
 
             // error info handling

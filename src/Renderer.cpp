@@ -73,20 +73,70 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
     glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
 
     // go through all the meshes in actor's model and draw them
-    for (size_t i = 0; i < actor.GetModel().GetMeshes().size(); i++) {
+    for (size_t i = 0; i < actor.GetModel().GetStaticMeshes().size(); i++) {
 
         // bind the vertex array buffer
-        glBindVertexArray(actor.GetModel().GetMeshes().at(i).GetVAO());
+        glBindVertexArray(actor.GetModel().GetStaticMeshes().at(i).GetVAO());
 
         // bind the element buffer
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, actor.GetModel().GetMeshes().at(i).GetEBO());
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, actor.GetModel().GetStaticMeshes().at(i).GetEBO());
 
         // bind the corresponding texture
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, actor.GetModel().GetMaterials().at(0).GetDiffuse().GetTextureID());
         
         // render
-        glDrawElements(GL_TRIANGLES, actor.GetModel().GetMeshes().at(i).GetIndices().size(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i).GetIndices().size(), GL_UNSIGNED_INT, 0);
+    }
+}
+
+void Engine::Renderer::RenderAnimated(const Engine::Camera& camera, Engine::Actor& actor)
+{
+    actor.GetShader().Activate();
+
+    // find the locations of uniform variables in the shader and assign transform matrices to them
+    glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(actor.GetTransform()));
+
+    glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetView()));
+
+    glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
+
+    // go through all the meshes in actor's model and draw them
+    for (size_t i = 0; i < actor.GetModel().GetAnimatedMeshes().size(); i++) {
+
+        Engine::Skeleton& skeleton = actor.GetModel().GetAnimatedMeshes().at(i).GetSkeleton();
+
+        std::vector<glm::mat4> bonez = {};
+        float boneTransforms[100 * 16] = { 0.0f };
+
+        for (size_t j = 0; j < skeleton.GetBones().size(); j++)
+        {
+            //bonez.push_back(skeleton.GetFinalBoneTransformAnimated(j));
+            bonez.push_back(skeleton.GetBones().at(j).GetGlobalTransformAnimated());
+            const float* f = (const float*)glm::value_ptr(skeleton.GetFinalBoneTransformAnimated(j));
+            for (size_t k = 0; k < 16; k++)
+            {
+                boneTransforms[k + j*16] = f[k];
+            }
+        }
+        //std::cout << actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::BONE_TRANSFORMATIONS) << std::endl;
+        glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::BONE_TRANSFORMATIONS), skeleton.GetBones().size(), GL_FALSE,
+            glm::value_ptr(bonez[0]));
+
+
+        
+        // bind the vertex array buffer
+        glBindVertexArray(actor.GetModel().GetAnimatedMeshes().at(i).GetVAO());
+
+        // bind the element buffer
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, actor.GetModel().GetAnimatedMeshes().at(i).GetEBO());
+
+        // bind the corresponding texture
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, actor.GetModel().GetMaterials().at(0).GetDiffuse().GetTextureID());
+
+        // render
+        glDrawElements(GL_TRIANGLES, actor.GetModel().GetAnimatedMeshes().at(i).GetIndices().size(), GL_UNSIGNED_INT, 0);
     }
 }
 
@@ -200,6 +250,27 @@ void Engine::Renderer::Render(const Engine::Camera& camera, const std::vector<En
 {
     for (size_t i = 0; i < actors.size(); i++) {
         this->Render(camera, *actors[i]);
+    }
+}
+
+void Engine::Renderer::RenderAnimated(const Engine::Camera& camera, const std::vector<Engine::Actor*>& actors)
+{
+    for (size_t i = 0; i < actors.size(); i++) {
+        this->RenderAnimated(camera, *actors[i]);
+    }
+}
+
+void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Skeleton& skeleton)
+{
+    for (size_t i = 0; i < skeleton.GetBones().size(); i++)
+    {
+        glm::mat4 matrix = skeleton.GetBones()[i].GetGlobalTransformAnimated();
+        glm::vec3 bonePosition = glm::vec3(matrix[3][0], matrix[3][1], matrix[3][2]);
+        //glm::vec3 bonePosition = glm::vec3(skeleton.GetFinalBoneTransformAnimated(i)[3][0], skeleton.GetFinalBoneTransformAnimated(i)[3][1], skeleton.GetFinalBoneTransformAnimated(i)[3][2]);
+        //std::cout << skeleton.GetBones().at(i).GetNode().GetName() << " - Position: " << glm::to_string(bonePosition) << std::endl;
+        Engine::BoundingBox box{ bonePosition - 0.5f, bonePosition + 0.5f };
+        //if (bonePosition.y < 0) std::cout << "BONE : " << skeleton.GetBones().at(i).GetNode().GetName() << " IS IN BANGLADESH: " << bonePosition.y << std::endl;
+        this->Render(camera, box);
     }
 }
 

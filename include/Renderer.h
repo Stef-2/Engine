@@ -24,7 +24,10 @@ namespace Engine
         void Render(const Engine::Camera& camera, const std::vector<Engine::Actor*>& actors);
         void Render(const Engine::Camera& camera, const Engine::BoundingBox& box);
         void Render(const Engine::Camera& camera, Engine::Skybox& skybox);
-        void Render(const Engine::Camera& camera, const std::vector<Engine::Bone*>& bones);
+        void Render(const Engine::Camera& camera, Engine::Skeleton& skeleton);
+
+        void RenderAnimated(const Engine::Camera& camera, Engine::Actor& actor);
+        void RenderAnimated(const Engine::Camera& camera, const std::vector<Engine::Actor*>& actors);
 
         template<typename T>
         void Render(const Engine::Camera& camera, const Engine::OcTree<T>& tree);
@@ -42,12 +45,11 @@ namespace Engine
         // they are meant to be lightweight by design, and bounding box rendering is intended to be mostly used for debugging
         Shader wireframeShader;
         int colorDepth;
-
     };
 
 
 
-    // bounding volumes are templated types, we have to define their draw methods here
+    // bounding volumes are templated types, we have to define their methods here
 
     template<typename T>
     void Engine::Renderer::RecursiveRender(const Engine::Camera& camera, const Engine::BoundingNode<T>& node)

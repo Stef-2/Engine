@@ -26,7 +26,7 @@ namespace Engine
 		// transform that combines local with inherited node transforms
 		glm::mat4 GetGlobalTransform();
 		// full global transform at a given animation time
-		glm::mat4 GetGlobalTransform(double timeOffset);
+		glm::mat4 GetGlobalTransformAnimated();
 		// number of vertices affected by this bone
 		unsigned int GetNumAffectedVertices();
 		// ID by which affected vertices refer to their bones
@@ -34,6 +34,7 @@ namespace Engine
 
 		void SetNode(Engine::Node& node);
 		void SetTransform(glm::mat4 transform);
+		void SetAnimationTime(double time);
 		void SetNumAffectedVerts(unsigned int numAffectedVerts);
 		void SetID(unsigned int id);
 
@@ -41,6 +42,7 @@ namespace Engine
 
 		Engine::Node* node;
 		glm::mat4 transform;
+		double animationTime;
 		unsigned int numAffectedVerts;
 		unsigned int id;
 	};

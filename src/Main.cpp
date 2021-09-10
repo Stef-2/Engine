@@ -62,6 +62,9 @@ int main()
 
     Engine::Shader basic(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\basic.vert"),
                          engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\basic.frag"));
+
+    Engine::Shader animated(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.vert"),
+                            engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.frag"));
     
     //Engine::Actor obj1;
     //obj1.SetShader(basic);
@@ -74,13 +77,13 @@ int main()
     // ---------------------------------------------------------------------------------------------------------------------
 
     Engine::Actor obj2;
-    obj2.SetShader(basic);
+    obj2.SetShader(animated);
 
     obj2.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\dancing_vampire.dae")));
 
     obj2.GetModel().LoadMaterial(Engine::Material());
     obj2.GetModel().GetMaterials().at(0).SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_diffuse.png"));
-    obj2.MoveRelative(30.0f, 0.0f, 30.0f);
+    //obj2.MoveRelative(30.0f, 0.0f, 30.0f);
 
     /*
     Engine::Actor obj3;
@@ -131,10 +134,10 @@ int main()
 
     for (size_t i = 0; i < actors.size(); i++)
     {
-        for (size_t j = 0; j < actors.at(i)->GetModel().GetMeshes().size(); j++)
+        for (size_t j = 0; j < actors.at(i)->GetModel().GetAnimatedMeshes().size(); j++)
         {
-            vertexCount += actors.at(i)->GetModel().GetMeshes().at(j).GetVertices().size();
-            triangleCount += actors.at(i)->GetModel().GetMeshes().at(j).GetTriangles().size();
+            vertexCount += actors.at(i)->GetModel().GetAnimatedMeshes().at(j).GetVertices().size();
+            triangleCount += actors.at(i)->GetModel().GetAnimatedMeshes().at(j).GetTriangles().size();
         }
     }
 
@@ -164,30 +167,35 @@ int main()
         }
 
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_W) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetForwardDirection(), 8.0f * deltaTime);
+            camera.MoveRelative(camera.GetForwardDirection(), 32.0f * deltaTime);
         }
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_S) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetForwardDirection(), -8.0f * deltaTime);
+            camera.MoveRelative(camera.GetForwardDirection(), -32.0f * deltaTime);
         }
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_A) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetRightDirection(), -8.0f * deltaTime);
+            camera.MoveRelative(camera.GetRightDirection(), -32.0f * deltaTime);
         }
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_D) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetRightDirection(), 8.0f * deltaTime);
+            camera.MoveRelative(camera.GetRightDirection(), 32.0f * deltaTime);
         }
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetUpDirection(), 8.0f * deltaTime);
+            camera.MoveRelative(camera.GetUpDirection(), 32.0f * deltaTime);
         }
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetUpDirection(), -8.0f * deltaTime);
+            camera.MoveRelative(camera.GetUpDirection(), -32.0f * deltaTime);
+        }
+
+        if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_E) == GLFW_PRESS) {
+            
         }
 
         // obj2.RotateRelative(0.0f, 2.0f, 0.0f);
         // obj2.MoveRelative(0.2f, 0.0f, 0.0f);
-        
+        engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimations().back().GetName());
         std::vector<Engine::Actor*> culled = engine.GetRenderer().FrustumCull(camera, actors);
         numCulls = actors.size() - culled.size();
-        engine.GetRenderer().Render(camera, culled);
+        engine.GetRenderer().RenderAnimated(camera, culled);
+        engine.GetRenderer().Render(camera, obj2.GetModel().GetAnimatedMeshes().back().GetSkeleton());
         //engine.GetRenderer().Render(camera, obj1.GetModel().GetBoundingBox());
         engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());
         // camera.Draw(&obj1);

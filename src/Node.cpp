@@ -80,7 +80,9 @@ glm::mat4 Engine::Node::GetInheritedTransforms()
     //traverse the node tree up to the root and collect the transformations
     while (node->GetParent()) {
         node = node->GetParent();
-        transform = node->GetTransform() * transform;
+
+        //if(node->GetTransform() != glm::mat4(0.0f))
+            transform = node->GetTransform() * transform;
     }
 
     return transform;
@@ -93,9 +95,12 @@ glm::mat4 Engine::Node::GetGlobalTransform()
 
 glm::mat4 Engine::Node::GetGlobalTransform(double timeOffset)
 {
-    // build up the inherited transforms
-    glm::mat4 transform = this->GetInheritedTransforms();
+    // get the inherited transforms
+    glm::mat4 inherited = this->GetInheritedTransforms();
 
+    // prepare an identity matrix that we'll use as offset
+    glm::mat4 offset = glm::mat4(1.0f);
+    
     //vectors to be used for final transforms
     glm::vec3 scale;
     glm::quat rotate;
@@ -119,7 +124,7 @@ glm::mat4 Engine::Node::GetGlobalTransform(double timeOffset)
     for (size_t i = 0; i < this->scaleKeyFrames.size() - 1; i++)
     {
         // check the range we're in
-        if (this->scaleKeyFrames.at(i).timestamp < timeOffset > this->scaleKeyFrames.at(i + 1).timestamp) {
+        if (this->scaleKeyFrames.at(i).timestamp < timeOffset < this->scaleKeyFrames.at(i + 1).timestamp) {
 
             // pass time values to the lambda for normalization and scaling and do a linear interpolation based on it
             float scaleFactor = KeyFrameScale(this->scaleKeyFrames.at(i).timestamp, this->scaleKeyFrames.at(i + 1).timestamp);
@@ -131,7 +136,7 @@ glm::mat4 Engine::Node::GetGlobalTransform(double timeOffset)
     for (size_t i = 0; i < this->rotationKeyFrames.size() - 1; i++)
     {
         // check the range we're in
-        if (this->rotationKeyFrames.at(i).timestamp < timeOffset > this->rotationKeyFrames.at(i + 1).timestamp) {
+        if (this->rotationKeyFrames.at(i).timestamp < timeOffset < this->rotationKeyFrames.at(i + 1).timestamp) {
 
             // pass time values to the lambda for normalization and scaling and do a spherical linear interpolation based on it
             float scaleFactor = KeyFrameScale(this->rotationKeyFrames.at(i).timestamp, this->rotationKeyFrames.at(i + 1).timestamp);
@@ -143,7 +148,7 @@ glm::mat4 Engine::Node::GetGlobalTransform(double timeOffset)
     for (size_t i = 0; i < this->positionKeyFrames.size() - 1; i++)
     {
         // check the range we're in
-        if (this->positionKeyFrames.at(i).timestamp < timeOffset > this->positionKeyFrames.at(i + 1).timestamp) {
+        if (this->positionKeyFrames.at(i).timestamp < timeOffset < this->positionKeyFrames.at(i + 1).timestamp) {
 
             // pass time values to the lambda for normalization and scaling and do a linear interpolation based on it
             float scaleFactor = KeyFrameScale(this->positionKeyFrames.at(i).timestamp, this->positionKeyFrames.at(i + 1).timestamp);
@@ -152,11 +157,11 @@ glm::mat4 Engine::Node::GetGlobalTransform(double timeOffset)
     }
 
     // transform the inherited matrix in the appropriate order
-    transform = glm::scale(transform, scale);
-    transform = transform * glm::mat4_cast(rotate);
-    transform = glm::translate(transform, translate);
-
-    return transform;
+    offset = glm::scale(offset, scale);
+    offset = transform * glm::mat4_cast(rotate);
+    offset = glm::translate(offset, translate);
+    
+    return inherited * offset;
 }
 
 void Engine::Node::SetParent(Node* parent)

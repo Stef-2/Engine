@@ -128,6 +128,11 @@ Engine::Collider& Engine::Motor::GetCollider()
     return this->collider;
 }
 
+Engine::Animator& Engine::Motor::GetAnimator()
+{
+    return this->animator;
+}
+
 void Engine::Motor::SetWindow(Engine::Window& window)
 {
     this->window = window;

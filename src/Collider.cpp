@@ -63,7 +63,8 @@ bool Engine::Collider::Intersects(Engine::BoundingBox& box, Engine::BoundingSphe
     return distance > 0;
 }
 
-bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& second)
+template<typename T>
+bool Engine::Collider::Intersects(Engine::Triangle<T>& first, Engine::Triangle<T>& second)
 {
     // A fast triangle to triangle intersection test for collision detection
     // Oren Tropp, Ayellet Tal, Ilan Shimshoni

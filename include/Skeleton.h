@@ -21,6 +21,9 @@ namespace Engine
 		std::vector<Engine::Bone>& GetBones();
 		glm::mat4 GetGlobalInverseMatrix();
 
+		glm::mat4 GetFinalBoneTransform(unsigned int index);
+		glm::mat4 GetFinalBoneTransformAnimated(unsigned int index);
+
 		void SetRootNode(Engine::Node* rootNode);
 		void SetBones(std::vector<Engine::Bone> bones);
 		void AddBone(Engine::Bone bone);

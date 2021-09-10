@@ -5,7 +5,7 @@ Engine::Animation::Animation()
     this->duration = {};
     this->ticksPerSecond = {};
     this->name = {};
-    this->startTime = {};
+    this->startTime = -1.0;
 }
 
 Engine::Animation::Animation(std::string name, double duration, double ticksPerSecond)
@@ -13,7 +13,7 @@ Engine::Animation::Animation(std::string name, double duration, double ticksPerS
     this->duration = duration;
     this->ticksPerSecond = ticksPerSecond;
     this->name = name;
-    this->startTime = {};
+    this->startTime = -1.0;
 
     this->Setup();
 }

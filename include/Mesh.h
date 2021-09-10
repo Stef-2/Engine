@@ -39,9 +39,9 @@ namespace Engine
     template<typename T>
     struct Triangle
     {
-        Engine::T* a;
-        Engine::T* b;
-        Engine::T* c;
+        T* a;
+        T* b;
+        T* c;
     };
 
     // a mesh class that stores vertex data to be used for rendering
@@ -95,7 +95,6 @@ namespace Engine
         std::vector<Triangle<VertexBoneData>>& GetTriangles();
         Engine::Skeleton& GetSkeleton();
 
-        void SetBoneWeights(std::vector<VertexBoneData> boneWeights);
         void SetSkeleton(Engine::Skeleton& skelly);
         void Setup();
 

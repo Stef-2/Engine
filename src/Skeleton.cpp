@@ -33,6 +33,16 @@ glm::mat4 Engine::Skeleton::GetGlobalInverseMatrix()
 	return this->globalInverseMatrix;
 }
 
+glm::mat4 Engine::Skeleton::GetFinalBoneTransform(unsigned int index)
+{
+	return this->globalInverseMatrix * this->bones.at(index).GetGlobalTransform();
+}
+
+glm::mat4 Engine::Skeleton::GetFinalBoneTransformAnimated(unsigned int index)
+{
+	return this->globalInverseMatrix * this->bones.at(index).GetGlobalTransformAnimated();
+}
+
 void Engine::Skeleton::SetBones(std::vector<Engine::Bone> bones)
 {
 	this->bones = bones;

@@ -6,6 +6,7 @@ Engine::Bone::Bone()
 	this->node = {};
 	this->numAffectedVerts = {};
 	this->transform = {};
+	this->animationTime = {};
 }
 
 Engine::Bone::Bone(glm::mat4 transform, unsigned int numAffectedVerts, unsigned int ID)
@@ -14,6 +15,7 @@ Engine::Bone::Bone(glm::mat4 transform, unsigned int numAffectedVerts, unsigned 
 	this->node = {};
 	this->numAffectedVerts = numAffectedVerts;
 	this->transform = transform;
+	this->animationTime = {};
 }
 
 Engine::Bone::Bone(Engine::Node& node, glm::mat4 transform, unsigned int numAffectedVerts, unsigned int ID)
@@ -22,6 +24,7 @@ Engine::Bone::Bone(Engine::Node& node, glm::mat4 transform, unsigned int numAffe
 	*this->node = node;
 	this->numAffectedVerts = numAffectedVerts;
 	this->transform = transform;
+	this->animationTime = {};
 }
 
 Engine::Node& Engine::Bone::GetNode()
@@ -39,9 +42,9 @@ glm::mat4 Engine::Bone::GetGlobalTransform()
 	return this->transform * this->node->GetGlobalTransform();
 }
 
-glm::mat4 Engine::Bone::GetGlobalTransform(double timeOffset)
+glm::mat4 Engine::Bone::GetGlobalTransformAnimated()
 {
-	return this->transform * this->node->GetGlobalTransform(timeOffset);
+	return this->transform * this->node->GetGlobalTransform(this->animationTime);
 }
 
 unsigned int Engine::Bone::GetNumAffectedVertices()
@@ -62,6 +65,11 @@ void Engine::Bone::SetNode(Engine::Node& node)
 void Engine::Bone::SetTransform(glm::mat4 transform)
 {
 	this->transform = transform;
+}
+
+void Engine::Bone::SetAnimationTime(double time)
+{
+	this->animationTime = time;
 }
 
 void Engine::Bone::SetNumAffectedVerts(unsigned int numAffectedVerts)
