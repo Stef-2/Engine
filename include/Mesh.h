@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include "Material.h"
 #include "Skeleton.h"
+#include "Node.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -75,6 +76,9 @@ namespace Engine
             std::vector<Triangle<Vertex>> triangles;
 
         protected:
+            // node containing transformation data
+            Engine::Node* node;
+
             // order in which vertices connect to form triangles
             std::vector<unsigned int> indices;
 

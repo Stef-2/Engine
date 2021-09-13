@@ -22,7 +22,7 @@ uniform mat4 boneTransformations[100];
 void main()
 {
     mat4 totalTransform = mat4(1.0f);
-    vec4 totalPosition = vec4(1.0f);
+    vec4 totalPosition = vec4(0.0f);
     for(int i = 0 ; i < 4 ; i++)
     {
         if(boneIDs[i] == -1) 
@@ -37,17 +37,20 @@ void main()
         //vec3 localNormal = mat3(boneTransformations[boneIDs[i]]) * vertexNormal;
         totalPosition += boneTransformations[boneIDs[i]] * boneWeights[i] * vec4(vertexPosition, 1.0f);
 
+         vec4 localPosition = boneTransformations[boneIDs[i]] * vec4(vertexPosition, 1.0f);
+         totalPosition += localPosition * boneWeights[i];
+
         totalTransform += boneTransformations[boneIDs[i]] * boneWeights[i];
     }
 
-    totalPosition -= vec4(vertexPosition, 1.0f) * 0.5;
+    //totalPosition += vec4(vertexPosition, 1.0f) * 0.5;
 
-    vec4 asdf = totalTransform * vec4(vertexPosition, 0.5f);
+    vec4 asdf = totalTransform * vec4(vertexPosition, 1.0f);
 
-    asdf += vec4(vertexPosition, 0.5f);
+    asdf += vec4(vertexPosition, 2f);
 
     vec4 moved = vec4(vertexPosition, 1.0f) + totalPosition * 0.5;
-    gl_Position =  projection * view * model * asdf;
+    gl_Position =  projection * view * model * totalPosition;
 
     normal = vertexNormal;
 	uv = vertexCoordinate;

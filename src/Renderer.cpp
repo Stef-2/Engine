@@ -107,24 +107,18 @@ void Engine::Renderer::RenderAnimated(const Engine::Camera& camera, Engine::Acto
         Engine::Skeleton& skeleton = actor.GetModel().GetAnimatedMeshes().at(i).GetSkeleton();
 
         std::vector<glm::mat4> bonez = {};
-        float boneTransforms[100 * 16] = { 0.0f };
 
         for (size_t j = 0; j < skeleton.GetBones().size(); j++)
         {
-            //bonez.push_back(skeleton.GetFinalBoneTransformAnimated(j));
-            bonez.push_back(skeleton.GetBones().at(j).GetGlobalTransformAnimated());
-            const float* f = (const float*)glm::value_ptr(skeleton.GetFinalBoneTransformAnimated(j));
-            for (size_t k = 0; k < 16; k++)
-            {
-                boneTransforms[k + j*16] = f[k];
-            }
+            bonez.push_back(skeleton.GetFinalBoneTransformAnimated(j));
+            //bonez.push_back(skeleton.GetBones().at(j).GetGlobalTransformAnimated());
+            //bonez.push_back(skeleton.GetBones().at(j).GetGlobalTransform());
         }
         //std::cout << actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::BONE_TRANSFORMATIONS) << std::endl;
         glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::BONE_TRANSFORMATIONS), skeleton.GetBones().size(), GL_FALSE,
             glm::value_ptr(bonez[0]));
 
 
-        
         // bind the vertex array buffer
         glBindVertexArray(actor.GetModel().GetAnimatedMeshes().at(i).GetVAO());
 
@@ -265,10 +259,11 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Skeleton& sk
     for (size_t i = 0; i < skeleton.GetBones().size(); i++)
     {
         glm::mat4 matrix = skeleton.GetBones()[i].GetGlobalTransformAnimated();
-        glm::vec3 bonePosition = glm::vec3(matrix[3][0], matrix[3][1], matrix[3][2]);
-        //glm::vec3 bonePosition = glm::vec3(skeleton.GetFinalBoneTransformAnimated(i)[3][0], skeleton.GetFinalBoneTransformAnimated(i)[3][1], skeleton.GetFinalBoneTransformAnimated(i)[3][2]);
+        //glm::vec3 bonePosition = glm::vec3(matrix[3][0], matrix[3][1], matrix[3][2]);
+        glm::vec3 bonePosition = glm::vec3(skeleton.GetFinalBoneTransformAnimated(i)[3][0], skeleton.GetFinalBoneTransformAnimated(i)[3][1], skeleton.GetFinalBoneTransformAnimated(i)[3][2]);
         //std::cout << skeleton.GetBones().at(i).GetNode().GetName() << " - Position: " << glm::to_string(bonePosition) << std::endl;
         Engine::BoundingBox box{ bonePosition - 0.5f, bonePosition + 0.5f };
+
         //if (bonePosition.y < 0) std::cout << "BONE : " << skeleton.GetBones().at(i).GetNode().GetName() << " IS IN BANGLADESH: " << bonePosition.y << std::endl;
         this->Render(camera, box);
     }

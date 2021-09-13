@@ -8,6 +8,7 @@ Engine::Mesh::Mesh()
     this->VAO = 0;
     this->VBO = 0;
     this->EBO = 0;
+    this->node = {};
 }
 
 Engine::Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices)

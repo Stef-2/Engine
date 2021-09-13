@@ -19,7 +19,7 @@ int main()
     engine.SetWindow(window);
 
     Engine::Object::SetActiveObject(camera);
-    camera.Setup(1.0f, engine.GetWindow().GetAspectRatio(), 0.1f, 1000.0f, 45.0f);
+    camera.Setup(1.0f, engine.GetWindow().GetAspectRatio(), 0.1f, 100000.0f, 45.0f);
     camera.SetUpDirection(glm::vec3(0.0f, 1.0f, 0.0f));
     Engine::InitializeCallbacks(&engine);
 
@@ -141,9 +141,11 @@ int main()
         }
     }
 
+    engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimations().back().GetName());
+
     // -----------------------------------------------
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     // glDisable(GL_DEPTH_TEST);
     lastTime = glfwGetTime();
@@ -167,34 +169,35 @@ int main()
         }
 
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_W) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetForwardDirection(), 32.0f * deltaTime);
+            camera.MoveRelative(camera.GetForwardDirection(), 100 * deltaTime);
         }
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_S) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetForwardDirection(), -32.0f * deltaTime);
+            camera.MoveRelative(camera.GetForwardDirection(), -100 * deltaTime);
         }
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_A) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetRightDirection(), -32.0f * deltaTime);
+            camera.MoveRelative(camera.GetRightDirection(), -100 * deltaTime);
         }
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_D) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetRightDirection(), 32.0f * deltaTime);
+            camera.MoveRelative(camera.GetRightDirection(), 100 * deltaTime);
         }
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetUpDirection(), 32.0f * deltaTime);
+            camera.MoveRelative(camera.GetUpDirection(), 100 * deltaTime);
         }
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetUpDirection(), -32.0f * deltaTime);
+            camera.MoveRelative(camera.GetUpDirection(), -100 * deltaTime);
         }
 
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_E) == GLFW_PRESS) {
-            
+            engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimations().back().GetName());
         }
 
         // obj2.RotateRelative(0.0f, 2.0f, 0.0f);
         // obj2.MoveRelative(0.2f, 0.0f, 0.0f);
-        engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimations().back().GetName());
+
+        engine.GetAnimator().UpdateAnimations();
         std::vector<Engine::Actor*> culled = engine.GetRenderer().FrustumCull(camera, actors);
         numCulls = actors.size() - culled.size();
-        engine.GetRenderer().RenderAnimated(camera, culled);
+        engine.GetRenderer().RenderAnimated(camera, actors);
         engine.GetRenderer().Render(camera, obj2.GetModel().GetAnimatedMeshes().back().GetSkeleton());
         //engine.GetRenderer().Render(camera, obj1.GetModel().GetBoundingBox());
         engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());

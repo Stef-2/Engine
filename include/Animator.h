@@ -6,8 +6,16 @@
 #include "glm/glm.hpp"
 #include "glfw3.h"
 
+#include "vector"
+
 namespace Engine
 {
+	// utility struct that maps an actor to one or more of its animations
+	struct AnimationStack
+	{
+		Engine::Actor* actor;
+		std::vector<Engine::Animation*> animations;
+	};
 
 	class Animator
 	{
@@ -15,14 +23,17 @@ namespace Engine
 		Animator();
 		Animator(float speedMultiplier);
 
+		// start an animation
 		void Animate(Engine::Actor& actor, std::string animationName);
+		// update all running animations
+		void UpdateAnimations();
 
 		float GetSpeedMultiplier();
 
 		void SetSpeedMultiplier(float multiplier);
 
 	private:
-		void UpdateAnimation(Engine::Actor& actor, Engine::Animation);
+		std::vector<Engine::AnimationStack> runningAnimations;
 
 		float speedMultiplier;
 	};

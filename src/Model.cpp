@@ -18,7 +18,7 @@ Engine::Model::Model(std::string filePath)
 	this->LoadMesh(filePath);
 }
 
-void Engine::Model::LoadMesh(std::string filePath) 
+void Engine::Model::LoadMesh(std::string filePath)
 {
     Assimp::Importer importer;
 
@@ -38,10 +38,10 @@ void Engine::Model::LoadMesh(std::string filePath)
     // utility lambda that transforms assimp's native aiMatrix4x4 into a glm::mat4 one
     auto AiMatrix4ToGlm = [](aiMatrix4x4 matrix) {
 
-        return glm::transpose(glm::mat4{ matrix.a1, matrix.a2, matrix.a3, matrix.a4,
-                          matrix.b1, matrix.b2, matrix.b3, matrix.b4,
-                          matrix.c1, matrix.c2, matrix.c3, matrix.c4,
-                          matrix.d1, matrix.d2, matrix.d3, matrix.d4 });
+        return glm::mat4{ matrix.a1, matrix.b1, matrix.c1, matrix.d1,
+                          matrix.a2, matrix.b2, matrix.c2, matrix.d2,
+                          matrix.a3, matrix.b3, matrix.c3, matrix.d3,
+                          matrix.a4, matrix.b4, matrix.c4, matrix.d4 };
     };
 
     // utility lambda that finds assimp's native aiNodeAnim for a given aiNode name
@@ -102,9 +102,9 @@ void Engine::Model::LoadMesh(std::string filePath)
     };
 
     // recursive utility lambda that constructs an Engine::Node tree out of assimp's native aiNode tree and returns the root
-    std::function<Engine::Node*(aiNode*, Engine::Node*, std::map<aiNode*, bool>, std::vector<Engine::Bone>&)>
-    aiTreeToNode = [&aiTreeToNode, &AiMatrix4ToGlm, &FindNodeAnimation, &aiVector3ToGlm, &aiQuaternionToGlm, &FindNodeBone, &scene]
-                   (aiNode* aiRoot, Engine::Node* rootNode, std::map<aiNode*, bool> map, std::vector<Engine::Bone>& bones)
+    std::function<Engine::Node* (aiNode*, Engine::Node*, std::map<aiNode*, bool>, std::vector<Engine::Bone>&)>
+        aiTreeToNode = [&aiTreeToNode, &AiMatrix4ToGlm, &FindNodeAnimation, &aiVector3ToGlm, &aiQuaternionToGlm, &FindNodeBone, &scene]
+        (aiNode* aiRoot, Engine::Node* rootNode, std::map<aiNode*, bool> map, std::vector<Engine::Bone>& bones)
     {
         // check if we've reached the leaves
         if (!aiRoot->mNumChildren) {
@@ -117,7 +117,7 @@ void Engine::Model::LoadMesh(std::string filePath)
 
             return root;
         }
-        
+
         // if we haven't, keep traversing down the tree
         for (size_t i = 0; i < aiRoot->mNumChildren; i++)
         {
@@ -198,7 +198,7 @@ void Engine::Model::LoadMesh(std::string filePath)
             this->AddAnimation(Engine::Animation(aiAnim->mName.C_Str(), aiAnim->mDuration, aiAnim->mTicksPerSecond));
         }
     }
-    
+
     // go through all the meshes
     for (unsigned int i = 0; i < scene->mNumMeshes; i++)
     {
@@ -217,7 +217,7 @@ void Engine::Model::LoadMesh(std::string filePath)
         max = glm::max(max, glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
 
         // fill the vertex bone data struct with full range of blank data
-        if (mesh->HasBones()) vertexBoneData.assign(mesh->mNumVertices, Engine::VertexBoneData{glm::vec3(0.0f),glm::vec3(0.0f),glm::vec2(0.0f), glm::ivec4(-1.0), glm::vec4(0.0f) });
+        if (mesh->HasBones()) vertexBoneData.assign(mesh->mNumVertices, Engine::VertexBoneData{ glm::vec3(0.0f),glm::vec3(0.0f),glm::vec2(0.0f), glm::ivec4(-1.0), glm::vec4(0.0f) });
 
         // go through all mesh vertices
         for (unsigned int j = 0; j < mesh->mNumVertices; j++)
@@ -228,12 +228,12 @@ void Engine::Model::LoadMesh(std::string filePath)
             aiVector3D normal = mesh->HasNormals() ? mesh->mNormals[j] : empty;
             aiVector3D uv = mesh->HasTextureCoords(0) ? mesh->mTextureCoords[0][j] : empty;
 
-                                        // positions
+            // positions
             Engine::Vertex vertex{ aiVector3ToGlm(position),
-                                          // normals
-                                    aiVector3ToGlm(normal),
-                                           // UVs
-                                    glm::vec2(aiVector3ToGlm(uv)) };
+                // normals
+          aiVector3ToGlm(normal),
+                // UVs
+         glm::vec2(aiVector3ToGlm(uv)) };
 
             // push it onto the stack
             vertices.push_back(vertex);
@@ -255,13 +255,14 @@ void Engine::Model::LoadMesh(std::string filePath)
                             // push new vertex bone data for a matching vertex
                             for (short m = 0; m < 4; m++)
                             {
+                                // find an empty slot for the new weight, we support up to 4
                                 if (vertexBoneData.at(j).boneID[m] == -1) {
                                     vertexBoneData.at(j).boneID[m] = k;
                                     vertexBoneData.at(j).boneWeight[m] = bone->mWeights[l].mWeight;
                                     break;
                                 }
                             }
-                            
+
                         }
                     }
                 }
@@ -275,14 +276,14 @@ void Engine::Model::LoadMesh(std::string filePath)
             indices.push_back(mesh->mFaces[j].mIndices[1]);
             indices.push_back(mesh->mFaces[j].mIndices[2]);
         }
-        
+
         // create a map that will help record which scene nodes are needed for the bone hierarchy
         std::map<aiNode*, bool> nodeMap;
         aiNode* meshNode = nullptr;
 
-        // utility recursive lambda that will fill the map with the node tree and set all values to false
+        // recursive lambda that will fill the map with the node tree and set all values to false
         std::function<void(aiNode*)>
-        FillNodeMap = [&nodeMap, &FillNodeMap](aiNode* root)
+            FillNodeMap = [&nodeMap, &FillNodeMap](aiNode* root)
         {
             // check if we've reached the leaves
             if (!root->mNumChildren)
@@ -296,61 +297,64 @@ void Engine::Model::LoadMesh(std::string filePath)
             }
         };
 
+        // set the first map entry manually since we're using it as root for the mapping lambda
         nodeMap.insert(std::pair<aiNode*, bool>(scene->mRootNode, false));
+        // fill the rest of the map
         FillNodeMap(scene->mRootNode);
 
-        // go through the map and set all nodes between bones and mesh root to true, this will be our skeleton
+        // go through the map and set all nodes between bones and mesh root to true, this will mark the skeleton
         for (size_t o = 0; o < mesh->mNumBones; o++)
         {
             // find the node for the current bone
             aiNode* boneNode = scene->mRootNode->FindNode(mesh->mBones[o]->mName);
             // set it to true
             nodeMap.at(boneNode) = true;
-            
+
             // go through all the nodes parents until we find either the mesh node, or its parent node, that is the end of our skeleton
             while (!meshNode)
             {
-                for (size_t j = 0; j < boneNode->mNumChildren; j++) {
+                for (size_t j = 0; j < boneNode->mNumChildren; j++) 
                     for (size_t k = 0; k < boneNode->mChildren[j]->mNumMeshes; k++)
                         if (boneNode->mChildren[j]->mMeshes[k] == i)
                             meshNode = boneNode;
-                }
+                
 
                 // set the full range of nodes to true, they are needed for the skeleton
                 nodeMap.at(boneNode) = true;
-                // keep going up
-                boneNode = boneNode->mParent;
+
+                // check if we've reached the top
+                if (boneNode == scene->mRootNode)
+                    break;
+
+                // otherwise, keep going up
+                else
+                    boneNode = boneNode->mParent;
             }
         }
 
         // assemble Mr.Skeltal from the scene's aiNode tree
         auto root = new Engine::Node();
         aiTreeToNode(meshNode, root, nodeMap, bones);
+
+        // decapacitate the assmebled tree since the root node was just a manually made seed with zero data
         root->GetChildren().back()->DeleteAbove();
-
-        //auto nodes = root->GetTreeNodes();
-
-        //for (size_t i = 0; i < nodes.size(); i++)
-            //if (nodes.at(i)->GetName() == "RootNode")
-                //nodes.at(i)->DeleteAbove();
 
         skeleton.SetRootNode(root);
 
-        // sort the bone vector for faster retrieval after, their current order is irrelevant
+        // sort the bone vector for faster retrieval later, their current order is random and irrelevant
         // sort them according to their internal index
         std::sort(bones.begin(), bones.end(), [](const Engine::Bone& x, const Engine::Bone& y) -> bool {return x.GetID() < y.GetID(); });
         skeleton.SetBones(bones);
 
-        glm::mat4 globalInvserse = AiMatrix4ToGlm(scene->mRootNode->mTransformation);
-
-        if ((globalInvserse == glm::mat4(0.0f)) || (globalInvserse == glm::mat4(1.0f)))
-            globalInvserse = glm::inverse(globalInvserse);
+        // assign the global inverse matrix of the scene, it will be needed for final bone transformations
+        glm::mat4 globalInvserse = glm::inverse(AiMatrix4ToGlm(scene->mRootNode->mTransformation));
 
         skeleton.SetGlobalInverseMatrix(globalInvserse);
-        
+
         // assemble the whole mesh depending if its animated or not
         if (mesh->HasBones()) {
-            // animated mesh
+            
+            // combine basic vertex data with bone weight data
             for (size_t i = 0; i < vertices.size(); i++)
             {
                 vertexBoneData.at(i).position = vertices.at(i).position;
@@ -358,10 +362,11 @@ void Engine::Model::LoadMesh(std::string filePath)
                 vertexBoneData.at(i).uv = vertices.at(i).uv;
             }
 
+            // animated mesh
             this->animatedMeshes.push_back(AnimatedMesh(vertexBoneData, indices, skeleton));
         }
         else
-            // static made mesh with no animation nor bones
+            // static mesh with no animation nor bones
             this->staticMeshes.push_back(Mesh(vertices, indices));
     }
 
@@ -373,8 +378,9 @@ void Engine::Model::LoadMesh(std::string filePath)
 
     // set the final bounding box for the entire model
     this->SetBoundingBox(min, max);
-    
+
 }
+
 
 void Engine::Model::LoadMaterial(const Engine::Material& material)
 {

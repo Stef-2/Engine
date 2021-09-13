@@ -34,6 +34,6 @@ void main()
     }
     vec4 pos = totalTransform * vec4(position, 1.0f);
     vec4 color = texture2D(texture, uv);
-    fragColor = color * dot(normal, vec3(view[0][2], view[1][2], view[2][2]));
-    //fragColor = color * pos;
+    //fragColor = color * dot(normal, vec3(view[0][2], view[1][2], view[2][2]));
+    fragColor = color;
 }
