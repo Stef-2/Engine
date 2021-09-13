@@ -5,6 +5,7 @@ Engine::Mesh::Mesh()
     this->vertices = {};
     this->indices = {};
     this->triangles = {};
+    this->material = {};
     this->VAO = 0;
     this->VBO = 0;
     this->EBO = 0;
@@ -16,6 +17,7 @@ Engine::Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indic
     this->vertices = vertices;
     this->indices = indices;
     this->triangles = {};
+    this->material = {};
     this->VAO = 0;
     this->VBO = 0;
     this->EBO = 0;
@@ -29,6 +31,7 @@ Engine::AnimatedMesh::AnimatedMesh(std::vector<VertexBoneData> vertices, std::ve
     this->indices = indices;
     this->skeleton = skeleton;
     this->triangles = {};
+    this->material = {};
     this->VAO = 0;
     this->VBO = 0;
     this->EBO = 0;
@@ -74,6 +77,16 @@ std::vector<Engine::Triangle<Engine::Vertex>>& Engine::Mesh::GetTriangles()
 std::vector<Engine::Triangle<Engine::VertexBoneData>>& Engine::AnimatedMesh::GetTriangles()
 {
     return this->triangles;
+}
+
+Engine::Material& Engine::Mesh::GetMaterial()
+{
+    return this->material;
+}
+
+void Engine::Mesh::SetMaterial(const Engine::Material& material)
+{
+    this->material = material;
 }
 
 void Engine::Mesh::SetVertices(std::vector<Engine::Vertex> vertices)

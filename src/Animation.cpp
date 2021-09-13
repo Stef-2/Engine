@@ -6,6 +6,7 @@ Engine::Animation::Animation()
     this->ticksPerSecond = {};
     this->name = {};
     this->startTime = 0.0;
+    this->nodeAnimations = {};
 }
 
 Engine::Animation::Animation(std::string name, double duration, double ticksPerSecond)
@@ -13,6 +14,18 @@ Engine::Animation::Animation(std::string name, double duration, double ticksPerS
     this->duration = duration;
     this->ticksPerSecond = ticksPerSecond;
     this->name = name;
+    this->startTime = 0.0;
+    this->nodeAnimations = {};
+
+    this->Setup();
+}
+
+Engine::Animation::Animation(std::string name, double duration, double ticksPerSecond, std::vector<Engine::NodeAnimation> nodeAnimations)
+{
+    this->duration = duration;
+    this->ticksPerSecond = ticksPerSecond;
+    this->name = name;
+    this->nodeAnimations = nodeAnimations;
     this->startTime = 0.0;
 
     this->Setup();
@@ -38,6 +51,11 @@ double Engine::Animation::GetStartTime()
     return this->startTime;
 }
 
+std::vector<Engine::NodeAnimation>& Engine::Animation::GetNodeAnimations()
+{
+    return this->nodeAnimations;
+}
+
 void Engine::Animation::SetName(std::string& name)
 {
     this->name = name;
@@ -51,6 +69,15 @@ void Engine::Animation::SetDuration(double duration)
 void Engine::Animation::SetTicksPerSecond(double ticksPerSecond)
 {
     this->ticksPerSecond = ticksPerSecond;
+}
+
+void Engine::Animation::SetNodeAnimations(std::vector<Engine::NodeAnimation> nodeAnimations)
+{
+    this->nodeAnimations = nodeAnimations;
+}
+void Engine::Animation::AddNodeAnimation(Engine::NodeAnimation nodeAnimation)
+{
+    this->nodeAnimations.push_back(nodeAnimation);
 }
 
 void Engine::Animation::SetStartTime(double startTime)

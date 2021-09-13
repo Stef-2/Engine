@@ -79,10 +79,10 @@ int main()
     Engine::Actor obj2;
     obj2.SetShader(animated);
 
-    obj2.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\dancing_vampire.dae")));
+    obj2.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\Gine_and_Goku_animated.fbx")));
 
-    obj2.GetModel().LoadMaterial(Engine::Material());
-    obj2.GetModel().GetMaterials().at(0).SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_diffuse.png"));
+    obj2.GetModel().GetAnimatedMeshes().at(0).SetMaterial(Engine::Material());
+    obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\gine_texture_01.png"));
     //obj2.MoveRelative(30.0f, 0.0f, 30.0f);
 
     /*
@@ -198,9 +198,8 @@ int main()
         std::vector<Engine::Actor*> culled = engine.GetRenderer().FrustumCull(camera, actors);
         numCulls = actors.size() - culled.size();
         engine.GetRenderer().RenderAnimated(camera, actors);
-        engine.GetRenderer().Render(camera, obj2.GetModel().GetAnimatedMeshes().back().GetSkeleton());
         //engine.GetRenderer().Render(camera, obj1.GetModel().GetBoundingBox());
-        engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());
+        //engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());
         // camera.Draw(&obj1);
         // camera.Draw(&obj2);
         engine.GetRenderer().Render(camera, skyBox);

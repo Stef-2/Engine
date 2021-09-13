@@ -65,9 +65,11 @@ namespace Engine
             std::vector<Vertex>& GetVertices();
             std::vector<unsigned int>& GetIndices();
             std::vector<Triangle<Vertex>>& GetTriangles();
+            Engine::Material& GetMaterial();
 
             void SetVertices(std::vector<Vertex> vertices);
             void SetIndices(std::vector<unsigned int> indices);
+            void SetMaterial(const Material& material);
 
         private:
             // mesh vertices
@@ -76,6 +78,8 @@ namespace Engine
             std::vector<Triangle<Vertex>> triangles;
 
         protected:
+            Engine::Material material;
+
             // node containing transformation data
             Engine::Node* node;
 
