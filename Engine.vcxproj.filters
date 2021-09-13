@@ -184,5 +184,17 @@
     <None Include="shaders\wireframe.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="shaders\light.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\light.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\illuminated.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\illuminated.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
