@@ -45,7 +45,7 @@ namespace Engine
 
             // glGetCurrentProgram() is very slow, just like all functions that ask the gfx card for data
             // so we're storing it ourselves in case we need it
-            static Shader* GetCurrentShader();
+            static Shader& GetCurrentShader();
 
             unsigned int GetVertexShader();
             unsigned int GetFragmentShader();
@@ -89,10 +89,14 @@ namespace Engine
             unsigned int vertexBoneIdLocation;
             unsigned int vertexBoneWeights;
 
+            // shader uniform locations
             unsigned int modelTransformLocation;
             unsigned int viewTransformLocation;
             unsigned int projectionTransformLocation;
             unsigned int BoneTransformsLocation;
+
+            // shader block locations
+            static unsigned int matricesBlock;
 
             static Shader* currentShader;
     };

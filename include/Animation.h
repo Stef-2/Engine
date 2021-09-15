@@ -57,13 +57,19 @@ namespace Engine
         void SetNodeAnimations(std::vector<Engine::NodeAnimation> nodeAnimations);
         void AddNodeAnimation(Engine::NodeAnimation nodeAnimation);
 
-        void Setup();
+        void TransformNodes(double timeOffset);
 
     private:
+        glm::mat4 TransformNode(Engine::NodeAnimation& nodeAnimation, double timeOffset);
+
         std::vector<Engine::NodeAnimation> nodeAnimations;
         std::string name;
         double duration;
         double ticksPerSecond;
+
+        unsigned int currentPositionKey;
+        unsigned int currentRotationKey;
+        unsigned int currentScaleKey;
 
         double startTime;
     };

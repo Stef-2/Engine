@@ -1,7 +1,10 @@
 #version 460 core
 
-in vec3 normal;
-in vec2 uv;
+in vertOutput
+{
+    vec3 normal;
+    vec2 uv;
+};
 
 out vec4 fragColor;
 

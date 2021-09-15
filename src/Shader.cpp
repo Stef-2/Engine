@@ -174,7 +174,7 @@ int Engine::Shader::CompileProgram()
         // get and bind the location of shader attributes
         // we can use these later without having to bother the gfx card since most glGetX() functions are very slow
         this->modelTransformLocation = glGetUniformLocation(this->programID, "model");
-
+        
         this->viewTransformLocation = glGetUniformLocation(this->programID, "view");
 
         this->projectionTransformLocation = glGetUniformLocation(this->programID, "projection");
@@ -182,19 +182,14 @@ int Engine::Shader::CompileProgram()
         this->BoneTransformsLocation = glGetUniformLocation(this->programID, "boneTransformations");
 
         this->vertexPositionLocation = glGetAttribLocation(this->programID, "vertexPosition");
-        glBindAttribLocation(this->programID, this->vertexPositionLocation, "vertexPosition");
 
         this->vertexNormalLocation = glGetAttribLocation(this->programID, "vertexNormal");
-        glBindAttribLocation(this->programID, this->vertexNormalLocation, "vertexNormal");
 
         this->vertexUvLocation = glGetAttribLocation(this->programID, "vertexCoordinate");
-        glBindAttribLocation(this->programID, this->vertexUvLocation, "vertexCoordinate");
 
         this->vertexBoneIdLocation = glGetAttribLocation(this->programID, "boneIDs");
-        glBindAttribLocation(this->programID, this->vertexBoneIdLocation, "boneIDs");
 
         this->vertexBoneWeights = glGetAttribLocation(this->programID, "boneWeights");
-        glBindAttribLocation(this->programID, this->vertexBoneWeights, "boneWeights");
 
         return shaderProgram;
     }
@@ -239,9 +234,9 @@ void Engine::Shader::Activate()
     glUseProgram(this->programID);
 }
 
-Engine::Shader* Engine::Shader::GetCurrentShader()
+Engine::Shader& Engine::Shader::GetCurrentShader()
 {
-    return Engine::Shader::currentShader;
+    return *Engine::Shader::currentShader;
 }
 
 std::string Engine::Shader::GetLogData()

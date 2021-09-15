@@ -25,11 +25,12 @@ Engine::Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indic
     this->Setup();
 }
 
-Engine::AnimatedMesh::AnimatedMesh(std::vector<VertexBoneData> vertices, std::vector<unsigned int> indices, Engine::Skeleton skeleton)
+Engine::AnimatedMesh::AnimatedMesh(std::vector<VertexBoneData> vertices, std::vector<unsigned int> indices, Engine::Skeleton skeleton, std::vector<Engine::Animation> animations)
 {
     this->vertices = vertices;
     this->indices = indices;
     this->skeleton = skeleton;
+    this->animations = animations;
     this->triangles = {};
     this->material = {};
     this->VAO = 0;
@@ -79,6 +80,11 @@ std::vector<Engine::Triangle<Engine::VertexBoneData>>& Engine::AnimatedMesh::Get
     return this->triangles;
 }
 
+std::vector<Engine::Animation>& Engine::AnimatedMesh::GetAnimations()
+{
+    return this->animations;
+}
+
 Engine::Material& Engine::Mesh::GetMaterial()
 {
     return this->material;
@@ -103,6 +109,12 @@ void Engine::Mesh::SetIndices(std::vector<unsigned int> indices)
 {
     this->indices = indices;
 }
+
+void Engine::AnimatedMesh::AddAnimation(Engine::Animation animation)
+{
+    this->animations.push_back(animation);
+}
+
 
 void Engine::Mesh::Setup()
 {

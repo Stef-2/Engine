@@ -95,10 +95,7 @@ void Engine::Animator::UpdateAnimations()
 
 				double timeOffset = currentTime - animation.GetStartTime();
 
-				// set the bone transformations to match the current animation time
-				for (size_t k = 0; k < actor.GetModel().GetAnimatedMeshes().size(); k++)
-					for (size_t l = 0; l < actor.GetModel().GetAnimatedMeshes().at(k).GetSkeleton().GetBones().size(); l++)
-						actor.GetModel().GetAnimatedMeshes().at(k).GetSkeleton().GetBones().at(l).SetAnimationTime(timeOffset);
+				animation.TransformNodes(timeOffset);
 			}
 		}
 	}

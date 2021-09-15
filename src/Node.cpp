@@ -6,10 +6,7 @@ Engine::Node::Node()
     this->children = {};
     this->name = {};
     this->transform = {};
-
-    this->positionKeyFrames = {};
-    this->rotationKeyFrames = {};
-    this->scaleKeyFrames = {};
+    this->animatedTransform = glm::mat4(1.0f);
 }
 
 Engine::Node::Node(std::string name, glm::mat4 transform)
@@ -18,10 +15,7 @@ Engine::Node::Node(std::string name, glm::mat4 transform)
     this->children = {};
     this->name = name;
     this->transform = transform;
-
-    this->positionKeyFrames = {};
-    this->rotationKeyFrames = {};
-    this->scaleKeyFrames = {};
+    this->animatedTransform = glm::mat4(1.0f);
 }
 
 Engine::Node::Node(Node* parent, std::vector<Node*> children, std::string name, glm::mat4 transform)
@@ -30,11 +24,7 @@ Engine::Node::Node(Node* parent, std::vector<Node*> children, std::string name, 
     this->children = children;
     this->name = name;
     this->transform = transform;
-
-
-    this->positionKeyFrames = {};
-    this->rotationKeyFrames = {};
-    this->scaleKeyFrames = {};
+    this->animatedTransform = glm::mat4(1.0f);
 }
 
 Engine::Node* Engine::Node::GetParent()
@@ -57,40 +47,7 @@ glm::mat4& Engine::Node::GetTransform()
     return this->transform;
 }
 
-std::vector<Engine::VectorKeyFrame>& Engine::Node::GetPositionKeyFrames()
-{
-    return this->positionKeyFrames;
-}
-
-std::vector<Engine::QuaternionKeyFrame>& Engine::Node::GetRotationKeyFrames()
-{
-    return this->rotationKeyFrames;
-}
-
-std::vector<Engine::VectorKeyFrame>& Engine::Node::GetScaleKeyFrames()
-{
-    return this->scaleKeyFrames;
-}
-
-glm::mat4 Engine::Node::GetInheritedTransforms()
-{
-    glm::mat4 transform = glm::mat4(1.0f);
-
-    Engine::Node* node = this;
-
-    //traverse the node tree up to the root and collect the transformations
-    while (node->GetParent()) {
-        node = node->GetParent();
-
-        glm::mat4 inherited = node->GetTransform();
-        if(inherited != glm::mat4(0.0f))
-            transform = inherited * transform;
-    }
-
-    return transform;
-}
-
-glm::mat4 Engine::Node::GetInheritedTransforms(double timeOffset)
+glm::mat4 Engine::Node::GetInheritedTransform()
 {
     glm::mat4 transform = glm::mat4(1.0f);
 
@@ -100,7 +57,7 @@ glm::mat4 Engine::Node::GetInheritedTransforms(double timeOffset)
     while (node->GetParent()) {
         node = node->GetParent();
         //if (node->name == "RootNode") break;
-        glm::mat4 inherited = node->GetAnimatedTransform(timeOffset);
+        glm::mat4 inherited = node->GetTransform();
         //if (inherited != glm::mat4(0.0f))
             transform = inherited * transform;
     }
@@ -110,92 +67,30 @@ glm::mat4 Engine::Node::GetInheritedTransforms(double timeOffset)
 
 glm::mat4 Engine::Node::GetGlobalTransform()
 {
-    return this->GetInheritedTransforms() * this->transform;
+    return this->GetInheritedTransform() * this->transform;
 }
 
-glm::mat4 Engine::Node::GetGlobalTransform(double timeOffset)
+glm::mat4 Engine::Node::GetAnimatedTransform()
 {
-    return this->GetInheritedTransforms(timeOffset) * this->GetAnimatedTransform(timeOffset);
+    return this->animatedTransform;
 }
 
-glm::mat4 Engine::Node::GetAnimatedTransform(double timeOffset)
+glm::mat4 Engine::Node::GetGlobalAnimatedTransform()
 {
-    // prepare an identity matrix
     glm::mat4 transform = glm::mat4(1.0f);
 
-    // scaling factor to be used for linear interpolation
-    float scaleFactor = 0;
+    Engine::Node* node = this;
 
-    //vectors to be used for final transforms
-    glm::vec3 scale;
-    glm::quat rotate;
-    glm::vec3 translate;
-
-    // utility lambda that finds the normalized scale between the two frames based on current time
-    auto KeyFrameScale = [&timeOffset](double before, double after) -> float
-    {
-        float middle = timeOffset - before;
-        float frameDelta = after - before;
-
-        return middle / frameDelta;
-    };
-    
-    // go through all keyframes and find the ones that match the given time offset
-    // transform the inherited matrix using keyframed values
-    // order of transformations matters
-    // the correct order is Scale, Rotate, Translate (SRT)
-
-    if(this->scaleKeyFrames.size())
-    // find and interpolate scaling
-    for (size_t i = 0; i < this->scaleKeyFrames.size() - 1; i++)
-    {
-        // check the range we're in
-        if ((this->scaleKeyFrames.at(i).timestamp < timeOffset) && (timeOffset <= this->scaleKeyFrames.at(i + 1).timestamp)) {
-
-            // pass time values to the lambda for normalization and scaling and do a linear interpolation based on it
-            scaleFactor = KeyFrameScale(this->scaleKeyFrames.at(i).timestamp, this->scaleKeyFrames.at(i + 1).timestamp);
-            scale = glm::mix(this->scaleKeyFrames.at(i).value, this->scaleKeyFrames.at(i + 1).value, scaleFactor);
-            break;
-        }
-    }
-    
-    if (this->rotationKeyFrames.size())
-    // find and interpolate rotation
-    for (size_t i = 0; i < this->rotationKeyFrames.size() - 1; i++)
-    {
-        // check the range we're in
-        if ((this->rotationKeyFrames.at(i).timestamp < timeOffset) && (timeOffset <= this->rotationKeyFrames.at(i + 1).timestamp)) {
-
-            // pass time values to the lambda for normalization and scaling and do a spherical linear interpolation based on it
-            scaleFactor = KeyFrameScale(this->rotationKeyFrames.at(i).timestamp, this->rotationKeyFrames.at(i + 1).timestamp);
-            rotate = glm::slerp(this->rotationKeyFrames.at(i).value, this->rotationKeyFrames.at(i + 1).value, scaleFactor);
-            break;
-        }
+    //traverse the node tree up to the root and collect the transformations
+    while (node->GetParent()) {
+        node = node->GetParent();
+        //if (node->name == "RootNode") break;
+        glm::mat4 inherited = node->GetAnimatedTransform();
+        //if (inherited != glm::mat4(0.0f))
+        transform = inherited * transform;
     }
 
-    if (this->positionKeyFrames.size())
-    //find and interpolate translation
-    for (size_t i = 0; i < this->positionKeyFrames.size() - 1; i++)
-    {
-        // check the range we're in
-        if ((this->positionKeyFrames.at(i).timestamp < timeOffset) && (timeOffset <= this->positionKeyFrames.at(i + 1).timestamp)) {
-
-            // pass time values to the lambda for normalization and scaling and do a linear interpolation based on it
-            scaleFactor = KeyFrameScale(this->positionKeyFrames.at(i).timestamp, this->positionKeyFrames.at(i + 1).timestamp);
-            translate = glm::mix(this->positionKeyFrames.at(i).value, this->positionKeyFrames.at(i + 1).value, scaleFactor);
-            break;
-        }
-    }
-
-    // create matrices out of calculated transforms
-    glm::mat4 translation = glm::translate(glm::mat4(1.0f), translate);
-    glm::mat4 rotation = glm::mat4_cast(rotate);
-    glm::mat4 scaling = glm::scale(glm::mat4(1.0f), scale);
-
-    // final local animated transform
-    transform = translation * rotation * scaling;
-    
-    return transform;
+    return transform * this->animatedTransform;
 }
 
 void Engine::Node::SetParent(Node* parent)
@@ -218,24 +113,14 @@ void Engine::Node::SetTransform(glm::mat4 transform)
     this->transform = transform;
 }
 
+void Engine::Node::SetAnimatedTransform(glm::mat4 transform)
+{
+    this->animatedTransform = transform;
+}
+
 void Engine::Node::AddChild(Node* child)
 {
     this->children.push_back(child);
-}
-
-void Engine::Node::SetPositionKeyFrames(std::vector<VectorKeyFrame> positions)
-{
-    this->positionKeyFrames = positions;
-}
-
-void Engine::Node::SetRotationKeyFrames(std::vector<QuaternionKeyFrame> rotations)
-{
-    this->rotationKeyFrames = rotations;
-}
-
-void Engine::Node::SetScaleKeyFrames(std::vector<VectorKeyFrame> scales)
-{
-    this->scaleKeyFrames = scales;
 }
 
 Engine::Node* Engine::Node::GetRootNode()
@@ -393,4 +278,15 @@ void Engine::Node::DeleteAbove()
 
     // usurp the throne and set ourselves as the new root
     *root = *this;
+}
+
+Engine::Node* Engine::Node::FindNode(std::string name)
+{
+    std::vector<Node*> nodes = this->GetTreeNodes();
+
+    for (size_t i = 0; i < nodes.size(); i++)
+        if (nodes.at(i)->GetName() == name)
+            return nodes.at(i);
+
+    return nullptr;
 }

@@ -12,21 +12,8 @@
 
 namespace Engine
 {
-    // keyframe struct for vector (position, scale) types
-    struct VectorKeyFrame
-    {
-        glm::vec3 value;
-        double timestamp;
-    };
 
-    // keyframe struct for quaternion (rotation) types
-    struct QuaternionKeyFrame
-    {
-        glm::quat value;
-        double timestamp;
-    };
-
-    // scene Node, containing basic transformation, animation keyframes and arbitrary templated data
+    // scene Node, containing basic transformation and animated transformation data
     // implemented as a hierarchical data structure with each node holding information about its parent and children
 
     class Node
@@ -42,6 +29,8 @@ namespace Engine
         Node* GetRootNode();
         // returns the parent of this node
         Node* GetParent();
+        // find a node in a tree with a given name, assumed to be unqiue
+        Node* FindNode(std::string name);
         // returns the children of this node
         std::vector<Node*>& GetChildren();
         // returns all nodes of this tree
@@ -61,38 +50,27 @@ namespace Engine
 
         // functions operating on this->node
         std::string GetName();
+
         glm::mat4& GetTransform();
 
-        // animation keyframes
-        std::vector<VectorKeyFrame>& GetPositionKeyFrames();
-        std::vector<QuaternionKeyFrame>& GetRotationKeyFrames();
-        std::vector<VectorKeyFrame>& GetScaleKeyFrames();
-
         // returns the transformations inherited from parents, without the local one
-        glm::mat4 GetInheritedTransforms();
-        // returns the animated transforms inherited by all parents, without the local one
-        glm::mat4 GetInheritedTransforms(double timeOffset);
+        glm::mat4 GetInheritedTransform();
 
         // returns this->transform multiplied by those of all parent nodes
         glm::mat4 GetGlobalTransform();
 
         // returns the final global transform matrix for this node at a given time
-        glm::mat4 GetGlobalTransform(double timeOffset);
+        glm::mat4 GetGlobalAnimatedTransform();
 
         // returns the calcualted animated transform at a given time
-        glm::mat4 GetAnimatedTransform(double timeOffset);
-
-        
+        glm::mat4 GetAnimatedTransform();
 
         void SetParent(Node* parent);
         void SetChildren(std::vector<Node*> vector);
         void SetName(std::string name);
         void SetTransform(glm::mat4 transform);
+        void SetAnimatedTransform(glm::mat4 transform);
         void AddChild(Node* child);
-
-        void SetPositionKeyFrames(std::vector<VectorKeyFrame> positions);
-        void SetRotationKeyFrames(std::vector<QuaternionKeyFrame> rotations);
-        void SetScaleKeyFrames(std::vector<VectorKeyFrame> scales);
 
     private:
         Node* parent;
@@ -101,10 +79,7 @@ namespace Engine
         std::string name;
 
         glm::mat4 transform;
-
-        std::vector<VectorKeyFrame> positionKeyFrames;
-        std::vector<QuaternionKeyFrame> rotationKeyFrames;
-        std::vector<VectorKeyFrame> scaleKeyFrames;
+        glm::mat4 animatedTransform;
     };
 }
 

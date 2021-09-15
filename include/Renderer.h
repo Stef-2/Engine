@@ -6,6 +6,7 @@
 #include "BoundingVolume.h"
 #include "Skybox.h"
 #include "Shader.h"
+#include "Light.h"
 
 #include "vector"
 

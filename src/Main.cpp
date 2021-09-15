@@ -141,7 +141,7 @@ int main()
         }
     }
 
-    engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimations().back().GetName());
+    engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back().GetAnimations().back().GetName());
 
     // -----------------------------------------------
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -188,7 +188,7 @@ int main()
         }
 
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_E) == GLFW_PRESS) {
-            engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimations().back().GetName());
+            engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back().GetAnimations().back().GetName());
         }
 
         // obj2.RotateRelative(0.0f, 2.0f, 0.0f);

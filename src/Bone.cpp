@@ -44,7 +44,7 @@ glm::mat4 Engine::Bone::GetGlobalTransform()
 
 glm::mat4 Engine::Bone::GetGlobalTransformAnimated()
 {
-	return this->node->GetGlobalTransform(this->animationTime) * this->transform;
+	return this->node->GetGlobalAnimatedTransform() * this->transform;
 }
 
 unsigned int Engine::Bone::GetNumAffectedVertices()

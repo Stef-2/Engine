@@ -9,7 +9,6 @@
 
 #include "Mesh.h"
 #include "Material.h"
-#include "Animation.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -37,18 +36,13 @@ namespace Engine
 		void LoadMesh(const Mesh& other);
 		void LoadMesh(const AnimatedMesh& other);
 		void SetBoundingBox(glm::vec3 mins, glm::vec3 maxs);
-		void AddAnimation(Engine::Animation);
 
 		std::vector<Mesh>& GetStaticMeshes();
 		std::vector<AnimatedMesh>& GetAnimatedMeshes();
 		
 		Engine::BoundingBox& GetBoundingBox();
-		
-		std::vector<Engine::Animation>& GetAnimations();
 
 	private:
-		std::vector<Engine::Animation> animations;
-
 		std::vector<Mesh> staticMeshes;
 		std::vector<AnimatedMesh> animatedMeshes;
 

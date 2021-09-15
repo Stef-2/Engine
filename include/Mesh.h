@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include "Material.h"
 #include "Skeleton.h"
+#include "Animation.h"
 #include "Node.h"
 
 #include "glm/glm.hpp"
@@ -48,49 +49,51 @@ namespace Engine
     // a mesh class that stores vertex data to be used for rendering
     class Mesh
     {
-        public:
-            Mesh();
+    public:
+        Mesh();
             
-            // non animatied mesh
-            Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
+        // non animatied mesh
+        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
 
-            void Setup();
+        void Setup();
 
-            // handles for Vertex Buffer and Element Buffer objects
-            // they need to be passed to OpenGL functions that are supposed to draw the mesh
-            unsigned int GetVAO();
-            unsigned int GetVBO();
-            unsigned int GetEBO();
+        // handles for Vertex Buffer and Element Buffer objects
+        // they need to be passed to OpenGL functions that are supposed to draw the mesh
+        unsigned int GetVAO();
+        unsigned int GetVBO();
+        unsigned int GetEBO();
 
-            std::vector<Vertex>& GetVertices();
-            std::vector<unsigned int>& GetIndices();
-            std::vector<Triangle<Vertex>>& GetTriangles();
-            Engine::Material& GetMaterial();
+        std::vector<Vertex>& GetVertices();
+        std::vector<unsigned int>& GetIndices();
+        std::vector<Triangle<Vertex>>& GetTriangles();
+        Engine::Material& GetMaterial();
 
-            void SetVertices(std::vector<Vertex> vertices);
-            void SetIndices(std::vector<unsigned int> indices);
-            void SetMaterial(const Material& material);
+        void SetVertices(std::vector<Vertex> vertices);
+        void SetIndices(std::vector<unsigned int> indices);
+        void SetMaterial(const Material& material);
 
-        private:
-            // mesh vertices
-            std::vector<Vertex> vertices;
-            // triangles for collision detection
-            std::vector<Triangle<Vertex>> triangles;
+    private:
+        // mesh vertices
+        std::vector<Vertex> vertices;
+        // triangles for collision detection
+        std::vector<Triangle<Vertex>> triangles;
 
-        protected:
-            Engine::Material material;
+    protected:
+        Engine::Material material;
 
-            // node containing transformation data
-            Engine::Node* node;
+        // node containing transformation data
+        Engine::Node* node;
 
-            // order in which vertices connect to form triangles
-            std::vector<unsigned int> indices;
+        // order in which vertices connect to form triangles
+        std::vector<unsigned int> indices;
 
-            // array, vertex buffer and element buffer objects for rendering
-            unsigned int VAO;
-            unsigned int VBO;
-            unsigned int EBO;
+        // array, vertex buffer and element buffer objects for rendering
+        unsigned int VAO;
+        unsigned int VBO;
+        unsigned int EBO;
     };
+
+    // -----------------------------------------------------------
 
     class AnimatedMesh : public Mesh
     {
@@ -98,11 +101,13 @@ namespace Engine
 
     public:
         // animated mesh
-        AnimatedMesh(std::vector<VertexBoneData> vertices, std::vector<unsigned int> indices, Engine::Skeleton skeleton);
+        AnimatedMesh(std::vector<VertexBoneData> vertices, std::vector<unsigned int> indices, Engine::Skeleton skeleton, std::vector<Engine::Animation> animations);
 
+        std::vector<Engine::Animation>& GetAnimations();
         std::vector<Triangle<VertexBoneData>>& GetTriangles();
         Engine::Skeleton& GetSkeleton();
 
+        void AddAnimation(Engine::Animation animation);
         void SetSkeleton(Engine::Skeleton& skelly);
         void Setup();
 
@@ -112,6 +117,8 @@ namespace Engine
 
         // triangles for collision detection
         std::vector<Triangle<VertexBoneData>> triangles;
+
+        std::vector<Engine::Animation> animations;
 
         // Mr.Skeltal
         Engine::Skeleton skeleton;

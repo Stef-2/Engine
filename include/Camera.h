@@ -29,7 +29,7 @@ namespace Engine
             // projection matrix, combining field of view, aspect ratio, near and far clip planes
             glm::mat4 GetProjection() const;
 
-            // camera's forward, normalized direction vector; effectivelly this is just it's rotation
+            // camera's forward, normalized direction vector; effectivelly this is just it's orientation
             glm::vec3 GetForwardDirection();
 
             // a normalized vector that determines the "Up" direction; usually positive Y axis (0.0, 1.0, 0.0)
@@ -54,7 +54,7 @@ namespace Engine
             void SetProjection(glm::mat4 projection);
 
             // updates the projection matrix, should be called every time any of the following parameters change:
-            // <fov, aspect ratio, near clip or far clip>, all functions that changes these already call this function
+            // <fov, aspect ratio, near clip or far clip>, all functions that change these already call this function
             void UpdateProjection();
 
             // speed expressed in arbitrary world units, to be used as a multiplier for movement
