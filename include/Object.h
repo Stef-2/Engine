@@ -35,19 +35,19 @@ namespace Engine
             Object(glm::vec3 position);
             Object(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
 
-            inline glm::quat GetOrientation();
-            inline glm::vec3 GetPosition();
-            inline glm::vec3 GetRotation();
-            inline glm::vec3 GetScale();
+            glm::quat GetOrientation();
+            glm::vec3 GetPosition();
+            glm::vec3 GetRotation();
+            glm::vec3 GetScale();
 
-            inline static Object& GetActiveObject();
-            inline static void SetActiveObject(Object& object);
-            inline bool IsMoving();
+            static Object& GetActiveObject();
+            static void SetActiveObject(Object& object);
+            bool IsMoving();
 
             std::string ToString();
             glm::mat4 GetTransform();
 
-            inline void SetOrientation(glm::quat quaternion);
+            void SetOrientation(glm::quat quaternion);
 
             virtual void MoveRelative(glm::vec3 direction, float intensity);
             virtual void MoveRelative(float x, float y, float z);
@@ -56,8 +56,8 @@ namespace Engine
             void RotateRelative(float x, float y, float z);
             void RotateAbsolute(float x, float y, float z);
 
-            inline void ScaleRelative(float x, float y, float z);
-            inline void ScaleAbsolute(float x, float y, float z);
+            void ScaleRelative(float x, float y, float z);
+            void ScaleAbsolute(float x, float y, float z);
 
         protected:
             static Object* active;

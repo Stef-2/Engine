@@ -20,23 +20,23 @@ namespace Engine
 		Bone(glm::mat4 transform, unsigned int numAffectedVerts, unsigned int ID);
 		Bone(Engine::Node& node, glm::mat4 transform, unsigned int numAffectedVerts, unsigned int ID);
 
-		inline Engine::Node& GetNode();
+		Engine::Node& GetNode();
 		// local transform from mesh into bone space
-		inline glm::mat4 GetTransform();
+		glm::mat4 GetTransform();
 		// transform that combines local with inherited node transforms
-		inline glm::mat4 GetGlobalTransform();
+		glm::mat4 GetGlobalTransform();
 		// full global transform at a given animation time
-		inline glm::mat4 GetGlobalTransformAnimated();
+		glm::mat4 GetGlobalTransformAnimated();
 		// number of vertices affected by this bone
-		inline unsigned int GetNumAffectedVertices();
+		unsigned int GetNumAffectedVertices();
 		// ID by which affected vertices refer to their bones
-		inline unsigned int GetID() const;
+		unsigned int GetID() const;
 
-		inline void SetNode(Engine::Node& node);
-		inline void SetTransform(glm::mat4 transform);
-		inline void SetAnimationTime(double time);
-		inline void SetNumAffectedVerts(unsigned int numAffectedVerts);
-		inline void SetID(unsigned int id);
+		void SetNode(Engine::Node& node);
+		void SetTransform(glm::mat4 transform);
+		void SetAnimationTime(double time);
+		void SetNumAffectedVerts(unsigned int numAffectedVerts);
+		void SetID(unsigned int id);
 
 	private:
 

@@ -28,9 +28,9 @@ namespace Engine
 		// update all running animations
 		void UpdateAnimations();
 
-		inline float GetSpeedMultiplier();
+		float GetSpeedMultiplier();
 
-		inline void SetSpeedMultiplier(float multiplier);
+		void SetSpeedMultiplier(float multiplier);
 
 	private:
 		// stack of currently running animations

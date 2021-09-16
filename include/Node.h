@@ -26,13 +26,13 @@ namespace Engine
         // utility function for tree traversal and management
 
         // returns the root node of this tree
-        inline Node* GetRootNode();
+        Node* GetRootNode();
         // returns the parent of this node
-        inline Node* GetParent();
+        Node* GetParent();
         // find a node in a tree with a given name, assumed to be unqiue
         Node* FindNode(std::string name);
         // returns the children of this node
-        inline std::vector<Node*>& GetChildren();
+        std::vector<Node*>& GetChildren();
         // returns all nodes of this tree
         std::vector<Node*>& GetTreeNodes();
         // returns the leave nodes of this tree
@@ -49,15 +49,15 @@ namespace Engine
         void DeleteBelow();
 
         // functions operating on this->node
-        inline std::string GetName();
+        std::string GetName();
 
-        inline glm::mat4& GetTransform();
+        glm::mat4& GetTransform();
 
         // returns the transformations inherited from parents, without the local one
         glm::mat4 GetInheritedTransform();
 
         // returns this->transform multiplied by those of all parent nodes
-        inline glm::mat4 GetGlobalTransform();
+        glm::mat4 GetGlobalTransform();
 
         // returns the final global transform matrix for this node at a given time
         glm::mat4 GetGlobalAnimatedTransform();
@@ -65,12 +65,12 @@ namespace Engine
         // returns the calcualted animated transform at a given time
         glm::mat4 GetAnimatedTransform();
 
-        inline void SetParent(Node* parent);
-        inline void SetChildren(std::vector<Node*> vector);
-        inline void SetName(std::string name);
-        inline void SetTransform(glm::mat4 transform);
-        inline void SetAnimatedTransform(glm::mat4 transform);
-        inline void AddChild(Node* child);
+        void SetParent(Node* parent);
+        void SetChildren(std::vector<Node*> vector);
+        void SetName(std::string name);
+        void SetTransform(glm::mat4 transform);
+        void SetAnimatedTransform(glm::mat4 transform);
+        void AddChild(Node* child);
 
     private:
         Node* parent;

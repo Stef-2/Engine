@@ -12,15 +12,15 @@ namespace Engine
 		using Engine::Object::Object;
 
 	public:
-		inline Engine::Shader& GetShader();
-		inline Engine::Model& GetModel();
+		Engine::Shader& GetShader();
+		Engine::Model& GetModel();
 
 		void MoveRelative(glm::vec3 direction, float magnitude) override;
 		void MoveRelative(float x, float y, float z) override;
 		void MoveAbsolute(float x, float y, float z) override;
 
-		inline void SetShader(const Engine::Shader& shader);
-		inline void SetModel(const Engine::Model& model);
+		void SetShader(const Engine::Shader& shader);
+		void SetModel(const Engine::Model& model);
 
 	private:
 		Model model;

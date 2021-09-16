@@ -45,7 +45,7 @@ namespace Engine
     {
         public:
             // singleton instance provider
-            inline static Motor& GetInstance();
+            static Motor& GetInstance();
 
             // make sure it can't be copy constructed
             Motor(Motor const&) = delete;
@@ -57,19 +57,19 @@ namespace Engine
             // wrapper class for OpenGL window struct
             // holds requested and given OpenGL version -
             // due to the way OpenGL likes to couple that data with it's window and context
-            inline Engine::Window& GetWindow();
-            inline void SetWindow(Engine::Window& window);
+            Engine::Window& GetWindow();
+            void SetWindow(Engine::Window& window);
 
             // rendering subsystem
-            inline Engine::Renderer& GetRenderer();
+            Engine::Renderer& GetRenderer();
 
             // physics simulation subsystem
-            inline Engine::Collider& GetCollider();
+            Engine::Collider& GetCollider();
 
             // animation subsystem
-            inline Engine::Animator& GetAnimator();
+            Engine::Animator& GetAnimator();
 
-            inline void Initialize();
+            void Initialize();
 
             // error info handling
             static void ErrorCallback(int error, const char* description);
@@ -86,9 +86,9 @@ namespace Engine
             // should be used as a multiplier for any rendering, movement or physics operation
             // allows us to make these operations independent from framerate
             // which is not guaranteed to be constant, depending on hardware and/or software limitation
-            inline double GetDeltaTime();
+            double GetDeltaTime();
             // updates delta time, should be used once every engine cycle
-            inline void SetDeltaTime();
+            void SetDeltaTime();
 
             // in-Engine animation that plays when the program is started
             void Intro();
