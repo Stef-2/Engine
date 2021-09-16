@@ -25,23 +25,23 @@ namespace Engine
 		Material(const char* filePath);
 
 		// diffuse reflection map (aka albedo or surface color)
-		void SetDiffuseMap(const char* filePath);
-		void SetDiffuseMap(std::string filePath);
-		void SetDiffuseMap(const Texture& texture);
+		inline void SetDiffuseMap(const char* filePath);
+		inline void SetDiffuseMap(std::string filePath);
+		inline void SetDiffuseMap(const Texture& texture);
 
 		// roughness map, inverse of a "glossiness" or "specular" reflection map
-		void SetRoughnessMap(const char* filePath);
-		void SetRoughnessMap(std::string filePath);
-		void SetRoughnessMap(const Texture& texture);
+		inline void SetRoughnessMap(const char* filePath);
+		inline void SetRoughnessMap(std::string filePath);
+		inline void SetRoughnessMap(const Texture& texture);
 
 		// metalic map, for physically correct results the values within should be either 1 or 0, not in between
-		void SetMetallicMap(const char* filePath);
-		void SetMetallicMap(std::string filePath);
-		void SetMetallicMap(const Texture& texture);
+		inline void SetMetallicMap(const char* filePath);
+		inline void SetMetallicMap(std::string filePath);
+		inline void SetMetallicMap(const Texture& texture);
 
-		Texture& GetDiffuse();
-		Texture& GetRougness();
-		Texture& GetMetallic();
+		inline Texture& GetDiffuse();
+		inline Texture& GetRougness();
+		inline Texture& GetMetallic();
 
 	private:
 

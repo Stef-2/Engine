@@ -45,19 +45,19 @@ namespace Engine
 
             // glGetCurrentProgram() is very slow, just like all functions that ask the gfx card for data
             // so we're storing it ourselves in case we need it
-            static Shader& GetCurrentShader();
+            inline static Shader& GetCurrentShader();
 
-            unsigned int GetVertexShader();
-            unsigned int GetFragmentShader();
-            unsigned int GetProgramID();
+            inline unsigned int GetVertexShader();
+            inline unsigned int GetFragmentShader();
+            inline unsigned int GetProgramID();
 
             unsigned int GetAttributeLocation(ShaderAttribute attribute);
 
             std::string GetLogData();
 
             // load vertex and fragment shaders from files
-            int SetVertexShader(std::string filePath);
-            int SetFragmentShader(std::string filePath);
+            inline int SetVertexShader(std::string filePath);
+            inline int SetFragmentShader(std::string filePath);
 
             // compiles vertex and fragment shaders into a program and binds it
             // needs to be run after every shader change
@@ -65,7 +65,7 @@ namespace Engine
 
             // activates this shader program
             // needs to be run before every draw call that will make use of this shader
-            void Activate();
+            inline void Activate();
 
         private:
             // will be set to 1 if shader compilation succeeds, 0 otherwise
