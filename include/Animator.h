@@ -33,6 +33,7 @@ namespace Engine
 		void SetSpeedMultiplier(float multiplier);
 
 	private:
+		// stack of currently running animations
 		std::vector<Engine::AnimationStack> runningAnimations;
 
 		float speedMultiplier;

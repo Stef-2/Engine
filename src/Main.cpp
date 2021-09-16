@@ -79,10 +79,10 @@ int main()
     Engine::Actor obj2;
     obj2.SetShader(animated);
 
-    obj2.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\Gine_and_Goku_animated.fbx")));
+    obj2.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\dancing_vampire.dae")));
 
     obj2.GetModel().GetAnimatedMeshes().at(0).SetMaterial(Engine::Material());
-    obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\gine_texture_01.png"));
+    obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_diffuse.png"));
     //obj2.MoveRelative(30.0f, 0.0f, 30.0f);
 
     /*

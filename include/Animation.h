@@ -50,12 +50,20 @@ namespace Engine
         double GetTicksPerSecond();
         double GetStartTime();
 
+        unsigned int GetCurrentPositionKey();
+        unsigned int GetCurrentRotationKey();
+        unsigned int GetCurrentScaleKey();
+
         void SetName(std::string& name);
         void SetDuration(double duration);
         void SetTicksPerSecond(double ticksPerSecond);
         void SetStartTime(double startTime);
         void SetNodeAnimations(std::vector<Engine::NodeAnimation> nodeAnimations);
         void AddNodeAnimation(Engine::NodeAnimation nodeAnimation);
+
+        void SetCurrentPositionKey(unsigned int key);
+        void SetCurrentRotationKey(unsigned int key);
+        void SetCurrentScaleKey(unsigned int key);
 
         void TransformNodes(double timeOffset);
 

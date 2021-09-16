@@ -7,6 +7,10 @@ Engine::Animation::Animation()
     this->name = {};
     this->startTime = 0.0;
     this->nodeAnimations = {};
+
+    this->currentPositionKey = {};
+    this->currentRotationKey = {};
+    this->currentScaleKey = {};
 }
 
 Engine::Animation::Animation(std::string name, double duration, double ticksPerSecond)
@@ -16,6 +20,10 @@ Engine::Animation::Animation(std::string name, double duration, double ticksPerS
     this->name = name;
     this->startTime = 0.0;
     this->nodeAnimations = {};
+
+    this->currentPositionKey = {};
+    this->currentRotationKey = {};
+    this->currentScaleKey = {};
 }
 
 Engine::Animation::Animation(std::string name, double duration, double ticksPerSecond, std::vector<Engine::NodeAnimation> nodeAnimations)
@@ -25,6 +33,10 @@ Engine::Animation::Animation(std::string name, double duration, double ticksPerS
     this->name = name;
     this->nodeAnimations = nodeAnimations;
     this->startTime = 0.0;
+
+    this->currentPositionKey = {};
+    this->currentRotationKey = {};
+    this->currentScaleKey = {};
 }
 
 glm::mat4 Engine::Animation::TransformNode(Engine::NodeAnimation& nodeAnimation, double timeOffset)
@@ -140,6 +152,21 @@ double Engine::Animation::GetStartTime()
     return this->startTime;
 }
 
+unsigned int Engine::Animation::GetCurrentPositionKey()
+{
+    return this->currentPositionKey;
+}
+
+unsigned int Engine::Animation::GetCurrentRotationKey()
+{
+    return this->currentRotationKey;
+}
+
+unsigned int Engine::Animation::GetCurrentScaleKey()
+{
+    return this->currentScaleKey;
+}
+
 std::vector<Engine::NodeAnimation>& Engine::Animation::GetNodeAnimations()
 {
     return this->nodeAnimations;
@@ -174,3 +201,17 @@ void Engine::Animation::SetStartTime(double startTime)
     this->startTime = startTime;
 }
 
+void Engine::Animation::SetCurrentPositionKey(unsigned int key)
+{
+    this->currentPositionKey = key;
+}
+
+void Engine::Animation::SetCurrentRotationKey(unsigned int key)
+{
+    this->currentRotationKey = key;
+}
+
+void Engine::Animation::SetCurrentScaleKey(unsigned int key)
+{
+    this->currentScaleKey = key;
+}

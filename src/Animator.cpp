@@ -17,17 +17,23 @@ void Engine::Animator::Animate(Engine::Actor& actor, std::string animationName)
 	Engine::AnimationStack animationStack;
 
 	// find the requested animation
-	for (size_t i = 0; i < actor.GetModel().GetAnimations().size(); i++)
-		if (actor.GetModel().GetAnimations().at(i).GetName() == animationName)
-			animation = &actor.GetModel().GetAnimations().at(i);
+	for (size_t i = 0; i < actor.GetModel().GetAnimatedMeshes().size(); i++)
+		for (size_t j = 0; j < actor.GetModel().GetAnimatedMeshes().at(i).GetAnimations().size(); j++)
+			if (actor.GetModel().GetAnimatedMeshes().at(i).GetAnimations().at(j).GetName() == animationName)
+				animation = &actor.GetModel().GetAnimatedMeshes().at(i).GetAnimations().at(j);
 	
 	// check if we found the animation with the given name
 	if (animation)
 	{
+		// set the start parameters
 		animation->SetStartTime(currentTime);
+		animation->SetCurrentPositionKey(0u);
+		animation->SetCurrentRotationKey(0u);
+		animation->SetCurrentScaleKey(0u);
 
 		// create or update a mapping between an actor and its animation(s)
 		for (size_t i = 0; i < this->runningAnimations.size(); i++)
+
 			// check if the actor already exist in the stack
 			if (this->runningAnimations.at(i).actor == &actor) {
 

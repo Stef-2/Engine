@@ -133,17 +133,17 @@ void Engine::Model::LoadMesh(std::string filePath)
                 if (nodeAnimation)
                 {
                     // go through all the animations
-                    for (unsigned i = 0; i < scene->mNumAnimations; i++)
+                    for (unsigned j = 0; j < scene->mNumAnimations; j++)
                     {
-                        aiAnimation& aiAnim = *scene->mAnimations[i];
+                        aiAnimation& aiAnim = *scene->mAnimations[j];
 
                         // parse animNodes (channels)
-                        for (size_t j = 0; j < aiAnim.mNumChannels; j++)
+                        for (size_t k = 0; k < aiAnim.mNumChannels; k++)
                         {
-                            aiNodeAnim* aiNodeAnim = aiAnim.mChannels[j];
+                            aiNodeAnim* aiNodeAnim = aiAnim.mChannels[k];
 
-                            if (aiNodeAnim == FindNodeAnimation(scene, aiRoot))
-                                animations.at(i).GetNodeAnimations().at(j).node = rootNode->GetChildren().back();
+                            if (aiNodeAnim == FindNodeAnimation(scene, aiRoot->mChildren[i]))
+                                animations.at(j).GetNodeAnimations().at(k).node = rootNode->GetChildren().back();
                         }
                     }
                 }
@@ -193,6 +193,7 @@ void Engine::Model::LoadMesh(std::string filePath)
         {
             aiAnimation& aiAnim = *scene->mAnimations[i];
 
+            // push back a new animation
             animations.push_back(Engine::Animation(aiAnim.mName.C_Str(), aiAnim.mDuration, aiAnim.mTicksPerSecond));
 
             // parse animNodes (channels)
