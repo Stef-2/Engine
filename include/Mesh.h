@@ -59,18 +59,18 @@ namespace Engine
 
         // handles for Vertex Buffer and Element Buffer objects
         // they need to be passed to OpenGL functions that are supposed to draw the mesh
-        inline unsigned int GetVAO();
-        inline unsigned int GetVBO();
-        inline unsigned int GetEBO();
+        unsigned int GetVAO();
+        unsigned int GetVBO();
+        unsigned int GetEBO();
 
-        inline std::vector<Vertex>& GetVertices();
-        inline std::vector<unsigned int>& GetIndices();
-        inline std::vector<Triangle<Vertex>>& GetTriangles();
-        inline Engine::Material& GetMaterial();
+        std::vector<Vertex>& GetVertices();
+        std::vector<unsigned int>& GetIndices();
+        std::vector<Triangle<Vertex>>& GetTriangles();
+        Engine::Material& GetMaterial();
 
-        inline void SetVertices(std::vector<Vertex> vertices);
-        inline void SetIndices(std::vector<unsigned int> indices);
-        inline void SetMaterial(const Material& material);
+        void SetVertices(std::vector<Vertex> vertices);
+        void SetIndices(std::vector<unsigned int> indices);
+        void SetMaterial(const Material& material);
 
     private:
         // mesh vertices
@@ -103,12 +103,12 @@ namespace Engine
         // animated mesh
         AnimatedMesh(std::vector<VertexBoneData> vertices, std::vector<unsigned int> indices, Engine::Skeleton skeleton, std::vector<Engine::Animation> animations);
 
-        inline std::vector<Engine::Animation>& GetAnimations();
-        inline std::vector<Triangle<VertexBoneData>>& GetTriangles();
-        inline Engine::Skeleton& GetSkeleton();
+        std::vector<Engine::Animation>& GetAnimations();
+        std::vector<Triangle<VertexBoneData>>& GetTriangles();
+        Engine::Skeleton& GetSkeleton();
 
-        inline void AddAnimation(Engine::Animation animation);
-        inline void SetSkeleton(Engine::Skeleton& skelly);
+        void AddAnimation(Engine::Animation animation);
+        void SetSkeleton(Engine::Skeleton& skelly);
         void Setup();
 
     private:

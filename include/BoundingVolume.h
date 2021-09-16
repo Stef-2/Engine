@@ -34,21 +34,21 @@ namespace Engine
         bool IntersectsWith(Engine::BoundingBox& other);
         bool IntersectsWith(Engine::BoundingSphere& sphere);
 
-        inline void Move(glm::vec3 offset);
-        inline void Move(glm::vec3 direction, float magnitude);
+        void Move(glm::vec3 offset);
+        void Move(glm::vec3 direction, float magnitude);
 
         // draws the bounding box in wireframe mode
         // not much use for this besides debugging
 
         // mins
-        inline float GetBottom();
-        inline float GetLeft();
-        inline float GetFront();
+        float GetBottom();
+        float GetLeft();
+        float GetFront();
 
         // maxs
-        inline float GetTop();
-        inline float GetRight();
-        inline float GetBack();
+        float GetTop();
+        float GetRight();
+        float GetBack();
 
         // bottom, left, front
         glm::vec3 mins;
@@ -63,8 +63,8 @@ namespace Engine
         bool IntersectsWith(Engine::BoundingBox& bBox);
         bool IntersectsWith(Engine::BoundingSphere& other);
 
-        inline void Move(glm::vec3 offset);
-        inline void Move(glm::vec3 direction, float magnitude);
+        void Move(glm::vec3 offset);
+        void Move(glm::vec3 direction, float magnitude);
 
         glm::vec3 center;
         float radius;

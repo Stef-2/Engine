@@ -35,12 +35,12 @@ namespace Engine
 		void LoadMesh(std::string filePath);
 		void LoadMesh(const Mesh& other);
 		void LoadMesh(const AnimatedMesh& other);
-		inline void SetBoundingBox(glm::vec3 mins, glm::vec3 maxs);
+		void SetBoundingBox(glm::vec3 mins, glm::vec3 maxs);
 
-		inline std::vector<Mesh>& GetStaticMeshes();
-		inline std::vector<AnimatedMesh>& GetAnimatedMeshes();
+		std::vector<Mesh>& GetStaticMeshes();
+		std::vector<AnimatedMesh>& GetAnimatedMeshes();
 		
-		inline Engine::BoundingBox& GetBoundingBox();
+		Engine::BoundingBox& GetBoundingBox();
 
 	private:
 		std::vector<Mesh> staticMeshes;

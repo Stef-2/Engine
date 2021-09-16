@@ -14,14 +14,14 @@ namespace Engine
 	class Light
 	{
 	public:
-		inline glm::vec3 GetColor();
-		inline double GetIntensity();
+		glm::vec3 GetColor();
+		double GetIntensity();
 
 		// calculates this lights intensity at a given position
-		inline virtual double GetIntensity(glm::vec3 atPosition) = 0;
+		virtual double GetIntensity(glm::vec3 atPosition) = 0;
 
-		inline void SetIntensity(double intensity);
-		inline void SetColor(glm::vec3 color);
+		void SetIntensity(double intensity);
+		void SetColor(glm::vec3 color);
 
 	protected:
 		double intensity;
@@ -39,12 +39,12 @@ namespace Engine
 	public:
 		virtual ~PhysicalLight() = 0;
 
-		inline double GetIntensity(glm::vec3 atPosition) override;
-		inline Engine::Mesh& GetMesh();
-		inline Engine::Shader& GetShader();
+		double GetIntensity(glm::vec3 atPosition) override;
+		Engine::Mesh& GetMesh();
+		Engine::Shader& GetShader();
 
-		inline void SetMesh(Engine::Mesh mesh);
-		inline void SetShader(Engine::Shader shader);
+		void SetMesh(Engine::Mesh mesh);
+		void SetShader(Engine::Shader shader);
 
 	private:
 		Engine::Mesh mesh;

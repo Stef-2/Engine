@@ -37,8 +37,8 @@ namespace Engine
 
         std::vector<Engine::Actor*> FrustumCull(const Engine::Camera& camera, const std::vector<Engine::Actor*> actors);
 
-        inline void SetColorDepth(const int colorDepth);
-        inline int GetColorDepth();
+        void SetColorDepth(const int colorDepth);
+        int GetColorDepth();
 
     private:
         // wireframe utility shader, meant to be used for bounding volume rendering -

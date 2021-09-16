@@ -24,21 +24,21 @@ class Window
         Window();
         ~Window();
 
-        inline GLFWwindow* GetGlWindow();
-        inline GLFWwindow* GetShared();
-        inline GLFWmonitor* GetMonitor();
-        inline std::string GetTitle();
-        inline double GetAspectRatio();
-        inline glm::ivec2 GetRequestedVersion();
-        inline std::string GetGivenVersion();
-        inline glm::ivec2 GetDimensions();
+        GLFWwindow* GetGlWindow();
+        GLFWwindow* GetShared();
+        GLFWmonitor* GetMonitor();
+        std::string GetTitle();
+        double GetAspectRatio();
+        glm::ivec2 GetRequestedVersion();
+        std::string GetGivenVersion();
+        glm::ivec2 GetDimensions();
 
-        inline void SetWidth(int width);
-        inline void SetHeight(int height);
-        inline void SetTitle(std::string newTitle);
-        inline void SetMonitor(GLFWmonitor* monitor);
-        inline void SetShare(GLFWwindow* share);
-        inline void SetVersion(glm::ivec2 version);
+        void SetWidth(int width);
+        void SetHeight(int height);
+        void SetTitle(std::string newTitle);
+        void SetMonitor(GLFWmonitor* monitor);
+        void SetShare(GLFWwindow* share);
+        void SetVersion(glm::ivec2 version);
         void Initialize();
 
     private:
