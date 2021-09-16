@@ -14,6 +14,8 @@ namespace Engine
 	class Light
 	{
 	public:
+		virtual void* GetData() = 0;
+
 		glm::vec3 GetColor();
 		double GetIntensity();
 
@@ -37,8 +39,6 @@ namespace Engine
 		using Engine::Object::Object;
 
 	public:
-		virtual ~PhysicalLight() = 0;
-
 		double GetIntensity(glm::vec3 atPosition) override;
 		Engine::Mesh& GetMesh();
 		Engine::Shader& GetShader();
@@ -57,9 +57,19 @@ namespace Engine
 	class PointLight : public Engine::PhysicalLight
 	{
 	public:
+		PointLight();
+
+		void* GetData() override;
 
 	private:
+		struct Data
+		{
+			Data(Engine::PointLight&);
 
+			glm::vec3& position;
+			glm::vec3& color;
+			double& intensity;
+		} data;
 
 	};
 	
@@ -69,9 +79,20 @@ namespace Engine
 	class SpotLight : public Engine::PhysicalLight
 	{
 	public:
+		SpotLight();
+
+		void* GetData() override;
 
 	private:
+		struct Data
+		{
+			Data(Engine::SpotLight&);
 
+			glm::vec3& position;
+			glm::vec3& color;
+			double& intensity;
+			double angle;
+		} data;
 
 	};
 
@@ -81,8 +102,24 @@ namespace Engine
 	class DirectionalLight : public Engine::Light
 	{
 	public:
+		DirectionalLight();
+
+		glm::vec3 GetOrientation();
+
+		void SetOrientation(glm::vec3 orientation);
+		void* GetData() override;
 
 	private:
+		struct Data
+		{
+			Data(Engine::DirectionalLight&);
+
+			glm::vec3& orientation;
+			glm::vec3& color;
+			double& intensity;
+		} data;
+
+		glm::vec3 orientation;
 	};
 
 	// specialized non physical light
@@ -91,8 +128,24 @@ namespace Engine
 	class AmbientLight : public Engine::Light
 	{
 	public:
+		AmbientLight();
+
+		glm::vec3 GetPosition();
+
+		void SetPosition(glm::vec3 position);
+		void* GetData() override;
 
 	private:
+		struct Data
+		{
+			Data(Engine::AmbientLight&);
+
+			glm::vec3& position;
+			glm::vec3& color;
+			double& intensity;
+		} data;
+
+		glm::vec3 position;
 	};
 	
 }
