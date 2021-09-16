@@ -40,20 +40,20 @@ namespace Engine
 
             // this is the handle to the texture object
             // pass it to OpenGL before any rendering using this texture takes place
-            unsigned int GetTextureID();
-            void SetTextureID(unsigned int id);
+            inline unsigned int GetTextureID();
+            inline void SetTextureID(unsigned int id);
             
             // raw texture data extracted from the file
-            unsigned char* GetData();
-            void SetData(unsigned char* data);
+            inline unsigned char* GetData();
+            inline void SetData(unsigned char* data);
 
-            unsigned int GetWidth();
-            unsigned int GetHeight();
-            unsigned int GetNumChannels();
+            inline unsigned int GetWidth();
+            inline unsigned int GetHeight();
+            inline unsigned int GetNumChannels();
 
-            void SetWidth(unsigned int width);
-            void SetHeight(unsigned int height);
-            void SetNumChannels(unsigned int numChannels);
+            inline void SetWidth(unsigned int width);
+            inline void SetHeight(unsigned int height);
+            inline void SetNumChannels(unsigned int numChannels);
 
         private:
             unsigned int width;

@@ -30,6 +30,7 @@
 #include "fstream"
 #include "math.h"
 
+// inline check - /w34714 /w34710 /w34711 
 
 namespace Engine
 {

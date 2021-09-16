@@ -18,19 +18,19 @@ namespace Engine
     public:
         Skybox();
 
-        void SetShader(const Engine::Shader& shader);
-        void SetTexture(const Engine::Texture& texture);
+        inline void SetShader(const Engine::Shader& shader);
+        inline void SetTexture(const Engine::Texture& texture);
 
-        Engine::Shader& GetShader();
-        Engine::Texture& GetTexture();
+        inline Engine::Shader& GetShader();
+        inline Engine::Texture& GetTexture();
 
         // handles for Vertex Buffer
         // needs to be passed to OpenGL functions that are supposed to draw the mesh
-        unsigned int GetVBO();
-        unsigned int GetVAO();
+        inline unsigned int GetVBO();
+        inline unsigned int GetVAO();
 
         // cubemap vertices
-        float* GetVertices();
+        inline float* GetVertices();
 
         void Setup();
 

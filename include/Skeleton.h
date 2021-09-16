@@ -17,17 +17,17 @@ namespace Engine
 		Skeleton(Engine::Node* rootNode);
 		Skeleton(Engine::Node* rootNode, std::vector<Engine::Bone> bones);
 
-		Engine::Node& GetRootNode();
-		std::vector<Engine::Bone>& GetBones();
-		glm::mat4 GetGlobalInverseMatrix();
+		inline Engine::Node& GetRootNode();
+		inline std::vector<Engine::Bone>& GetBones();
+		inline glm::mat4 GetGlobalInverseMatrix();
 
-		glm::mat4 GetFinalBoneTransform(unsigned int index);
-		glm::mat4 GetFinalBoneTransformAnimated(unsigned int index);
+		inline glm::mat4 GetFinalBoneTransform(unsigned int index);
+		inline glm::mat4 GetFinalBoneTransformAnimated(unsigned int index);
 
-		void SetRootNode(Engine::Node* rootNode);
-		void SetBones(std::vector<Engine::Bone> bones);
-		void AddBone(Engine::Bone bone);
-		void SetGlobalInverseMatrix(glm::mat4 matrix);
+		inline void SetRootNode(Engine::Node* rootNode);
+		inline void SetBones(std::vector<Engine::Bone> bones);
+		inline void AddBone(Engine::Bone bone);
+		inline void SetGlobalInverseMatrix(glm::mat4 matrix);
 
 	private:
 		Engine::Node* rootNode;

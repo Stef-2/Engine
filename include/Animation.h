@@ -44,28 +44,28 @@ namespace Engine
         Animation(std::string name, double duration, double ticksPerSecond);
         Animation(std::string name, double duration, double ticksPerSecond, std::vector<Engine::NodeAnimation> nodeAnimations);
         
-        std::vector<Engine::NodeAnimation>& GetNodeAnimations();
-        std::string GetName();
-        double GetDuration();
-        double GetTicksPerSecond();
-        double GetStartTime();
+        inline std::vector<Engine::NodeAnimation>& GetNodeAnimations();
+        inline std::string GetName();
+        inline double GetDuration();
+        inline double GetTicksPerSecond();
+        inline double GetStartTime();
 
-        unsigned int GetCurrentPositionKey();
-        unsigned int GetCurrentRotationKey();
-        unsigned int GetCurrentScaleKey();
+        inline unsigned int GetCurrentPositionKey();
+        inline unsigned int GetCurrentRotationKey();
+        inline unsigned int GetCurrentScaleKey();
 
-        void SetName(std::string& name);
-        void SetDuration(double duration);
-        void SetTicksPerSecond(double ticksPerSecond);
-        void SetStartTime(double startTime);
-        void SetNodeAnimations(std::vector<Engine::NodeAnimation> nodeAnimations);
-        void AddNodeAnimation(Engine::NodeAnimation nodeAnimation);
+        inline void SetName(std::string& name);
+        inline  void SetDuration(double duration);
+        inline void SetTicksPerSecond(double ticksPerSecond);
+        inline void SetStartTime(double startTime);
+        inline void SetNodeAnimations(std::vector<Engine::NodeAnimation> nodeAnimations);
+        inline void AddNodeAnimation(Engine::NodeAnimation nodeAnimation);
 
-        void SetCurrentPositionKey(unsigned int key);
-        void SetCurrentRotationKey(unsigned int key);
-        void SetCurrentScaleKey(unsigned int key);
+        inline void SetCurrentPositionKey(unsigned int key);
+        inline void SetCurrentRotationKey(unsigned int key);
+        inline void SetCurrentScaleKey(unsigned int key);
 
-        void TransformNodes(double timeOffset);
+        inline void TransformNodes(double timeOffset);
 
     private:
         glm::mat4 TransformNode(Engine::NodeAnimation& nodeAnimation, double timeOffset);
