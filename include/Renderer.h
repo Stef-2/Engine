@@ -26,6 +26,7 @@ namespace Engine
         void Render(const Engine::Camera& camera, const Engine::BoundingBox& box);
         void Render(const Engine::Camera& camera, Engine::Skybox& skybox);
         void Render(const Engine::Camera& camera, Engine::Skeleton& skeleton);
+        void Render(const Engine::Camera& camera, Engine::PointLight& light);
 
         void RenderAnimated(const Engine::Camera& camera, Engine::Actor& actor);
         void RenderAnimated(const Engine::Camera& camera, const std::vector<Engine::Actor*>& actors);

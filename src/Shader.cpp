@@ -2,6 +2,12 @@
 
 Engine::Shader* Engine::Shader::currentShader = {};
 
+unsigned int Engine::Shader::mvpBlock = -1;
+unsigned int Engine::Shader::pointLightsBLock = -1;
+unsigned int Engine::Shader::spotLightsBLock = -1;
+unsigned int Engine::Shader::directionalLightsBLock = -1;
+unsigned int Engine::Shader::ambientLightsBLock = -1;
+
 Engine::Shader::Shader()
 {
     this->compileSuccess = 0;
@@ -19,6 +25,13 @@ Engine::Shader::Shader()
     this->vertexUvLocation = {};
     this->vertexBoneIdLocation = {};
     this->vertexBoneWeights = {};
+    /*
+    this->mvpBlock = 6;
+    this->pointLightsBLock = -1;
+    this->spotLightsBLock = -1;
+    this->directionalLightsBLock = -1;
+    this->ambientLightsBLock = -1;
+    */
 }
 
 Engine::Shader::Shader(std::string vertexShader, std::string fragmentShader)
@@ -38,7 +51,13 @@ Engine::Shader::Shader(std::string vertexShader, std::string fragmentShader)
     this->vertexUvLocation = {};
     this->vertexBoneIdLocation = {};
     this->vertexBoneWeights = {};
-
+    /*
+    this->mvpBlock = -1;
+    this->pointLightsBLock = -1;
+    this->spotLightsBLock = -1;
+    this->directionalLightsBLock = -1;
+    this->ambientLightsBLock = -1;
+    */
     this->compileSuccess = this->SetVertexShader(vertexShader);
     this->compileSuccess = this->SetFragmentShader(fragmentShader);
 
@@ -191,6 +210,62 @@ int Engine::Shader::CompileProgram()
 
         this->vertexBoneWeights = glGetAttribLocation(this->programID, "boneWeights");
 
+        // generate and bind uniform buffer objects and shader storage buffer objects if they're present in the shader(s)
+        // this initialization needs to happen only once for each one of these
+        
+        // model-view-projection (MVP) matrices
+        if (int(glGetUniformBlockIndex(shaderProgram, "mvpMatrices")) >= 0 &&
+            !(this->mvpBlock >= 0 && this->mvpBlock < unsigned(-1)))
+        {
+            glGenBuffers(1, &this->mvpBlock);
+            glBindBufferBase(GL_UNIFORM_BUFFER, 0, this->mvpBlock);
+            glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
+            
+        }
+
+        // point lights
+        if (int(glGetProgramResourceIndex(shaderProgram, GL_SHADER_STORAGE_BLOCK, "PointLights")) >= 0 && 
+            !(this->pointLightsBLock >= 0 && this->pointLightsBLock < unsigned(-1)))
+        {
+            struct PointLightData
+            {
+                glm::vec3 position;
+                glm::vec3 color;
+                float intensity;
+            };
+
+            glGenBuffers(1, &this->pointLightsBLock);
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, this->pointLightsBLock);
+            glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(PointLightData), NULL, GL_DYNAMIC_DRAW);
+        }
+        
+        // spot lights
+        if (!this->spotLightsBLock && glGetUniformBlockIndex(shaderProgram, "SpotLights"))
+        {
+            glGenBuffers(1, &this->spotLightsBLock);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->spotLightsBLock);
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, this->spotLightsBLock);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        }
+
+        // directional lights
+        if (!this->directionalLightsBLock && glGetUniformBlockIndex(shaderProgram, "DirectionalLights"))
+        {
+            glGenBuffers(1, &this->directionalLightsBLock);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->directionalLightsBLock);
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, this->directionalLightsBLock);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        }
+
+        // ambient lights
+        if (!this->ambientLightsBLock && glGetUniformBlockIndex(shaderProgram, "AmbientLights"))
+        {
+            glGenBuffers(1, &this->ambientLightsBLock);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->ambientLightsBLock);
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, this->ambientLightsBLock);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        }
+
         return shaderProgram;
     }
 }
@@ -225,6 +300,33 @@ unsigned int Engine::Shader::GetAttributeLocation(Engine::Shader::ShaderAttribut
 
     case Engine::Shader::ShaderAttribute::VERTEX_BONE_WEIGHTS_LOCATION:
         return this->vertexBoneWeights;
+
+    default:
+        break;
+    }
+}
+
+unsigned int Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers buffer)
+{
+    switch (buffer)
+    {
+    case Engine::Shader::UniformBuffers::MVP_MATRICES:
+        return Engine::Shader::mvpBlock;
+
+    case Engine::Shader::UniformBuffers::POINT_LIGHTS:
+        return Engine::Shader::pointLightsBLock;
+
+    case Engine::Shader::UniformBuffers::SPOT_LIGHTS:
+        return Engine::Shader::spotLightsBLock;
+
+    case Engine::Shader::UniformBuffers::DIRECTIONAL_LIGHTS:
+        return Engine::Shader::directionalLightsBLock;
+
+    case Engine::Shader::UniformBuffers::AMBIENT_LIGHTS:
+        return Engine::Shader::ambientLightsBLock;
+
+    default:
+        break;
     }
 }
 

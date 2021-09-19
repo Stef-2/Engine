@@ -7,6 +7,7 @@
 #endif
 
 #include "glfw3.h"
+#include "glm/glm.hpp"
 
 #include "fstream"
 #include "sstream"
@@ -23,7 +24,7 @@ namespace Engine
     {
         public:
 
-            // enumerator for the different shader attribute we may wish to retrive
+            // enumerator for the different shader attribute we may need to retrive
             enum class ShaderAttribute {
                 VERTEX_POSITION_LOCATION,
                 VERTEX_NORMAL_LOCATION,
@@ -36,6 +37,15 @@ namespace Engine
                 BONE_TRANSFORMATIONS
             };
 
+            // enumerator for different uniform or shader storage buffer objects
+            enum class UniformBuffers {
+                MVP_MATRICES,
+                POINT_LIGHTS,
+                SPOT_LIGHTS,
+                DIRECTIONAL_LIGHTS,
+                AMBIENT_LIGHTS
+            };
+
             Shader();
             Shader(std::string vertexShader, std::string fragmentShader);
 
@@ -43,7 +53,7 @@ namespace Engine
             // Shader& operator=(const Shader& other);
             // ~Shader();
 
-            // glGetCurrentProgram() is very slow, just like all functions that ask the gfx card for data
+            // glGetCurrentProgram() is very slow, just like all functions that ask the graphics processor for data
             // so we're storing it ourselves in case we need it
             static Shader& GetCurrentShader();
 
@@ -52,6 +62,7 @@ namespace Engine
             unsigned int GetProgramID();
 
             unsigned int GetAttributeLocation(ShaderAttribute attribute);
+            static unsigned int GetUniformBuffer(UniformBuffers buffer);
 
             std::string GetLogData();
 
@@ -96,7 +107,11 @@ namespace Engine
             unsigned int BoneTransformsLocation;
 
             // shader block locations
-            static unsigned int matricesBlock;
+            static unsigned int mvpBlock;
+            static unsigned int pointLightsBLock;
+            static unsigned int spotLightsBLock;
+            static unsigned int directionalLightsBLock;
+            static unsigned int ambientLightsBLock;
 
             static Shader* currentShader;
     };

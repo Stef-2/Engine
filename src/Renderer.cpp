@@ -94,6 +94,14 @@ void Engine::Renderer::RenderAnimated(const Engine::Camera& camera, Engine::Acto
 {
     actor.GetShader().Activate();
 
+    glBindBuffer(GL_UNIFORM_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::MVP_MATRICES));
+
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(actor.GetTransform()));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetView()));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(camera.GetProjection()));
+
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
     // find the locations of uniform variables in the shader and assign transform matrices to them
     glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(actor.GetTransform()));
 
@@ -106,17 +114,14 @@ void Engine::Renderer::RenderAnimated(const Engine::Camera& camera, Engine::Acto
 
         Engine::Skeleton& skeleton = actor.GetModel().GetAnimatedMeshes().at(i).GetSkeleton();
 
-        std::vector<glm::mat4> bonez = {};
+        // make a stack of bone transforms that we'll send to the GPU
+        std::vector<glm::mat4> bones = {};
 
         for (size_t j = 0; j < skeleton.GetBones().size(); j++)
-        {
-            bonez.push_back(skeleton.GetFinalBoneTransformAnimated(j));
-            //bonez.push_back(skeleton.GetBones().at(j).GetGlobalTransformAnimated());
-            //bonez.push_back(skeleton.GetBones().at(j).GetGlobalTransform());
-        }
-        //std::cout << actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::BONE_TRANSFORMATIONS) << std::endl;
+            bones.push_back(skeleton.GetFinalBoneTransformAnimated(j));
+        
         glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::BONE_TRANSFORMATIONS), skeleton.GetBones().size(), GL_FALSE,
-            glm::value_ptr(bonez[0]));
+            glm::value_ptr(bones[0]));
 
 
         // bind the vertex array buffer
@@ -267,6 +272,12 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Skeleton& sk
         //if (bonePosition.y < 0) std::cout << "BONE : " << skeleton.GetBones().at(i).GetNode().GetName() << " IS IN BANGLADESH: " << bonePosition.y << std::endl;
         this->Render(camera, box);
     }
+}
+
+void Engine::Renderer::Render(const Engine::Camera& camera, Engine::PointLight& light)
+{
+    Engine::BoundingBox box{light.GetPosition() - 0.5f, light.GetPosition() + 0.5f};
+    this->Render(camera, box);
 }
 
 void Engine::Renderer::SetColorDepth(int colorDepth)

@@ -66,6 +66,8 @@ int main()
     Engine::Shader animated(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.vert"),
                             engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.frag"));
     
+    Engine::Shader illuminated (engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\illuminated.vert"),
+                                engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\illuminated.frag"));
     //Engine::Actor obj1;
     //obj1.SetShader(basic);
     
@@ -77,7 +79,7 @@ int main()
     // ---------------------------------------------------------------------------------------------------------------------
 
     Engine::Actor obj2;
-    obj2.SetShader(animated);
+    obj2.SetShader(illuminated);
 
     obj2.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\dancing_vampire.dae")));
 
@@ -142,7 +144,11 @@ int main()
     }
 
     engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back().GetAnimations().back().GetName());
+    Engine::PointLight pointLight;
+    pointLight.MoveRelative(0.0f, 1.0f, 0.0f);
+    pointLight.SetColor({ 0.0f, 255.0f, 0.0f });
 
+    std::cout << "lights: " << pointLight.GetLights().size() << std::endl;
     // -----------------------------------------------
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
     //glEnable(GL_CULL_FACE);
@@ -191,13 +197,14 @@ int main()
             engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back().GetAnimations().back().GetName());
         }
 
-        // obj2.RotateRelative(0.0f, 2.0f, 0.0f);
-        // obj2.MoveRelative(0.2f, 0.0f, 0.0f);
+        //obj2.RotateRelative(0.0f, 0.01f, 0.0f);
+        //obj2.MoveRelative(0.2f, 0.0f, 0.0f);
 
         engine.GetAnimator().UpdateAnimations();
         std::vector<Engine::Actor*> culled = engine.GetRenderer().FrustumCull(camera, actors);
         numCulls = actors.size() - culled.size();
         engine.GetRenderer().RenderAnimated(camera, actors);
+        engine.GetRenderer().Render(camera, pointLight);
         //engine.GetRenderer().Render(camera, obj1.GetModel().GetBoundingBox());
         //engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());
         // camera.Draw(&obj1);

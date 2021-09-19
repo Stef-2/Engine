@@ -40,6 +40,8 @@ namespace Engine
 
             // camera's view frustum clipping planes, to be used for frustum culling by the renderer
             std::vector<glm::vec4> GetFrustumPlanes() const;
+
+            static Camera* GetCurrentCamera();
             
             double GetSpeed();
             double GetAspectRatio();
@@ -74,9 +76,15 @@ namespace Engine
             // usually 45 to 90 degrees
             void SetFov(double fov);
 
+            static void SetCurrentCamera(Camera& camera);
+
+            void SetCurrent();
+
         private:
             glm::vec3 upDirection;
             glm::mat4 projection;
+
+            static Camera* currentCamera;
 
             double speed;
             double aspectRatio;

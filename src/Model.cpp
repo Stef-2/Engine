@@ -305,14 +305,13 @@ void Engine::Model::LoadMesh(std::string filePath)
             aiNode* meshNode = nullptr;
 
             // recursive lambda that will fill the map with the node tree and set all values to false
-            std::function<void(aiNode*)>
-                FillNodeMap = [&nodeMap, &FillNodeMap](aiNode* root)
+            std::function<void(aiNode*)> FillNodeMap = [&nodeMap, &FillNodeMap](aiNode* root)
             {
                 // check if we've reached the leaves
                 if (!root->mNumChildren)
                     return;
 
-                // else, recursively iterate through the tree and assign every map value with a false
+                // else, recursively iterate through the tree and initialize every map value with a false
                 for (size_t i = 0; i < root->mNumChildren; i++)
                 {
                     nodeMap.insert(std::pair<aiNode*, bool>(root->mChildren[i], false));
@@ -334,7 +333,7 @@ void Engine::Model::LoadMesh(std::string filePath)
                 nodeMap.at(boneNode) = true;
                 meshNode = nullptr;
 
-                // go through all the nodes parents until we find either the mesh node, or its parent node, that is the end of our skeleton
+                // go through all the node's parents until we find either the mesh node, or its parent node, that is the end of our skeleton
                 while (!meshNode)
                 {
                     for (size_t j = 0; j < boneNode->mNumChildren; j++)
@@ -365,8 +364,9 @@ void Engine::Model::LoadMesh(std::string filePath)
             assert(meshNode);
             aiTreeToNode(meshNode, root, nodeMap, bones, animations);
 
-            // decapacitate the assmebled tree since the root node was just a manually made seed with zero data
+            // decapacitate the assembled tree since the root node was just a manually made seed with zero data
             root->GetChildren().back()->DeleteAbove();
+
 
             skeleton.SetRootNode(root);
 
@@ -384,7 +384,7 @@ void Engine::Model::LoadMesh(std::string filePath)
         // assemble the whole mesh depending if its animated or not
         if (mesh->HasBones()) {
             
-            // combine basic vertex data with bone weight data
+            // combine basic vertex data with bone weight data for animated vertices
             for (size_t i = 0; i < vertices.size(); i++)
             {
                 vertexBoneData.at(i).position = vertices.at(i).position;
@@ -396,7 +396,7 @@ void Engine::Model::LoadMesh(std::string filePath)
             this->animatedMeshes.push_back(AnimatedMesh(vertexBoneData, indices, skeleton, animations));
         }
         else
-            // static mesh with no animation nor bones
+            // static mesh with no animations nor bones
             this->staticMeshes.push_back(Mesh(vertices, indices));
     }
 
@@ -408,7 +408,6 @@ void Engine::Model::LoadMesh(std::string filePath)
 
     // set the final bounding box for the entire model
     this->SetBoundingBox(min, max);
-
 }
 
 void Engine::Model::LoadMesh(const Engine::Mesh& other)

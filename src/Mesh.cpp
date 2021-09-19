@@ -153,8 +153,8 @@ void Engine::Mesh::Setup()
     glBindVertexArray(0);
 
     // construct triangle data out of vertices and indices
-    for (size_t i = 0; i < this->indices.size() - 2; i += 3)
-        this->triangles.push_back({ &this->vertices.at(indices.at(i)), &this->vertices.at(indices.at(i + 1)), &this->vertices.at(indices.at(i + 2)) });
+    //for (size_t i = 0; i < this->indices.size() - 2; i += 3)
+        //this->triangles.push_back({ &this->vertices.at(indices.at(i)), &this->vertices.at(indices.at(i + 1)), &this->vertices.at(indices.at(i + 2)) });
 }
 
 void Engine::AnimatedMesh::Setup()

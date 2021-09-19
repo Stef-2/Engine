@@ -1,5 +1,7 @@
 #include "Camera.h"
 
+Engine::Camera* Engine::Camera::currentCamera = {};
+
 void Engine::Camera::Setup(double speed, double aspectRatio, double nearClip, double farClip, double fov)
 {
     this->speed = speed;
@@ -71,6 +73,11 @@ std::vector<glm::vec4> Engine::Camera::GetFrustumPlanes() const
     return planes;
 }
 
+Engine::Camera* Engine::Camera::GetCurrentCamera()
+{
+    return Engine::Camera::currentCamera;
+}
+
 glm::mat4 Engine::Camera::GetProjection() const
 {
     return this->projection;
@@ -114,6 +121,14 @@ void Engine::Camera::SetProjection(glm::mat4 projection)
 void Engine::Camera::UpdateProjection()
 {
     this->projection = glm::perspective(this->fov, this->aspectRatio, this->nearClip, this->farclip);
+
+    // if we're the currently used camera, and a uniform shader block that contains the projection matrix exists, update it
+    if (Engine::Camera::currentCamera == this)
+    {
+        glBindBuffer(GL_UNIFORM_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::MVP_MATRICES));
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(this->GetView()));
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
 }
 
 void Engine::Camera::SetSpeed(double speed)
@@ -143,4 +158,16 @@ void Engine::Camera::SetFov(double fov)
 {
     this->fov = fov;
     this->UpdateProjection();
+}
+
+void Engine::Camera::SetCurrentCamera(Engine::Camera& camera)
+{
+    Engine::Camera::currentCamera = &camera;
+    Engine::Camera::currentCamera->UpdateProjection();
+}
+
+void Engine::Camera::SetCurrent()
+{
+    Engine::Camera::currentCamera = this;
+    Engine::Camera::currentCamera->UpdateProjection();
 }

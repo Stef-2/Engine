@@ -276,7 +276,7 @@ void Engine::Node::DeleteAbove()
     // delete the original root
     delete root;
 
-    // usurp the throne and set ourselves as the new root
+    // usurp the throne and proclaim ourselves the new root
     *root = *this;
 }
 
