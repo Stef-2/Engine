@@ -6,6 +6,7 @@
 #include "Shader.h"
 
 #include "glm/glm.hpp"
+#include "glm/gtx/string_cast.hpp"
 
 #include "vector"
 
@@ -16,13 +17,11 @@ namespace Engine
 	class Light
 	{
 	public:
-		virtual void* GetData() = 0;
-
 		glm::vec3 GetColor();
 		float GetIntensity();
 
-		// calculates this lights intensity at a given position
-		virtual float GetIntensity(glm::vec3 atPosition) = 0;
+		virtual void UpdateLight() = 0;
+		virtual void UpdateLights() = 0;
 
 		void SetIntensity(float intensity);
 		void SetColor(glm::vec3 color);
@@ -41,12 +40,21 @@ namespace Engine
 		using Engine::Object::Object;
 
 	public:
-		float GetIntensity(glm::vec3 atPosition) override;
+		// calculates this lights intensity at a given position
+		virtual float GetIntensityAt(glm::vec3 atPosition) = 0;
+
 		Engine::Mesh& GetMesh();
 		Engine::Shader& GetShader();
 
 		void SetMesh(Engine::Mesh mesh);
 		void SetShader(Engine::Shader shader);
+
+		void MoveRelative(glm::vec3 direction, float intensity) override;
+		void MoveRelative(float x, float y, float z) override;
+		void MoveAbsolute(float x, float y, float z) override;
+
+		virtual void RotateRelative(float x, float y, float z) override;
+		virtual void RotateAbsolute(float x, float y, float z) override;
 
 	private:
 		Engine::Mesh mesh;
@@ -60,113 +68,85 @@ namespace Engine
 	{
 	public:
 		PointLight();
-		~PointLight();	
+		~PointLight();
 
-		void* GetData() override;
+		static std::vector<Engine::PointLight*>& GetLights();
+		float GetIntensityAt(glm::vec3 atPosition) override;
 
-		struct Data
-		{
-			Data(Engine::PointLight&);
-
-			glm::vec3& position;
-			glm::vec3& color;
-			float& intensity;
-		};
-
-		static std::vector<Engine::PointLight::Data*>& GetLights();
-
+		void UpdateLight() override;
+		void UpdateLights() override;
 	private:
-		Data data;
 
-		static std::vector<Engine::PointLight::Data*> lights;
+		static std::vector<Engine::PointLight*> lights;
 	};
 	
 	// specialized physical light
-	// has a position, orientation, mesh and shader
+	// has a position, orientation, angle, mesh and shader
 	// radiates light in a cone
 	class SpotLight : public Engine::PhysicalLight
 	{
 	public:
 		SpotLight();
+		~SpotLight();
 
-		struct Data
-		{
-			Data(Engine::SpotLight&);
+		static std::vector<Engine::SpotLight*>& GetLights();
+		float GetIntensityAt(glm::vec3 atPosition) override;
+		float GetAngle();
+		float GetSharpness();
 
-			glm::vec3& position;
-			glm::vec3& rotation;
-			glm::vec3& color;
-			float& intensity;
-			float angle;
-		};
-
-		static std::vector<Engine::SpotLight::Data*>& GetLights();
-
-		void* GetData() override;
+		void UpdateLight() override;
+		void UpdateLights() override;
+		void SetAngle(float angle);
+		void SetSharpness(float sharpness);
 
 	private:
-		Data data;
-
-		static std::vector<Engine::SpotLight::Data*> lights;
+		static std::vector<Engine::SpotLight*> lights;
+		float angle;
+		float sharpness;
 	};
 
 	// specialized non physical light
-	// has an orientation
+	// has an orientation and intensity
 	// radiates parallel light rays with an infinite radius and no decay
 	class DirectionalLight : public Engine::Light
 	{
 	public:
 		DirectionalLight();
+		~DirectionalLight();
 
-		struct Data
-		{
-			Data(Engine::DirectionalLight&);
-
-			glm::vec3& rotation;
-			glm::vec3& color;
-			float& intensity;
-		};
-
-		static std::vector<Engine::DirectionalLight::Data*>& GetLights();
+		static std::vector<Engine::DirectionalLight*>& GetLights();
+		glm::vec3 GetPosition();
 		glm::vec3 GetRotation();
 
+		void SetPosition(glm::vec3 position);
 		void SetRotation(glm::vec3 rotation);
-		void* GetData() override;
+		void UpdateLight() override;
+		void UpdateLights() override;
 
 	private:
-		 Data data;
-
-		static std::vector<Engine::DirectionalLight::Data*> lights;
+		static std::vector<Engine::DirectionalLight*> lights;
+		glm::vec3 position;
 		glm::vec3 rotation;
 	};
 
 	// specialized non physical light
-	// has a position
+	// has a position and intensity
 	// applies linearly decaying lighting to all meshes in affected radius
 	class AmbientLight : public Engine::Light
 	{
 	public:
 		AmbientLight();
+		~AmbientLight();
 
-		struct Data
-		{
-			Data(Engine::AmbientLight&);
-
-			glm::vec3& position;
-			glm::vec3& color;
-			float& intensity;
-		};
-
-		static std::vector<Engine::AmbientLight::Data*>& GetLights();
+		static std::vector<Engine::AmbientLight*>& GetLights();
 		glm::vec3 GetPosition();
 
 		void SetPosition(glm::vec3 position);
-		void* GetData() override;
+		void UpdateLight() override;
+		void UpdateLights() override;
 
 	private:
-		 Data data;
-
-		static std::vector<Engine::AmbientLight::Data*> lights;
+		static std::vector<Engine::AmbientLight*> lights;
 		glm::vec3 position;
 	};
 	

@@ -227,10 +227,11 @@ int Engine::Shader::CompileProgram()
         if (int(glGetProgramResourceIndex(shaderProgram, GL_SHADER_STORAGE_BLOCK, "PointLights")) >= 0 && 
             !(this->pointLightsBLock >= 0 && this->pointLightsBLock < unsigned(-1)))
         {
+            // layout of light data for sizeof reference
             struct PointLightData
             {
-                glm::vec3 position;
-                glm::vec3 color;
+                glm::vec4 position;
+                glm::vec4 color;
                 float intensity;
             };
 
@@ -240,30 +241,58 @@ int Engine::Shader::CompileProgram()
         }
         
         // spot lights
-        if (!this->spotLightsBLock && glGetUniformBlockIndex(shaderProgram, "SpotLights"))
+        if (int(glGetProgramResourceIndex(shaderProgram, GL_SHADER_STORAGE_BLOCK, "SpotLights")) >= 0 &&
+            !(this->spotLightsBLock >= 0 && this->spotLightsBLock < unsigned(-1)))
         {
+            // layout of light data for sizeof reference
+            struct SpotLightData
+            {
+                glm::vec4 position;
+                glm::vec4 rotation;
+                glm::vec4 color;
+                float intensity;
+                float angle;
+                float sharpness;
+            };
+
             glGenBuffers(1, &this->spotLightsBLock);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->spotLightsBLock);
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, this->spotLightsBLock);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+            glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(SpotLightData), NULL, GL_DYNAMIC_DRAW);
         }
 
         // directional lights
-        if (!this->directionalLightsBLock && glGetUniformBlockIndex(shaderProgram, "DirectionalLights"))
+        if (int(glGetProgramResourceIndex(shaderProgram, GL_SHADER_STORAGE_BLOCK, "DirectionalLights")) >= 0 &&
+            !(this->directionalLightsBLock >= 0 && this->directionalLightsBLock < unsigned(-1)))
         {
+            // layout of light data for sizeof reference
+            struct DirectionalLightData
+            {
+                glm::vec4 position;
+                glm::vec4 rotation;
+                glm::vec4 color;
+                float intensity;
+            };
+
             glGenBuffers(1, &this->directionalLightsBLock);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->directionalLightsBLock);
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, this->directionalLightsBLock);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+            glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(DirectionalLightData), NULL, GL_DYNAMIC_DRAW);
         }
 
         // ambient lights
-        if (!this->ambientLightsBLock && glGetUniformBlockIndex(shaderProgram, "AmbientLights"))
+        if (int(glGetProgramResourceIndex(shaderProgram, GL_SHADER_STORAGE_BLOCK, "AmbientLights")) >= 0 &&
+            !(this->ambientLightsBLock >= 0 && this->ambientLightsBLock < unsigned(-1)))
         {
+            // layout of light data for sizeof reference
+            struct AmbientlLightData
+            {
+                glm::vec4 position;
+                glm::vec4 color;
+                float intensity;
+            };
+
             glGenBuffers(1, &this->ambientLightsBLock);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->ambientLightsBLock);
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, this->ambientLightsBLock);
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+            glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(AmbientlLightData), NULL, GL_DYNAMIC_DRAW);
         }
 
         return shaderProgram;

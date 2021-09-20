@@ -53,8 +53,8 @@ namespace Engine
             virtual void MoveRelative(float x, float y, float z);
             virtual void MoveAbsolute(float x, float y, float z);
 
-            void RotateRelative(float x, float y, float z);
-            void RotateAbsolute(float x, float y, float z);
+            virtual void RotateRelative(float x, float y, float z);
+            virtual void RotateAbsolute(float x, float y, float z);
 
             void ScaleRelative(float x, float y, float z);
             void ScaleAbsolute(float x, float y, float z);

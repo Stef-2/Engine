@@ -104,6 +104,7 @@ namespace Engine
         AnimatedMesh(std::vector<VertexBoneData> vertices, std::vector<unsigned int> indices, Engine::Skeleton skeleton, std::vector<Engine::Animation> animations);
 
         std::vector<Engine::Animation>& GetAnimations();
+        std::vector<VertexBoneData>& GetVertices();
         std::vector<Triangle<VertexBoneData>>& GetTriangles();
         Engine::Skeleton& GetSkeleton();
 

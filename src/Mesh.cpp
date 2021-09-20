@@ -85,6 +85,11 @@ std::vector<Engine::Animation>& Engine::AnimatedMesh::GetAnimations()
     return this->animations;
 }
 
+std::vector<Engine::VertexBoneData>& Engine::AnimatedMesh::GetVertices()
+{
+    return this->vertices;
+}
+
 Engine::Material& Engine::Mesh::GetMaterial()
 {
     return this->material;
