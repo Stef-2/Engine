@@ -4,6 +4,8 @@ in vertOutput
 {
     vec3 position;
     vec3 normal;
+    vec3 bitangent;
+    vec3 tangent;
     vec2 uv;
 };
 
@@ -62,9 +64,24 @@ layout (binding = 4, std430) buffer AmbientLights {
   AmbientLight ambientLights[];
 };
 
+vec4 diffuse;
+vec4 specular;
+
+vec4 ProcessPointLights()
+{
+    vec4 value;
+
+    for(unsigned int i = 0; i < pointLights.length(); i++)
+    {
+        
+    }
+
+    return value;
+};
+
 void main()
 {
-    float roughness = 1f;
+    float roughness = 1.0f;
     vec4 color = texture2D(texture, uv);
 
     vec3 viewDirection = normalize(-vec3(view[0][2], view[1][2], view[2][2]));

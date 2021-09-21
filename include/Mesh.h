@@ -24,6 +24,8 @@ namespace Engine
     {
         glm::vec3 position;
         glm::vec3 normal;
+        glm::vec3 bitangent;
+        glm::vec3 tangent;
         glm::vec2 uv;
     };
  
@@ -32,6 +34,8 @@ namespace Engine
     {
         glm::vec3 position;
         glm::vec3 normal;
+        glm::vec3 bitangent;
+        glm::vec3 tangent;
         glm::vec2 uv;
         glm::ivec4 boneID;
         glm::vec4 boneWeight;

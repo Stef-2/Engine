@@ -20,7 +20,7 @@ void Engine::Model::LoadMesh(std::string filePath)
 
     const aiScene* scene = importer.ReadFile
     (filePath,
-        aiProcess_DropNormals | aiProcess_GenSmoothNormals |
+        aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals |
         aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |
         aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes |
         aiProcess_GenBoundingBoxes | aiProcess_ImproveCacheLocality);
@@ -237,7 +237,8 @@ void Engine::Model::LoadMesh(std::string filePath)
         max = glm::max(max, glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z));
 
         // fill the vertex bone data struct with full range of blank data
-        if (mesh->HasBones()) vertexBoneData.assign(mesh->mNumVertices, Engine::VertexBoneData{ glm::vec3(0.0f),glm::vec3(0.0f),glm::vec2(0.0f), glm::ivec4(-1.0), glm::vec4(0.0f) });
+        if (mesh->HasBones()) vertexBoneData.assign
+            (mesh->mNumVertices, Engine::VertexBoneData{ glm::vec3(0.0f),glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::ivec4(-1.0), glm::vec4(0.0f) });
 
         // go through all mesh vertices
         for (unsigned int j = 0; j < mesh->mNumVertices; j++)
@@ -246,14 +247,20 @@ void Engine::Model::LoadMesh(std::string filePath)
             // in case data isn't there for whatever reason, substitute an empty vec3 so we don't end up with uninitialized values
             aiVector3D position = mesh->HasPositions() ? mesh->mVertices[j] : empty;
             aiVector3D normal = mesh->HasNormals() ? mesh->mNormals[j] : empty;
+            aiVector3D bitangent = mesh->HasTangentsAndBitangents() ? mesh->mBitangents[j] : empty;
+            aiVector3D tangent = mesh->HasTangentsAndBitangents() ? mesh->mTangents[j] : empty;
             aiVector3D uv = mesh->HasTextureCoords(0) ? mesh->mTextureCoords[0][j] : empty;
-
+            
             // positions
             Engine::Vertex vertex{ aiVector3ToGlm(position),
-                // normals
-          aiVector3ToGlm(normal),
-                // UVs
-         glm::vec2(aiVector3ToGlm(uv)) };
+            // normals
+            aiVector3ToGlm(normal),
+            // bitangents
+            aiVector3ToGlm(bitangent),
+            // tangents
+            aiVector3ToGlm(tangent),
+            // UVs
+            glm::vec2(aiVector3ToGlm(uv)) };
 
             // push it onto the stack
             vertices.push_back(vertex);

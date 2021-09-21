@@ -115,14 +115,16 @@ void Engine::Renderer::RenderAnimated(const Engine::Camera& camera, Engine::Acto
         Engine::Skeleton& skeleton = actor.GetModel().GetAnimatedMeshes().at(i).GetSkeleton();
 
         // make a stack of bone transforms that we'll send to the GPU
-        std::vector<glm::mat4> bones = {};
+        glm::mat4* bones = new glm::mat4[skeleton.GetBones().size()];
 
-        for (size_t j = 0; j < skeleton.GetBones().size(); j++)
-            bones.push_back(skeleton.GetFinalBoneTransformAnimated(j));
+        #pragma omp simd
+        for (unsigned int j = 0; j < skeleton.GetBones().size(); j++)
+            bones[j] = skeleton.GetFinalBoneTransformAnimated(j);
         
         glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::BONE_TRANSFORMATIONS), skeleton.GetBones().size(), GL_FALSE,
             glm::value_ptr(bones[0]));
 
+        delete []bones;
 
         // bind the vertex array buffer
         glBindVertexArray(actor.GetModel().GetAnimatedMeshes().at(i).GetVAO());
@@ -284,6 +286,7 @@ void Engine::Renderer::SetColorDepth(int colorDepth)
 {
     this->colorDepth = colorDepth;
 }
+
 int Engine::Renderer::GetColorDepth()
 {
     return this->colorDepth;
