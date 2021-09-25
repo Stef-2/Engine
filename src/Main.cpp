@@ -152,12 +152,13 @@ int main()
     pointLight.SetIntensity(50000.0f);
     spotLight.SetIntensity(50000.0f);
     dirLight.SetIntensity(0.025f);
-    dirLight.SetRotation(glm::vec3(-90.0f, 45.0f, 0.0f));
+    dirLight.SetRotation({ -90.0f, 45.0f, 0.0f });
     ambientLight.SetIntensity(50.0f);
-
+    std::cout << pointLight.GetEffectiveRadius() << std::endl;
 
     // -----------------------------------------------
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
+    
     //glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     // glDisable(GL_DEPTH_TEST);

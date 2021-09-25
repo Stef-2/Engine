@@ -81,6 +81,9 @@ namespace Engine
             static void MouseCallback(GLFWwindow* window, double xPos, double yPos);
             // frame buffer handling
             static void FrameBufferCallback(GLFWwindow* window, int width, int height);
+            // OpenGL debug handling
+            static void APIENTRY OpenGLDebugCallback(GLenum source, GLenum type, unsigned int id, GLenum severity,
+                                GLsizei length, const char* message, const void* userParam);
 
             // time between the previous and current engine update cycle
             // should be used as a multiplier for any rendering, movement or physics operation

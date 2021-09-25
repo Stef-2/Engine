@@ -136,6 +136,14 @@ float Engine::PointLight::GetIntensityAt(glm::vec3 atPosition)
 	return this->intensity * glm::pow(glm::distance(this->position, atPosition), 2);
 }
 
+float Engine::PointLight::GetEffectiveRadius()
+{
+	// given our current intensity, and the inverse square intensity decay law, calculate the distance past which this lights contribution can be discarded
+	// threshold is an arbitrary value that we consider to no longer provide a significant contribution to final lighting output
+	float threshold = 100;
+	return glm::sqrt(this->intensity / threshold);
+}
+
 void Engine::PointLight::UpdateLight()
 {
 	// check if a point light stack actually exists on the GPU

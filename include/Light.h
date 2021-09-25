@@ -71,7 +71,10 @@ namespace Engine
 		~PointLight();
 
 		static std::vector<Engine::PointLight*>& GetLights();
+
+		// calculates this lights intensity at a given position
 		float GetIntensityAt(glm::vec3 atPosition) override;
+		float GetEffectiveRadius();
 
 		void UpdateLight() override;
 		void UpdateLights() override;
