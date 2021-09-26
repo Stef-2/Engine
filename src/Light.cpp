@@ -157,6 +157,9 @@ void Engine::PointLight::UpdateLight()
 			glm::vec4 position;
 			glm::vec4 color;
 			float intensity;
+			float padding1;
+			float padding2;
+			float padding3;
 		};
 
 		auto ToVec4Allignement = [](Engine::PointLight& data) -> PointLightData {
@@ -166,7 +169,7 @@ void Engine::PointLight::UpdateLight()
 		PointLightData pointLight = ToVec4Allignement(*this);
 
 		// bind the buffer and replace updated light data
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::POINT_LIGHTS));
+		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::POINT_LIGHTS));
 
 		// find ourselves in the lights stack and replace the old data
 		for (size_t i = 0; i < this->lights.size(); i++)
@@ -176,7 +179,7 @@ void Engine::PointLight::UpdateLight()
 				break;
 			}
 
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
 }
 
@@ -193,6 +196,9 @@ void Engine::PointLight::UpdateLights()
 			glm::vec4 position;
 			glm::vec4 color;
 			float intensity;
+			float padding1;
+			float padding2;
+			float padding3;
 		};
 
 		auto ToVec4Allignement = [](Engine::PointLight& data) -> PointLightData {
@@ -205,17 +211,19 @@ void Engine::PointLight::UpdateLights()
 			pointLights.push_back(ToVec4Allignement(*this->lights.at(i)));
 		
 		// bind and refill the buffer with the expanded light vector
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::POINT_LIGHTS));
+		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::POINT_LIGHTS));
 
 		glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::POINT_LIGHTS),
-			this->lights.size() * sizeof(PointLightData), &pointLights[0], GL_DYNAMIC_STORAGE_BIT);
+			(pointLights.size() + 1) * sizeof(PointLightData), &pointLights, GL_DYNAMIC_STORAGE_BIT);
 
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		//glBufferStorage(GL_SHADER_STORAGE_BUFFER, pointLights.size() * sizeof(PointLightData), &pointLights, GL_DYNAMIC_STORAGE_BIT);
+
+		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
 }
 
 //=============================================================================
-// ---------------------------- Spot Light -----------------------------------
+// ---------------------------- Spot Light ------------------------------------
 //=============================================================================
 
 std::vector<Engine::SpotLight*> Engine::SpotLight::lights = {};

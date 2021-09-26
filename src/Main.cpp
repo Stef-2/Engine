@@ -144,12 +144,16 @@ int main()
     }
 
     engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back().GetAnimations().back().GetName());
+    
+    Engine::PointLight pointLight2;
     Engine::PointLight pointLight;
     Engine::SpotLight spotLight;
     Engine::DirectionalLight dirLight;
     Engine::AmbientLight ambientLight;
 
     pointLight.SetIntensity(50000.0f);
+    pointLight2.SetIntensity(50000.0f);
+    
     spotLight.SetIntensity(50000.0f);
     dirLight.SetIntensity(0.025f);
     dirLight.SetRotation({ -90.0f, 45.0f, 0.0f });
@@ -212,7 +216,8 @@ int main()
         std::vector<Engine::Actor*> culled = engine.GetRenderer().FrustumCull(camera, actors);
         numCulls = actors.size() - culled.size();
         engine.GetRenderer().RenderAnimated(camera, actors);
-
+        pointLight2.MoveRelative(0.0f, 15.0f * deltaTime, 0.0f);
+        engine.GetRenderer().Render(camera, pointLight2);
         //engine.GetRenderer().Render(camera, obj1.GetModel().GetBoundingBox());
         //engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());
         // camera.Draw(&obj1);
