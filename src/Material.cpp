@@ -59,17 +59,37 @@ void Engine::Material::SetMetallicMap(const Texture& texture)
 	this->metallicMap = texture;
 }
 
-Engine::Texture& Engine::Material::GetDiffuse()
+void Engine::Material::SetNormalMap(const char* filePath)
+{
+	this->normalMap = Engine::Texture(filePath);
+}
+
+void Engine::Material::SetNormalMap(std::string filePath)
+{
+	this->normalMap = Engine::Texture(filePath);
+}
+
+void Engine::Material::SetNormalMap(const Texture& texture)
+{
+	this->normalMap = texture;
+}
+
+Engine::Texture& Engine::Material::GetDiffuseMap()
 {
 	return this->diffuseMap;
 }
 
-Engine::Texture& Engine::Material::GetRougness()
+Engine::Texture& Engine::Material::GetRougnessMap()
 {
 	return this->roughnessMap;
 }
 
-Engine::Texture& Engine::Material::GetMetallic()
+Engine::Texture& Engine::Material::GetMetallicMap()
 {
 	return this->metallicMap;
+}
+
+Engine::Texture& Engine::Material::GetNormalMap()
+{
+	return this->normalMap;
 }

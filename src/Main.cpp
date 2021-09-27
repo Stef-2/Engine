@@ -85,6 +85,7 @@ int main()
 
     obj2.GetModel().GetAnimatedMeshes().at(0).SetMaterial(Engine::Material());
     obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_diffuse.png"));
+    obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_normal.png"));
     //obj2.MoveRelative(30.0f, 0.0f, 30.0f);
 
     /*
@@ -145,20 +146,32 @@ int main()
 
     engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back().GetAnimations().back().GetName());
     
+    Engine::PointLight pointLight1;
     Engine::PointLight pointLight2;
-    Engine::PointLight pointLight;
+    Engine::PointLight pointLight3;
+    Engine::PointLight pointLight4;
+    Engine::PointLight pointLight5;
+
     Engine::SpotLight spotLight;
     Engine::DirectionalLight dirLight;
     Engine::AmbientLight ambientLight;
 
-    pointLight.SetIntensity(50000.0f);
+    pointLight1.SetIntensity(50000.0f);
     pointLight2.SetIntensity(50000.0f);
+    pointLight3.SetIntensity(50000.0f);
+    pointLight4.SetIntensity(50000.0f);
+    pointLight5.SetIntensity(50000.0f);
+
+    pointLight2.MoveAbsolute(-10.0f, -10.0f, -10.0f);
+    pointLight3.MoveAbsolute(+10.0f, -10.0f, +10.0f);
+    pointLight4.MoveAbsolute(-10.0f, +10.0f, -10.0f);
+    pointLight5.MoveAbsolute(+10.0f, +10.0f, +10.0f);
     
     spotLight.SetIntensity(50000.0f);
     dirLight.SetIntensity(0.025f);
     dirLight.SetRotation({ -90.0f, 45.0f, 0.0f });
     ambientLight.SetIntensity(50.0f);
-    std::cout << pointLight.GetEffectiveRadius() << std::endl;
+
 
     // -----------------------------------------------
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
@@ -216,8 +229,18 @@ int main()
         std::vector<Engine::Actor*> culled = engine.GetRenderer().FrustumCull(camera, actors);
         numCulls = actors.size() - culled.size();
         engine.GetRenderer().RenderAnimated(camera, actors);
-        pointLight2.MoveRelative(0.0f, 15.0f * deltaTime, 0.0f);
+
+        engine.GetRenderer().Render(camera, pointLight1);
+        pointLight2.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
         engine.GetRenderer().Render(camera, pointLight2);
+        pointLight3.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
+        engine.GetRenderer().Render(camera, pointLight3);
+        pointLight4.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
+        engine.GetRenderer().Render(camera, pointLight4);
+        pointLight5.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
+        engine.GetRenderer().Render(camera, pointLight5);
+
+
         //engine.GetRenderer().Render(camera, obj1.GetModel().GetBoundingBox());
         //engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());
         // camera.Draw(&obj1);

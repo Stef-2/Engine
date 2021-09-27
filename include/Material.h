@@ -39,9 +39,16 @@ namespace Engine
 		void SetMetallicMap(std::string filePath);
 		void SetMetallicMap(const Texture& texture);
 
-		Texture& GetDiffuse();
-		Texture& GetRougness();
-		Texture& GetMetallic();
+		// normal map, alters the surface normals, affecting the way lighting interacts with it
+		void SetNormalMap(const char* filePath);
+		void SetNormalMap(std::string filePath);
+		void SetNormalMap(const Texture& texture);
+
+		Texture& GetDiffuseMap();
+		Texture& GetRougnessMap();
+		Texture& GetMetallicMap();
+
+		Texture& GetNormalMap();
 
 	private:
 

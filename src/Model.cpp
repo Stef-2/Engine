@@ -20,10 +20,12 @@ void Engine::Model::LoadMesh(std::string filePath)
 
     const aiScene* scene = importer.ReadFile
     (filePath,
-        aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals |
-        aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |
-        aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes |
-        aiProcess_GenBoundingBoxes | aiProcess_ImproveCacheLocality);
+                aiProcess_GenSmoothNormals  |
+                aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |
+                aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes |
+                aiProcess_GenBoundingBoxes | aiProcess_ImproveCacheLocality);
+
+    importer.ApplyPostProcessing(aiProcess_CalcTangentSpace);
 
     // make sure the import succeeded
     if (!scene) {
@@ -396,6 +398,8 @@ void Engine::Model::LoadMesh(std::string filePath)
             {
                 vertexBoneData.at(i).position = vertices.at(i).position;
                 vertexBoneData.at(i).normal = vertices.at(i).normal;
+                vertexBoneData.at(i).bitangent = vertices.at(i).bitangent;
+                vertexBoneData.at(i).tangent = vertices.at(i).tangent;
                 vertexBoneData.at(i).uv = vertices.at(i).uv;
             }
 

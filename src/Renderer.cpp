@@ -83,7 +83,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
 
         // bind the corresponding texture
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, actor.GetModel().GetStaticMeshes().at(i).GetMaterial().GetDiffuse().GetTextureID());
+        glBindTexture(GL_TEXTURE_2D, actor.GetModel().GetStaticMeshes().at(i).GetMaterial().GetDiffuseMap().GetTextureID());
         
         // render
         glDrawElements(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i).GetIndices().size(), GL_UNSIGNED_INT, 0);
@@ -134,7 +134,9 @@ void Engine::Renderer::RenderAnimated(const Engine::Camera& camera, Engine::Acto
 
         // bind the corresponding texture
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, actor.GetModel().GetAnimatedMeshes().at(i).GetMaterial().GetDiffuse().GetTextureID());
+        glBindTexture(GL_TEXTURE_2D, actor.GetModel().GetAnimatedMeshes().at(i).GetMaterial().GetDiffuseMap().GetTextureID());
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, actor.GetModel().GetAnimatedMeshes().at(i).GetMaterial().GetNormalMap().GetTextureID());
 
         // render
         glDrawElements(GL_TRIANGLES, actor.GetModel().GetAnimatedMeshes().at(i).GetIndices().size(), GL_UNSIGNED_INT, 0);
