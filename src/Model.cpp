@@ -19,13 +19,16 @@ void Engine::Model::LoadMesh(std::string filePath)
     Assimp::Importer importer;
 
     const aiScene* scene = importer.ReadFile
-    (filePath,
-                aiProcess_GenSmoothNormals  |
-                aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |
+    (filePath,  
+                aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace  |
+                aiProcess_Triangulate | aiProcess_ImproveCacheLocality |
                 aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes |
-                aiProcess_GenBoundingBoxes | aiProcess_ImproveCacheLocality);
+                aiProcess_GenBoundingBoxes | aiProcess_JoinIdenticalVertices);
 
-    importer.ApplyPostProcessing(aiProcess_CalcTangentSpace);
+    // assimp is forgetful about generating normals in its post processing during load
+    // the first aiProcess_CalcTangentSpace doesn't work if that same pass generated the normals
+    if (!scene->mMeshes[0]->HasTangentsAndBitangents())
+        importer.ApplyPostProcessing(aiProcess_CalcTangentSpace);
 
     // make sure the import succeeded
     if (!scene) {
@@ -252,7 +255,7 @@ void Engine::Model::LoadMesh(std::string filePath)
             aiVector3D bitangent = mesh->HasTangentsAndBitangents() ? mesh->mBitangents[j] : empty;
             aiVector3D tangent = mesh->HasTangentsAndBitangents() ? mesh->mTangents[j] : empty;
             aiVector3D uv = mesh->HasTextureCoords(0) ? mesh->mTextureCoords[0][j] : empty;
-            
+
             // positions
             Engine::Vertex vertex{ aiVector3ToGlm(position),
             // normals
@@ -263,6 +266,8 @@ void Engine::Model::LoadMesh(std::string filePath)
             aiVector3ToGlm(tangent),
             // UVs
             glm::vec2(aiVector3ToGlm(uv)) };
+            
+            if (vertex.bitangent.g > 1.0f || vertex.bitangent.g < -1.0f) std::cout << "we got a problem, sir: " << vertex.bitangent.g << std::endl;
 
             // push it onto the stack
             vertices.push_back(vertex);
@@ -304,6 +309,8 @@ void Engine::Model::LoadMesh(std::string filePath)
             indices.push_back(mesh->mFaces[j].mIndices[0]);
             indices.push_back(mesh->mFaces[j].mIndices[1]);
             indices.push_back(mesh->mFaces[j].mIndices[2]);
+
+            
         }
 
         // create node / bone hierarchy for the skeleton, in case the mesh has one

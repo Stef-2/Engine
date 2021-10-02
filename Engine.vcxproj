@@ -218,6 +218,10 @@
     <None Include="shaders\skybox.frag" />
     <None Include="shaders\skybox.vert" />
     <None Include="shaders\basic.vert" />
+    <None Include="shaders\static.frag" />
+    <None Include="shaders\static.vert" />
+    <None Include="shaders\uber.frag" />
+    <None Include="shaders\uber.vert" />
     <None Include="shaders\wireframe.frag" />
     <None Include="shaders\wireframe.vert" />
   </ItemGroup>

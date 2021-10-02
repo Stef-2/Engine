@@ -201,11 +201,11 @@ void Engine::AnimatedMesh::Setup()
 
     // vertex bitangents
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bitangent));
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData), (void*)offsetof(VertexBoneData, bitangent));
 
     // vertex tangents
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData), (void*)offsetof(VertexBoneData, tangent));
 
     // vertex texture coords (UVs)
     glEnableVertexAttribArray(4);
@@ -223,6 +223,7 @@ void Engine::AnimatedMesh::Setup()
     glBindVertexArray(0);
 
     // construct triangle data out of vertices and indices
+    #pragma omp simd
     for (size_t i = 0; i < this->indices.size() - 2; i += 3)
         this->triangles.push_back({ &this->vertices.at(indices.at(i)), &this->vertices.at(indices.at(i + 1)), &this->vertices.at(indices.at(i + 2)) });
 }

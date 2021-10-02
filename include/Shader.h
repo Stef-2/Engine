@@ -25,7 +25,8 @@ namespace Engine
         public:
 
             // enumerator for the different shader attribute we may need to retrive
-            enum class ShaderAttribute {
+            enum class ShaderAttribute
+            {
                 VERTEX_POSITION_LOCATION,
                 VERTEX_NORMAL_LOCATION,
                 VERTEX_UV_LOCATION,
@@ -34,16 +35,29 @@ namespace Engine
                 MODEL_LOCATION,
                 VIEW_LOCATION,
                 PROJECTION_LOCATION,
-                BONE_TRANSFORMATIONS
+                BONE_TRANSFORMATIONS,
+                SHADER_PARAMETERS
             };
 
             // enumerator for different uniform or shader storage buffer objects
-            enum class UniformBuffers {
+            enum class UniformBuffer
+            {
                 MVP_MATRICES,
                 POINT_LIGHTS,
                 SPOT_LIGHTS,
                 DIRECTIONAL_LIGHTS,
                 AMBIENT_LIGHTS
+            };
+
+            // enumerator for different kinds of shader flags
+            typedef enum class ShaderFlag : unsigned int
+            {
+                STATIC      = 0b0000'0001,
+                ANIMATED    = 0b0000'0010,
+                ILLUMINATED = 0b0000'0011,
+                SKYBOX      = 0b0000'0100,
+                WIREFRAME   = 0b0000'0101,
+                BASIC       = 0b0000'0110
             };
 
             Shader();
@@ -62,7 +76,12 @@ namespace Engine
             unsigned int GetProgramID();
 
             unsigned int GetAttributeLocation(ShaderAttribute attribute);
-            static unsigned int GetUniformBuffer(UniformBuffers buffer);
+            static unsigned int GetUniformBuffer(UniformBuffer buffer);
+
+            // handle shader flags for uber shader
+            ShaderFlag& GetShaderFlags();
+            bool GetShaderFlag(ShaderFlag flag);
+            void SetShaderFlag(ShaderFlag flag);
 
             std::string GetLogData();
 
@@ -105,6 +124,7 @@ namespace Engine
             unsigned int viewTransformLocation;
             unsigned int projectionTransformLocation;
             unsigned int BoneTransformsLocation;
+            unsigned int shaderFlagsLocation;
 
             // shader block locations
             static unsigned int mvpBlock;
@@ -113,6 +133,7 @@ namespace Engine
             static unsigned int directionalLightsBLock;
             static unsigned int ambientLightsBLock;
 
+            ShaderFlag shaderFlags;
             static Shader* currentShader;
     };
 

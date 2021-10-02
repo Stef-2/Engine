@@ -147,7 +147,7 @@ float Engine::PointLight::GetEffectiveRadius()
 void Engine::PointLight::UpdateLight()
 {
 	// check if a point light stack actually exists on the GPU
-	if (int(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::POINT_LIGHTS)) >= 0)
+	if (int(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::POINT_LIGHTS)) >= 0)
 	{
 		// GLSL forces a 4x4 byte allignement in data structures
 		// we need to convert our vec3s into vec4s and temporarily make an actual data object to be passed to the shader
@@ -169,12 +169,12 @@ void Engine::PointLight::UpdateLight()
 		PointLightData pointLight = ToVec4Allignement(*this);
 
 		// bind the buffer and replace updated light data
-		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::POINT_LIGHTS));
+		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::POINT_LIGHTS));
 
 		// find ourselves in the lights stack and replace the old data
 		for (size_t i = 0; i < this->lights.size(); i++)
 			if (this->lights.at(i) == this) {
-				glNamedBufferSubData(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::POINT_LIGHTS),
+				glNamedBufferSubData(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::POINT_LIGHTS),
 					i * sizeof(PointLightData), sizeof(PointLightData), &pointLight);
 				break;
 			}
@@ -186,7 +186,7 @@ void Engine::PointLight::UpdateLight()
 void Engine::PointLight::UpdateLights()
 {
 	// check if a point light stack actually exists on the GPU
-	if (int(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::POINT_LIGHTS)) >= 0)
+	if (int(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::POINT_LIGHTS)) >= 0)
 	{
 		// GLSL forces a 4x4 byte allignement in data structures
 		// we need to convert our vec3s into vec4s and temporarily make an actual data object to be passed to the shader
@@ -211,9 +211,9 @@ void Engine::PointLight::UpdateLights()
 			pointLights.push_back(ToVec4Allignement(*this->lights.at(i)));
 		
 		// bind and refill the buffer with the expanded light vector
-		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::POINT_LIGHTS));
+		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::POINT_LIGHTS));
 
-		glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::POINT_LIGHTS),
+		glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::POINT_LIGHTS),
 			(pointLights.size() + 1) * sizeof(PointLightData), &pointLights, GL_DYNAMIC_STORAGE_BIT);
 
 		//glBufferStorage(GL_SHADER_STORAGE_BUFFER, pointLights.size() * sizeof(PointLightData), &pointLights, GL_DYNAMIC_STORAGE_BIT);
@@ -283,7 +283,7 @@ std::vector<Engine::SpotLight*>& Engine::SpotLight::GetLights()
 void Engine::SpotLight::UpdateLight()
 {
 	// check if a point light stack actually exists on the GPU
-	if (int(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::SPOT_LIGHTS)) >= 0)
+	if (int(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::SPOT_LIGHTS)) >= 0)
 	{
 		// GLSL forces a 4x4 byte allignement in data structures
 		// we need to convert our vec3s into vec4s and temporarily make an actual data object to be passed to the shader
@@ -305,13 +305,13 @@ void Engine::SpotLight::UpdateLight()
 		SpotLightData spotLight = ToVec4Allignement(*this);
 
 		// bind the buffer and replace updated light data
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::SPOT_LIGHTS));
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::SPOT_LIGHTS));
 
 		// find ourselves in the lights stack and replace the old data
 		#pragma omp simd
 		for (size_t i = 0; i < this->lights.size(); i++)
 			if (this->lights.at(i) == this) {
-				glNamedBufferSubData(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::SPOT_LIGHTS),
+				glNamedBufferSubData(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::SPOT_LIGHTS),
 					i * sizeof(SpotLightData), sizeof(SpotLightData), &spotLight);
 				break;
 			}
@@ -323,7 +323,7 @@ void Engine::SpotLight::UpdateLight()
 void Engine::SpotLight::UpdateLights()
 {
 	// check if a point light stack actually exists on the GPU
-	if (int(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::SPOT_LIGHTS)) >= 0)
+	if (int(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::SPOT_LIGHTS)) >= 0)
 	{
 		// GLSL forces a 4x4 byte allignement in data structures
 		// we need to convert our vec3s into vec4s and temporarily make an actual data object to be passed to the shader
@@ -348,9 +348,9 @@ void Engine::SpotLight::UpdateLights()
 			spotLights.push_back(ToVec4Allignement(*this->lights.at(i)));
 
 		// bind and refill the buffer with the expanded light vector
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::SPOT_LIGHTS));
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::SPOT_LIGHTS));
 
-		glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::SPOT_LIGHTS),
+		glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::SPOT_LIGHTS),
 			this->lights.size() * sizeof(SpotLightData), &spotLights[0], GL_DYNAMIC_STORAGE_BIT);
 
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
@@ -459,13 +459,13 @@ void Engine::DirectionalLight::UpdateLight()
 	DirectionalLightData directionalLight = ToVec4Allignement(*this);
 
 	// bind the buffer and replace updated light data
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::DIRECTIONAL_LIGHTS));
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::DIRECTIONAL_LIGHTS));
 
 	// find ourselves in the lights stack and replace the old data
 	#pragma omp simd
 	for (size_t i = 0; i < this->lights.size(); i++)
 		if (this->lights.at(i) == this) {
-			glNamedBufferSubData(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::DIRECTIONAL_LIGHTS),
+			glNamedBufferSubData(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::DIRECTIONAL_LIGHTS),
 				i * sizeof(DirectionalLightData), sizeof(DirectionalLightData), &directionalLight);
 			break;
 		}
@@ -476,7 +476,7 @@ void Engine::DirectionalLight::UpdateLight()
 void Engine::DirectionalLight::UpdateLights()
 {
 	// check if a point light stack actually exists on the GPU
-	if (int(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::DIRECTIONAL_LIGHTS)) >= 0)
+	if (int(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::DIRECTIONAL_LIGHTS)) >= 0)
 	{
 		// GLSL forces a 4x4 byte allignement in data structures
 		// we need to convert our vec3s into vec4s and temporarily make an actual data object to be passed to the shader
@@ -499,9 +499,9 @@ void Engine::DirectionalLight::UpdateLights()
 			directionalLights.push_back(ToVec4Allignement(*this->lights.at(i)));
 
 		// bind and refill the buffer with the expanded light vector
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::DIRECTIONAL_LIGHTS));
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::DIRECTIONAL_LIGHTS));
 
-		glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::DIRECTIONAL_LIGHTS),
+		glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::DIRECTIONAL_LIGHTS),
 			this->lights.size() * sizeof(DirectionalLightData), &directionalLights[0], GL_DYNAMIC_STORAGE_BIT);
 
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
@@ -580,13 +580,13 @@ void Engine::AmbientLight::UpdateLight()
 	AmbientLightData ambientLight = ToVec4Allignement(*this);
 
 	// bind the buffer and replace updated light data
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::AMBIENT_LIGHTS));
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::AMBIENT_LIGHTS));
 
 	// find ourselves in the lights stack and replace the old data
 	#pragma omp simd
 	for (size_t i = 0; i < this->lights.size(); i++)
 		if (this->lights.at(i) == this) {
-			glNamedBufferSubData(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::AMBIENT_LIGHTS),
+			glNamedBufferSubData(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::AMBIENT_LIGHTS),
 				i * sizeof(AmbientLightData), sizeof(AmbientLightData), &ambientLight);
 			break;
 		}
@@ -597,7 +597,7 @@ void Engine::AmbientLight::UpdateLight()
 void Engine::AmbientLight::UpdateLights()
 {
 	// check if a point light stack actually exists on the GPU
-	if (int(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::AMBIENT_LIGHTS)) >= 0)
+	if (int(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::AMBIENT_LIGHTS)) >= 0)
 	{
 		// GLSL forces a 4x4 byte allignement in data structures
 		// we need to convert our vec3s into vec4s and temporarily make an actual data object to be passed to the shader
@@ -619,9 +619,9 @@ void Engine::AmbientLight::UpdateLights()
 			ambientLights.push_back(ToVec4Allignement(*this->lights.at(i)));
 
 		// bind and refill the buffer with the expanded light vector
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::AMBIENT_LIGHTS));
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::AMBIENT_LIGHTS));
 
-		glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::AMBIENT_LIGHTS),
+		glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::AMBIENT_LIGHTS),
 			this->lights.size() * sizeof(AmbientLightData), &ambientLights[0], GL_DYNAMIC_STORAGE_BIT);
 
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);

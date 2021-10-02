@@ -28,6 +28,9 @@ namespace Engine
 		// update all running animations
 		void UpdateAnimations();
 
+		// set the actor into its T-Pose, basically cybeprunk 2077 mode
+		void TPose();
+
 		float GetSpeedMultiplier();
 
 		void SetSpeedMultiplier(float multiplier);

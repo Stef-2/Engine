@@ -10,6 +10,10 @@
 #define SPOT_LIGHT_CUTOFF_DISTANCE 300
 #define AMBIENT_LIGHT_CUTOFF_DISTANCE 1000
 
+const mat4 ones4x4 = mat4(vec4(1.0f), vec4(1.0f), vec4(1.0f), vec4(1.0f));
+const mat3 ones3x3 = mat3(vec3(1.0f), vec3(1.0f), vec3(1.0f));
+
+// input
 layout (location = 0) in vec3 vertexPosition;
 layout (location = 1) in vec3 vertexNormal;
 layout (location = 2) in vec3 vertexBitangent;
@@ -73,8 +77,19 @@ layout (binding = 4, std430) buffer AmbientLights {
   AmbientLight ambientLights[];
 };
 
+// shader flag reference
+const unsigned int SHADER_STATIC      = 1;
+const unsigned int SHADER_ANIMATED    = 2;
+const unsigned int SHADER_ILLUMINATED = 3;
+const unsigned int SHADER_SKYBOX      = 4;
+const unsigned int SHADER_WIREFRAME   = 5;
+const unsigned int SHADER_BASIC       = 6;
+
+// uniforms
+uniform unsigned int shaderFlags;
 uniform mat4 boneTransformations[100];
 
+// output
 out vertexShaderOutput
 {
     vec3 position;
@@ -111,30 +126,26 @@ mat4 BoneTransformation(ivec4 boneIDs, vec4 boneWeights, mat4 boneTransformation
 
         transform += boneTransformations[boneIDs[i]] * boneWeights[i];
     }
-
-    // safety net if the total transform ended up being 0, either due to a bug or because the mesh has no bones
-    if (transform == mat4(0.0f))
-        return mat4(1.0f);
-    return mat4(1.0f);
+    //return mat4(1.0f);
     return transform;
 }
 
 // inverse Tangent, Bitangent, Normal matrix for lighting calculations in fragment shader
-mat3 CalculateInverseTBN(in mat4 boneTransformation)
+mat3 CalculateTBN(in mat4 trans)
 {
-    mat4 transformedModelMatrix = model * boneTransformation;
+    mat4 transformedModelMatrix = model * trans;
 
-    vec3 tangent = normalize(vec3(transformedModelMatrix * vec4(vertexTangent, 0)));
-    vec3 bitangent = normalize(vec3(transformedModelMatrix * vec4(vertexBitangent, 0)));
-    vec3 normal = normalize(vec3(transformedModelMatrix * vec4(vertexNormal, 0)));
-
-    mat3 TBN = (mat3(tangent, bitangent, normal));
+    vec3 tangent = normalize(vec3(transformedModelMatrix * vec4(vertexTangent, 0.0f)));
+    vec3 bitangent = normalize(vec3(transformedModelMatrix * vec4(vertexBitangent, 0.0f)));
+    vec3 normal = normalize(vec3(transformedModelMatrix * vec4(vertexNormal, 0.0f)));
+    
+    mat3 TBN = transpose(mat3(tangent, bitangent, normal));
 
     return TBN;
 }
 
 // go through all point lights and check for ones whose light will have a significant contribution to the vertex, record their indices into the light stack
-void ProcessPointLights(inout int numPointLights, inout int usedPointLightIndices[MAX_NUM_POINT_LIGHTS_PER_VERTEX], in vec3 animatedPos)
+void ProcessPointLights(in vec3 animatedPos)
 {
     numPointLights = 0;
     const int lightLength = pointLights.length();
@@ -177,7 +188,7 @@ void ProcessPointLights(inout int numPointLights, inout int usedPointLightIndice
 }
 
 // go through all spot lights and check for ones whose light will have a significant contribution to the vertex, record its index into the light stack
-void ProcessSpotLights(inout int numSpotLights, inout int usedSpotLightIndices[MAX_NUM_SPOT_LIGHTS_PER_VERTEX], in vec3 animatedPos)
+void ProcessSpotLights(in vec3 animatedPos)
 {
     numSpotLights = 0;
     const int lightLength = spotLights.length();
@@ -219,7 +230,7 @@ void ProcessSpotLights(inout int numSpotLights, inout int usedSpotLightIndices[M
     }
 }
 // go through all ambient lights and check for ones whose light will have a significant contribution to the vertex, record its index into the light stack
-void ProcessAmbientLights(inout int numAmbientLights, inout int usedAmbientLightIndices[MAX_NUM_AMBIENT_LIGHTS_PER_VERTEX], in vec3 animatedPos)
+void ProcessAmbientLights(in vec3 animatedPos)
 {
     numAmbientLights = 0;
     const int lightLength = ambientLights.length();
@@ -261,23 +272,38 @@ void ProcessAmbientLights(inout int numAmbientLights, inout int usedAmbientLight
     } 
 }
 
+void ProcessLights(vec3 position)
+{
+    ProcessPointLights(position);
+    //ProcessSpotLights(position);
+    //ProcessAmbientLights(position);
+}
+
 void main()
 {
-    mat4 animatedTransform = BoneTransformation(boneIDs, boneWeights, boneTransformations);
-    vec4 animatedPosition = animatedTransform * vec4(vertexPosition, 1.0f);
-    vec3 animatedNormal = (animatedTransform * vec4(vertexNormal, 0.0f)).xyz;
 
-    gl_Position =  projection * view * model * animatedPosition;
+    if (shaderFlags == SHADER_ANIMATED)
+    {
+        mat4 animatedTransform = BoneTransformation(boneIDs, boneWeights, boneTransformations);
+        vec4 animatedPosition = animatedTransform * vec4(vertexPosition, 1.0f);
+
+        gl_Position =  projection * view * model * animatedPosition;
+
+        position = animatedPosition.xyz;
+        TBN = CalculateTBN(animatedTransform);
+        ProcessLights(animatedPosition.xyz);
+    }
+
+    else if (shaderFlags == SHADER_STATIC)
+    {
+        gl_Position =  projection * view * model * vec4(vertexPosition, 1.0f);
+        position = (model * vec4(vertexPosition, 1.0f)).xyz;
+        TBN = CalculateTBN(mat4(1.0f));
+        ProcessLights(position);
+    }
 
     // output
-    position = animatedPosition.xyz;
-    TBN = CalculateInverseTBN(animatedTransform);
     uv = vertexCoordinate;
-
-    // light processing
-    ProcessPointLights(numPointLights, usedPointLightIndices, animatedPosition.xyz);
-    //ProcessSpotLights(numSpotLights, usedSpotLightIndices, animatedPosition.xyz);
-    //ProcessAmbientLights(numAmbientLights, usedAmbientLightIndices, animatedPosition.xyz);
     
     // tangent space output
     tangentFragmentPosition = TBN * position;

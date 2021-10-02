@@ -196,5 +196,17 @@
     <None Include="shaders\illuminated.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="shaders\static.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\static.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\uber.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\uber.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

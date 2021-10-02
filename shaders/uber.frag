@@ -1,5 +1,7 @@
 #version 460 core
 
+precision highp int;
+
 #define MAX_NUM_POINT_LIGHTS_PER_VERTEX 8
 #define MAX_NUM_SPOT_LIGHTS_PER_VERTEX 4
 #define MAX_NUM_AMBIENT_LIGHTS_PER_VERTEX 4
@@ -82,6 +84,17 @@ in vertexShaderOutput
 
 out vec4 fragColor;
 
+// shader flag reference
+const unsigned int SHADER_STATIC      = 1;
+const unsigned int SHADER_ANIMATED    = 2;
+const unsigned int SHADER_ILLUMINATED = 3;
+const unsigned int SHADER_SKYBOX      = 4;
+const unsigned int SHADER_WIREFRAME   = 5;
+const unsigned int SHADER_BASIC       = 6;
+
+// uniforms
+uniform unsigned int shaderFlags;
+uniform samplerCube cubeMap;
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 
@@ -113,15 +126,15 @@ vec4[2] ProcessPointLights(in vec3 viewDirection, in vec3 normal)
     vec4[2] result = {vec4(0.0f), vec4(0.0f)};
     float roughness = 1.0f;
 
-    for (unsigned int i = 0; i < pointLights.length(); i++)
+    for (unsigned int i = 0; i < numPointLights; i++)
     {
-        vec3 lightDirection = normalize(pointLights[i].position.xyz - position);
+        vec3 lightDirection = normalize(tangentSpacePointLights[i] - tangentFragmentPosition);
         float lightFacingRatio = max(dot(normal, lightDirection), 0.0f);
-        float intensity = pointLights[i].intensity / pow(distance(position, pointLights[i].position.xyz), 2);
+        float intensity = pointLights[usedPointLightIndices[i]].intensity / pow(distance(tangentFragmentPosition, tangentSpacePointLights[i]), 2);
         vec3 reflectDirection = reflect(lightDirection, normal);
 
-        result[0] += lightFacingRatio * pointLights[i].color * intensity;
-        result[1] += pow(max(dot(viewDirection, reflectDirection), 0.0), 16) * pointLights[i].color * intensity;
+        result[0] += lightFacingRatio * pointLights[usedPointLightIndices[i]].color * intensity;
+        result[1] += pow(max(dot(-viewDirection, reflectDirection), 0.0), 16) * pointLights[usedPointLightIndices[i]].color * intensity;
     }
     
     return result;
@@ -137,7 +150,7 @@ vec4[2] ProcessSpotLights(in vec3 viewDirection, in vec3 normal)
         vec3 lightDirection = normalize(pointLights[usedPointLightIndices[i]].position.xyz - position);
         float lightFacingRatio = max(dot(normal, lightDirection), 0.0f);
         float intensity = pointLights[usedPointLightIndices[i]].intensity / pow(distance(position, pointLights[usedPointLightIndices[i]].position.xyz), 2);
-        vec3 reflectDirection = reflect(lightDirection, normal);
+        vec3 reflectDirection = reflect(lightDirection, -normal);
 
         result[0] += lightFacingRatio * pointLights[usedPointLightIndices[i]].color * intensity;
         result[1] += pow(max(dot(viewDirection, reflectDirection), 0.0), 16) * pointLights[usedPointLightIndices[i]].color * intensity;
@@ -163,16 +176,20 @@ vec4 ProcessAmbientLights(in vec3 viewDirection, in vec3 normal)
 
 void main()
 {
+
+    vec4 diffuseSample;
+
     float roughness = 1.0f;
 
-    vec4 color = texture2D(diffuseMap, uv);
+    diffuseSample = texture2D(diffuseMap, uv);
 
-    vec3 normal = (texture(normalMap, uv).rgb * 2.0 -1.0f);
+    vec3 normalSample = (texture(normalMap, uv).rgb * 2 - 1.0f);
 
-    normal = normalize(TBN * normal);
+    //normalSample = normalize(TBN * normalSample);
 
     //vec3 normal = vec3(TBN[0][2], TBN[1][2], TBN[2][2]);
-    vec3 viewDirection = normalize(-vec3(view[0][2], view[1][2], view[2][2]));
+    vec3 viewDirection = normalize(vec3(view[0][2], view[1][2], view[2][2]));
+    viewDirection = tangentViewPosition;
     /*
     vec3 lightDirection = normalize(pointLights[0].position.xyz - position);
     vec3 reflectDirection = reflect(lightDirection, normal);
@@ -201,11 +218,12 @@ void main()
     //diffuse += ambientLights[0].intensity * ambientLights[0].color.rgb / distance(position, ambientLights[0].position.xyz);
     
     //fragColor = color;
-    vec4 pointLightContributions[2] = ProcessPointLights(viewDirection, normal);
+    vec4 pointLightContributions[2] = ProcessPointLights(viewDirection, normalSample);
 
     diffuseReflection += pointLightContributions[0];
     specularReflection += pointLightContributions[1];
-
+    
     //fragColor = vec4(normal,1);
-    fragColor = color * (diffuseReflection + specularReflection);
+    fragColor = diffuseSample * (diffuseReflection + specularReflection);
+    //fragColor = vec4(1.0f);
 }

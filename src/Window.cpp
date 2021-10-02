@@ -33,6 +33,12 @@ Engine::Window::Window(int width, int height, const char* title)
 
 void Engine::Window::Initialize()
 {
+    // initialize glfw
+    if (!glfwInit()) {
+        std::cerr << "Glfw could not be initialized." << std::endl;
+        abort();
+    }
+
     // check if the window has already been initialized
     if (!this->openGlWindow)
     {

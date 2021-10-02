@@ -125,7 +125,7 @@ void Engine::Camera::UpdateProjection()
     // if we're the currently used camera, and a uniform shader block that contains the projection matrix exists, update it
     if (Engine::Camera::currentCamera == this)
     {
-        glBindBuffer(GL_UNIFORM_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers::MVP_MATRICES));
+        glBindBuffer(GL_UNIFORM_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::MVP_MATRICES));
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(this->GetView()));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }

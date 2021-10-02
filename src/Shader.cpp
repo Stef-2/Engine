@@ -14,6 +14,7 @@ Engine::Shader::Shader()
     this->vertexShader = 0;
     this->fragmentShader = 0;
     this->programID = 0;
+    this->shaderFlags = Engine::Shader::ShaderFlag(0u);
 
     this->modelTransformLocation = {};
     this->viewTransformLocation = {};
@@ -25,13 +26,6 @@ Engine::Shader::Shader()
     this->vertexUvLocation = {};
     this->vertexBoneIdLocation = {};
     this->vertexBoneWeights = {};
-    /*
-    this->mvpBlock = 6;
-    this->pointLightsBLock = -1;
-    this->spotLightsBLock = -1;
-    this->directionalLightsBLock = -1;
-    this->ambientLightsBLock = -1;
-    */
 }
 
 Engine::Shader::Shader(std::string vertexShader, std::string fragmentShader)
@@ -40,6 +34,7 @@ Engine::Shader::Shader(std::string vertexShader, std::string fragmentShader)
     this->vertexShader = 0;
     this->fragmentShader = 0;
     this->programID = 0;
+    this->shaderFlags = Engine::Shader::ShaderFlag(0u);
 
     this->modelTransformLocation = {};
     this->viewTransformLocation = {};
@@ -51,13 +46,7 @@ Engine::Shader::Shader(std::string vertexShader, std::string fragmentShader)
     this->vertexUvLocation = {};
     this->vertexBoneIdLocation = {};
     this->vertexBoneWeights = {};
-    /*
-    this->mvpBlock = -1;
-    this->pointLightsBLock = -1;
-    this->spotLightsBLock = -1;
-    this->directionalLightsBLock = -1;
-    this->ambientLightsBLock = -1;
-    */
+
     this->compileSuccess = this->SetVertexShader(vertexShader);
     this->compileSuccess = this->SetFragmentShader(fragmentShader);
 
@@ -210,6 +199,8 @@ int Engine::Shader::CompileProgram()
 
         this->vertexBoneWeights = glGetAttribLocation(this->programID, "boneWeights");
 
+        this->shaderFlagsLocation = glGetUniformLocation(this->programID, "shaderFlags");
+
         // generate and bind uniform buffer objects and shader storage buffer objects if they're present in the shader(s)
         // this initialization needs to happen only once for each one of these
         
@@ -290,33 +281,53 @@ unsigned int Engine::Shader::GetAttributeLocation(Engine::Shader::ShaderAttribut
     case Engine::Shader::ShaderAttribute::VERTEX_BONE_WEIGHTS_LOCATION:
         return this->vertexBoneWeights;
 
+    case Engine::Shader::ShaderAttribute::SHADER_PARAMETERS:
+        return this->shaderFlagsLocation;
+
     default:
         break;
     }
 }
 
-unsigned int Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffers buffer)
+Engine::Shader::ShaderFlag& Engine::Shader::GetShaderFlags()
+{
+    return this->shaderFlags;
+}
+
+bool Engine::Shader::GetShaderFlag(Engine::Shader::ShaderFlag flag)
+{
+    return bool(unsigned int(this->shaderFlags) & unsigned int(flag));
+}
+
+unsigned int Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer buffer)
 {
     switch (buffer)
     {
-    case Engine::Shader::UniformBuffers::MVP_MATRICES:
+    case Engine::Shader::UniformBuffer::MVP_MATRICES:
         return Engine::Shader::mvpBlock;
 
-    case Engine::Shader::UniformBuffers::POINT_LIGHTS:
+    case Engine::Shader::UniformBuffer::POINT_LIGHTS:
         return Engine::Shader::pointLightsBLock;
 
-    case Engine::Shader::UniformBuffers::SPOT_LIGHTS:
+    case Engine::Shader::UniformBuffer::SPOT_LIGHTS:
         return Engine::Shader::spotLightsBLock;
 
-    case Engine::Shader::UniformBuffers::DIRECTIONAL_LIGHTS:
+    case Engine::Shader::UniformBuffer::DIRECTIONAL_LIGHTS:
         return Engine::Shader::directionalLightsBLock;
 
-    case Engine::Shader::UniformBuffers::AMBIENT_LIGHTS:
+    case Engine::Shader::UniformBuffer::AMBIENT_LIGHTS:
         return Engine::Shader::ambientLightsBLock;
 
     default:
         break;
     }
+}
+
+void Engine::Shader::SetShaderFlag(Engine::Shader::ShaderFlag flag)
+{
+    this->shaderFlags = flag;
+
+    glUniform1ui(this->shaderFlagsLocation, unsigned int(this->shaderFlags));
 }
 
 void Engine::Shader::Activate()

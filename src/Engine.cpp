@@ -20,27 +20,23 @@ Engine::Motor::Motor()
 
 void Engine::Motor::Initialize()
 {
-    // initialize glfw
-    if (!glfwInit()) {
-        std::cerr << "Glfw could not be initialized." << std::endl;
-        abort();
-    }
-
     this->InitializeCallbacks();
 }
 
 void Engine::Motor::InitializeCallbacks()
-{
+{   /*
     glfwSetErrorCallback(Engine::Motor::ErrorCallback);
     glfwSetKeyCallback(this->window.GetGlWindow(), Engine::Motor::KeyCallback);
     glfwSetFramebufferSizeCallback(this->window.GetGlWindow(), Engine::Motor::FrameBufferCallback);
     glfwSetCursorPosCallback(this->window.GetGlWindow(), Engine::Motor::MouseCallback);
     glfwSetScrollCallback(this->window.GetGlWindow(), Engine::Motor::ScrollCallback);
-
+    */
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback(Engine::Motor::OpenGLDebugCallback, nullptr);
-    //glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+
+    // filter out notifications
+    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 }
 
 double Engine::Motor::GetDeltaTime()
@@ -190,9 +186,9 @@ void Engine::Motor::OpenGLDebugCallback(GLenum source, GLenum type, unsigned int
 
     switch (type)
     {
-    case GL_DEBUG_TYPE_ERROR:               std::cout << "Type: Error"; break;
+    case GL_DEBUG_TYPE_ERROR:              {std::cout << "Type: Error"; assert(false);} break;
     case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cout << "Type: Deprecated Behaviour"; break;
-    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cout << "Type: Undefined Behaviour"; break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: {std::cout << "Type: Undefined Behaviour"; assert(false);} break;
     case GL_DEBUG_TYPE_PORTABILITY:         std::cout << "Type: Portability"; break;
     case GL_DEBUG_TYPE_PERFORMANCE:         std::cout << "Type: Performance"; break;
     case GL_DEBUG_TYPE_MARKER:              std::cout << "Type: Marker"; break;

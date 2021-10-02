@@ -8,13 +8,12 @@ double oldY = 720.0 / 2.0;
 
 int main()
 {
-    if (!Engine::Initialize())
-        glfwTerminate();
-    
     Engine::Window window(1280, 720, "Engine", NULL, NULL, glm::ivec2(4, 6));
     Engine::Motor& engine = Engine::Motor::GetInstance();
-
-    std::cout << "version: " << window.GetGivenVersion() << std::endl;
+    
+    engine.Initialize();
+    
+    std::cout << "OpenGL version: " << window.GetGivenVersion() << std::endl;
 
     engine.SetWindow(window);
 
@@ -60,14 +59,20 @@ int main()
 
     std::cout << str << std::endl;*/
 
-    Engine::Shader basic(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\basic.vert"),
-                         engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\basic.frag"));
+    /*
+    Engine::Shader Static(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\static.vert"),
+                         engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\static.frag"));
 
     Engine::Shader animated(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.vert"),
                             engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.frag"));
     
     Engine::Shader illuminated (engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\illuminated.vert"),
                                 engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\illuminated.frag"));
+
+    */
+    Engine::Shader uber(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.vert"),
+        engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.frag"));
+
     //Engine::Actor obj1;
     //obj1.SetShader(basic);
     
@@ -78,8 +83,17 @@ int main()
     
     // ---------------------------------------------------------------------------------------------------------------------
 
+    Engine::Actor obj1;
+    obj1.SetShader(uber);
+    obj1.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\barrel.obj")));
+
+    obj1.GetModel().GetStaticMeshes().at(0).SetMaterial(Engine::Material());
+    obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_BaseColor.png"));
+    obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Normal.png"));
+    obj1.MoveAbsolute(60.0f, 0.0f, 0.0f);
+
     Engine::Actor obj2;
-    obj2.SetShader(illuminated);
+    obj2.SetShader(uber);
 
     obj2.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\dancing_vampire.dae")));
 
@@ -147,25 +161,25 @@ int main()
     engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back().GetAnimations().back().GetName());
     
     Engine::PointLight pointLight1;
-    Engine::PointLight pointLight2;
-    Engine::PointLight pointLight3;
-    Engine::PointLight pointLight4;
-    Engine::PointLight pointLight5;
+    //Engine::PointLight pointLight2;
+    //Engine::PointLight pointLight3;
+    //Engine::PointLight pointLight4;
+    //Engine::PointLight pointLight5;
 
     Engine::SpotLight spotLight;
     Engine::DirectionalLight dirLight;
     Engine::AmbientLight ambientLight;
 
     pointLight1.SetIntensity(50000.0f);
-    pointLight2.SetIntensity(50000.0f);
-    pointLight3.SetIntensity(50000.0f);
-    pointLight4.SetIntensity(50000.0f);
-    pointLight5.SetIntensity(50000.0f);
+    //pointLight2.SetIntensity(50000.0f);
+    //pointLight3.SetIntensity(50000.0f);
+    //pointLight4.SetIntensity(50000.0f);
+    //pointLight5.SetIntensity(50000.0f);
 
-    pointLight2.MoveAbsolute(-10.0f, -10.0f, -10.0f);
-    pointLight3.MoveAbsolute(+10.0f, -10.0f, +10.0f);
-    pointLight4.MoveAbsolute(-10.0f, +10.0f, -10.0f);
-    pointLight5.MoveAbsolute(+10.0f, +10.0f, +10.0f);
+    //pointLight2.MoveAbsolute(-10.0f, -10.0f, -10.0f);
+    //pointLight3.MoveAbsolute(+10.0f, -10.0f, +10.0f);
+    //pointLight4.MoveAbsolute(-10.0f, +10.0f, -10.0f);
+    //pointLight5.MoveAbsolute(+10.0f, +10.0f, +10.0f);
     
     spotLight.SetIntensity(50000.0f);
     dirLight.SetIntensity(0.025f);
@@ -222,7 +236,7 @@ int main()
             engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back().GetAnimations().back().GetName());
         }
 
-        //obj2.RotateRelative(0.0f, 0.01f, 0.0f);
+        obj1.RotateRelative(0.0f, 15.0f * deltaTime, 0.0f);
         //obj2.MoveRelative(0.2f, 0.0f, 0.0f);
         //spotLight.RotateRelative(0.0f, 1.0f * deltaTime, 0.0f);
         engine.GetAnimator().UpdateAnimations();
@@ -231,15 +245,16 @@ int main()
         engine.GetRenderer().RenderAnimated(camera, actors);
 
         engine.GetRenderer().Render(camera, pointLight1);
-        pointLight2.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
-        engine.GetRenderer().Render(camera, pointLight2);
-        pointLight3.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
-        engine.GetRenderer().Render(camera, pointLight3);
-        pointLight4.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
-        engine.GetRenderer().Render(camera, pointLight4);
-        pointLight5.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
-        engine.GetRenderer().Render(camera, pointLight5);
+        //pointLight2.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
+        //engine.GetRenderer().Render(camera, pointLight2);
+        //pointLight3.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
+        //engine.GetRenderer().Render(camera, pointLight3);
+        //pointLight4.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
+        //engine.GetRenderer().Render(camera, pointLight4);
+        //pointLight5.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
+        //engine.GetRenderer().Render(camera, pointLight5);
 
+        engine.GetRenderer().Render(camera, obj1);
 
         //engine.GetRenderer().Render(camera, obj1.GetModel().GetBoundingBox());
         //engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());
