@@ -186,7 +186,7 @@ void Engine::Motor::OpenGLDebugCallback(GLenum source, GLenum type, unsigned int
 
     switch (type)
     {
-    case GL_DEBUG_TYPE_ERROR:              {std::cout << "Type: Error"; assert(false);} break;
+    case GL_DEBUG_TYPE_ERROR:              {std::cout << "Type: Error"; abort();} break;
     case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cout << "Type: Deprecated Behaviour"; break;
     case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: {std::cout << "Type: Undefined Behaviour"; assert(false);} break;
     case GL_DEBUG_TYPE_PORTABILITY:         std::cout << "Type: Portability"; break;

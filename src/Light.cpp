@@ -138,7 +138,7 @@ float Engine::PointLight::GetIntensityAt(glm::vec3 atPosition)
 
 float Engine::PointLight::GetEffectiveRadius()
 {
-	// given our current intensity, and the inverse square intensity decay law, calculate the distance past which this lights contribution can be discarded
+	// given our current intensity and the inverse square intensity decay law, calculate the distance past which this lights contribution can be discarded
 	// threshold is an arbitrary value that we consider to no longer provide a significant contribution to final lighting output
 	float threshold = 100;
 	return glm::sqrt(this->intensity / threshold);
@@ -157,9 +157,7 @@ void Engine::PointLight::UpdateLight()
 			glm::vec4 position;
 			glm::vec4 color;
 			float intensity;
-			float padding1;
-			float padding2;
-			float padding3;
+			float vec4padding[3];
 		};
 
 		auto ToVec4Allignement = [](Engine::PointLight& data) -> PointLightData {
@@ -196,9 +194,7 @@ void Engine::PointLight::UpdateLights()
 			glm::vec4 position;
 			glm::vec4 color;
 			float intensity;
-			float padding1;
-			float padding2;
-			float padding3;
+			float vec4padding[3];
 		};
 
 		auto ToVec4Allignement = [](Engine::PointLight& data) -> PointLightData {
@@ -213,10 +209,10 @@ void Engine::PointLight::UpdateLights()
 		// bind and refill the buffer with the expanded light vector
 		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::POINT_LIGHTS));
 
-		glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::POINT_LIGHTS),
-			(pointLights.size() + 1) * sizeof(PointLightData), &pointLights, GL_DYNAMIC_STORAGE_BIT);
-
-		//glBufferStorage(GL_SHADER_STORAGE_BUFFER, pointLights.size() * sizeof(PointLightData), &pointLights, GL_DYNAMIC_STORAGE_BIT);
+		//glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::POINT_LIGHTS),
+			//(pointLights.size()) * sizeof(PointLightData), &pointLights, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferData(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::POINT_LIGHTS), (pointLights.size()) * sizeof(PointLightData), &pointLights, GL_DYNAMIC_DRAW);
+		//glBufferStorage(GL_SHADER_STORAGE_BUFFER, pointLights.size() * sizeof(PointLightData), &pointLights, GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT);
 
 		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
@@ -291,11 +287,12 @@ void Engine::SpotLight::UpdateLight()
 		struct SpotLightData
 		{
 			glm::vec4 position;
-			glm::vec4 rotation;
+			glm::vec4 orientation;
 			glm::vec4 color;
 			float intensity;
 			float angle;
 			float sharpness;
+			float vec4padding[1];
 		};
 
 		auto ToVec4Allignement = [](Engine::SpotLight& data) -> SpotLightData {
@@ -336,6 +333,7 @@ void Engine::SpotLight::UpdateLights()
 			float intensity;
 			float angle;
 			float sharpness;
+			float vec4padding[1];
 		};
 
 		auto ToVec4Allignement = [](Engine::SpotLight& data) -> SpotLightData {
@@ -381,7 +379,7 @@ std::vector<Engine::DirectionalLight*> Engine::DirectionalLight::lights = {};
 
 Engine::DirectionalLight::DirectionalLight()
 {
-	this->rotation = {};
+	this->orientation = {0.0f, 1.0f, 0.0f};
 	this->color = {1.0f, 1.0f, 1.0f};
 	this->intensity = {};
 
@@ -418,9 +416,9 @@ glm::vec3 Engine::DirectionalLight::GetPosition()
 	return this->position;
 }
 
-glm::vec3 Engine::DirectionalLight::GetRotation()
+glm::vec3 Engine::DirectionalLight::GetOrientation()
 {
-	return this->rotation;
+	return this->orientation;
 }
 
 void Engine::DirectionalLight::SetPosition(glm::vec3 position)
@@ -431,9 +429,9 @@ void Engine::DirectionalLight::SetPosition(glm::vec3 position)
 	this->UpdateLight();
 }
 
-void Engine::DirectionalLight::SetRotation(glm::vec3 rotation)
+void Engine::DirectionalLight::SetOrientation(glm::vec3 orientation)
 {
-	this->rotation = rotation;
+	this->orientation = orientation;
 
 	// update the light stack on the GPU
 	this->UpdateLight();
@@ -447,13 +445,14 @@ void Engine::DirectionalLight::UpdateLight()
 	struct DirectionalLightData
 	{
 		glm::vec4 position;
-		glm::vec4 rotation;
+		glm::vec4 orientation;
 		glm::vec4 color;
 		float intensity;
+		float vec4padding[3];
 	};
 
 	auto ToVec4Allignement = [](Engine::DirectionalLight& data) -> DirectionalLightData {
-		return { glm::vec4(data.position, 1.0f), glm::vec4(data.rotation, 1.0f), glm::vec4(data.color, 1.0f), data.intensity };
+		return { glm::vec4(data.position, 1.0f), glm::vec4(data.orientation, 1.0f), glm::vec4(data.color, 1.0f), data.intensity };
 	};
 
 	DirectionalLightData directionalLight = ToVec4Allignement(*this);
@@ -484,13 +483,14 @@ void Engine::DirectionalLight::UpdateLights()
 		struct DirectionalLightData
 		{
 			glm::vec4 position;
-			glm::vec4 rotation;
+			glm::vec4 orientation;
 			glm::vec4 color;
 			float intensity;
+			float vec4padding[3];
 		};
 
 		auto ToVec4Allignement = [](Engine::DirectionalLight& data) -> DirectionalLightData {
-			return { glm::vec4(data.position, 1.0f), glm::vec4(data.rotation, 1.0f), glm::vec4(data.color, 1.0f), data.intensity };
+			return { glm::vec4(data.position, 1.0f), glm::vec4(data.orientation, 1.0f), glm::vec4(data.color, 1.0f), data.intensity };
 		};
 
 		std::vector<DirectionalLightData> directionalLights;
@@ -502,7 +502,7 @@ void Engine::DirectionalLight::UpdateLights()
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::DIRECTIONAL_LIGHTS));
 
 		glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::DIRECTIONAL_LIGHTS),
-			this->lights.size() * sizeof(DirectionalLightData), &directionalLights[0], GL_DYNAMIC_STORAGE_BIT);
+			(this->lights.size()) * sizeof(DirectionalLightData), &directionalLights[0], GL_DYNAMIC_STORAGE_BIT);
 
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
@@ -571,6 +571,7 @@ void Engine::AmbientLight::UpdateLight()
 		glm::vec4 position;
 		glm::vec4 color;
 		float intensity;
+		float vec4padding[3];
 	};
 
 	auto ToVec4Allignement = [](Engine::AmbientLight& data) -> AmbientLightData {
@@ -607,6 +608,7 @@ void Engine::AmbientLight::UpdateLights()
 			glm::vec4 position;
 			glm::vec4 color;
 			float intensity;
+			float vec4padding[3];
 		};
 
 		auto ToVec4Allignement = [](Engine::AmbientLight& data) -> AmbientLightData {

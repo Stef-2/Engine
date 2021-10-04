@@ -58,7 +58,7 @@ void Engine::Skybox::SetShader(const Engine::Shader& shader)
 	this->shader = shader;
 }
 
-void Engine::Skybox::SetTexture(const Engine::Texture& texture)
+void Engine::Skybox::SetTexture(Engine::Texture& texture)
 {
     this->texture = texture;
 }

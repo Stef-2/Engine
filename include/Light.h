@@ -68,6 +68,13 @@ namespace Engine
 	{
 	public:
 		PointLight();
+
+		PointLight(PointLight&&) = default;
+		PointLight& operator= (PointLight&&) = default;
+
+		PointLight(PointLight&) = default;
+		PointLight& operator= (PointLight&) = default;
+
 		~PointLight();
 
 		static std::vector<Engine::PointLight*>& GetLights();
@@ -90,6 +97,13 @@ namespace Engine
 	{
 	public:
 		SpotLight();
+
+		SpotLight(SpotLight&&) = default;
+		SpotLight& operator= (SpotLight&&) = default;
+
+		SpotLight(SpotLight&) = default;
+		SpotLight& operator= (SpotLight&) = default;
+
 		~SpotLight();
 
 		static std::vector<Engine::SpotLight*>& GetLights();
@@ -115,21 +129,28 @@ namespace Engine
 	{
 	public:
 		DirectionalLight();
+
+		DirectionalLight(DirectionalLight&&) = default;
+		DirectionalLight& operator= (DirectionalLight&&) = default;
+
+		DirectionalLight(DirectionalLight&) = default;
+		DirectionalLight& operator= (DirectionalLight&) = default;
+
 		~DirectionalLight();
 
 		static std::vector<Engine::DirectionalLight*>& GetLights();
 		glm::vec3 GetPosition();
-		glm::vec3 GetRotation();
+		glm::vec3 GetOrientation();
 
 		void SetPosition(glm::vec3 position);
-		void SetRotation(glm::vec3 rotation);
+		void SetOrientation(glm::vec3 orientation);
 		void UpdateLight() override;
 		void UpdateLights() override;
 
 	private:
 		static std::vector<Engine::DirectionalLight*> lights;
 		glm::vec3 position;
-		glm::vec3 rotation;
+		glm::vec3 orientation;
 	};
 
 	// specialized non physical light
@@ -139,6 +160,13 @@ namespace Engine
 	{
 	public:
 		AmbientLight();
+
+		AmbientLight(AmbientLight&&) = default;
+		AmbientLight& operator= (AmbientLight&&) = default;
+
+		AmbientLight(AmbientLight&) = default;
+		AmbientLight& operator= (AmbientLight&) = default;
+
 		~AmbientLight();
 
 		static std::vector<Engine::AmbientLight*>& GetLights();

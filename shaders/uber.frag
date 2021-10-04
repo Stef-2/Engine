@@ -1,40 +1,42 @@
 #version 460 core
 
-precision highp int;
+#define SPECULAR_EXPONENT 32
 
 #define MAX_NUM_POINT_LIGHTS_PER_VERTEX 8
 #define MAX_NUM_SPOT_LIGHTS_PER_VERTEX 4
+#define MAX_DIRECTIONAL_LIGHTS_PER_VERTEX 2
 #define MAX_NUM_AMBIENT_LIGHTS_PER_VERTEX 4
 
 struct PointLight {
     vec4 position;
     vec4 color;
     float intensity;
-    float padding1;
-    float padding2;
-    float padding3;
+    float padding[3];
 };
 
 struct SpotLight {
     vec4 position;
-    vec4 rotation;
+    vec4 orientation;
     vec4 color;
     float intensity;
     float angle;
     float sharpness;
+    float padding[1];
 };
 
 struct DirectionalLight {
     vec4 position;
-    vec4 rotation;
+    vec4 orientation;
     vec4 color;
     float intensity;
+    float padding[3];
 };
 
 struct AmbientLight {
     vec4 position;
     vec4 color;
     float intensity;
+    float padding[3];
 };
 
 layout (binding = 0, std140) uniform mvpMatrices
@@ -60,26 +62,32 @@ layout (binding = 4, std430) buffer AmbientLights {
   AmbientLight ambientLights[];
 };
 
-in vertexShaderOutput
+// input
+in vertexShaderBasicOutput
 {
     vec3 position;
-    mat3 TBN;
     vec2 uv;
 
     vec3 tangentFragmentPosition;
-    vec3 tangentViewPosition;
-    
+    vec3 tangentViewDirection;
+};
+
+in vertexShaderLightOutput
+{
     flat int numPointLights;
     flat int usedPointLightIndices[MAX_NUM_POINT_LIGHTS_PER_VERTEX];
-    vec3 tangentSpacePointLights[MAX_NUM_POINT_LIGHTS_PER_VERTEX];
+    vec3 tangentSpacePointLightPositions[MAX_NUM_POINT_LIGHTS_PER_VERTEX];
 
     flat int numSpotLights;
     flat int usedSpotLightIndices[MAX_NUM_SPOT_LIGHTS_PER_VERTEX];
-    vec3 tangentSpaceSpotLights[MAX_NUM_SPOT_LIGHTS_PER_VERTEX];
+    vec3 tangentSpaceSpotLightPositions[MAX_NUM_SPOT_LIGHTS_PER_VERTEX];
+    vec3 tangentSpaceSpotLightOrientations[MAX_NUM_SPOT_LIGHTS_PER_VERTEX];
+
+    vec3 tangentSpaceDirectionalLightOrientations[MAX_DIRECTIONAL_LIGHTS_PER_VERTEX];
 
     flat int numAmbientLights;
     flat int usedAmbientLightIndices[MAX_NUM_AMBIENT_LIGHTS_PER_VERTEX];
-    vec3 tangentSpaceAmbientLights[MAX_NUM_AMBIENT_LIGHTS_PER_VERTEX];
+    vec3 tangentSpaceAmbientLightPositions[MAX_NUM_AMBIENT_LIGHTS_PER_VERTEX];
 };
 
 out vec4 fragColor;
@@ -100,66 +108,73 @@ uniform sampler2D normalMap;
 
 vec4 diffuseReflection = vec4(0.0f);
 vec4 specularReflection = vec4(0.0f);
-/*
-vec4[2] ProcessPointLights(in vec3 viewDirection, in vec3 normal)
+
+mat2x4 ProcessPointLights(in vec3 normal)
 {
-    vec4[2] result = {vec4(0.0f), vec4(0.0f)};
+    mat2x4 result = {vec4(0.0f), vec4(0.0f)};
     float roughness = 1.0f;
 
-    for (unsigned int i = 0; i < numPointLights; i++)
+    for (unsigned int i = 0; i < 2; i++)
     {
-        vec3 lightDirection = normalize(pointLights[usedPointLightIndices[i]].position.xyz - position);
+        vec3 lightDirection = normalize(tangentSpacePointLightPositions[i] - tangentFragmentPosition);
         float lightFacingRatio = max(dot(normal, lightDirection), 0.0f);
-        float intensity = pointLights[usedPointLightIndices[i]].intensity / pow(distance(position, pointLights[usedPointLightIndices[i]].position.xyz), 2);
-        vec3 reflectDirection = reflect(lightDirection, normal);
+        float intensity = pointLights[usedPointLightIndices[i]].intensity / pow(distance(tangentFragmentPosition, tangentSpacePointLightPositions[i]), 2);
+        // blinn-phong specular model
+        vec3 blinnDirection = normalize(lightDirection + tangentViewDirection);
 
         result[0] += lightFacingRatio * pointLights[usedPointLightIndices[i]].color * intensity;
-        result[1] += pow(max(dot(viewDirection, reflectDirection), 0.0), 16) * pointLights[usedPointLightIndices[i]].color * intensity;
-    }
-    
-    return result;
-}
-*/
-
-vec4[2] ProcessPointLights(in vec3 viewDirection, in vec3 normal)
-{
-    vec4[2] result = {vec4(0.0f), vec4(0.0f)};
-    float roughness = 1.0f;
-
-    for (unsigned int i = 0; i < numPointLights; i++)
-    {
-        vec3 lightDirection = normalize(tangentSpacePointLights[i] - tangentFragmentPosition);
-        float lightFacingRatio = max(dot(normal, lightDirection), 0.0f);
-        float intensity = pointLights[usedPointLightIndices[i]].intensity / pow(distance(tangentFragmentPosition, tangentSpacePointLights[i]), 2);
-        vec3 reflectDirection = reflect(lightDirection, normal);
-
-        result[0] += lightFacingRatio * pointLights[usedPointLightIndices[i]].color * intensity;
-        result[1] += pow(max(dot(-viewDirection, reflectDirection), 0.0), 16) * pointLights[usedPointLightIndices[i]].color * intensity;
+        result[1] += pow(max(dot(normal, blinnDirection), 0.0), SPECULAR_EXPONENT) * pointLights[usedPointLightIndices[i]].color * intensity;
     }
     
     return result;
 }
 
-vec4[2] ProcessSpotLights(in vec3 viewDirection, in vec3 normal)
+mat2x4 ProcessSpotLights(in vec3 normal)
 {
-    vec4[2] result = {vec4(0.0f), vec4(0.0f)};
+    mat2x4 result = {vec4(0.0f), vec4(0.0f)};
+    const float spreadAngle = 5.0f;
     float roughness = 1.0f;
 
-    for (unsigned int i = 0; i < numPointLights; i++)
+    for (unsigned int i = 0; i < numSpotLights; i++)
     {
-        vec3 lightDirection = normalize(pointLights[usedPointLightIndices[i]].position.xyz - position);
+        vec3 lightDirection = normalize(tangentSpaceSpotLightPositions[i] - tangentFragmentPosition);
         float lightFacingRatio = max(dot(normal, lightDirection), 0.0f);
-        float intensity = pointLights[usedPointLightIndices[i]].intensity / pow(distance(position, pointLights[usedPointLightIndices[i]].position.xyz), 2);
-        vec3 reflectDirection = reflect(lightDirection, -normal);
+        float intensity = pointLights[usedPointLightIndices[i]].intensity / pow(distance(tangentFragmentPosition, tangentSpaceSpotLightPositions[i]), 2);
+        // blinn-phong specular model
+        vec3 blinnDirection = normalize(lightDirection + tangentViewDirection);
 
-        result[0] += lightFacingRatio * pointLights[usedPointLightIndices[i]].color * intensity;
-        result[1] += pow(max(dot(viewDirection, reflectDirection), 0.0), 16) * pointLights[usedPointLightIndices[i]].color * intensity;
+        float theta = dot(lightDirection, normalize(-spotLights[usedSpotLightIndices[i]].orientation.xyz));
+        float innerCutoff = cos(radians(spotLights[usedSpotLightIndices[i]].angle) - (spreadAngle * spotLights[usedSpotLightIndices[i]].sharpness));
+        float outterCutoff = cos(radians(spotLights[usedSpotLightIndices[i]].angle) + (spreadAngle * spotLights[usedSpotLightIndices[i]].sharpness));
+        float epsilon   = innerCutoff - outterCutoff;
+        intensity *= clamp((theta - outterCutoff) / epsilon, 0.0, 1.0); 
+
+        result[0] += lightFacingRatio * spotLights[usedSpotLightIndices[i]].color * intensity;
+        result[1] += pow(max(dot(normal, blinnDirection), 0.0), SPECULAR_EXPONENT) * spotLights[usedSpotLightIndices[i]].color * intensity;
     }
     
     return result;
 }
 
-vec4 ProcessAmbientLights(in vec3 viewDirection, in vec3 normal)
+mat2x4 ProcessDirectionalLights(in vec3 normal)
+{
+    mat2x4 result = {vec4(0.0f), vec4(0.0f)};
+
+    for (unsigned int i = 0; i < directionalLights.length(); i++)
+    {
+        vec3 lightDirection = normalize(tangentSpaceDirectionalLightOrientations[i]);
+        float lightFacingRatio = max(dot(normal, lightDirection), 0.0f);
+        // blinn-phong specular model
+        vec3 blinnDirection = normalize(lightDirection + tangentViewDirection);
+
+        result[0] += lightFacingRatio * directionalLights[i].color * directionalLights[i].intensity;
+        result[1] += pow(max(dot(normal, blinnDirection), 0.0), SPECULAR_EXPONENT) * directionalLights[i].color * directionalLights[i].intensity;
+    }
+
+    return result;
+}
+
+vec4 ProcessAmbientLights(in vec3 normal)
 {
     vec4 result = vec4(0.0f);
 
@@ -173,57 +188,16 @@ vec4 ProcessAmbientLights(in vec3 viewDirection, in vec3 normal)
      return result;
 }
 
-
 void main()
 {
+    vec4 diffuseSample = texture2D(diffuseMap, uv);
+    vec3 normalSample = (texture(normalMap, uv).rgb * 2.0f - 1.0f);
 
-    vec4 diffuseSample;
+    mat2x4 pointLightContributions = ProcessPointLights(normalSample);
+    mat2x4 directionalLightsContributions = ProcessDirectionalLights(normalSample);
 
-    float roughness = 1.0f;
+    diffuseReflection += pointLightContributions[0];// + directionalLightsContributions[0];
+    specularReflection += pointLightContributions[1];// + directionalLightsContributions[1];
 
-    diffuseSample = texture2D(diffuseMap, uv);
-
-    vec3 normalSample = (texture(normalMap, uv).rgb * 2 - 1.0f);
-
-    //normalSample = normalize(TBN * normalSample);
-
-    //vec3 normal = vec3(TBN[0][2], TBN[1][2], TBN[2][2]);
-    vec3 viewDirection = normalize(vec3(view[0][2], view[1][2], view[2][2]));
-    viewDirection = tangentViewPosition;
-    /*
-    vec3 lightDirection = normalize(pointLights[0].position.xyz - position);
-    vec3 reflectDirection = reflect(lightDirection, normal);
-    float lightFacingRatio = max(dot(normal, lightDirection), 0.0f);
-
-    vec3 flashLightLD = normalize(-vec3(view[3][0], view[3][1], view[3][2]) - position);
-    float flashLightTheta = dot(flashLightLD, -viewDirection);
-    float theta = dot(lightDirection, normalize(-spotLights[0].rotation.xyz));
-    float cutOff = cos(radians(12.5f));
-    float outerCutOff = cos(radians(15.0f));
-    float epsilon = cutOff - outerCutOff;
-    float smoothIntensity = clamp((flashLightTheta - outerCutOff) / epsilon, 0.0, 1.0);
-    
-    float intensity = pointLights[0].intensity / pow(distance(position, pointLights[0].position.xyz), 2);
-    */
-    //vec3 diffuse = vec3(0.0f);
-    //vec3 specular = vec3(0.0f);
-
-
-    //vec3 diffuse = color.rgb * pointLights[0].color.rgb * intensity;
-    //vec3 specular = roughness * pow(max(dot(viewDirection, reflectDirection), 0.0), 32) * spotLights[0].color.rgb * intensity;
-    //diffuse *= smoothIntensity;
-    //specular *= smoothIntensity;
-    
-    //vec3 diffuse = directionalLights[0].intensity * max(dot(normal, directionalLights[0].rotation.xyz), 0.0f) * directionalLights[0].color.rgb;
-    //diffuse += ambientLights[0].intensity * ambientLights[0].color.rgb / distance(position, ambientLights[0].position.xyz);
-    
-    //fragColor = color;
-    vec4 pointLightContributions[2] = ProcessPointLights(viewDirection, normalSample);
-
-    diffuseReflection += pointLightContributions[0];
-    specularReflection += pointLightContributions[1];
-    
-    //fragColor = vec4(normal,1);
-    fragColor = diffuseSample * (diffuseReflection + specularReflection);
-    //fragColor = vec4(1.0f);
+    fragColor =  diffuseSample * (diffuseReflection + specularReflection);
 }

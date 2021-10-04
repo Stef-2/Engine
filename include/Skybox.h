@@ -19,7 +19,7 @@ namespace Engine
         Skybox();
 
         void SetShader(const Engine::Shader& shader);
-        void SetTexture(const Engine::Texture& texture);
+        void SetTexture(Engine::Texture& texture);
 
         Engine::Shader& GetShader();
         Engine::Texture& GetTexture();

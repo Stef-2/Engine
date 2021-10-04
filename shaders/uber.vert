@@ -4,9 +4,10 @@
 
 #define MAX_NUM_POINT_LIGHTS_PER_VERTEX 8
 #define MAX_NUM_SPOT_LIGHTS_PER_VERTEX 4
+#define MAX_DIRECTIONAL_LIGHTS_PER_VERTEX 2
 #define MAX_NUM_AMBIENT_LIGHTS_PER_VERTEX 4
 
-#define POINT_LIGHT_CUTOFF_DISTANCE 300
+#define POINT_LIGHT_CUTOFF_DISTANCE 100
 #define SPOT_LIGHT_CUTOFF_DISTANCE 300
 #define AMBIENT_LIGHT_CUTOFF_DISTANCE 1000
 
@@ -27,31 +28,32 @@ struct PointLight {
     vec4 position;
     vec4 color;
     float intensity;
-    float padding1;
-    float padding2;
-    float padding3;
+    float padding[3];
 };
 
 struct SpotLight {
     vec4 position;
-    vec4 rotation;
+    vec4 orientation;
     vec4 color;
     float intensity;
     float angle;
     float sharpness;
+    float padding[1];
 };
 
 struct DirectionalLight {
     vec4 position;
-    vec4 rotation;
+    vec4 orientation;
     vec4 color;
     float intensity;
+    float padding[3];
 };
 
 struct AmbientLight {
     vec4 position;
     vec4 color;
     float intensity;
+    float padding[3];
 };
 
 layout (binding = 0, std140) uniform mvpMatrices
@@ -90,26 +92,31 @@ uniform unsigned int shaderFlags;
 uniform mat4 boneTransformations[100];
 
 // output
-out vertexShaderOutput
+out vertexShaderBasicOutput
 {
     vec3 position;
-    mat3 TBN;
     vec2 uv;
 
     vec3 tangentFragmentPosition;
-    vec3 tangentViewPosition;
-    
+    vec3 tangentViewDirection;
+};
+
+out vertexShaderLightOutput
+{
     flat int numPointLights;
     flat int usedPointLightIndices[MAX_NUM_POINT_LIGHTS_PER_VERTEX];
-    vec3 tangentSpacePointLights[MAX_NUM_POINT_LIGHTS_PER_VERTEX];
+    vec3 tangentSpacePointLightPositions[MAX_NUM_POINT_LIGHTS_PER_VERTEX];
 
     flat int numSpotLights;
     flat int usedSpotLightIndices[MAX_NUM_SPOT_LIGHTS_PER_VERTEX];
-    vec3 tangentSpaceSpotLights[MAX_NUM_SPOT_LIGHTS_PER_VERTEX];
+    vec3 tangentSpaceSpotLightPositions[MAX_NUM_SPOT_LIGHTS_PER_VERTEX];
+    vec3 tangentSpaceSpotLightOrientations[MAX_NUM_SPOT_LIGHTS_PER_VERTEX];
+
+    vec3 tangentSpaceDirectionalLightOrientations[MAX_DIRECTIONAL_LIGHTS_PER_VERTEX];
 
     flat int numAmbientLights;
     flat int usedAmbientLightIndices[MAX_NUM_AMBIENT_LIGHTS_PER_VERTEX];
-    vec3 tangentSpaceAmbientLights[MAX_NUM_AMBIENT_LIGHTS_PER_VERTEX];
+    vec3 tangentSpaceAmbientLightPositions[MAX_NUM_AMBIENT_LIGHTS_PER_VERTEX];
 };
 
 // calculate the final vertex transformation from affecting bones
@@ -139,7 +146,7 @@ mat3 CalculateTBN(in mat4 trans)
     vec3 bitangent = normalize(vec3(transformedModelMatrix * vec4(vertexBitangent, 0.0f)));
     vec3 normal = normalize(vec3(transformedModelMatrix * vec4(vertexNormal, 0.0f)));
     
-    mat3 TBN = transpose(mat3(tangent, bitangent, normal));
+    mat3 TBN = transpose(mat3(tangent, -bitangent, normal));
 
     return TBN;
 }
@@ -148,8 +155,9 @@ mat3 CalculateTBN(in mat4 trans)
 void ProcessPointLights(in vec3 animatedPos)
 {
     numPointLights = 0;
-    const int lightLength = pointLights.length();
+    const int lightLength = pointLights.length() + 1;
 
+    // prefill the used lights stack with -1 in case we need to do sanity checks later on
     for (int i = 0; i < MAX_NUM_POINT_LIGHTS_PER_VERTEX; i++)
         usedPointLightIndices[i] = -1;
 
@@ -159,18 +167,19 @@ void ProcessPointLights(in vec3 animatedPos)
 
         // check if the light actually contributes
         if (lightDistance <= POINT_LIGHT_CUTOFF_DISTANCE) {
+
             // if we haven't rached max, just add it
             if (numPointLights < MAX_NUM_POINT_LIGHTS_PER_VERTEX) {
                 usedPointLightIndices[numPointLights] = i;
                 numPointLights += 1;
             }
-            // if we have reached max, then figure which light we need to replace, if any
+            // if we have reached max, then figure out which light we need to replace, if any
             else {
                 // index of the light to be replaced
                 int index = -1;
                 float maxDelta = 0.0f;
 
-                // go through all lights we have so far, calculate and store the index of the one with the weakest contribution
+                // go through all lights we have so far, calculate and store the index of the one with the weakest contribution among them
                 for (int j = 0; j < MAX_NUM_POINT_LIGHTS_PER_VERTEX; j++) {
                     float delta = lightDistance - distance(pointLights[usedPointLightIndices[j]].position.xyz, animatedPos);
 
@@ -272,15 +281,30 @@ void ProcessAmbientLights(in vec3 animatedPos)
     } 
 }
 
-void ProcessLights(vec3 position)
+void ProcessLights(in vec3 position, in mat3 tbn)
 {
     ProcessPointLights(position);
-    //ProcessSpotLights(position);
-    //ProcessAmbientLights(position);
+    ProcessSpotLights(position);
+    ProcessAmbientLights(position);
+
+    for (int i = 0; i < numPointLights; i++)
+        tangentSpacePointLightPositions[i] = tbn * pointLights[usedPointLightIndices[i]].position.xyz;
+    
+    for (int i = 0; i < numSpotLights; i++) {
+        tangentSpaceSpotLightPositions[i] = tbn * spotLights[usedSpotLightIndices[i]].position.xyz;
+        tangentSpaceSpotLightOrientations[i] = tbn * spotLights[usedSpotLightIndices[i]].orientation.xyz;
+    }
+    
+    for (int i = 0; i < MAX_DIRECTIONAL_LIGHTS_PER_VERTEX; i++)
+        tangentSpaceDirectionalLightOrientations[i] = tbn * directionalLights[i].orientation.xyz;
+
+    for (int i = 0; i < numAmbientLights; i++)
+        tangentSpaceAmbientLightPositions[i] = tbn * ambientLights[usedAmbientLightIndices[i]].position.xyz;
 }
 
 void main()
 {
+    mat3 TBN;
 
     if (shaderFlags == SHADER_ANIMATED)
     {
@@ -291,7 +315,7 @@ void main()
 
         position = animatedPosition.xyz;
         TBN = CalculateTBN(animatedTransform);
-        ProcessLights(animatedPosition.xyz);
+        ProcessLights(animatedPosition.xyz, TBN);
     }
 
     else if (shaderFlags == SHADER_STATIC)
@@ -299,22 +323,10 @@ void main()
         gl_Position =  projection * view * model * vec4(vertexPosition, 1.0f);
         position = (model * vec4(vertexPosition, 1.0f)).xyz;
         TBN = CalculateTBN(mat4(1.0f));
-        ProcessLights(position);
+        ProcessLights(position, TBN);
     }
 
-    // output
     uv = vertexCoordinate;
-    
-    // tangent space output
     tangentFragmentPosition = TBN * position;
-    tangentViewPosition = TBN * vec3(view[0][3], view[1][3], view [2][3]);
-    
-    for (int i = 0; i < numPointLights; i++)
-        tangentSpacePointLights[i] = TBN * pointLights[usedPointLightIndices[i]].position.xyz;
-    /*
-    for (int i = 0; i < numSpotLights; i++)
-        tangentSpaceSpotLights[i] = TBN * spotLights[usedSpotLightIndices[i]].position.xyz;*/
-    /*
-    for (int i = 0; i < numAmbientLights; i++)
-        tangentSpaceAmbientLights[i] = TBN * ambientLights[usedAmbientLightIndices[i]].position.xyz;*/
+    tangentViewDirection = TBN * vec3(view[0][2], view[1][2], view [2][2]);
 }

@@ -37,7 +37,7 @@ bool Engine::Collider::Intersects(Engine::BoundingSphere& first, Engine::Boundin
 
 bool Engine::Collider::Intersects(Engine::BoundingBox& box, Engine::BoundingSphere& sphere)
 {
-    float distance = glm::pow(sphere.radius, 2);
+    double distance = glm::pow(sphere.radius, 2);
 
     // x axis
     if (sphere.center.x < box.mins.x)
@@ -60,7 +60,7 @@ bool Engine::Collider::Intersects(Engine::BoundingBox& box, Engine::BoundingSphe
         if (sphere.center.z > box.maxs.z)
             distance -= glm::pow(sphere.center.z - box.maxs.z, 2);
 
-    return distance > 0;
+    return distance > 0.0;
 }
 
 template<typename T>

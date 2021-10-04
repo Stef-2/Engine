@@ -22,6 +22,13 @@ class Window
         Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share);
         Window(int width, int height, const char* title);
         Window();
+
+        Window(Window&&) = default;
+        Window& operator= (Window&&) = default;
+
+        Window(Window&) = default;
+        Window& operator= (Window&) = default;
+
         ~Window();
 
         GLFWwindow* GetGlWindow();
