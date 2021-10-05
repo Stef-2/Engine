@@ -153,16 +153,13 @@ glm::mat4 Engine::Object::GetTransform()
 {
     // build an identity matrix
     glm::mat4 transform = glm::mat4(1.0f);
-    
-    // build a quaternion out of our euler angles
-    glm::quat quaternion = glm::quat(glm::radians(this->rotation));
 
     // the correct order of transformation is Scale, Rotate, Translate or SRT for short
-    transform = glm::scale(transform, this->scale);
-    transform = glm::translate(transform, this->position);
-    transform = transform * glm::mat4_cast(this->orientation);
+    glm::mat4 scale = glm::scale(transform, this->scale);
+    glm::mat4 rotate = glm::mat4_cast(this->orientation);
+    glm::mat4 translate = glm::translate(transform, this->position);
 
-    return transform;
+    return translate * rotate * scale;
 }
 
 bool Engine::Object::IsMoving()

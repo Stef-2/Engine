@@ -105,6 +105,8 @@ int main()
 
     obj1.GetModel().GetStaticMeshes().at(0).SetMaterial(Engine::Material());
     obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_BaseColor.png"));
+    obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\black.png"));
+    obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\white.png"));
     obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Normal.png"));
     obj1.MoveAbsolute(60.0f, 0.0f, 0.0f);
 
@@ -116,7 +118,20 @@ int main()
     obj2.GetModel().GetAnimatedMeshes().at(0).SetMaterial(Engine::Material());
     obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_diffuse.png"));
     obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_normal.png"));
+    obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_specular.png"));
     //obj2.MoveRelative(30.0f, 0.0f, 30.0f);
+
+    Engine::Actor obj3;
+    obj3.SetShader(uber);
+    obj3.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\sphere.obj")));
+
+    obj3.GetModel().GetStaticMeshes().at(0).SetMaterial(Engine::Material());
+    obj3.GetModel().GetStaticMeshes().at(0).GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\rustediron2_basecolor.png"));
+    obj3.GetModel().GetStaticMeshes().at(0).GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\rustediron2_roughness.png"));
+    obj3.GetModel().GetStaticMeshes().at(0).GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\rustediron2_metallic.png"));
+    obj3.GetModel().GetStaticMeshes().at(0).GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\rustediron2_normal.png"));
+    obj3.MoveAbsolute(-60.0f, 0.0f, 0.0f);
+    obj3.ScaleRelative(10.0f, 10.0f, 10.0f);
 
     /*
     Engine::Actor obj3;
@@ -186,10 +201,10 @@ int main()
     Engine::DirectionalLight dirLight;
     Engine::AmbientLight ambientLight;
 
-    pointLight1.SetIntensity(25000.0f);
+    pointLight1.SetIntensity(50000.0f);
     pointLight1.SetColor({ 0.8f, 0.3f, 0.0f });
-    pointLight2.SetIntensity(25000.0f);
-    pointLight2.SetColor({ 0.0f, 0.2f, 0.8f });
+    pointLight2.SetIntensity(50000.0f);
+    pointLight2.SetColor({ 1.0f, 1.0f, 1.0f });
     //pointLight3.SetIntensity(50000.0f);
     //pointLight4.SetIntensity(50000.0f);
     //pointLight5.SetIntensity(50000.0f);
@@ -201,9 +216,9 @@ int main()
     
     spotLight.SetIntensity(50000.0f);
     
-    dirLight.SetIntensity(1.0f);
+    dirLight.SetIntensity(25.0f);
     dirLight.SetOrientation({ 0.0f, 1.0f, 0.0f });
-    dirLight.SetColor({ 0.7f, 0.7f, 1.0f });
+    dirLight.SetColor({ 1.0f, 0.0f, 0.0f });
     ambientLight.SetIntensity(50.0f);
 
 
@@ -257,6 +272,7 @@ int main()
         }
 
         obj1.RotateRelative(0.0f, 15.0f * deltaTime, 0.0f);
+        obj3.RotateRelative(0.0f, 15.0f * deltaTime, 0.0f);
         //obj2.MoveRelative(0.2f, 0.0f, 0.0f);
         //spotLight.RotateRelative(0.0f, 1.0f * deltaTime, 0.0f);
         engine.GetAnimator().UpdateAnimations();
@@ -275,6 +291,7 @@ int main()
         //engine.GetRenderer().Render(camera, pointLight5);
 
         engine.GetRenderer().Render(camera, obj1);
+        engine.GetRenderer().Render(camera, obj3);
 
         //engine.GetRenderer().Render(camera, obj1.GetModel().GetBoundingBox());
         //engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());
