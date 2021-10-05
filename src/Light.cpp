@@ -207,14 +207,7 @@ void Engine::PointLight::UpdateLights()
 			pointLights.push_back(ToVec4Allignement(*this->lights.at(i)));
 		
 		// bind and refill the buffer with the expanded light vector
-		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::POINT_LIGHTS));
-
-		//glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::POINT_LIGHTS),
-			//(pointLights.size()) * sizeof(PointLightData), &pointLights, GL_DYNAMIC_STORAGE_BIT);
 		glNamedBufferData(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::POINT_LIGHTS), (pointLights.size()) * sizeof(PointLightData), &pointLights, GL_DYNAMIC_DRAW);
-		//glBufferStorage(GL_SHADER_STORAGE_BUFFER, pointLights.size() * sizeof(PointLightData), &pointLights, GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT);
-
-		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
 }
 
@@ -346,12 +339,8 @@ void Engine::SpotLight::UpdateLights()
 			spotLights.push_back(ToVec4Allignement(*this->lights.at(i)));
 
 		// bind and refill the buffer with the expanded light vector
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::SPOT_LIGHTS));
-
-		glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::SPOT_LIGHTS),
-			this->lights.size() * sizeof(SpotLightData), &spotLights[0], GL_DYNAMIC_STORAGE_BIT);
-
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		glNamedBufferData(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::SPOT_LIGHTS),
+			this->lights.size() * sizeof(SpotLightData), &spotLights[0], GL_DYNAMIC_DRAW);
 	}
 }
 
@@ -440,7 +429,7 @@ void Engine::DirectionalLight::SetOrientation(glm::vec3 orientation)
 void Engine::DirectionalLight::UpdateLight()
 {
 	// GLSL forces a 4x4 byte allignement in data structures
-		// we need to convert our vec3s into vec4s and temporarily make an actual data object to be passed to the shader
+	// we need to convert our vec3s into vec4s and temporarily make an actual data object to be passed to the shader
 
 	struct DirectionalLightData
 	{
@@ -499,12 +488,8 @@ void Engine::DirectionalLight::UpdateLights()
 			directionalLights.push_back(ToVec4Allignement(*this->lights.at(i)));
 
 		// bind and refill the buffer with the expanded light vector
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::DIRECTIONAL_LIGHTS));
-
-		glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::DIRECTIONAL_LIGHTS),
-			(this->lights.size()) * sizeof(DirectionalLightData), &directionalLights[0], GL_DYNAMIC_STORAGE_BIT);
-
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		glNamedBufferData(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::DIRECTIONAL_LIGHTS),
+			(this->lights.size()) * sizeof(DirectionalLightData), &directionalLights[0], GL_DYNAMIC_DRAW);
 	}
 }
 
@@ -621,11 +606,7 @@ void Engine::AmbientLight::UpdateLights()
 			ambientLights.push_back(ToVec4Allignement(*this->lights.at(i)));
 
 		// bind and refill the buffer with the expanded light vector
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::AMBIENT_LIGHTS));
-
-		glNamedBufferStorage(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::AMBIENT_LIGHTS),
-			this->lights.size() * sizeof(AmbientLightData), &ambientLights[0], GL_DYNAMIC_STORAGE_BIT);
-
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		glNamedBufferData(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::AMBIENT_LIGHTS),
+			this->lights.size() * sizeof(AmbientLightData), &ambientLights[0], GL_DYNAMIC_DRAW);
 	}
 }

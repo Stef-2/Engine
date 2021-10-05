@@ -208,5 +208,8 @@
     <None Include="shaders\uber.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="shaders\uber.geom">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

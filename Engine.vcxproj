@@ -221,6 +221,7 @@
     <None Include="shaders\static.frag" />
     <None Include="shaders\static.vert" />
     <None Include="shaders\uber.frag" />
+    <None Include="shaders\uber.geom" />
     <None Include="shaders\uber.vert" />
     <None Include="shaders\wireframe.frag" />
     <None Include="shaders\wireframe.vert" />

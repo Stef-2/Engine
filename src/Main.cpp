@@ -18,10 +18,25 @@ int main()
     engine.SetWindow(window);
 
     Engine::Object::SetActiveObject(camera);
-    camera.Setup(1.0f, engine.GetWindow().GetAspectRatio(), 0.1f, 100000.0f, 45.0f);
+    camera.Setup(1.0f, engine.GetWindow().GetAspectRatio(), 0.1f, 10000, 45.0f);
     camera.SetUpDirection(glm::vec3(0.0f, 1.0f, 0.0f));
     Engine::InitializeCallbacks(&engine);
+    /*
+    float m22 = -camera.GetProjection()[2][2];
+    float m32 = -camera.GetProjection()[3][2];
 
+    float far = ((2.0f * m32) / (2.0f * m22 - 2.0f));
+    float near = ((m22 - 1.0f) * far) / (m22 + 1.0);
+    
+    std::cout << "near: " << near << ", far: " << far << std::endl;
+    exit(0);
+    */
+    /*
+    int d;
+    glGetIntegerv(GL_MAX_GEOMETRY_INPUT_COMPONENTS, &d);
+    std::cout << d << std::endl;
+    exit(0);
+    */
     // -----------------------------------------------
     // Engine::OcTree<int> octree(3);;
     // octree.child.mins = { -64.0f, -64.0f, -64.0f };
@@ -71,7 +86,8 @@ int main()
 
     */
     Engine::Shader uber(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.vert"),
-        engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.frag"));
+                        engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.geom"),
+                        engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.frag"));
 
     //Engine::Actor obj1;
     //obj1.SetShader(basic);
@@ -171,9 +187,9 @@ int main()
     Engine::AmbientLight ambientLight;
 
     pointLight1.SetIntensity(25000.0f);
-    pointLight1.SetColor({ 1.0f, 0.0f, 0.0f });
+    pointLight1.SetColor({ 0.8f, 0.3f, 0.0f });
     pointLight2.SetIntensity(25000.0f);
-    pointLight2.SetColor({ 0.0f, 0.0f, 1.0f });
+    pointLight2.SetColor({ 0.0f, 0.2f, 0.8f });
     //pointLight3.SetIntensity(50000.0f);
     //pointLight4.SetIntensity(50000.0f);
     //pointLight5.SetIntensity(50000.0f);
@@ -264,7 +280,7 @@ int main()
         //engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());
         // camera.Draw(&obj1);
         // camera.Draw(&obj2);
-        //engine.GetRenderer().Render(camera, skyBox);
+        engine.GetRenderer().Render(camera, skyBox);
 
         engine.GetWindow().SetTitle(std::string("Frame time: " + std::to_string(frameMs) + " ms - FPS: " + std::to_string(fps) +
             " - Position: X: " + std::to_string(camera.GetPosition().x) + " - Y: " + std::to_string(camera.GetPosition().y) + " - Z: " + std::to_string(camera.GetPosition().z) +

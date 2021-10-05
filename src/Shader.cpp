@@ -3,6 +3,7 @@
 Engine::Shader* Engine::Shader::currentShader = {};
 
 unsigned int Engine::Shader::mvpBlock = -1;
+unsigned int Engine::Shader::materialParametersBlock = -1;
 unsigned int Engine::Shader::pointLightsBLock = -1;
 unsigned int Engine::Shader::spotLightsBLock = -1;
 unsigned int Engine::Shader::directionalLightsBLock = -1;
@@ -12,6 +13,7 @@ Engine::Shader::Shader()
 {
     this->compileSuccess = 0;
     this->vertexShader = 0;
+    this->geometryShader = 0;
     this->fragmentShader = 0;
     this->programID = 0;
     this->shaderFlags = Engine::Shader::ShaderFlag(0u);
@@ -32,6 +34,7 @@ Engine::Shader::Shader(std::string vertexShader, std::string fragmentShader)
 {
     this->compileSuccess = 0;
     this->vertexShader = 0;
+    this->geometryShader = 0;
     this->fragmentShader = 0;
     this->programID = 0;
     this->shaderFlags = Engine::Shader::ShaderFlag(0u);
@@ -48,6 +51,33 @@ Engine::Shader::Shader(std::string vertexShader, std::string fragmentShader)
     this->vertexBoneWeights = {};
 
     this->compileSuccess = this->SetVertexShader(vertexShader);
+    this->compileSuccess = this->SetFragmentShader(fragmentShader);
+
+    this->compileSuccess = this->CompileProgram();
+}
+
+Engine::Shader::Shader(std::string vertexShader, std::string geometryShader, std::string fragmentShader)
+{
+    this->compileSuccess = 0;
+    this->vertexShader = 0;
+    this->geometryShader = 0;
+    this->fragmentShader = 0;
+    this->programID = 0;
+    this->shaderFlags = Engine::Shader::ShaderFlag(0u);
+
+    this->modelTransformLocation = {};
+    this->viewTransformLocation = {};
+    this->projectionTransformLocation = {};
+    this->BoneTransformsLocation = {};
+
+    this->vertexPositionLocation = {};
+    this->vertexNormalLocation = {};
+    this->vertexUvLocation = {};
+    this->vertexBoneIdLocation = {};
+    this->vertexBoneWeights = {};
+
+    this->compileSuccess = this->SetVertexShader(vertexShader);
+    this->compileSuccess = this->SetGeometryShader(geometryShader);
     this->compileSuccess = this->SetFragmentShader(fragmentShader);
 
     this->compileSuccess = this->CompileProgram();
@@ -81,6 +111,7 @@ int Engine::Shader::SetVertexShader(std::string filePath)
     glCompileShader(vertexShader);
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
     this->vertexShader = vertexShader;
+
     if(!success) {
         glGetShaderInfoLog(vertexShader, 512, NULL, this->vsLog);
         std::cerr << filePath << " - vertex shader compilation failed: " << std::endl << this->vsLog << std::endl;
@@ -88,10 +119,51 @@ int Engine::Shader::SetVertexShader(std::string filePath)
         // delete data;
         return 0;
     }
-    else
-    {
+    else {
         std::cout << filePath << " vertex shader compiled successfully" << std::endl;
         return vertexShader;
+    }
+}
+
+int Engine::Shader::SetGeometryShader(std::string filePath)
+{
+    std::string code;
+    char c;
+
+    int success = false;
+    int length = 0;
+    // char* data;
+
+    // vertex shader read
+    std::ifstream reader(filePath);
+    while (!reader.eof())
+    {
+        reader.read(&c, 1);
+        code += c;
+    }
+
+    reader.close();
+    const char* data = code.c_str();
+    length = code.size();
+
+    // vertex shader compile and bind
+    unsigned int geometryShader;
+    geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+    glShaderSource(geometryShader, 1, &data, NULL);
+    glCompileShader(geometryShader);
+    glGetShaderiv(geometryShader, GL_COMPILE_STATUS, &success);
+    this->geometryShader = geometryShader;
+
+    if (!success) {
+        glGetShaderInfoLog(geometryShader, 512, NULL, this->vsLog);
+        std::cerr << filePath << " - geometry shader compilation failed: " << std::endl << this->gsLog << std::endl;
+        std::cerr << "geometry shader: " << std::endl << data << ", Length: " << length << std::endl;
+        // delete data;
+        return 0;
+    }
+    else {
+        std::cout << filePath << " geometry shader compiled successfully" << std::endl;
+        return geometryShader;
     }
 }
 
@@ -120,6 +192,7 @@ int Engine::Shader::SetFragmentShader(std::string filePath)
     glCompileShader(fragmentShader);
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     this->fragmentShader = fragmentShader;
+
     if(!success) {
         glGetShaderInfoLog(fragmentShader, 512, NULL, this->fsLog);
         std::cerr << filePath << " - fragment shader compilation failed: " << std::endl << this->fsLog << std::endl;
@@ -127,8 +200,7 @@ int Engine::Shader::SetFragmentShader(std::string filePath)
         delete data;
         return 0;
     }
-    else
-    {
+    else {
         std::cout << filePath << " fragment shader compiled successfully" << std::endl;
         return fragmentShader;
     }
@@ -158,6 +230,10 @@ int Engine::Shader::CompileProgram()
     // compile and link
     shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, this->vertexShader);
+
+    if (this->geometryShader)
+        glAttachShader(shaderProgram, this->geometryShader);
+
     glAttachShader(shaderProgram, this->fragmentShader);
     glLinkProgram(shaderProgram);
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
@@ -179,30 +255,37 @@ int Engine::Shader::CompileProgram()
         this->programID = shaderProgram;
         std::cout << "shader program compiled and linked successfully" << std::endl;
 
-        // get and bind the location of shader attributes
+        // get and bind the location of shader attributes and uniforms
         // we can use these later without having to bother the gfx card since most glGetX() functions are very slow
-        this->modelTransformLocation = glGetUniformLocation(this->programID, "model");
-        
-        this->viewTransformLocation = glGetUniformLocation(this->programID, "view");
 
-        this->projectionTransformLocation = glGetUniformLocation(this->programID, "projection");
-
-        this->BoneTransformsLocation = glGetUniformLocation(this->programID, "boneTransformations");
-
+        // basic vertex shader input
         this->vertexPositionLocation = glGetAttribLocation(this->programID, "vertexPosition");
-
         this->vertexNormalLocation = glGetAttribLocation(this->programID, "vertexNormal");
-
         this->vertexUvLocation = glGetAttribLocation(this->programID, "vertexCoordinate");
 
-        this->vertexBoneIdLocation = glGetAttribLocation(this->programID, "boneIDs");
+        // basic MVP matrices with separate input
+        this->modelTransformLocation = glGetUniformLocation(this->programID, "model");
+        this->viewTransformLocation = glGetUniformLocation(this->programID, "view");
+        this->projectionTransformLocation = glGetUniformLocation(this->programID, "projection");
 
+        // extended vertex shader inputs for animated meshes
+        this->BoneTransformsLocation = glGetUniformLocation(this->programID, "boneTransformations");
+        this->vertexBoneIdLocation = glGetAttribLocation(this->programID, "boneIDs");
         this->vertexBoneWeights = glGetAttribLocation(this->programID, "boneWeights");
 
+        // shader flags for uber shader
         this->shaderFlagsLocation = glGetUniformLocation(this->programID, "shaderFlags");
 
+        // uniform samplers for material textures
+        this->diffuseMapLocation = glGetUniformLocation(this->programID, "diffuseMap");
+        this->roughnessMapLocation = glGetUniformLocation(this->programID, "roughnessMap");
+        this->metallicMapLocation = glGetUniformLocation(this->programID, "metallicMap");
+        this->specularMapLocation = glGetUniformLocation(this->programID, "specularMap");
+        this->normalMapLocation = glGetUniformLocation(this->programID, "normalMap");
+        this->specularMapLocation = glGetUniformLocation(this->programID, "alphaMap");
+
         // generate and bind uniform buffer objects and shader storage buffer objects if they're present in the shader(s)
-        // this initialization needs to happen only once for each one of these
+        // this initialization needs to happen only once for each one of these as they are global in GPU memory
         
         // model-view-projection (MVP) matrices
         if (int(glGetUniformBlockIndex(shaderProgram, "mvpMatrices")) >= 0 &&
@@ -212,6 +295,28 @@ int Engine::Shader::CompileProgram()
             glBindBufferBase(GL_UNIFORM_BUFFER, 0, this->mvpBlock);
             glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
             
+        }
+
+        // material parameters
+        if (int(glGetUniformBlockIndex(shaderProgram, "materialParameters")) >= 0 &&
+            !(this->materialParametersBlock >= 0 && this->materialParametersBlock < unsigned(-1)))
+        {
+            // struct that matches the shader material parameters uniform buffer object
+            // to be used as sizeof() and offsetof() reference in data alignment and size matching
+            struct MaterialParametersReference
+            {
+                glm::vec3 diffuse;
+                float roughness;
+                float metallic;
+
+                float specular;
+                glm::vec3 normal;
+                float alpha;
+            };
+
+            glGenBuffers(1, &this->materialParametersBlock);
+            glBindBufferBase(GL_UNIFORM_BUFFER, 5, this->materialParametersBlock);
+            glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(MaterialParametersReference), NULL, GL_DYNAMIC_DRAW);
         }
 
         // point lights
@@ -284,6 +389,24 @@ unsigned int Engine::Shader::GetAttributeLocation(Engine::Shader::ShaderAttribut
     case Engine::Shader::ShaderAttribute::SHADER_PARAMETERS:
         return this->shaderFlagsLocation;
 
+    case Engine::Shader::ShaderAttribute::DIFFUSE_MAP:
+        return this->diffuseMapLocation;
+
+    case Engine::Shader::ShaderAttribute::ROUGHNESS_MAP:
+        return this->roughnessMapLocation;
+
+    case Engine::Shader::ShaderAttribute::METALLIC_MAP:
+        return this->metallicMapLocation;
+
+    case Engine::Shader::ShaderAttribute::SPECULAR_MAP:
+        return this->specularMapLocation;
+
+    case Engine::Shader::ShaderAttribute::NORMAL_MAP:
+        return this->normalMapLocation;
+
+    case Engine::Shader::ShaderAttribute::ALPHA_MAP:
+        return this->alphaMapLocation;
+
     default:
         break;
     }
@@ -318,6 +441,9 @@ unsigned int Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer buff
     case Engine::Shader::UniformBuffer::AMBIENT_LIGHTS:
         return Engine::Shader::ambientLightsBLock;
 
+    case Engine::Shader::UniformBuffer::MATERIAL_PARAMETERS:
+        return Engine::Shader::materialParametersBlock;
+
     default:
         break;
     }
@@ -344,10 +470,12 @@ Engine::Shader& Engine::Shader::GetCurrentShader()
 std::string Engine::Shader::GetLogData()
 {
     std::string vs(this->vsLog);
+    std::string gs(this->gsLog);
     std::string fg(this->fsLog);
     std::string sp(this->spLog);
 
     std::string log = "vertex Shader log: \n" + vs;
+    log += "\n geometry shader log: \n" + gs;
     log += "\n fragment Shader log: \n" + fg;
     log += "\n shader program log: \n" + sp;
 
@@ -357,6 +485,11 @@ std::string Engine::Shader::GetLogData()
 unsigned int Engine::Shader::GetVertexShader()
 {
     return this->vertexShader;
+}
+
+unsigned int Engine::Shader::GetGeometryShader()
+{
+    return this->geometryShader;
 }
 
 unsigned int Engine::Shader::GetFragmentShader()

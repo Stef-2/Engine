@@ -12,7 +12,6 @@
 
 namespace Engine
 {
-
     // Renderer class, subsystem of Engine (Motor) class
     // wraps general OpenGL settings, options and objects
     // prepares and performs rendering operations
@@ -49,9 +48,9 @@ namespace Engine
         int colorDepth;
     };
 
-
-
+    // ==========================================================================
     // bounding volumes are templated types, we have to define their methods here
+    // ==========================================================================
 
     template<typename T>
     void Engine::Renderer::RecursiveRender(const Engine::Camera& camera, const Engine::BoundingNode<T>& node)

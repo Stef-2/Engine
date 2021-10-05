@@ -1,7 +1,6 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-
 #ifndef __glad_h_
 #include "glad/glad.h"
 #endif
@@ -36,7 +35,13 @@ namespace Engine
                 VIEW_LOCATION,
                 PROJECTION_LOCATION,
                 BONE_TRANSFORMATIONS,
-                SHADER_PARAMETERS
+                SHADER_PARAMETERS,
+                DIFFUSE_MAP,
+                ROUGHNESS_MAP,
+                METALLIC_MAP,
+                SPECULAR_MAP,
+                NORMAL_MAP,
+                ALPHA_MAP
             };
 
             // enumerator for different uniform or shader storage buffer objects
@@ -46,7 +51,8 @@ namespace Engine
                 POINT_LIGHTS,
                 SPOT_LIGHTS,
                 DIRECTIONAL_LIGHTS,
-                AMBIENT_LIGHTS
+                AMBIENT_LIGHTS,
+                MATERIAL_PARAMETERS
             };
 
             // enumerator for different kinds of shader flags
@@ -62,6 +68,7 @@ namespace Engine
 
             Shader();
             Shader(std::string vertexShader, std::string fragmentShader);
+            Shader(std::string vertexShader, std::string geometryShader, std::string fragmentShader);
 
             // Shader(const Shader& other);
             // Shader& operator=(const Shader& other);
@@ -72,6 +79,7 @@ namespace Engine
             static Shader& GetCurrentShader();
 
             unsigned int GetVertexShader();
+            unsigned int GetGeometryShader();
             unsigned int GetFragmentShader();
             unsigned int GetProgramID();
 
@@ -87,6 +95,7 @@ namespace Engine
 
             // load vertex and fragment shaders from files
             int SetVertexShader(std::string filePath);
+            int SetGeometryShader(std::string filePath);
             int SetFragmentShader(std::string filePath);
 
             // compiles vertex and fragment shaders into a program and binds it
@@ -102,6 +111,8 @@ namespace Engine
             int compileSuccess;
             // vertex shader compile log
             char vsLog[512];
+            // geometry shader compile log
+            char gsLog[512];
             // fragment shader compile log
             char fsLog[512];
             // shader program compile log
@@ -109,6 +120,7 @@ namespace Engine
 
             // handles for the shaders and program themselves
             unsigned int vertexShader;
+            unsigned int geometryShader;
             unsigned int fragmentShader;
             unsigned int programID;
 
@@ -125,9 +137,16 @@ namespace Engine
             unsigned int projectionTransformLocation;
             unsigned int BoneTransformsLocation;
             unsigned int shaderFlagsLocation;
+            unsigned int diffuseMapLocation;
+            unsigned int roughnessMapLocation;
+            unsigned int metallicMapLocation;
+            unsigned int specularMapLocation;
+            unsigned int normalMapLocation;
+            unsigned int alphaMapLocation;
 
             // shader block locations
             static unsigned int mvpBlock;
+            static unsigned int materialParametersBlock;
             static unsigned int pointLightsBLock;
             static unsigned int spotLightsBLock;
             static unsigned int directionalLightsBLock;

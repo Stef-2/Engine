@@ -2,12 +2,12 @@
 
 #define MAX_BONES_PER_VERTEX 4
 
-#define MAX_NUM_POINT_LIGHTS_PER_VERTEX 8
-#define MAX_NUM_SPOT_LIGHTS_PER_VERTEX 4
+#define MAX_NUM_POINT_LIGHTS_PER_VERTEX 4
+#define MAX_NUM_SPOT_LIGHTS_PER_VERTEX 2
 #define MAX_DIRECTIONAL_LIGHTS_PER_VERTEX 2
-#define MAX_NUM_AMBIENT_LIGHTS_PER_VERTEX 4
+#define MAX_NUM_AMBIENT_LIGHTS_PER_VERTEX 2
 
-#define POINT_LIGHT_CUTOFF_DISTANCE 100
+#define POINT_LIGHT_CUTOFF_DISTANCE 300
 #define SPOT_LIGHT_CUTOFF_DISTANCE 300
 #define AMBIENT_LIGHT_CUTOFF_DISTANCE 1000
 
@@ -146,6 +146,7 @@ mat3 CalculateTBN(in mat4 trans)
     vec3 bitangent = normalize(vec3(transformedModelMatrix * vec4(vertexBitangent, 0.0f)));
     vec3 normal = normalize(vec3(transformedModelMatrix * vec4(vertexNormal, 0.0f)));
     
+    // inverse aka transpose because we'll be using this to transform other vectors into tangent space
     mat3 TBN = transpose(mat3(tangent, -bitangent, normal));
 
     return TBN;
@@ -155,7 +156,7 @@ mat3 CalculateTBN(in mat4 trans)
 void ProcessPointLights(in vec3 animatedPos)
 {
     numPointLights = 0;
-    const int lightLength = pointLights.length() + 1;
+    const int lightLength = pointLights.length();
 
     // prefill the used lights stack with -1 in case we need to do sanity checks later on
     for (int i = 0; i < MAX_NUM_POINT_LIGHTS_PER_VERTEX; i++)

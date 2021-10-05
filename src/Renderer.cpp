@@ -65,6 +65,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
 {
     actor.GetShader().Activate();
 
+    // find the locations of uniform variables in the shader and assign transform matrices to them
     glBindBuffer(GL_UNIFORM_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::MVP_MATRICES));
 
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(actor.GetTransform()));
@@ -72,13 +73,6 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(camera.GetProjection()));
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    // find the locations of uniform variables in the shader and assign transform matrices to them
-    glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(actor.GetTransform()));
-    
-    glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetView()));
-
-    glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
 
     actor.GetShader().SetShaderFlag(Engine::Shader::ShaderFlag::STATIC);
 
@@ -88,14 +82,8 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
         // bind the vertex array buffer
         glBindVertexArray(actor.GetModel().GetStaticMeshes().at(i).GetVAO());
 
-        // bind the corresponding texture
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, actor.GetModel().GetStaticMeshes().at(i).GetMaterial().GetDiffuseMap().GetTextureID());
-        glUniform1i(glGetUniformLocation(actor.GetShader().GetProgramID(), "diffuseMap"), 0);
-
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, actor.GetModel().GetStaticMeshes().at(i).GetMaterial().GetNormalMap().GetTextureID());
-        glUniform1i(glGetUniformLocation(actor.GetShader().GetProgramID(), "normalMap"), 1);
+        // bind the corresponding texture(s)
+        actor.GetModel().GetStaticMeshes().at(i).GetMaterial().Activate();
         
         // render
         glDrawElements(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i).GetIndices().size(), GL_UNSIGNED_INT, 0);
@@ -106,6 +94,7 @@ void Engine::Renderer::RenderAnimated(const Engine::Camera& camera, Engine::Acto
 {
     actor.GetShader().Activate();
 
+    // find the locations of uniform variables in the shader and assign transform matrices to them
     glBindBuffer(GL_UNIFORM_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::MVP_MATRICES));
 
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(actor.GetTransform()));
@@ -113,13 +102,6 @@ void Engine::Renderer::RenderAnimated(const Engine::Camera& camera, Engine::Acto
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(camera.GetProjection()));
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    // find the locations of uniform variables in the shader and assign transform matrices to them
-    glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(actor.GetTransform()));
-
-    glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetView()));
-
-    glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
 
     actor.GetShader().SetShaderFlag(Engine::Shader::ShaderFlag::ANIMATED);
 
@@ -143,14 +125,8 @@ void Engine::Renderer::RenderAnimated(const Engine::Camera& camera, Engine::Acto
         // bind the vertex array buffer
         glBindVertexArray(actor.GetModel().GetAnimatedMeshes().at(i).GetVAO());
 
-        // bind the corresponding texture
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, actor.GetModel().GetAnimatedMeshes().at(i).GetMaterial().GetDiffuseMap().GetTextureID());
-        glUniform1i(glGetUniformLocation(actor.GetShader().GetProgramID(), "diffuseMap"), 0);
-
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, actor.GetModel().GetAnimatedMeshes().at(i).GetMaterial().GetNormalMap().GetTextureID());
-        glUniform1i(glGetUniformLocation(actor.GetShader().GetProgramID(), "normalMap"), 1);
+        // bind the corresponding texture(s)
+        actor.GetModel().GetAnimatedMeshes().at(i).GetMaterial().Activate();
 
         // render
         glDrawElements(GL_TRIANGLES, actor.GetModel().GetAnimatedMeshes().at(i).GetIndices().size(), GL_UNSIGNED_INT, 0);
