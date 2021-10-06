@@ -113,15 +113,17 @@ uniform sampler2D specularMap;
 uniform sampler2D normalMap;
 uniform sampler2D alphaMap;
 
+uniform samplerCube cubeMap;
+
 layout (binding = 5, std140) uniform materialParameters
 {
-    vec3 diffuse;
-	float roughness;
-	float metallic;
+    vec3 diffuseMultiplier;
+	float roughnessMultiplier;
+	float metallicMultiplier;
 
-    float specular;
-    vec3 normal;
-	float alpha;
+    float specularMultiplier;
+    vec3 normalMultiplier;
+	float alphaMultiplier;
 };
 
 // final diffuse and specular output
@@ -131,6 +133,7 @@ vec4 specularReflection = vec4(0.0f);
 vec3 lightOutput = vec3(0.0f);
 
 const float pi = 3.14159265359;
+const float gamma = 2.2f;
 const vec3 F0 = vec3(0.4f);
 
 // ================================== PBR related functions =======================================
@@ -140,7 +143,7 @@ float GGXDistribution(vec3 normal, vec3 blinnDirection, float roughness)
 {
     // apparently manual multiplication for small exponents (<9) beats pow()
     float facetRoughness = roughness * roughness * roughness * roughness;
-    float ligtFacingRatio = max(dot(normal, blinnDirection), 0.0);
+    float ligtFacingRatio = max(dot(normal, blinnDirection), 0.0f);
     ligtFacingRatio = ligtFacingRatio * ligtFacingRatio;
 
     float denominator = (ligtFacingRatio * (facetRoughness - 1.0f) + 1.0f);
@@ -152,9 +155,9 @@ float GGXDistribution(vec3 normal, vec3 blinnDirection, float roughness)
 // Schlick-Beckmann geometry function for approximating GGX distribution
 float SchlickBeckmannGGX(float phongDirection, float roughness)
 {
-    float facetRoughness = (roughness + 1.0f) * (roughness + 1.0f) / 8.0f;
+    float facetRoughness = ((roughness + 1.0f) * (roughness + 1.0f)) / 8.0f;
 
-    float denominator = phongDirection * (1.0 - facetRoughness) + facetRoughness;
+    float denominator = phongDirection * (1.0f - facetRoughness) + facetRoughness;
 
     return phongDirection / denominator;
 }
@@ -162,8 +165,8 @@ float SchlickBeckmannGGX(float phongDirection, float roughness)
 // Smith geometry function for approximating GGX distribution
 float SmithGeometryGGXApproximation(vec3 normal, vec3 viewDirection, vec3 lightDirection, float roughness)
 {
-    float phongDirection = max(dot(normal, viewDirection), 0.0);
-    float reflectDirection = max(dot(normal, lightDirection), 0.0);
+    float phongDirection = max(dot(normal, viewDirection), 0.0f);
+    float reflectDirection = max(dot(normal, lightDirection), 0.0f);
     float ggxDistribution1 = SchlickBeckmannGGX(phongDirection, roughness);
     float ggxDistribution2 = SchlickBeckmannGGX(reflectDirection, roughness);
 
@@ -173,7 +176,7 @@ float SmithGeometryGGXApproximation(vec3 normal, vec3 viewDirection, vec3 lightD
 // Shlick-Beckmann approximation of the Fresnel function
 vec3 ShlickBeckmannFresnelFunction(float theta, vec3 F0)
 {
-    return F0 + (1.0 - F0) * pow(clamp(1.0 - theta, 0.0, 1.0), 5.0);
+    return F0 + (1.0f - F0) * pow(clamp(1.0f - theta, 0.0f, 1.0f), 5.0f);
 }
 
 // ================================================================================================
@@ -198,7 +201,7 @@ mat2x4 ProcessPointLights(in vec3 normal)
     return result;
 }
 */
-void ProcessPointLights(in vec3 diffuse, in float roughness, in vec3 metallic, in vec3 normal)
+void ProcessPointLights(in vec3 diffuse, in float roughness, in vec3 metallic, in vec3 normal, in vec3 skybox)
 {
     vec3 fresnelZero = mix(F0, diffuse, metallic);
     
@@ -208,7 +211,8 @@ void ProcessPointLights(in vec3 diffuse, in float roughness, in vec3 metallic, i
         // ratio that describes how much this fragment is normal to the light
         float lightFacingRatio = max(dot(normal, lightDirection), 0.0f);
         // light intensity at this fragment's position, following the inverse square intensity decay law
-        float intensity = pointLights[usedPointLightIndices[i]].intensity / pow(distance(tangentFragmentPosition, tangentSpacePointLightPositions[i]), 2);
+        float distance = distance(tangentFragmentPosition, tangentSpacePointLightPositions[i]);
+        float intensity = pointLights[usedPointLightIndices[i]].intensity / (distance * distance);
         // blinn-phong specular model
         vec3 blinnDirection = normalize(lightDirection + tangentViewDirection);
 
@@ -218,7 +222,7 @@ void ProcessPointLights(in vec3 diffuse, in float roughness, in vec3 metallic, i
         vec3 fresnelFunction = ShlickBeckmannFresnelFunction(clamp(dot(blinnDirection, tangentViewDirection), 0.0f, 1.0f), fresnelZero);
 
         vec3 numerator = normalDistributionFunction * geometryFunction * fresnelFunction; 
-        float denominator = 4 * max(dot(normal, tangentViewDirection), 0.0) * max(dot(normal, lightDirection), 0.0f) + 0.0001f;
+        float denominator = 4.0f * max(dot(normal, tangentViewDirection), 0.0) * max(dot(normal, lightDirection), 0.0f) + 0.0001f;
         vec3 specular = numerator / denominator;
 
         vec3 specularContribution = fresnelFunction;
@@ -228,6 +232,8 @@ void ProcessPointLights(in vec3 diffuse, in float roughness, in vec3 metallic, i
 
         lightOutput += (diffuseContribution * diffuse / pi + specular) * (intensity * pointLights[usedPointLightIndices[i]].color.rgb) * lightFacingRatio;
     }
+
+    lightOutput += skybox * (1 - roughness);
 }
 
 mat2x4 ProcessSpotLights(in vec3 normal)
@@ -259,6 +265,8 @@ mat2x4 ProcessSpotLights(in vec3 normal)
 
 void ProcessDirectionalLights(in vec3 diffuse, in float roughness, in float metallic, in vec3 normal)
 {   
+    vec3 fresnelZero = mix(F0, diffuse, metallic);
+    
     for (unsigned int i = 0; i < directionalLights.length(); i++)
     {
         vec3 lightDirection = normalize(tangentSpaceDirectionalLightOrientations[i]);
@@ -268,9 +276,9 @@ void ProcessDirectionalLights(in vec3 diffuse, in float roughness, in float meta
         vec3 blinnDirection = normalize(lightDirection + tangentViewDirection);
 
         // PBR nonsense, god knows how any of this works
-        float normalDistributionFunction = GGXDistribution(normal, blinnDirection, roughness);   
+        float normalDistributionFunction = GGXDistribution(normal, blinnDirection, roughness);
         float geometryFunction = SmithGeometryGGXApproximation(normal, tangentViewDirection, lightDirection, roughness);      
-        vec3 fresnelFunction = ShlickBeckmannFresnelFunction(clamp(dot(blinnDirection, tangentViewDirection), 0.0f, 1.0f), F0);
+        vec3 fresnelFunction = ShlickBeckmannFresnelFunction(clamp(dot(blinnDirection, tangentViewDirection), 0.0f, 1.0f), fresnelZero);
 
         vec3 numerator = normalDistributionFunction * geometryFunction * fresnelFunction; 
         float denominator = 4 * max(dot(normal, tangentViewDirection), 0.0) * max(dot(normal, lightDirection), 0.0f) + 0.0001f;
@@ -329,10 +337,12 @@ void main()
     vec4 roughnessSample = texture2D(roughnessMap, uv);
     vec4 metallicSample = texture2D(metallicMap, uv);
     vec4 normalSample = texture(normalMap, uv) * 2.0f - 1.0f;
+    vec4 skyboxSample = texture(cubeMap, reflect(-tangentViewDirection, normalSample.rgb));
 
+    vec3 diffuse = pow(diffuseSample.rgb, vec3(gamma));
     float roughness = (roughnessSample.r + roughnessSample.g + roughnessSample.b) / 3.0f;
 
-    ProcessPointLights(diffuseSample.rgb, roughness, metallicSample.rgb, normalSample.rgb);
+    ProcessPointLights(diffuseSample.rgb , roughnessSample.r, vec3(metallicSample.r), normalSample.rgb, skyboxSample.rgb);
     //ProcessDirectionalLights(diffuseSample.rgb, 0.5f, 0.0f, normalSample.rgb);
 
     vec3 color = lightOutput;
@@ -340,7 +350,8 @@ void main()
     // HDR tonemapping
     //color = color / (color + vec3(1.0));
     // gamma correct
-    //color = pow(color, vec3(1.0/2.2)); 
+    //color = pow(color, vec3(1.0/gamma));
 
+    //fragColor = skyboxSample;
     fragColor = vec4(color, 1.0f);
 }

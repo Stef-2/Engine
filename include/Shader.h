@@ -17,8 +17,10 @@
 namespace Engine
 {
     // OpenGL shader program wrapper class
-    // encapsulates vertex and fragment shaders
-    // as well as the shader program that binds them
+    // encapsulates vertex, geometry and fragment shaders as well as the shader program that binds them
+    // performs compiling and linking of shader programs
+    // holds the internal OpenGL locations of shader attribute and buffer locations so we don't have to query the GPU for them
+    // provides easy retrieval of the currently active shader program
     class Shader
     {
         public:
@@ -41,7 +43,8 @@ namespace Engine
                 METALLIC_MAP,
                 SPECULAR_MAP,
                 NORMAL_MAP,
-                ALPHA_MAP
+                ALPHA_MAP,
+                CUBE_MAP
             };
 
             // enumerator for different uniform or shader storage buffer objects
@@ -137,12 +140,14 @@ namespace Engine
             unsigned int projectionTransformLocation;
             unsigned int BoneTransformsLocation;
             unsigned int shaderFlagsLocation;
+
             unsigned int diffuseMapLocation;
             unsigned int roughnessMapLocation;
             unsigned int metallicMapLocation;
             unsigned int specularMapLocation;
             unsigned int normalMapLocation;
             unsigned int alphaMapLocation;
+            unsigned int cubeMapLocation;
 
             // shader block locations
             static unsigned int mvpBlock;

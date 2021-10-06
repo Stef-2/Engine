@@ -21,6 +21,11 @@ namespace Engine
         void SetShader(const Engine::Shader& shader);
         void SetTexture(Engine::Texture& texture);
 
+        // given current implementation, it makes no sense to ever have more than one skybox
+        // so we're providing an easy way to retrieve and set it from wherever
+        static Skybox& GetActiveSkybox();
+        static void SetActiveSkybox(Skybox& skybox);
+
         Engine::Shader& GetShader();
         Engine::Texture& GetTexture();
 
@@ -32,7 +37,10 @@ namespace Engine
         // cubemap vertices
         float* GetVertices();
 
+        // setup and prepare the skybox for rendering
         void Setup();
+        // set this skybox as the current one
+        void SetActive();
 
     private:
         Engine::Texture texture;
@@ -44,6 +52,7 @@ namespace Engine
 
         std::unique_ptr<float*> vertices;
 
+        static Skybox* activeSkybox;
     };
 
 }

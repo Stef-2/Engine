@@ -74,38 +74,28 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+    glActiveTexture(GL_TEXTURE0 + 6);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, Engine::Skybox::GetActiveSkybox().GetTexture().GetTextureID());
+    glUniform1i(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::CUBE_MAP), 6);
+
     actor.GetShader().SetShaderFlag(Engine::Shader::ShaderFlag::STATIC);
 
-    // go through all the meshes in actor's model and draw them
+    // go through all static meshes in actor's model and draw them
     for (size_t i = 0; i < actor.GetModel().GetStaticMeshes().size(); i++) {
 
         // bind the vertex array buffer
         glBindVertexArray(actor.GetModel().GetStaticMeshes().at(i).GetVAO());
 
         // bind the corresponding texture(s)
-        actor.GetModel().GetStaticMeshes().at(i).GetMaterial().Activate();
+        actor.GetModel().GetStaticMeshes().at(i).GetMaterial().Activate(actor.GetShader());
         
         // render
         glDrawElements(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i).GetIndices().size(), GL_UNSIGNED_INT, 0);
     }
-}
-
-void Engine::Renderer::RenderAnimated(const Engine::Camera& camera, Engine::Actor& actor)
-{
-    actor.GetShader().Activate();
-
-    // find the locations of uniform variables in the shader and assign transform matrices to them
-    glBindBuffer(GL_UNIFORM_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::MVP_MATRICES));
-
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(actor.GetTransform()));
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetView()));
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(camera.GetProjection()));
-
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     actor.GetShader().SetShaderFlag(Engine::Shader::ShaderFlag::ANIMATED);
 
-    // go through all the meshes in actor's model and draw them
+    // go through all animated meshes in actor's model and draw them
     for (size_t i = 0; i < actor.GetModel().GetAnimatedMeshes().size(); i++) {
 
         Engine::Skeleton& skeleton = actor.GetModel().GetAnimatedMeshes().at(i).GetSkeleton();
@@ -116,17 +106,17 @@ void Engine::Renderer::RenderAnimated(const Engine::Camera& camera, Engine::Acto
         #pragma omp simd
         for (unsigned int j = 0; j < skeleton.GetBones().size(); j++)
             bones[j] = skeleton.GetFinalBoneTransformAnimated(j);
-        
+
         glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::BONE_TRANSFORMATIONS), skeleton.GetBones().size(), GL_FALSE,
             glm::value_ptr(bones[0]));
 
-        delete []bones;
+        delete[]bones;
 
         // bind the vertex array buffer
         glBindVertexArray(actor.GetModel().GetAnimatedMeshes().at(i).GetVAO());
 
         // bind the corresponding texture(s)
-        actor.GetModel().GetAnimatedMeshes().at(i).GetMaterial().Activate();
+        actor.GetModel().GetAnimatedMeshes().at(i).GetMaterial().Activate(actor.GetShader());
 
         // render
         glDrawElements(GL_TRIANGLES, actor.GetModel().GetAnimatedMeshes().at(i).GetIndices().size(), GL_UNSIGNED_INT, 0);
@@ -233,7 +223,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Skybox& skyb
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.GetTexture().GetTextureID());
-    //glUniform1i(glGetUniformLocation(skybox.GetShader().GetProgramID(), "cubeMap"), 0);
+    glUniform1i(skybox.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::CUBE_MAP), 0);
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -245,13 +235,6 @@ void Engine::Renderer::Render(const Engine::Camera& camera, const std::vector<En
 {
     for (size_t i = 0; i < actors.size(); i++) {
         this->Render(camera, *actors[i]);
-    }
-}
-
-void Engine::Renderer::RenderAnimated(const Engine::Camera& camera, const std::vector<Engine::Actor*>& actors)
-{
-    for (size_t i = 0; i < actors.size(); i++) {
-        this->RenderAnimated(camera, *actors[i]);
     }
 }
 

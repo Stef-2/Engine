@@ -105,8 +105,8 @@ int main()
 
     obj1.GetModel().GetStaticMeshes().at(0).SetMaterial(Engine::Material());
     obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_BaseColor.png"));
-    obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\black.png"));
-    obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\white.png"));
+    obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Roughness.png"));
+    obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Metallic.png"));
     obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Normal.png"));
     obj1.MoveAbsolute(60.0f, 0.0f, 0.0f);
 
@@ -117,8 +117,10 @@ int main()
 
     obj2.GetModel().GetAnimatedMeshes().at(0).SetMaterial(Engine::Material());
     obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_diffuse.png"));
+    obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_specular2.png"));
+    obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\black.png"));
     obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_normal.png"));
-    obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_specular.png"));
+    
     //obj2.MoveRelative(30.0f, 0.0f, 30.0f);
 
     Engine::Actor obj3;
@@ -201,10 +203,10 @@ int main()
     Engine::DirectionalLight dirLight;
     Engine::AmbientLight ambientLight;
 
-    pointLight1.SetIntensity(50000.0f);
-    pointLight1.SetColor({ 0.8f, 0.3f, 0.0f });
-    pointLight2.SetIntensity(50000.0f);
-    pointLight2.SetColor({ 1.0f, 1.0f, 1.0f });
+    pointLight1.SetIntensity(15000.0f);
+    //pointLight1.SetColor({ 0.8f, 0.3f, 0.0f });
+    pointLight2.SetIntensity(15000.0f);
+    //pointLight2.SetColor({ 1.0f, 1.0f, 1.0f });
     //pointLight3.SetIntensity(50000.0f);
     //pointLight4.SetIntensity(50000.0f);
     //pointLight5.SetIntensity(50000.0f);
@@ -214,11 +216,11 @@ int main()
     //pointLight4.MoveAbsolute(-10.0f, +10.0f, -10.0f);
     //pointLight5.MoveAbsolute(+10.0f, +10.0f, +10.0f);
     
-    spotLight.SetIntensity(50000.0f);
+    spotLight.SetIntensity(15000.0f);
     
     dirLight.SetIntensity(25.0f);
     dirLight.SetOrientation({ 0.0f, 1.0f, 0.0f });
-    dirLight.SetColor({ 1.0f, 0.0f, 0.0f });
+    //dirLight.SetColor({ 1.0f, 0.0f, 0.0f });
     ambientLight.SetIntensity(50.0f);
 
 
@@ -226,6 +228,7 @@ int main()
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
     
     //glEnable(GL_CULL_FACE);
+    //glEnable(GL_FRAMEBUFFER_SRGB);
     glEnable(GL_DEPTH_TEST);
     // glDisable(GL_DEPTH_TEST);
     lastTime = glfwGetTime();
@@ -278,7 +281,7 @@ int main()
         engine.GetAnimator().UpdateAnimations();
         std::vector<Engine::Actor*> culled = engine.GetRenderer().FrustumCull(camera, actors);
         numCulls = actors.size() - culled.size();
-        engine.GetRenderer().RenderAnimated(camera, actors);
+        engine.GetRenderer().Render(camera, actors);
         pointLight1.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
         engine.GetRenderer().Render(camera, pointLight1);
         //pointLight2.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);

@@ -85,7 +85,8 @@ void Engine::Material::Activate(Engine::Shader& shader)
 	{
 		glActiveTexture(GL_TEXTURE0 + 0);
 		glBindTexture(GL_TEXTURE_2D, this->diffuseMap.GetTextureID());
-		glUniform1i(shader.GetAttributeLocation(Engine::Shader::ShaderAttribute::DIFFUSE_MAP), 0);
+		//glUniform1i(shader.GetAttributeLocation(Engine::Shader::ShaderAttribute::DIFFUSE_MAP), 0);
+		glUniform1i(glGetUniformLocation(shader.GetProgramID(), "diffuseMap"), 0);
 	}
 
 	if (this->roughnessMap.GetTextureID())
@@ -146,7 +147,7 @@ void Engine::Material::SetRoughnessMap(const char* filePath)
 
 void Engine::Material::SetRoughnessMap(std::string filePath)
 {
-	this->diffuseMap = Engine::Texture(filePath);
+	this->roughnessMap = Engine::Texture(filePath);
 }
 
 void Engine::Material::SetRoughnessMap(const Texture& texture)
@@ -161,7 +162,7 @@ void Engine::Material::SetMetallicMap(const char* filePath)
 
 void Engine::Material::SetMetallicMap(std::string filePath)
 {
-	this->diffuseMap = Engine::Texture(filePath);
+	this->metallicMap = Engine::Texture(filePath);
 }
 
 void Engine::Material::SetMetallicMap(const Texture& texture)

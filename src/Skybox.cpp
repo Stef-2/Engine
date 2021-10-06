@@ -1,5 +1,7 @@
 #include "Skybox.h"
 
+Engine::Skybox* Engine::Skybox::activeSkybox = nullptr;
+
 Engine::Skybox::Skybox()
 {
     this->shader = {};
@@ -63,6 +65,16 @@ void Engine::Skybox::SetTexture(Engine::Texture& texture)
     this->texture = texture;
 }
 
+Engine::Skybox& Engine::Skybox::GetActiveSkybox()
+{
+    return *Engine::Skybox::activeSkybox;
+}
+
+void Engine::Skybox::SetActiveSkybox(Engine::Skybox& skybox)
+{
+    Engine::Skybox::activeSkybox = &skybox;
+}
+
 Engine::Shader& Engine::Skybox::GetShader()
 {
 	return this->shader;
@@ -110,4 +122,11 @@ void Engine::Skybox::Setup()
 
     // unbind vertex array
     glBindVertexArray(0);
+
+    Engine::Skybox::activeSkybox = this;
+}
+
+void Engine::Skybox::SetActive()
+{
+    Engine::Skybox::activeSkybox = this;
 }

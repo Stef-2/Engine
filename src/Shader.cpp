@@ -28,6 +28,14 @@ Engine::Shader::Shader()
     this->vertexUvLocation = {};
     this->vertexBoneIdLocation = {};
     this->vertexBoneWeights = {};
+
+    this->diffuseMapLocation = {};
+    this->roughnessMapLocation = {};
+    this->metallicMapLocation = {};
+    this->specularMapLocation = {};
+    this->normalMapLocation = {};
+    this->alphaMapLocation = {};
+    this->cubeMapLocation = {};
 }
 
 Engine::Shader::Shader(std::string vertexShader, std::string fragmentShader)
@@ -49,6 +57,14 @@ Engine::Shader::Shader(std::string vertexShader, std::string fragmentShader)
     this->vertexUvLocation = {};
     this->vertexBoneIdLocation = {};
     this->vertexBoneWeights = {};
+
+    this->diffuseMapLocation = {};
+    this->roughnessMapLocation = {};
+    this->metallicMapLocation = {};
+    this->specularMapLocation = {};
+    this->normalMapLocation = {};
+    this->alphaMapLocation = {};
+    this->cubeMapLocation = {};
 
     this->compileSuccess = this->SetVertexShader(vertexShader);
     this->compileSuccess = this->SetFragmentShader(fragmentShader);
@@ -75,6 +91,14 @@ Engine::Shader::Shader(std::string vertexShader, std::string geometryShader, std
     this->vertexUvLocation = {};
     this->vertexBoneIdLocation = {};
     this->vertexBoneWeights = {};
+
+    this->diffuseMapLocation = {};
+    this->roughnessMapLocation = {};
+    this->metallicMapLocation = {};
+    this->specularMapLocation = {};
+    this->normalMapLocation = {};
+    this->alphaMapLocation = {};
+    this->cubeMapLocation = {};
 
     this->compileSuccess = this->SetVertexShader(vertexShader);
     this->compileSuccess = this->SetGeometryShader(geometryShader);
@@ -282,7 +306,8 @@ int Engine::Shader::CompileProgram()
         this->metallicMapLocation = glGetUniformLocation(this->programID, "metallicMap");
         this->specularMapLocation = glGetUniformLocation(this->programID, "specularMap");
         this->normalMapLocation = glGetUniformLocation(this->programID, "normalMap");
-        this->specularMapLocation = glGetUniformLocation(this->programID, "alphaMap");
+        this->alphaMapLocation = glGetUniformLocation(this->programID, "alphaMap");
+        this->cubeMapLocation = glGetUniformLocation(this->programID, "cubeMap");
 
         // generate and bind uniform buffer objects and shader storage buffer objects if they're present in the shader(s)
         // this initialization needs to happen only once for each one of these as they are global in GPU memory
@@ -406,6 +431,9 @@ unsigned int Engine::Shader::GetAttributeLocation(Engine::Shader::ShaderAttribut
 
     case Engine::Shader::ShaderAttribute::ALPHA_MAP:
         return this->alphaMapLocation;
+
+    case Engine::Shader::ShaderAttribute::CUBE_MAP:
+        return this->cubeMapLocation;
 
     default:
         break;
