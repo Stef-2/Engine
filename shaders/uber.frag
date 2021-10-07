@@ -232,8 +232,6 @@ void ProcessPointLights(in vec3 diffuse, in float roughness, in vec3 metallic, i
 
         lightOutput += (diffuseContribution * diffuse / pi + specular) * (intensity * pointLights[usedPointLightIndices[i]].color.rgb) * lightFacingRatio;
     }
-
-    lightOutput += skybox * (1 - roughness);
 }
 
 mat2x4 ProcessSpotLights(in vec3 normal)
@@ -345,6 +343,7 @@ void main()
     ProcessPointLights(diffuseSample.rgb , roughnessSample.r, vec3(metallicSample.r), normalSample.rgb, skyboxSample.rgb);
     //ProcessDirectionalLights(diffuseSample.rgb, 0.5f, 0.0f, normalSample.rgb);
 
+    lightOutput += skyboxSample.rgb * (1 - roughnessSample.r);
     vec3 color = lightOutput;
 
     // HDR tonemapping

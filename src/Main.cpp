@@ -163,12 +163,12 @@ int main()
     Engine::Skybox skyBox;
     skyBox.SetShader(skyBoxShader);
 
-    std::string skyBoxTextures[6] = { engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\4.bmp"),
-                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\2.bmp"),
-                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\1.bmp"),
-                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\3.bmp"),
-                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\5.bmp"),
-                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\6.bmp") };
+    std::string skyBoxTextures[6] = { engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\night\\4.png"),
+                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\night\\2.png"),
+                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\night\\6.png"),
+                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\night\\1.png"),
+                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\night\\5.png"),
+                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\night\\3.png") };
 
     Engine::Texture skyBoxTex(skyBoxTextures);
     skyBox.SetTexture(skyBoxTex);
