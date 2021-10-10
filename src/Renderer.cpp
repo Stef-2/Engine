@@ -259,6 +259,37 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::PointLight& 
     this->Render(camera, box);
 }
 
+void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Terrain& terrain)
+{
+    terrain.GetShader().Activate();
+
+    // find the locations of uniform variables in the shader and assign transform matrices to them
+    glBindBuffer(GL_UNIFORM_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::MVP_MATRICES));
+
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(terrain.GetTransform()));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetView()));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(camera.GetProjection()));
+
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    glActiveTexture(GL_TEXTURE0 + 6);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, Engine::Skybox::GetActiveSkybox().GetTexture().GetTextureID());
+    glUniform1i(terrain.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::CUBE_MAP), 6);
+
+    terrain.GetShader().SetShaderFlag(Engine::Shader::ShaderFlag::STATIC);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // bind the vertex array buffer
+    glBindVertexArray(terrain.GetMesh().GetVAO());
+
+    // bind the corresponding texture(s)
+    terrain.GetMesh().GetMaterial().Activate(terrain.GetShader());
+
+    // render
+    glDrawElements(GL_TRIANGLES, terrain.GetMesh().GetIndices().size(), GL_UNSIGNED_INT, 0);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+}
+
 void Engine::Renderer::SetColorDepth(int colorDepth)
 {
     this->colorDepth = colorDepth;

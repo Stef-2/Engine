@@ -170,7 +170,7 @@
     <ClInclude Include="include\Material.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\Model.h" />
-    <ClInclude Include="include\Monitor.h" />
+    <ClInclude Include="include\Terrain.h" />
     <ClInclude Include="include\Skeleton.h" />
     <ClInclude Include="include\Skybox.h" />
     <ClInclude Include="include\Object.h" />
@@ -196,7 +196,7 @@
     <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Model.cpp" />
-    <ClCompile Include="src\Monitor.cpp" />
+    <ClCompile Include="src\Terrain.cpp" />
     <ClCompile Include="src\Skeleton.cpp" />
     <ClCompile Include="src\Skybox.cpp" />
     <ClCompile Include="src\Object.cpp" />

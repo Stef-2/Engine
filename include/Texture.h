@@ -10,7 +10,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #endif
 
-
 #include "glfw3.h"
 #include "fstream"
 #include "iostream"

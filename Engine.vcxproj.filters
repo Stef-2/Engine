@@ -51,7 +51,7 @@
     <ClInclude Include="include\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Monitor.h">
+    <ClInclude Include="include\Terrain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Material.h">
@@ -119,7 +119,7 @@
     <ClCompile Include="src\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Monitor.cpp">
+    <ClCompile Include="src\Terrain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Material.cpp">

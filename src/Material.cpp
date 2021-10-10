@@ -85,8 +85,7 @@ void Engine::Material::Activate(Engine::Shader& shader)
 	{
 		glActiveTexture(GL_TEXTURE0 + 0);
 		glBindTexture(GL_TEXTURE_2D, this->diffuseMap.GetTextureID());
-		//glUniform1i(shader.GetAttributeLocation(Engine::Shader::ShaderAttribute::DIFFUSE_MAP), 0);
-		glUniform1i(glGetUniformLocation(shader.GetProgramID(), "diffuseMap"), 0);
+		glUniform1i(shader.GetAttributeLocation(Engine::Shader::ShaderAttribute::DIFFUSE_MAP), 0);
 	}
 
 	if (this->roughnessMap.GetTextureID())

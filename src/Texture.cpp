@@ -46,7 +46,7 @@ void Engine::Texture::Setup(std::string filePath)
     stbi_set_flip_vertically_on_load(true);
     // load data
     this->data = stbi_load(filePath.c_str(), &width, &height, &nPixelComponents, 0);
-
+    
     //check if its valid
     if (this->data) {
 

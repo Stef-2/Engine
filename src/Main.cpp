@@ -89,6 +89,9 @@ int main()
                         engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.geom"),
                         engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.frag"));
 
+    Engine::Shader testShader(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\static.vert"),
+                              engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\static.frag"));
+
     //Engine::Actor obj1;
     //obj1.SetShader(basic);
     
@@ -108,7 +111,7 @@ int main()
     obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Roughness.png"));
     obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Metallic.png"));
     obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Normal.png"));
-    obj1.MoveAbsolute(60.0f, 0.0f, 0.0f);
+    obj1.MoveAbsolute(100.0f, 0.0f, 0.0f);
 
     Engine::Actor obj2;
     obj2.SetShader(uber);
@@ -163,12 +166,12 @@ int main()
     Engine::Skybox skyBox;
     skyBox.SetShader(skyBoxShader);
 
-    std::string skyBoxTextures[6] = { engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\night\\4.png"),
-                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\night\\2.png"),
-                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\night\\6.png"),
-                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\night\\1.png"),
-                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\night\\5.png"),
-                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\night\\3.png") };
+    std::string skyBoxTextures[6] = { engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\4.bmp"),
+                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\2.bmp"),
+                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\1.bmp"),
+                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\3.bmp"),
+                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\5.bmp"),
+                                      engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\6.bmp") };
 
     Engine::Texture skyBoxTex(skyBoxTextures);
     skyBox.SetTexture(skyBoxTex);
@@ -181,6 +184,13 @@ int main()
     actors.push_back(&obj2);
     //actors.push_back(&obj3);
 
+    Engine::Terrain terrain({ 150.0, 150.0 }, 1, engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\heightmap.png"));
+    terrain.SetShader(testShader);
+    terrain.GetMesh().GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\grey.png"));
+    terrain.GetMesh().GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\white.png"));
+    terrain.GetMesh().GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\grey.png"));
+    terrain.GetMesh().GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\normal map.jpg"));
+    //std::cout << terrain.GetHeightMap().GetData() << std::endl;
 
     for (size_t i = 0; i < actors.size(); i++)
     {
@@ -218,7 +228,7 @@ int main()
     
     spotLight.SetIntensity(15000.0f);
     
-    dirLight.SetIntensity(25.0f);
+    dirLight.SetIntensity(1.0f);
     dirLight.SetOrientation({ 0.0f, 1.0f, 0.0f });
     //dirLight.SetColor({ 1.0f, 0.0f, 0.0f });
     ambientLight.SetIntensity(50.0f);
@@ -293,6 +303,7 @@ int main()
         //pointLight5.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
         //engine.GetRenderer().Render(camera, pointLight5);
 
+        engine.GetRenderer().Render(camera, terrain);
         engine.GetRenderer().Render(camera, obj1);
         engine.GetRenderer().Render(camera, obj3);
 

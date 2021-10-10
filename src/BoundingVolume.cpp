@@ -83,7 +83,7 @@ bool Engine::BoundingBox::IntersectsWith(Engine::BoundingSphere& sphere)
 
 bool Engine::BoundingSphere::IntersectsWith(Engine::BoundingSphere& other)
 {
-    // check if the sum of radi is greater than the distance between the spheres
+    // check if the sum of radii is greater than the distance between the spheres
     return glm::distance(this->center, other.center) < (this->radius + other.radius);
 }
 

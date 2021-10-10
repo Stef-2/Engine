@@ -146,7 +146,7 @@ mat3 CalculateTBN(in mat4 trans)
     vec3 bitangent = normalize(vec3(transformedModelMatrix * vec4(vertexBitangent, 0.0f)));
     vec3 normal = normalize(vec3(transformedModelMatrix * vec4(vertexNormal, 0.0f)));
     
-    // inverse aka transpose because we'll be using this to transform other vectors into tangent space
+    // inverse aka transpose the TBN matrix because we'll be using this to transform other vectors into tangent space
     mat3 TBN = transpose(mat3(tangent, -bitangent, normal));
 
     return TBN;

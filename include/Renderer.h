@@ -7,6 +7,7 @@
 #include "Skybox.h"
 #include "Shader.h"
 #include "Light.h"
+#include "Terrain.h"
 
 #include "vector"
 
@@ -26,6 +27,7 @@ namespace Engine
         void Render(const Engine::Camera& camera, Engine::Skybox& skybox);
         void Render(const Engine::Camera& camera, Engine::Skeleton& skeleton);
         void Render(const Engine::Camera& camera, Engine::PointLight& light);
+        void Render(const Engine::Camera& camera, Engine::Terrain& terrain);
 
         template<typename T>
         void Render(const Engine::Camera& camera, const Engine::OcTree<T>& tree);

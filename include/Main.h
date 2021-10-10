@@ -26,6 +26,7 @@
 #include "Camera.h"
 #include "BoundingVolume.h"
 #include "Skybox.h"
+#include "Terrain.h"
 
 #include "fstream"
 #include "math.h"

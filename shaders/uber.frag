@@ -180,27 +180,7 @@ vec3 ShlickBeckmannFresnelFunction(float theta, vec3 F0)
 }
 
 // ================================================================================================
-/*
-mat2x4 ProcessPointLights(in vec3 normal)
-{
-    mat2x4 result = {vec4(0.0f), vec4(0.0f)};
-    float roughness = 1.0f;
 
-    for (unsigned int i = 0; i < numPointLights; i++)
-    {
-        vec3 lightDirection = normalize(tangentSpacePointLightPositions[i] - tangentFragmentPosition);
-        float lightFacingRatio = max(dot(normal, lightDirection), 0.0f);
-        float intensity = pointLights[usedPointLightIndices[i]].intensity / pow(distance(tangentFragmentPosition, tangentSpacePointLightPositions[i]), 2);
-        // blinn-phong specular model
-        vec3 blinnDirection = normalize(lightDirection + tangentViewDirection);
-
-        result[0] += lightFacingRatio * pointLights[usedPointLightIndices[i]].color * intensity;
-        result[1] += pow(max(dot(normal, blinnDirection), 0.0), SPECULAR_EXPONENT) * pointLights[usedPointLightIndices[i]].color * intensity;
-    }
-    
-    return result;
-}
-*/
 void ProcessPointLights(in vec3 diffuse, in float roughness, in vec3 metallic, in vec3 normal, in vec3 skybox)
 {
     vec3 fresnelZero = mix(F0, diffuse, metallic);
@@ -261,7 +241,7 @@ mat2x4 ProcessSpotLights(in vec3 normal)
     return result;
 }
 
-void ProcessDirectionalLights(in vec3 diffuse, in float roughness, in float metallic, in vec3 normal)
+void ProcessDirectionalLights(in vec3 diffuse, in float roughness, in vec3 metallic, in vec3 normal, in vec3 skybox)
 {   
     vec3 fresnelZero = mix(F0, diffuse, metallic);
     
@@ -338,19 +318,18 @@ void main()
     vec4 skyboxSample = texture(cubeMap, reflect(-tangentViewDirection, normalSample.rgb));
 
     vec3 diffuse = pow(diffuseSample.rgb, vec3(gamma));
-    float roughness = (roughnessSample.r + roughnessSample.g + roughnessSample.b) / 3.0f;
 
     ProcessPointLights(diffuseSample.rgb , roughnessSample.r, vec3(metallicSample.r), normalSample.rgb, skyboxSample.rgb);
-    //ProcessDirectionalLights(diffuseSample.rgb, 0.5f, 0.0f, normalSample.rgb);
+    ProcessDirectionalLights(diffuseSample.rgb , roughnessSample.r, vec3(metallicSample.r), normalSample.rgb, skyboxSample.rgb);
 
-    lightOutput += skyboxSample.rgb * (1 - roughnessSample.r);
-    vec3 color = lightOutput;
+    lightOutput += skyboxSample.rgb * (1.0f - roughnessSample.r);
+    vec3 color = lightOutput + (vec3(0.00025f) * LinearizeDepth());
 
     // HDR tonemapping
     //color = color / (color + vec3(1.0));
     // gamma correct
     //color = pow(color, vec3(1.0/gamma));
 
-    //fragColor = skyboxSample;
-    fragColor = vec4(color, 1.0f);
+    fragColor = normalSample;
+    //fragColor = vec4(color, 1.0f);
 }
