@@ -12,15 +12,20 @@ Engine::Motor::Motor()
     this->renderer = {};
     this->collider = {};
 
-    // just temporary initialization to prevent garbage values from being held here
-    // GetDeltaTime() and Run() functions are actually responsible for keeping these updated
-    this->lastTime = 0;
-    this->currentTime = glfwGetTime();
+    
 }
 
 void Engine::Motor::Initialize()
 {
+    // just temporary initialization to prevent garbage values from being held here
+    // GetDeltaTime() and Run() functions are actually responsible for keeping these updated
+    this->lastTime = 0;
+    this->currentTime = glfwGetTime();
+
     this->InitializeCallbacks();
+
+    // initialize the random seed with current time
+    srand(std::chrono::system_clock::now().time_since_epoch().count());
 }
 
 void Engine::Motor::InitializeCallbacks()

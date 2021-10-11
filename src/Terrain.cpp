@@ -113,6 +113,12 @@ void Engine::Terrain::ParseHeightMap()
 
 void Engine::Terrain::Generate()
 {
+	// check if either size or density are zero, if they are, we'll be dividing things by zero a lot
+	if (!this->size.x || !this->size.y || !this->density) {
+		std::cerr << "terrain generation parameters are invalid, aborting like your mother should have aborted you" << std::endl;
+		return;
+	}
+
 	// minimum and maximum terrain coordinates
 	glm::dvec3 mins;
 	glm::dvec3 maxs;
@@ -134,6 +140,11 @@ void Engine::Terrain::Generate()
 	unsigned int numVerticesX = unsigned int(this->size.x * this->density + 1);
 	unsigned int numVerticesY = unsigned int(this->size.y * this->density + 1);
 
+	// find the heightmap / terrain size scaling factors to be used later
+	double scalingFactorX = this->heightMap.GetWidth() / this->size.x;
+	double scalingFactorY = this->heightMap.GetHeight() / this->size.y;
+	double scalingFactor = (scalingFactorX + scalingFactorY) / 2.0;
+
 	// utility lambda that samples the heightmap data at a given point
 	auto HeightMapSample = [this](unsigned int x, unsigned int y) -> double
 	{
@@ -142,10 +153,30 @@ void Engine::Terrain::Generate()
 		unsigned char green = pixelOffset[1];
 		unsigned char blue = pixelOffset[2];
 
-		// find the geometric mean of differences between heightmap and terrain width and length
-		double scalingFactor = (((this->heightMap.GetWidth() - this->size.x) + (this->heightMap.GetHeight() - this->size.y)) / 2.0) / 256.0;
+		return double((unsigned (red) + unsigned(green) + unsigned(blue)) / (3.0 + 0.0001));
+	};
+	
+	// utility lambda that samples and calculates the rate of change of height inside a triangle sampled from a map
+	// return value is in [0.0, 1.0] range with a higher value indicating higher relative change of contained height values
+	auto RateOfTriangleHeightChange = [this, &HeightMapSample, &scalingFactorX, &scalingFactorY](const glm::vec3& A, const glm::vec3& B, const glm::vec3& C) -> double
+	{
+		// number of samples to take, relative to the size of the height map
+		const unsigned int numSamples = this->heightMap.GetWidth() * this->heightMap.GetHeight() / ((this->heightMap.GetWidth() + this->heightMap.GetHeight()) * 32u);
+		// accumulated height difference
+		unsigned int heightDifference = 0u;
 
-		return double((unsigned(red) + unsigned(green) + unsigned(blue)) / (3.0 + scalingFactor));
+		// go through samples and accumulate the difference
+		for (size_t i = 0; i < numSamples; i++)
+		{
+			glm::vec2 randomSample = { glm::linearRand(0.0f, 1.0f), glm::linearRand(0.0f, 1.0f) };
+			// square root of the first random number, it's used a lot afterwards
+			float root = glm::sqrt(randomSample.x);
+			glm::vec3 randomPoint = A * (1 - root) + B * (root * (1 - randomSample.y)) + C * (randomSample.y * root);
+			//std::cout << "point A: " << A.x << " : " << A.z << " point B: " << B.x << " : " << B.z << " point C: " << C.x << " : " << C.z << " random point: " << randomPoint.x << " : " << randomPoint.z << std::endl;
+			heightDifference += HeightMapSample((randomPoint.x + this->size.x / 2) * scalingFactorX, (randomPoint.z + this->size.y / 2) * scalingFactorY);
+		}
+		std::cout << "rate of change : " << heightDifference / numSamples << std::endl;
+		return heightDifference / numSamples;
 	};
 	
 	// stack of vertices
@@ -157,14 +188,14 @@ void Engine::Terrain::Generate()
 	
 	// calculate, add and push vertex attributes
 	for (size_t i = 0; i < numVerticesX; i++)
+		#pragma omp simd
 		for (size_t j = 0; j < numVerticesY; j++)
-
 			// construct and add vertices to the stack
 			vertices.push_back(Engine::Vertex{
 				// position X
 				{mins.x + offsetX * i,
 				// position Y
-				HeightMapSample(i * (this->heightMap.GetWidth() / numVerticesX), j * (this->heightMap.GetHeight() / numVerticesY)),
+				HeightMapSample(i * (this->heightMap.GetWidth() / numVerticesX) , j * (this->heightMap.GetHeight() / numVerticesY)) / scalingFactor,
 				// position Z
 				mins.z + offsetY * j },
 				// normal
@@ -179,14 +210,15 @@ void Engine::Terrain::Generate()
 	// initialize a connection between a vertex and its stack of normal weights
 	// this could not have been done in the original loop because we're using pointers for performance reasons
 	// vectors work by moving themselves around when they can no longer continuously fit into the memory hole they reside in
-	// thus they relocate to a new location but our pointers keep pointing to their old addess, causing memory corruption
+	// thus they relocate to a new location but our pointers keep pointing to their old address, causing memory corruption
 	// and so this step must be done only after all the vertices have been made and pushed into the vector
+	#pragma omp simd
 	for (size_t i = 0; i < vertices.size(); i++)
 		// add the vertex as a map entry
 		vertexNormalWeights.insert(std::pair<Engine::Vertex*, std::vector<glm::vec3>> {&vertices.at(i), std::vector<glm::vec3>{}});
 		
 	// terrain triangle strip creation logic
-	// this is outdated from back when I wanted to do triangle strips
+	// this is outdated from back when I wanted to do triangle strips for terrain mesh
 	// spent too much time on this ascii thing to delete it, keeping it for old times sake
 	
 	// --> o-o-o-o-o-o-o-o-o-o-o --+	<-vertices
@@ -220,6 +252,7 @@ void Engine::Terrain::Generate()
 	
 	// calculate normals, tangents and bitangents after vertices have been displaced
 	// part 1: calculate and collect normal weights for all vertices from their surrounding triangles
+	#pragma omp simd
 	for (size_t i = 0; i < indices.size(); i += 3)
 	{
 		Engine::Vertex& vertex1 = vertices.at(indices.at(i));
@@ -241,6 +274,7 @@ void Engine::Terrain::Generate()
 	}
 	
 	// part 2: parse the weights and calculate the final normals
+	#pragma omp simd
 	for (size_t i = 0; i < vertices.size(); i++)
 	{
 		glm::vec3 normal = glm::vec3(0.0f);
@@ -250,8 +284,9 @@ void Engine::Terrain::Generate()
 		
 		vertices.at(i).normal = glm::normalize(normal);
 	}
-
+	
 	// part 3: go through all triangles once again with new normal data and calculate tangents and bitangents
+	#pragma omp simd
 	for (size_t i = 0; i < indices.size(); i += 3)
 	{
 		Engine::Vertex& vertex1 = vertices.at(indices.at(i));
@@ -287,6 +322,8 @@ void Engine::Terrain::Generate()
 
 		vertex3.tangent = glm::normalize(posDelta1x3 * uvDelta2x3 - posDelta2x3 * uvDelta1x3);
 		vertex3.bitangent = glm::normalize(glm::cross(vertex3.normal, vertex3.tangent));
+
+		RateOfTriangleHeightChange(vertex1.position, vertex2.position, vertex3.position);
 	}
 	
 	// push vertices and indices into the mesh and have it generate its internal rendering data

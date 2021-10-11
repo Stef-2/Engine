@@ -14,6 +14,7 @@
 
 #include "filesystem"
 #include "iostream"
+#include "chrono"
 #include "cassert"
 
 namespace Engine

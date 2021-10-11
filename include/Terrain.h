@@ -16,6 +16,8 @@
 #include "glm/vec3.hpp"
 #include "glm/gtx/vector_angle.hpp"
 #include "glm/gtc/noise.hpp"
+#include "glm/gtc/random.hpp"
+#include "glm/gtx/common.hpp"
 
 #include "string"
 #include "vector"
