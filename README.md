@@ -1,8 +1,7 @@
 # © Engine™ - One man army passion project
-This is a video game engine in the making, primarily using modern C++ and OpenGL
+This is a video game engine in the making, primarily using modern C++ and OpenGL, work very much in progress
 
-Work in progress:
-
+**Features:**
 Skeletal Animations:
 
 
