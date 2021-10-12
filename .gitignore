@@ -13,12 +13,16 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 resources/
+lib/
+
 *.fbx
 *.dae
 *.obj
 
 *.png
 *.jpg
+*.bmp
+*.tiff
 
 # Build results
 [Dd]ebug/
