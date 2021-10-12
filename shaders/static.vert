@@ -105,8 +105,8 @@ mat3 CalculateInverseTBN()
     vec3 bitangent = normalize(vec3(model * vec4(vertexBitangent, 0)));
     vec3 normal = normalize(vec3(model * vec4(vertexNormal, 0)));
 
-    tangent = normalize(tangent - dot(tangent, normal) * normal);
-    bitangent = cross(tangent, normal);
+    //tangent = normalize(tangent - dot(tangent, normal) * normal);
+    //bitangent = cross(tangent, normal);
 
     mat3 TBN = (mat3(tangent, bitangent, normal));
 

@@ -207,5 +207,5 @@ void main()
     specularReflection += pointLightContributions[1];
 
     //fragColor = vec4(normal,1);
-    fragColor = color * (diffuseReflection + specularReflection);
+    fragColor = color; //* (diffuseReflection + specularReflection);
 }

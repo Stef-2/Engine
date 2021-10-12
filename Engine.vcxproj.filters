@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="GitHub">
+      <UniqueIdentifier>{c0552a1b-77c2-417b-beb8-8494f7f4bfa0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h">
@@ -210,6 +213,15 @@
     </None>
     <None Include="shaders\uber.geom">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include=".gitattributes">
+      <Filter>GitHub</Filter>
+    </None>
+    <None Include=".gitignore">
+      <Filter>GitHub</Filter>
+    </None>
+    <None Include="README.md">
+      <Filter>GitHub</Filter>
     </None>
   </ItemGroup>
 </Project>

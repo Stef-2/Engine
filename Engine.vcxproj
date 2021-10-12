@@ -208,6 +208,9 @@
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".gitattributes" />
+    <None Include=".gitignore" />
+    <None Include="README.md" />
     <None Include="shaders\animated.frag" />
     <None Include="shaders\animated.vert" />
     <None Include="shaders\basic.frag" />

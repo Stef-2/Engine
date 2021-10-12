@@ -19,6 +19,7 @@
 #include "glm/gtc/random.hpp"
 #include "glm/gtx/common.hpp"
 
+#include "functional"
 #include "string"
 #include "vector"
 #include "map"

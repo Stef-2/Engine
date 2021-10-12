@@ -45,12 +45,17 @@ void Engine::Window::Initialize()
         // check if all the required parameters have been set up
         if (this->width && this->height && this->openGlVersion.x)
         {
+            //this->monitor = glfwGetPrimaryMonitor();
+
             // politely tell OpenGL which version of it we would like to use
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, this->openGlVersion.x);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, this->openGlVersion.y);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
             this->openGlWindow = glfwCreateWindow(width, height, title.c_str(), monitor, share);
+            glfwMaximizeWindow(openGlWindow);
+            //glfwSetWindowPos(this->openGlWindow, 0, 0);
             glfwMakeContextCurrent(openGlWindow);
             glfwSetInputMode(openGlWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             glfwSwapInterval(0);
@@ -91,6 +96,12 @@ double Engine::Window::GetAspectRatio()
 void Engine::Window::SetTitle(std::string newTitle)
 {
     this->title = newTitle;
+    glfwSetWindowTitle(this->openGlWindow, title.c_str());
+}
+
+void Engine::Window::SetTitle(std::u8string newTitle)
+{
+    this->title = std::string(newTitle.begin(), newTitle.end());
     glfwSetWindowTitle(this->openGlWindow, title.c_str());
 }
 

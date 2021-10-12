@@ -119,6 +119,9 @@ void Engine::Terrain::Generate()
 		return;
 	}
 
+	constexpr float tessellationThreshold = 2.0f;
+	constexpr unsigned int heightMapTextureComponents = 3u;
+
 	// minimum and maximum terrain coordinates
 	glm::dvec3 mins;
 	glm::dvec3 maxs;
@@ -146,40 +149,66 @@ void Engine::Terrain::Generate()
 	double scalingFactor = (scalingFactorX + scalingFactorY) / 2.0;
 
 	// utility lambda that samples the heightmap data at a given point
-	auto HeightMapSample = [this](unsigned int x, unsigned int y) -> double
+	auto HeightMapSample = [this](unsigned int x, unsigned int y) -> float
 	{
-		unsigned char* pixelOffset = this->heightMap.GetData() + (x + this->heightMap.GetWidth() * y) * 3u;
+		// during texture reading we ensured that we have 3 color components / channels per pixel in case the heightmap isn't greyscale
+		unsigned char* pixelOffset = this->heightMap.GetData() + (x + this->heightMap.GetWidth() * y) * heightMapTextureComponents;
+
 		unsigned char red = pixelOffset[0];
 		unsigned char green = pixelOffset[1];
 		unsigned char blue = pixelOffset[2];
 
-		return double((unsigned (red) + unsigned(green) + unsigned(blue)) / (3.0 + 0.0001));
+		// 
+		return float((unsigned(red) + unsigned(green) + unsigned(blue)) / heightMapTextureComponents);
 	};
 	
-	// utility lambda that samples and calculates the rate of change of height inside a triangle sampled from a map
-	// return value is in [0.0, 1.0] range with a higher value indicating higher relative change of contained height values
-	auto RateOfTriangleHeightChange = [this, &HeightMapSample, &scalingFactorX, &scalingFactorY](const glm::vec3& A, const glm::vec3& B, const glm::vec3& C) -> double
+	// lambda that samples and calculates the rate of change of height inside a triangle
+	// greater return value indicates higher relative change of contained height values
+	auto RateOfTriangleHeightChange = [this, &HeightMapSample, &scalingFactorX, &scalingFactorY, &scalingFactor]
+	(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, const glm::vec3& normal) -> double
 	{
 		// number of samples to take, relative to the size of the height map
 		const unsigned int numSamples = this->heightMap.GetWidth() * this->heightMap.GetHeight() / ((this->heightMap.GetWidth() + this->heightMap.GetHeight()) * 32u);
 		// accumulated height difference
-		unsigned int heightDifference = 0u;
+		float heightDifference = 0.0f;
 
-		// go through samples and accumulate the difference
+		// take an initial reference sample
+		float averageTriangleHeight = (A.y + B.y + C.y) / 3.0f;
+
+		// go through samples and accumulate the difference in height
 		for (size_t i = 0; i < numSamples; i++)
 		{
+			// take a pair of random (0.0f, 1.0f) samples
 			glm::vec2 randomSample = { glm::linearRand(0.0f, 1.0f), glm::linearRand(0.0f, 1.0f) };
-			// square root of the first random number, it's used a lot afterwards
+
+			// square root of the first random number, its used a lot afterwards
 			float root = glm::sqrt(randomSample.x);
+
+			// use the random numbers to find a sample withing a triangle
 			glm::vec3 randomPoint = A * (1 - root) + B * (root * (1 - randomSample.y)) + C * (randomSample.y * root);
-			//std::cout << "point A: " << A.x << " : " << A.z << " point B: " << B.x << " : " << B.z << " point C: " << C.x << " : " << C.z << " random point: " << randomPoint.x << " : " << randomPoint.z << std::endl;
-			heightDifference += HeightMapSample((randomPoint.x + this->size.x / 2) * scalingFactorX, (randomPoint.z + this->size.y / 2) * scalingFactorY);
+
+			// get the difference between the average triangle height and the sampled point height, add it to the total
+			heightDifference += glm::abs(averageTriangleHeight - 
+				(HeightMapSample((randomPoint.x + this->size.x / 2) * scalingFactorX,
+				(randomPoint.z + this->size.y / 2) * scalingFactorY)) / scalingFactor);
 		}
-		std::cout << "rate of change : " << heightDifference / numSamples << std::endl;
+
+		// dividing the accumulated height by the number of samples gives us the average height deviation
 		return heightDifference / numSamples;
 	};
 	
-	// stack of vertices
+	// lambda that will iteratively tessellate a triangle [numIterations] number of times
+	std::function<void(std::vector<unsigned int>&, unsigned short, const Engine::Vertex&, const Engine::Vertex&, const Engine::Vertex&,
+						const unsigned int&, const unsigned int&, const unsigned int&)>
+
+	tessellate = [](std::vector<unsigned int>& indices, unsigned short numIterations,
+						 const Engine::Vertex& A, const Engine::Vertex& B, const Engine::Vertex& C,
+						 const unsigned int& indexA, const unsigned int& indexB, const unsigned int& indexC) -> void
+	{
+
+	};
+
+	// stack of vertices to fill in
 	std::vector<Engine::Vertex> vertices;
 	// order in which they connect to form mesh surface
 	std::vector<unsigned int> indices;
@@ -209,7 +238,7 @@ void Engine::Terrain::Generate()
 
 	// initialize a connection between a vertex and its stack of normal weights
 	// this could not have been done in the original loop because we're using pointers for performance reasons
-	// vectors work by moving themselves around when they can no longer continuously fit into the memory hole they reside in
+	// vectors work by moving themselves around memory when they can no longer continuously fit into the memory hole they reside in
 	// thus they relocate to a new location but our pointers keep pointing to their old address, causing memory corruption
 	// and so this step must be done only after all the vertices have been made and pushed into the vector
 	#pragma omp simd
@@ -323,7 +352,24 @@ void Engine::Terrain::Generate()
 		vertex3.tangent = glm::normalize(posDelta1x3 * uvDelta2x3 - posDelta2x3 * uvDelta1x3);
 		vertex3.bitangent = glm::normalize(glm::cross(vertex3.normal, vertex3.tangent));
 
-		RateOfTriangleHeightChange(vertex1.position, vertex2.position, vertex3.position);
+		glm::vec3 faceNormal = glm::normalize((vertex1.normal + vertex2.normal + vertex3.normal) / 3.0f);
+
+		if (RateOfTriangleHeightChange(vertex1.position, vertex2.position, vertex3.position, faceNormal) > 1) {
+			vertex1.tangent = { 1.0f, 1.0f, 1.0f };
+			vertex1.bitangent = { 1.0f, 1.0f, 1.0f };
+			vertex2.tangent = { 1.0f, 1.0f, 1.0f };
+			vertex2.bitangent = { 1.0f, 1.0f, 1.0f };
+			vertex3.tangent = { 1.0f, 1.0f, 1.0f };
+			vertex3.bitangent = { 1.0f, 1.0f, 1.0f };
+		}
+		else {
+			vertex1.tangent = { 0.0f, 0.0f, 0.0f };
+			vertex1.bitangent = { 0.0f, 0.0f, 0.0f };
+			vertex2.tangent = { 0.0f, 0.0f, 0.0f };
+			vertex2.bitangent = { 0.0f, 0.0f, 0.0f };
+			vertex3.tangent = { 0.0f, 0.0f, 0.0f };
+			vertex3.bitangent = { 0.0f, 0.0f, 0.0f };
+		}
 	}
 	
 	// push vertices and indices into the mesh and have it generate its internal rendering data

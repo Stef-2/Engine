@@ -8,7 +8,7 @@ double oldY = 720.0 / 2.0;
 
 int main()
 {
-    Engine::Window window(1280, 720, "Engine", NULL, NULL, glm::ivec2(4, 6));
+    Engine::Window window(1920, 1080, "Engine", NULL, NULL, glm::ivec2(4, 6));
     Engine::Motor& engine = Engine::Motor::GetInstance();
     
     engine.Initialize();
@@ -89,8 +89,11 @@ int main()
                         engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.geom"),
                         engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.frag"));
 
-    Engine::Shader testShader(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\static.vert"),
+    Engine::Shader testStatic(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\static.vert"),
                               engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\static.frag"));
+
+    Engine::Shader testAnimated(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.vert"),
+                               engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.frag"));
 
     //Engine::Actor obj1;
     //obj1.SetShader(basic);
@@ -114,7 +117,7 @@ int main()
     obj1.MoveAbsolute(100.0f, 0.0f, 0.0f);
 
     Engine::Actor obj2;
-    obj2.SetShader(uber);
+    obj2.SetShader(testAnimated);
 
     obj2.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\dancing_vampire.dae")));
 
@@ -185,7 +188,7 @@ int main()
     //actors.push_back(&obj3);
 
     Engine::Terrain terrain({ 150.0, 150.0 }, 1, engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\heightmap.png"));
-    terrain.SetShader(testShader);
+    terrain.SetShader(testStatic);
     terrain.GetMesh().GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\grey.png"));
     terrain.GetMesh().GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\white.png"));
     terrain.GetMesh().GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\grey.png"));
@@ -293,9 +296,9 @@ int main()
         numCulls = actors.size() - culled.size();
         engine.GetRenderer().Render(camera, actors);
         pointLight1.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
-        engine.GetRenderer().Render(camera, pointLight1);
+        //engine.GetRenderer().Render(camera, pointLight1);
         //pointLight2.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
-        engine.GetRenderer().Render(camera, pointLight2);
+        //engine.GetRenderer().Render(camera, pointLight2);
         //pointLight3.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
         //engine.GetRenderer().Render(camera, pointLight3);
         //pointLight4.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
@@ -303,17 +306,17 @@ int main()
         //pointLight5.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
         //engine.GetRenderer().Render(camera, pointLight5);
 
-        engine.GetRenderer().Render(camera, terrain);
-        engine.GetRenderer().Render(camera, obj1);
-        engine.GetRenderer().Render(camera, obj3);
+        //engine.GetRenderer().Render(camera, terrain);
+        //engine.GetRenderer().Render(camera, obj1);
+        //engine.GetRenderer().Render(camera, obj3);
 
         //engine.GetRenderer().Render(camera, obj1.GetModel().GetBoundingBox());
         //engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());
         // camera.Draw(&obj1);
         // camera.Draw(&obj2);
         engine.GetRenderer().Render(camera, skyBox);
-
-        engine.GetWindow().SetTitle(std::string("Frame time: " + std::to_string(frameMs) + " ms - FPS: " + std::to_string(fps) +
+        
+        engine.GetWindow().SetTitle(std::string((const char*)(u8"Engine™ - Frame time: ") + std::to_string(frameMs) + " ms - FPS: " + std::to_string(fps) +
             " - Position: X: " + std::to_string(camera.GetPosition().x) + " - Y: " + std::to_string(camera.GetPosition().y) + " - Z: " + std::to_string(camera.GetPosition().z) +
             " - Rotation: X: " + std::to_string(camera.GetRotation().x) + " - Y: " + std::to_string(camera.GetRotation().y) + " - Z: " + std::to_string(camera.GetRotation().z) +
             " - number of culled objects: " + std::to_string(numCulls) + " - vertex count: " + std::to_string(vertexCount) + "- tri count: " + std::to_string(triangleCount)));

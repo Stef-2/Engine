@@ -42,7 +42,10 @@ class Window
 
         void SetWidth(int width);
         void SetHeight(int height);
+
         void SetTitle(std::string newTitle);
+        void SetTitle(std::u8string newTitle);
+
         void SetMonitor(GLFWmonitor* monitor);
         void SetShare(GLFWwindow* share);
         void SetVersion(glm::ivec2 version);

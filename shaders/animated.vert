@@ -115,7 +115,7 @@ mat4 BoneTransformation(ivec4 boneIDs, vec4 boneWeights, mat4 boneTransformation
     // safety net if the total transform ended up being 0, either due to a bug or because the mesh has no bones
     if (transform == mat4(0.0f))
         return mat4(1.0f);
-    return mat4(1.0f);
+    //return mat4(1.0f);
     return transform;
 }
 

@@ -330,6 +330,6 @@ void main()
     // gamma correct
     //color = pow(color, vec3(1.0/gamma));
 
-    fragColor = normalSample;
-    //fragColor = vec4(color, 1.0f);
+    //fragColor = normalSample;
+    fragColor = vec4(color, 1.0f);
 }
