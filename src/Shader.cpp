@@ -253,6 +253,8 @@ int Engine::Shader::CompileProgram()
 
     // compile and link
     shaderProgram = glCreateProgram();
+
+    if (this->vertexShader)
     glAttachShader(shaderProgram, this->vertexShader);
 
     if (this->geometryShader)

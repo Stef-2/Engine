@@ -267,7 +267,7 @@ void ProcessDirectionalLights(in vec3 diffuse, in float roughness, in vec3 metal
         vec3 diffuseContribution = vec3(1.0f) - specularContribution;
         diffuseContribution = diffuseContribution * (1.0f - metallic);
 
-        lightOutput += (diffuseContribution * diffuse / pi + specular) * (directionalLights[i].intensity * pointLights[usedPointLightIndices[i]].color.rgb) * lightFacingRatio;
+        lightOutput += (diffuseContribution * diffuse / pi + specular) * (directionalLights[i].intensity * directionalLights[i].color.rgb) * lightFacingRatio;
     }
 }
 
@@ -331,5 +331,5 @@ void main()
     //color = pow(color, vec3(1.0/gamma));
 
     //fragColor = normalSample;
-    fragColor = vec4(color, 1.0f);
+    fragColor = vec4(lightOutput, 1.0f);
 }

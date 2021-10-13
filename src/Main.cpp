@@ -117,7 +117,7 @@ int main()
     obj1.MoveAbsolute(100.0f, 0.0f, 0.0f);
 
     Engine::Actor obj2;
-    obj2.SetShader(testAnimated);
+    obj2.SetShader(uber);
 
     obj2.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\dancing_vampire.dae")));
 
@@ -219,7 +219,7 @@ int main()
     pointLight1.SetIntensity(15000.0f);
     //pointLight1.SetColor({ 0.8f, 0.3f, 0.0f });
     pointLight2.SetIntensity(15000.0f);
-    //pointLight2.SetColor({ 1.0f, 1.0f, 1.0f });
+    //pointLight2.SetColor({ 1.0f, 0.5f, 0.2f });
     //pointLight3.SetIntensity(50000.0f);
     //pointLight4.SetIntensity(50000.0f);
     //pointLight5.SetIntensity(50000.0f);
@@ -231,9 +231,9 @@ int main()
     
     spotLight.SetIntensity(15000.0f);
     
-    dirLight.SetIntensity(1.0f);
+    dirLight.SetIntensity(2.0f);
     dirLight.SetOrientation({ 0.0f, 1.0f, 0.0f });
-    //dirLight.SetColor({ 1.0f, 0.0f, 0.0f });
+    //dirLight.SetColor({ 0.4f, 0.4f, 0.8f });
     ambientLight.SetIntensity(50.0f);
 
 
@@ -294,7 +294,7 @@ int main()
         engine.GetAnimator().UpdateAnimations();
         std::vector<Engine::Actor*> culled = engine.GetRenderer().FrustumCull(camera, actors);
         numCulls = actors.size() - culled.size();
-        engine.GetRenderer().Render(camera, actors);
+        //engine.GetRenderer().Render(camera, actors);
         pointLight1.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
         //engine.GetRenderer().Render(camera, pointLight1);
         //pointLight2.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
@@ -306,7 +306,7 @@ int main()
         //pointLight5.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
         //engine.GetRenderer().Render(camera, pointLight5);
 
-        //engine.GetRenderer().Render(camera, terrain);
+        engine.GetRenderer().Render(camera, terrain);
         //engine.GetRenderer().Render(camera, obj1);
         //engine.GetRenderer().Render(camera, obj3);
 
