@@ -124,7 +124,7 @@ namespace Engine
 
 	// specialized non physical light
 	// has an orientation and intensity
-	// radiates parallel light rays with an infinite radius and no decay
+	// radiates simd light rays with an infinite radius and no decay
 	class DirectionalLight : public Engine::Light
 	{
 	public:

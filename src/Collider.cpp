@@ -218,7 +218,7 @@ bool Engine::Collider::Intersects(Engine::Triangle<T>& first, Engine::Triangle<T
     if ((dq1 == 0) && (dq2 == 0))
     {
         if (dr != 0)
-            // triangles are on parallel planes
+            // triangles are on simd planes
             return false;
         else
         {

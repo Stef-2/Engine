@@ -15,7 +15,6 @@ namespace Engine
 
     // scene Node, containing basic transformation and animated transformation data
     // implemented as a hierarchical data structure with each node holding information about its parent and children
-
     class Node
     {
     public:

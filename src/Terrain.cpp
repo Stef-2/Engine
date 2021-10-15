@@ -120,6 +120,7 @@ void Engine::Terrain::Generate()
 	}
 
 	constexpr float tessellationThreshold = 2.0f;
+	constexpr float heightFactor = 2.0f;
 	constexpr unsigned int heightMapTextureComponents = 3u;
 
 	// minimum and maximum terrain coordinates
@@ -146,22 +147,56 @@ void Engine::Terrain::Generate()
 	// find the heightmap / terrain size scaling factors to be used later
 	double scalingFactorX = this->heightMap.GetWidth() / this->size.x;
 	double scalingFactorY = this->heightMap.GetHeight() / this->size.y;
-	double scalingFactor = (scalingFactorX + scalingFactorY) / 2.0;
+	double scalingFactor = ((scalingFactorX + scalingFactorY) / 2.0) / heightFactor;
 
 	// utility lambda that samples the heightmap data at a given point
 	auto HeightMapSample = [this](unsigned int x, unsigned int y) -> float
 	{
 		// during texture reading we ensured that we have 3 color components / channels per pixel in case the heightmap isn't greyscale
-		unsigned char* pixelOffset = this->heightMap.GetData() + (x + this->heightMap.GetWidth() * y) * heightMapTextureComponents;
+		unsigned char* pixel = this->heightMap.GetData() + (x + this->heightMap.GetWidth() * y) * heightMapTextureComponents;
 
-		unsigned char red = pixelOffset[0];
-		unsigned char green = pixelOffset[1];
-		unsigned char blue = pixelOffset[2];
+		unsigned char red = pixel[0];
+		unsigned char green = pixel[1];
+		unsigned char blue = pixel[2];
 
-		// 
 		return float((unsigned(red) + unsigned(green) + unsigned(blue)) / heightMapTextureComponents);
 	};
-	
+
+	// utility lambda that samples a NxN pixel neighborhood around a given center point
+	auto HeightMapNeighborhoodSample = [this](unsigned int x, unsigned int y, unsigned short neighborhoodSize) -> float*
+	{
+		float* samples = new float[neighborhoodSize * neighborhoodSize] {0.0f};
+		unsigned short index = 0;
+
+		for (signed short i = -(neighborhoodSize - 1) / 2; i <= (neighborhoodSize - 1) / 2; i++)
+			for (signed short j = -(neighborhoodSize - 1) / 2; j <= (neighborhoodSize - 1) / 2; j++)
+			{
+				unsigned int offset = (x + i) + this->heightMap.GetWidth() * (y + j);
+
+				// check if we'd sample out of bounds
+				if (offset >= 0 && offset <= this->heightMap.GetWidth() * this->heightMap.GetHeight())
+				{
+					// during texture reading we ensured that we have 3 color components / channels per pixel in case the heightmap isn't greyscale
+					unsigned char* pixel = this->heightMap.GetData() + ((x + i) + this->heightMap.GetWidth() * (y + j)) * heightMapTextureComponents;
+
+					unsigned char red = pixel[0];
+					unsigned char green = pixel[1];
+					unsigned char blue = pixel[2];
+
+					samples[index] = float((unsigned(red) + unsigned(green) + unsigned(blue)) / heightMapTextureComponents);
+
+				}
+				// if we would, just insert a perfect (0.0f, 1.0f, 0.0f) normal vector
+				// this will only happen on borders and should not matter
+				else
+					samples[index] = 1.0f;
+
+				index += 1u;
+			}
+
+		return samples;
+	};
+
 	// lambda that samples and calculates the rate of change of height inside a triangle
 	// greater return value indicates higher relative change of contained height values
 	auto RateOfTriangleHeightChange = [this, &HeightMapSample, &scalingFactorX, &scalingFactorY, &scalingFactor]
@@ -198,14 +233,57 @@ void Engine::Terrain::Generate()
 	};
 	
 	// lambda that will iteratively tessellate a triangle [numIterations] number of times
-	std::function<void(std::vector<unsigned int>&, unsigned short, const Engine::Vertex&, const Engine::Vertex&, const Engine::Vertex&,
-						const unsigned int&, const unsigned int&, const unsigned int&)>
+	std::function<void(std::vector<Engine::Vertex>&, std::vector<unsigned int>&, unsigned short, const unsigned int&)>
 
-	tessellate = [](std::vector<unsigned int>& indices, unsigned short numIterations,
-						 const Engine::Vertex& A, const Engine::Vertex& B, const Engine::Vertex& C,
-						 const unsigned int& indexA, const unsigned int& indexB, const unsigned int& indexC) -> void
+	tessellate = [this, &HeightMapSample, &scalingFactorX, &scalingFactorY, &scalingFactor, &tessellate]
+	(std::vector<Engine::Vertex>& vertices, std::vector<unsigned int>& indices, unsigned short numIterations, const unsigned int& startIndex) -> void
 	{
+		unsigned int& indexA = indices.at(startIndex);
+		unsigned int& indexB = indices.at(startIndex + 1l);
+		unsigned int& indexC = indices.at(startIndex + 2l);
 
+		Engine::Vertex& A = vertices.at(indices.at(indexA));
+		Engine::Vertex& B = vertices.at(indices.at(indexB));
+		Engine::Vertex& C = vertices.at(indices.at(indexC));
+
+		float positionX = (A.position.x + B.position.x + C.position.x) / 3.0f;
+		float positionZ = (A.position.z + B.position.z + C.position.z) / 3.0f;
+		float positionY = HeightMapSample((positionX + this->size.x / 2) * scalingFactorX,
+										  (positionZ + this->size.y / 2) * scalingFactorY) / scalingFactor;
+
+		float uvX = (A.uv.x + B.uv.x + C.uv.x) / 2.0f;
+		float uvY = (A.uv.y + B.uv.y + C.uv.y) / 2.0f;
+
+		// create a new vertex in the center of the triangle
+		Engine::Vertex D{
+			// position
+			{positionX, positionY, positionY},
+			// normal
+			{ 0.0f, 1.0f, 0.0f},
+			// bitangent
+			{0.0f, 0.0f, 1.0f},
+			// tangent
+			{1.0f, 0.0f, 0.0f},
+			// uv, needs to be in [0,1] range
+			{uvX, uvY } };
+
+		vertices.push_back(D);
+		const unsigned int&& indexD = vertices.size();
+
+		// erase the old indices
+		indices.erase(indices.begin() + startIndex, indices.begin() + startIndex + 2u);
+
+		// add the new ones
+		indices.insert(indices.end(), { indexA, indexB, indexD,
+										indexC, indexB, indexC,
+										indexC, indexA, indexD });
+
+		// if we need to tessellate deeper, pass the call to the newly created triangles
+		if (numIterations) {
+			tessellate(vertices, indices, --numIterations, indices.size() - 9u);
+			tessellate(vertices, indices, --numIterations, indices.size() - 6u);
+			tessellate(vertices, indices, --numIterations, indices.size() - 3u);
+		}
 	};
 
 	// stack of vertices to fill in
@@ -216,32 +294,46 @@ void Engine::Terrain::Generate()
 	std::map<Engine::Vertex*, std::vector<glm::vec3>> vertexNormalWeights;
 	
 	// calculate, add and push vertex attributes
+	#pragma omp simd
 	for (size_t i = 0; i < numVerticesX; i++)
-		#pragma omp simd
 		for (size_t j = 0; j < numVerticesY; j++)
+		{
+			// sample a 3x3 pixel neighborhood around the center vertex, we need the surrounding pixel values to calculate normals, tangents and bitangnts
+			float* samples = HeightMapNeighborhoodSample(i * this->heightMap.GetWidth() / numVerticesX, j * this->heightMap.GetHeight() / numVerticesY, 3u);
+			// tangent is the difference between right and left sample
+			glm::vec3 tangent = glm::normalize(glm::vec3{ 1.0, samples[5] - samples[3], 0.0 });
+			// bitangent is the difference between bottom and top sample
+			glm::vec3 bitangent = glm::normalize(glm::vec3{ 0.0, samples[7] - samples[1], 1.0 });
+			// normal is just their cross product
+			glm::vec3 normal = glm::normalize(glm::cross(bitangent, tangent));
+
 			// construct and add vertices to the stack
 			vertices.push_back(Engine::Vertex{
 				// position X
 				{mins.x + offsetX * i,
-				// position Y
-				HeightMapSample(i * (this->heightMap.GetWidth() / numVerticesX) , j * (this->heightMap.GetHeight() / numVerticesY)) / scalingFactor,
+				// position Y, middle of the 3x3 sample
+				samples[4] / scalingFactor,
 				// position Z
 				mins.z + offsetY * j },
 				// normal
-				{ 0.0f, 1.0f, 0.0f},
+				//glm::normalize(glm::vec3(2 * (samples[5]-samples[3]), 4.0f, 2 * (samples[7] - samples[1]))),
+				normal,
 				// bitangent
-				{0.0f, 0.0f, 1.0f},
+				bitangent,
 				// tangent
-				{1.0f, 0.0f, 0.0f},
+				tangent,
 				// uv, needs to be in [0,1] range
-				{(0 + offsetX * i) / this->size.x, (0 + offsetY * j) / this->size.y} });
+				{(offsetX * i) / this->size.x, (offsetY * j) / this->size.y} });
+
+			delete[]samples;
+		}
 
 	// initialize a connection between a vertex and its stack of normal weights
 	// this could not have been done in the original loop because we're using pointers for performance reasons
 	// vectors work by moving themselves around memory when they can no longer continuously fit into the memory hole they reside in
 	// thus they relocate to a new location but our pointers keep pointing to their old address, causing memory corruption
 	// and so this step must be done only after all the vertices have been made and pushed into the vector
-	#pragma omp simd
+	//#pragma omp parallel
 	for (size_t i = 0; i < vertices.size(); i++)
 		// add the vertex as a map entry
 		vertexNormalWeights.insert(std::pair<Engine::Vertex*, std::vector<glm::vec3>> {&vertices.at(i), std::vector<glm::vec3>{}});
@@ -261,6 +353,7 @@ void Engine::Terrain::Generate()
 	// +-> o-o-o-o-o-o-o-o-o-o-o -->	<-sick ascii thing check out my deviantArt
 	
 	// calculate indices for indexed rendering later on
+	//#pragma omp parallel
 	for (unsigned int i = 0; i < numVerticesX * numVerticesY; i++)
 	{
 		unsigned int quadIndexTL = i + numVerticesX;
@@ -281,7 +374,7 @@ void Engine::Terrain::Generate()
 	
 	// calculate normals, tangents and bitangents after vertices have been displaced
 	// part 1: calculate and collect normal weights for all vertices from their surrounding triangles
-	#pragma omp simd
+	/*#pragma omp simd
 	for (size_t i = 0; i < indices.size(); i += 3)
 	{
 		Engine::Vertex& vertex1 = vertices.at(indices.at(i));
@@ -353,7 +446,7 @@ void Engine::Terrain::Generate()
 		vertex3.bitangent = glm::normalize(glm::cross(vertex3.normal, vertex3.tangent));
 
 		glm::vec3 faceNormal = glm::normalize((vertex1.normal + vertex2.normal + vertex3.normal) / 3.0f);
-
+		/*
 		if (RateOfTriangleHeightChange(vertex1.position, vertex2.position, vertex3.position, faceNormal) > 1) {
 			vertex1.tangent = { 1.0f, 1.0f, 1.0f };
 			vertex1.bitangent = { 1.0f, 1.0f, 1.0f };
@@ -369,8 +462,8 @@ void Engine::Terrain::Generate()
 			vertex2.bitangent = { 0.0f, 0.0f, 0.0f };
 			vertex3.tangent = { 0.0f, 0.0f, 0.0f };
 			vertex3.bitangent = { 0.0f, 0.0f, 0.0f };
-		}
-	}
+		}*/
+	//}
 	
 	// push vertices and indices into the mesh and have it generate its internal rendering data
 	this->mesh.SetVertices(vertices);

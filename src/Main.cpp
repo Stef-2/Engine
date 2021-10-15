@@ -187,7 +187,7 @@ int main()
     actors.push_back(&obj2);
     //actors.push_back(&obj3);
 
-    Engine::Terrain terrain({ 150.0, 150.0 }, 1, engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\heightmap.png"));
+    Engine::Terrain terrain({ 300.0, 300.0 }, 1, engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\heightmap.png"));
     terrain.SetShader(testStatic);
     terrain.GetMesh().GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\grey.png"));
     terrain.GetMesh().GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\white.png"));
