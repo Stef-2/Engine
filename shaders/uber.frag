@@ -305,7 +305,7 @@ float LinearizeDepth()
 
     float near = float(nearFar[0]);
     float far = float(nearFar[1]);
-
+    
     return (2.0 * near * far) / (far + near - z * (far - near));	
 }
 

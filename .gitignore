@@ -14,6 +14,9 @@
 *.userprefs
 resources/
 lib/
+build/
+Cmake/
+CMakeLists.txt
 
 *.fbx
 *.dae

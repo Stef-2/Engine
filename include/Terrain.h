@@ -20,12 +20,29 @@
 #include "glm/gtx/common.hpp"
 
 #include "functional"
+#include <cassert>
+#include "assert.h"
 #include "string"
+#include "array"
 #include "vector"
 #include "map"
 
 namespace Engine
 {
+
+    // a chunk of terrain data
+    // splitting it so we can benefit from culling and streaming optimizations
+    struct Sector
+    {
+        std::vector<Engine::Vertex> vertices;
+        std::vector<unsigned int> indices;
+
+        Engine::BoundingBox boundingBox;
+
+        unsigned int VAO;
+        unsigned int VBO;
+        unsigned int EBO;
+    };
 
     // Terrain
     class Terrain : public Object

@@ -118,6 +118,8 @@ namespace Engine
 
             double currentTime;
             double lastTime;
+
+            bool running;
     };
 
 }

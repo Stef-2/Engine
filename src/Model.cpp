@@ -168,15 +168,6 @@ void Engine::Model::LoadMesh(std::string filePath)
         }
     };
 
-    // utility vectors to be filled with data
-    std::vector<Engine::VertexBoneData> vertexBoneData{};
-
-    std::vector<Engine::Animation> animations;
-    std::vector<Engine::Vertex> vertices{};
-    std::vector<unsigned int> indices{};
-    std::vector<Engine::Bone> bones;
-    Engine::Skeleton skeleton{};
-
     // utility vectors for manual bounding box building
     glm::vec3 min{ 0.0f };
     glm::vec3 max{ 0.0f };
@@ -196,6 +187,8 @@ void Engine::Model::LoadMesh(std::string filePath)
         // go through all the animations
         for (unsigned i = 0; i < scene->mNumAnimations; i++)
         {
+            std::vector<Engine::Animation> animations;
+
             aiAnimation& aiAnim = *scene->mAnimations[i];
 
             // push back a new animation
@@ -227,7 +220,20 @@ void Engine::Model::LoadMesh(std::string filePath)
     // go through all the meshes
     for (unsigned int i = 0; i < scene->mNumMeshes; i++)
     {
+        // utility vectors to be filled with data
+        std::vector<Engine::VertexBoneData> vertexBoneData{};
+        std::vector<Engine::Vertex> vertices{};
+        std::vector<unsigned int> indices{};
+        std::vector<Engine::Bone> bones;
+        Engine::Skeleton skeleton{};
+
         aiMesh* mesh = scene->mMeshes[i];
+
+        // reserve vector space so we don't cause 69 million relocations later
+        vertexBoneData.reserve(mesh->mNumVertices);
+        vertices.reserve(mesh->mNumVertices);
+        indices.reserve(mesh->mNumFaces);
+        bones.reserve(mesh->mNumBones);
 
         vertexCount += mesh->mNumVertices;
         triangleCount += mesh->mNumFaces;
@@ -412,10 +418,13 @@ void Engine::Model::LoadMesh(std::string filePath)
 
             // animated mesh
             this->animatedMeshes.push_back(AnimatedMesh(vertexBoneData, indices, skeleton, animations));
+            this->animatedMeshes.back().SetBoundingBox(aiVector3ToGlm(mesh->mAABB.mMin), aiVector3ToGlm(mesh->mAABB.mMax));
         }
-        else
+        else {
             // static mesh with no animations nor bones
             this->staticMeshes.push_back(Mesh(vertices, indices));
+            this->staticMeshes.back().SetBoundingBox(aiVector3ToGlm(mesh->mAABB.mMin), aiVector3ToGlm(mesh->mAABB.mMax));
+        }
     }
 
     // debug

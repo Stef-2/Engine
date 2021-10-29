@@ -223,5 +223,11 @@
     <None Include="README.md">
       <Filter>GitHub</Filter>
     </None>
+    <None Include="shaders\volume.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\volume.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -6,6 +6,21 @@ double deltaTime = 0.0f;
 double oldX = 1280.0 / 2.0;
 double oldY = 720.0 / 2.0;
 
+bool IsPrime(int n)
+{
+    if (n <= 1) return false;
+
+    else if (n <= 3) return true;
+
+    else if ((n % 2 == 0) || (n % 3 == 0)) return false;
+    int i = 5;
+        while (i * i <= n) {
+            if ((n % i == 0) || (n % (i + 2) == 0)) return false;
+            i = i + 6;
+        }
+        return true;
+}
+
 int main()
 {
     Engine::Window window(1920, 1080, "Engine", NULL, NULL, glm::ivec2(4, 6));
@@ -21,6 +36,17 @@ int main()
     camera.Setup(1.0f, engine.GetWindow().GetAspectRatio(), 0.1f, 10000, 45.0f);
     camera.SetUpDirection(glm::vec3(0.0f, 1.0f, 0.0f));
     Engine::InitializeCallbacks(&engine);
+    /*
+    unsigned long long b = 0;
+    time_t t = time(nullptr);
+    //#pragma omp parallel for ordered shared(b)
+    for (int i = 0; i < 100000000; i++)
+    {
+        b += IsPrime(i);
+    }
+    std::cout << b << " passed time: " << time(nullptr) - t << std::endl;
+    exit(0);
+    */
     /*
     float m22 = -camera.GetProjection()[2][2];
     float m32 = -camera.GetProjection()[3][2];
@@ -187,7 +213,7 @@ int main()
     actors.push_back(&obj2);
     //actors.push_back(&obj3);
 
-    Engine::Terrain terrain({ 300.0, 300.0 }, 1, engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\heightmap.png"));
+    Engine::Terrain terrain({ 50, 50.0 }, 1.0, engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\heightmap.png"));
     terrain.SetShader(testStatic);
     terrain.GetMesh().GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\grey.png"));
     terrain.GetMesh().GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\white.png"));

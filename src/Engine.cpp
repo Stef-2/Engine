@@ -12,16 +12,16 @@ Engine::Motor::Motor()
     this->renderer = {};
     this->collider = {};
 
-    
-}
-
-void Engine::Motor::Initialize()
-{
     // just temporary initialization to prevent garbage values from being held here
     // GetDeltaTime() and Run() functions are actually responsible for keeping these updated
     this->lastTime = 0;
     this->currentTime = glfwGetTime();
 
+    running = false;
+}
+
+void Engine::Motor::Initialize()
+{
     this->InitializeCallbacks();
 
     // initialize the random seed with current time
@@ -151,7 +151,12 @@ void Engine::Motor::Intro()
 
 void Engine::Motor::Run()
 {
+    this->running = true;
 
+    while (this->running)
+    {
+
+    }
 }
 
 void Engine::Motor::ErrorCallback(int error, const char* description)
@@ -165,6 +170,7 @@ void Engine::Motor::KeyCallback(GLFWwindow* window, int key, int scancode, int a
     {
         std::cout << "Window closure requested." << std::endl;
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+        Engine::Motor::GetInstance().running = false;
     }
 }
 

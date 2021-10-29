@@ -95,9 +95,19 @@ Engine::Material& Engine::Mesh::GetMaterial()
     return this->material;
 }
 
+Engine::BoundingBox& Engine::Mesh::GetBoundingBox()
+{
+    return this->boundingBox;
+}
+
 void Engine::Mesh::SetMaterial(const Engine::Material& material)
 {
     this->material = material;
+}
+
+void Engine::Mesh::SetBoundingBox(glm::vec3 mins, glm::vec3 maxs)
+{
+    this->boundingBox = Engine::BoundingBox(mins, maxs);
 }
 
 void Engine::Mesh::SetVertices(std::vector<Engine::Vertex> vertices)

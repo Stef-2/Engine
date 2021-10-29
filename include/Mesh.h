@@ -7,6 +7,7 @@
 #include "Material.h"
 #include "Skeleton.h"
 #include "Animation.h"
+#include "BoundingVolume.h"
 #include "Node.h"
 
 #include "glm/glm.hpp"
@@ -71,10 +72,12 @@ namespace Engine
         std::vector<unsigned int>& GetIndices();
         std::vector<Triangle<Vertex>>& GetTriangles();
         Engine::Material& GetMaterial();
+        Engine::BoundingBox& GetBoundingBox();
 
         void SetVertices(std::vector<Vertex> vertices);
         void SetIndices(std::vector<unsigned int> indices);
         void SetMaterial(const Material& material);
+        void SetBoundingBox(glm::vec3 mins, glm::vec3 maxs);
 
     private:
         // mesh vertices
@@ -87,6 +90,8 @@ namespace Engine
 
         // node containing transformation data
         Engine::Node* node;
+
+        Engine::BoundingBox boundingBox;
 
         // order in which vertices connect to form triangles
         std::vector<unsigned int> indices;
