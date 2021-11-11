@@ -37,11 +37,17 @@ namespace Engine
         std::vector<Engine::Vertex> vertices;
         std::vector<unsigned int> indices;
 
+        // bounding box for frustum culling
         Engine::BoundingBox boundingBox;
 
+        // openGL buffers
         unsigned int VAO;
         unsigned int VBO;
         unsigned int EBO;
+
+        // terrain divisor if its size is greater than this value
+        // competition to see how many specifiers we can put before the actual value
+        inline static constexpr const unsigned int sectorSize = 16u;
     };
 
     // Terrain
@@ -59,6 +65,7 @@ namespace Engine
         Engine::Mesh& GetMesh();
         Engine::Shader& GetShader();
         Engine::Texture& GetHeightMap();
+        std::vector<Engine::Material>& GetMaterials();
 
         glm::dvec2& GetSize();
         double& GetDensity();
@@ -68,6 +75,11 @@ namespace Engine
 
         void SetSize(glm::dvec2 size);
         void SetDensity(double density);
+        void SetSectors(std::vector<Engine::Sector> sectors);
+        void SetBoundingBox(glm::vec3 mins, glm::vec3 maxs);
+
+        void AddMaterial(Engine::Material& material);
+        void AddSector(Engine::Sector& sector);
 
     private:
         // parses the stored height map
@@ -78,6 +90,10 @@ namespace Engine
         Engine::Mesh mesh;
         Engine::Shader shader;
         Engine::Texture heightMap;
+        Engine::BoundingBox boundingBox;
+
+        std::vector<Engine::Sector> sectors;
+        std::vector<Engine::Material> materials;
 
         glm::dvec2 size;
         double density;

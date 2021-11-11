@@ -67,6 +67,11 @@ Engine::Texture& Engine::Terrain::GetHeightMap()
 	return this->heightMap;
 }
 
+std::vector<Engine::Material>& Engine::Terrain::GetMaterials()
+{
+	return this->materials;
+}
+
 glm::dvec2& Engine::Terrain::GetSize()
 {
 	return this->size;
@@ -106,9 +111,29 @@ void Engine::Terrain::SetDensity(double density)
 	this->density = density;
 }
 
+void Engine::Terrain::SetSectors(std::vector<Engine::Sector> sectors)
+{
+	this->sectors = sectors;
+}
+
+void Engine::Terrain::SetBoundingBox(glm::vec3 mins, glm::vec3 maxs)
+{
+	this->boundingBox = { mins, maxs };
+}
+
+void Engine::Terrain::AddMaterial(Engine::Material& material)
+{
+	this->materials.push_back(material);
+}
+
+void Engine::Terrain::AddSector(Engine::Sector& sector)
+{
+	this->sectors.push_back(sector);
+}
+
 void Engine::Terrain::ParseHeightMap()
 {
-
+	
 }
 
 void Engine::Terrain::Generate()
@@ -119,23 +144,28 @@ void Engine::Terrain::Generate()
 		return;
 	}
 
+	// tessellation happens on a triangle if [RateOfTriangleHeightChange] returns greater than this value
 	constexpr float tessellationThreshold = 2.0f;
-	constexpr float reductionTessellationDivisor = 3.0f;
+	// value determining the proximity of [reduceTessellate]'s inner triangle to the center of the original
+	// default of 2.0f = middle, greater values bring it close to the center
+	constexpr float reductionTessellationDivisor = 2.0f;
+	// heightmap sampler height divisor
 	constexpr float heightFactor = 2.0f;
-	constexpr unsigned int heightMapTextureComponents = 3u;
+	// number of channels / components per heightmap pixel
+	constexpr unsigned int heightMapTextureComponents = 1u;
 
 	// minimum and maximum terrain coordinates
 	glm::dvec3 mins;
 	glm::dvec3 maxs;
 
 	// calculate terrain boundries
-	mins.x = this->position.x - this->size.x / 2;
+	mins.x = this->position.x - this->size.x / 2.0;
 	mins.y = this->position.y;
-	mins.z = this->position.z - this->size.y / 2;
+	mins.z = this->position.z - this->size.y / 2.0;
 	
-	maxs.x = this->position.x + this->size.x / 2;
+	maxs.x = this->position.x + this->size.x / 2.0;
 	maxs.y = this->position.y;
-	maxs.z = this->position.z + this->size.y / 2;
+	maxs.z = this->position.z + this->size.y / 2.0;
 
 	// calculate the vertex offsets
 	const double offsetX = this->size.x / (this->size.x * this->density);
@@ -196,15 +226,18 @@ void Engine::Terrain::Generate()
 	// lambda that samples and calculates the rate of change of height inside a triangle
 	// greater return value indicates higher relative change of contained height values
 	auto RateOfTriangleHeightChange = [this, &HeightMapSample, &scalingFactorX, &scalingFactorY, &heightScalingFactor]
-	(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, const glm::vec3& normal) -> double
+	(const Engine::Vertex& A, const Engine::Vertex& B, const Engine::Vertex& C) -> double
 	{
 		// number of samples to take, relative to the size of the height map
 		const unsigned int numSamples = this->heightMap.GetWidth() * this->heightMap.GetHeight() / ((this->heightMap.GetWidth() + this->heightMap.GetHeight()) * 32u);
 		// accumulated height difference
 		float heightDifference = 0.0f;
 
+		// calculate triangle normal
+		glm::vec3 normal = glm::normalize((A.normal + B.normal + C.normal) / 3.0f);
+
 		// take an initial reference sample
-		float averageTriangleHeight = (A.y + B.y + C.y) / 3.0f;
+		float averageTriangleHeight = (A.position.y + B.position.y + C.position.y) / 3.0f;
 
 		// go through samples and accumulate the difference in height
 		#pragma omp parallel for
@@ -217,7 +250,7 @@ void Engine::Terrain::Generate()
 			float root = glm::sqrt(randomSample.x);
 
 			// use the random numbers to find a sample withing a triangle
-			glm::vec3 randomPoint = A * (1 - root) + B * (root * (1 - randomSample.y)) + C * (randomSample.y * root);
+			glm::vec3 randomPoint = A.position * (1 - root) + B.position * (root * (1 - randomSample.y)) + C.position * (randomSample.y * root);
 
 			// get the difference between the average triangle height and the sampled point height, add it to the total
 			heightDifference += glm::abs(averageTriangleHeight - 
@@ -229,10 +262,71 @@ void Engine::Terrain::Generate()
 		return heightDifference / numSamples;
 	};
 	
+	// utility lambdas that will calculate a centroid or an incircle of a triangle, either can be used for the following tessellation algorithms
+	auto centroid = [this, &HeightMapSample, &heightScalingFactor, &scalingFactorX, &scalingFactorY]
+					(Engine::Vertex& A, Engine::Vertex& B, Engine::Vertex& C) -> Engine::Vertex
+	{
+		float positionX = (A.position.x + B.position.x + C.position.x) / 3.0f;
+		float positionZ = (A.position.z + B.position.z + C.position.z) / 3.0f;
+
+		// sample the heightmap for the Y coordinate
+		float positionY = HeightMapSample((positionX * scalingFactorX + this->heightMap.GetWidth() / 2),
+			(positionZ * scalingFactorY + this->heightMap.GetHeight() / 2)) / heightScalingFactor;
+
+		float uvX = (A.uv.x + B.uv.x + C.uv.x) / 3.0f;
+		float uvY = (A.uv.y + B.uv.y + C.uv.y) / 3.0f;
+
+		return Engine::Vertex{
+			// position
+			{positionX, positionY, positionZ},
+			// normal
+			{ 0.0f, 1.0f, 0.0f},
+			// bitangent
+			{0.0f, 0.0f, 1.0f},
+			// tangent
+			{1.0f, 0.0f, 0.0f},
+			// uv, needs to be in [0,1] range
+			{uvX, uvY } };;
+	};
+
+	auto incircle = [this, &HeightMapSample, &heightScalingFactor, &scalingFactorX, &scalingFactorY]
+					(Engine::Vertex& A, Engine::Vertex& B, Engine::Vertex& C) -> Engine::Vertex
+	{
+		float sideA = glm::distance(B.position, C.position);
+		float sideB = glm::distance(A.position, C.position);
+		float sideC = glm::distance(A.position, B.position);
+
+		float positionX = (A.position.x * sideA + B.position.x * sideB + C.position.x * sideC) / (sideA + sideB + sideC);
+		float positionZ = (A.position.z * sideA + B.position.z * sideB + C.position.z * sideC) / (sideA + sideB + sideC);
+
+		// sample the heightmap for the Y coordinate
+		float positionY = HeightMapSample((positionX * scalingFactorX + this->heightMap.GetWidth() / 2),
+			(positionZ * scalingFactorY + this->heightMap.GetHeight() / 2)) / heightScalingFactor;
+
+		sideA = glm::distance(B.uv, C.uv);
+		sideB = glm::distance(A.uv, C.uv);
+		sideC = glm::distance(A.uv, B.uv);
+
+		float uvX = (A.uv.x * sideA + B.uv.x * sideB + C.uv.x * sideC) / (sideA + sideB + sideC);
+		float uvY = (A.uv.y * sideA + B.uv.y * sideB + C.uv.y * sideC) / (sideA + sideB + sideC);
+
+		return Engine::Vertex{
+			// position
+			{positionX, positionY, positionZ},
+			// normal
+			{ 0.0f, 1.0f, 0.0f},
+			// bitangent
+			{0.0f, 0.0f, 1.0f},
+			// tangent
+			{1.0f, 0.0f, 0.0f},
+			// uv, needs to be in [0,1] range
+			{uvX, uvY } };;
+	};
+
 	// lambda that will iteratively tessellate a triangle [numIterations] number of times
 	// works by creating a new vertex at the center of the triangle
 	std::function<void(std::vector<Engine::Vertex>& vertices, std::vector<unsigned int>& indices, unsigned short numIterations, const unsigned int& startIndex)>
-	pinchTessellate = [this, &HeightMapSample, &scalingFactorX, &scalingFactorY, &heightScalingFactor, &pinchTessellate]
+	pinchTessellate = [this, &HeightMapSample, &scalingFactorX, &scalingFactorY, &heightScalingFactor, &pinchTessellate, &centroid, &incircle]
 	(std::vector<Engine::Vertex>& vertices, std::vector<unsigned int>& indices, unsigned short numIterations, const unsigned int& startIndex) -> void
 	{
 		if (!numIterations)
@@ -248,34 +342,8 @@ void Engine::Terrain::Generate()
 		Engine::Vertex& B = vertices.at(indexB);
 		Engine::Vertex& C = vertices.at(indexC);
 
-		//float positionX = (A.position.x + B.position.x + C.position.x) / 3.0f;
-		//float positionZ = (A.position.z + B.position.z + C.position.z) / 3.0f;
-
-		float sideA = glm::distance(B.position, C.position);
-		float sideB = glm::distance(A.position, C.position);
-		float sideC = glm::distance(A.position, B.position);
-
-		float positionX = (A.position.x * sideA + B.position.x * sideB + C.position.x * sideC) / (sideA + sideB + sideC);
-		float positionZ = (A.position.z * sideA + B.position.z * sideB + C.position.z * sideC) / (sideA + sideB + sideC);
-
-		float positionY = HeightMapSample((positionX * scalingFactorX + this->heightMap.GetWidth() / 2),
-										  (positionZ * scalingFactorY + this->heightMap.GetHeight() / 2)) / heightScalingFactor;
-
-		float uvX = (A.uv.x + B.uv.x + C.uv.x) / 3.0f;
-		float uvY = (A.uv.y + B.uv.y + C.uv.y) / 3.0f;
-
 		// create a new vertex in the center of the triangle
-		Engine::Vertex D {
-			// position
-			{positionX, positionY, positionZ},
-			// normal
-			{ 0.0f, 1.0f, 0.0f},
-			// bitangent
-			{0.0f, 0.0f, 1.0f},
-			// tangent
-			{1.0f, 0.0f, 0.0f},
-			// uv, needs to be in [0,1] range
-			{uvX, uvY } };
+		Engine::Vertex D = centroid(A, B, C);
 
 		vertices.push_back(D);
 		const unsigned int&& indexD = vertices.size() - 1;
@@ -300,8 +368,10 @@ void Engine::Terrain::Generate()
 		}
 	};
 
+	// lambda that will iteratively tessellate a triangle [numIterations] number of times
+	// works by creating a new triangle inside the old one
 	std::function<void(std::vector<Engine::Vertex>& vertices, std::vector<unsigned int>& indices, unsigned short numIterations, const unsigned int& startIndex)>
-		reduceTessellate = [this, &HeightMapSample, &scalingFactorX, &scalingFactorY, &heightScalingFactor, &pinchTessellate]
+		reduceTessellate = [this, &HeightMapSample, &scalingFactorX, &scalingFactorY, &heightScalingFactor, &pinchTessellate, &reduceTessellate, &centroid, &incircle]
 		(std::vector<Engine::Vertex>& vertices, std::vector<unsigned int>& indices, unsigned short numIterations, const unsigned int& startIndex) -> void
 	{
 		if (!numIterations)
@@ -317,25 +387,11 @@ void Engine::Terrain::Generate()
 		Engine::Vertex& B = vertices.at(indexB);
 		Engine::Vertex& C = vertices.at(indexC);
 
-		//float positionX = (A.position.x + B.position.x + C.position.x) / 3.0f;
-		//float positionZ = (A.position.z + B.position.z + C.position.z) / 3.0f;
-
-		float sideA = glm::distance(B.position, C.position);
-		float sideB = glm::distance(A.position, C.position);
-		float sideC = glm::distance(A.position, B.position);
-
-		float centerX = (A.position.x * sideA + B.position.x * sideB + C.position.x * sideC) / (sideA + sideB + sideC);
-		float centerZ = (A.position.z * sideA + B.position.z * sideB + C.position.z * sideC) / (sideA + sideB + sideC);
-
-		float centerY = HeightMapSample((centerX * scalingFactorX + this->heightMap.GetWidth() / 2),
-			(centerZ * scalingFactorY + this->heightMap.GetHeight() / 2)) / heightScalingFactor;
-
-		glm::vec3 center{ centerX, centerY, centerZ };
-		glm::vec2 centerUv{ (A.uv + B.uv + C.uv) / 3.0f };
+		Engine::Vertex center = centroid(A, B, C);
 
 		Engine::Vertex A1{
 			// position
-			(A.position + center * (reductionTessellationDivisor - 1)) / reductionTessellationDivisor,
+			(A.position + center.position * (reductionTessellationDivisor - 1)) / reductionTessellationDivisor,
 			// normal
 			{ 0.0f, 1.0f, 0.0f},
 			// bitangent
@@ -343,11 +399,11 @@ void Engine::Terrain::Generate()
 			// tangent
 			{1.0f, 0.0f, 0.0f},
 			// uv, needs to be in [0,1] range
-			(A.uv + centerUv * (reductionTessellationDivisor - 1)) / reductionTessellationDivisor };
+			(A.uv + center.uv * (reductionTessellationDivisor - 1)) / reductionTessellationDivisor };
 
 		Engine::Vertex B1{
 			// position
-			(B.position + center * (reductionTessellationDivisor - 1)) / reductionTessellationDivisor,
+			(B.position + center.position * (reductionTessellationDivisor - 1)) / reductionTessellationDivisor,
 			// normal
 			{ 0.0f, 1.0f, 0.0f},
 			// bitangent
@@ -355,11 +411,11 @@ void Engine::Terrain::Generate()
 			// tangent
 			{1.0f, 0.0f, 0.0f},
 			// uv, needs to be in [0,1] range
-			(B.uv + centerUv * (reductionTessellationDivisor - 1)) / reductionTessellationDivisor };
+			(B.uv + center.uv * (reductionTessellationDivisor - 1)) / reductionTessellationDivisor };
 
 		Engine::Vertex C1{
 			// position
-			(C.position + center * (reductionTessellationDivisor - 1)) / reductionTessellationDivisor,
+			(C.position + center.position * (reductionTessellationDivisor - 1)) / reductionTessellationDivisor,
 			// normal
 			{ 0.0f, 1.0f, 0.0f},
 			// bitangent
@@ -367,7 +423,7 @@ void Engine::Terrain::Generate()
 			// tangent
 			{1.0f, 0.0f, 0.0f},
 			// uv, needs to be in [0,1] range
-			(C.uv + centerUv * (reductionTessellationDivisor - 1)) / reductionTessellationDivisor };
+			(C.uv + center.uv * (reductionTessellationDivisor - 1)) / reductionTessellationDivisor };
 
 		// add the new vertices
 		vertices.insert(vertices.end(), { A1, B1, C1 });
@@ -382,13 +438,24 @@ void Engine::Terrain::Generate()
 		indices.at(size_t(startIndex) + 2) = -1;
 
 		// add the new ones
-		indices.insert(indices.end(), {indexA, indexB, indexB1,
-									   indexA, indexB1, indexA1,
-									   indexB, indexC, indexC1,
-									   indexB, indexC1, indexB1,
-									   indexC, indexA, indexA1,
-									   indexC, indexA1, indexC1,
+		indices.insert(indices.end(), {indexA,  indexB,  indexB1,
+									   indexA,  indexB1, indexA1,
+									   indexB,  indexC,  indexC1,
+									   indexB,  indexC1, indexB1,
+									   indexC,  indexA,  indexA1,
+									   indexC,  indexA1, indexC1,
 									   indexA1, indexB1, indexC1} );
+
+		// if we need to tessellate deeper, pass the call to the newly created center triangle
+		// keep using reduction tessellation for depths above 1
+		if (tessellationDepth > 1)
+			reduceTessellate(vertices, indices, tessellationDepth, indices.size() - 3u);
+		
+		// for depth 1, just pinch tesselate the center triangle and its done
+		else if (tessellationDepth == 1)
+			pinchTessellate(vertices, indices, tessellationDepth, indices.size() - 3u);
+
+		
 	};
 
 	// stack of vertices to fill in
@@ -438,17 +505,17 @@ void Engine::Terrain::Generate()
 	// spent too much time on this ascii thing to delete it, keeping it for old times sake
 
 	// --> o-o-o-o-o-o-o-o-o-o-o --+	<-vertices
-	//	   |/|/|/|/|/|/|/|/|/|/|   |	<-alternating weave pattern alows one continuous strip
+	//	   |/|/|/|/|/|/|/|/|/|/|   |	<-alternating weave pattern allows one continuous strip
 	// +-- o-o-o-o-o-o-o-o-o-o-o <-+	
 	// |   |\|\|\|\|\|\|\|\|\|\|		<-flipping of Y direction sign produces zig zagging
 	// +-> o-o-o-o-o-o-o-o-o-o-o --+	<-X direction is flipped any time we reach far left or right
 	//	   |/|/|/|/|/|/|/|/|/|/|   |
 	// +-- o-o-o-o-o-o-o-o-o-o-o <-+
 	// |   |\|\|\|\|\|\|\|\|\|\|
-	// +-> o-o-o-o-o-o-o-o-o-o-o -->	<-sick ascii thing check out my deviantArt
+	// +-> o-o-o-o-o-o-o-o-o-o-o -->	<-sick ascii thing check out my DeviantArt
 
 	// calculate indices for indexed rendering later on
-	for (unsigned int i = 0; i < numVerticesX * numVerticesY; i++)
+	for (signed long long i = 0; i < signed long long(numVerticesX) * numVerticesY; i++)
 	{
 		unsigned int quadIndexBL = i;
 		unsigned int quadIndexBR = i + 1;
@@ -466,19 +533,20 @@ void Engine::Terrain::Generate()
 		}
 	}
 
-	unsigned int numIndices = indices.size();
-
+	unsigned long long numIndices = indices.size();
+	double max = 0, min = 0;
 	// tessellate triangles
 	#pragma omp parallel for shared(indices, vertices) ordered
-	for (long long i = 0; i < numIndices; i += 3)
+	for (signed long long i = 0; i < numIndices; i += 3)
 	{
 		Engine::Vertex& vertex1 = vertices.at(indices.at(i + 0));
 		Engine::Vertex& vertex2 = vertices.at(indices.at(i + 1));
 		Engine::Vertex& vertex3 = vertices.at(indices.at(i + 2));
 
-		glm::vec3 faceNormal = glm::normalize((vertex1.normal + vertex2.normal + vertex3.normal) / 3.0f);
-
-		if (RateOfTriangleHeightChange(vertex1.position, vertex2.position, vertex3.position, faceNormal) > 0.0) {
+		double rate = RateOfTriangleHeightChange(vertex1, vertex2, vertex3);
+		min = glm::min(min, rate);
+		max = glm::max(max, rate);
+		if (rate > 0.0) {
 			/*vertex1.tangent = { 1.0f, 1.0f, 1.0f };
 			vertex1.bitangent = { 1.0f, 1.0f, 1.0f };
 			vertex2.tangent = { 1.0f, 1.0f, 1.0f };
@@ -486,8 +554,8 @@ void Engine::Terrain::Generate()
 			vertex3.tangent = { 1.0f, 1.0f, 1.0f };
 			vertex3.bitangent = { 1.0f, 1.0f, 1.0f };*/
 
-			//#pragma omp ordered
-			//pinchTessellate(vertices, indices, 1, i);
+			#pragma omp ordered
+			pinchTessellate(vertices, indices, 1, i);
 			//break;
 		}
 		else {/*
@@ -501,21 +569,15 @@ void Engine::Terrain::Generate()
 	}
 
 	// tessellation has marked some indices for deletion, get rid of them
-	for (size_t i = 0; i < indices.size(); i += 3)
-		if (indices.at(i) == unsigned int(-1)) {
-			indices.erase(indices.begin() + i, indices.begin() + i + 3);
-			i += -3;
-		}
-
-	indices.shrink_to_fit();
-
+	std::erase(indices, unsigned int(-1));
+	std::cout << "min: " << min << ", max: " << max << std::endl;
 	// initialize a connection between a vertex and its stack of normal weights
 	// this could not have been done in the original loop because we're using pointers for performance reasons
 	// vectors work by moving themselves around memory when they can no longer continuously fit into the memory hole they reside in
 	// thus they relocate to a new location but our pointers keep pointing to their old address, causing memory corruption
 	// and so this step must be done only after all the vertices have been made and pushed into the vector
 	#pragma omp parallel for shared(vertices) ordered
-	for (int i = 0; i < vertices.size(); i++)
+	for (signed long long i = 0; i < vertices.size(); i++)
 		// add the vertex as a map entry
 		#pragma omp ordered
 		vertexNormalWeights.insert(std::pair<Engine::Vertex*, std::vector<glm::vec3>> {&vertices.at(i), std::vector<glm::vec3>{}});
@@ -523,7 +585,7 @@ void Engine::Terrain::Generate()
 	// calculate normals, tangents and bitangents after vertices have been displaced
 	// part 1: calculate and collect normal weights for all vertices from their surrounding triangles
 	#pragma omp parallel for shared(indices, vertices, vertexNormalWeights) ordered
-	for (long long i = 0; i < indices.size(); i += 3)
+	for (signed long long i = 0; i < indices.size(); i += 3)
 	{
 		Engine::Vertex& vertex1 = vertices.at(indices.at(i + 0));
 		Engine::Vertex& vertex2 = vertices.at(indices.at(i + 1));
@@ -561,7 +623,7 @@ void Engine::Terrain::Generate()
 	
 	// part 2: parse the weights and calculate the final normals
 	#pragma omp parallel for shared(vertices, vertexNormalWeights)
-	for (long long i = 0; i < vertices.size(); i++)
+	for (signed long long i = 0; i < vertices.size(); i++)
 	{
 		glm::vec3 normal {0.0f, 0.0f, 0.0f};
 
@@ -573,7 +635,7 @@ void Engine::Terrain::Generate()
 	
 	// part 3: go through all triangles once again with new normal data and calculate tangents and bitangents
 	#pragma omp parallel for shared(indices, vertices)
-	for (long long i = 0; i < indices.size(); i += 3)
+	for (signed long long i = 0; i < indices.size(); i += 3)
 	{
 		Engine::Vertex& vertex1 = vertices.at(indices.at(i + 0));
 		Engine::Vertex& vertex2 = vertices.at(indices.at(i + 1));
@@ -609,7 +671,7 @@ void Engine::Terrain::Generate()
 		vertex3.tangent = glm::normalize(posDelta1x3 * uvDelta2x3 - posDelta2x3 * uvDelta1x3);
 		vertex3.bitangent = glm::normalize(glm::cross(vertex3.normal, vertex3.tangent));
 	}
-	
+
 	// push vertices and indices into the mesh and have it generate its internal rendering data
 	this->mesh.SetVertices(vertices);
 	this->mesh.SetIndices(indices);

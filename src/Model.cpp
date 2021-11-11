@@ -168,6 +168,9 @@ void Engine::Model::LoadMesh(std::string filePath)
         }
     };
 
+    std::vector<Engine::Animation> animations;
+    animations.reserve(scene->mNumAnimations);
+
     // utility vectors for manual bounding box building
     glm::vec3 min{ 0.0f };
     glm::vec3 max{ 0.0f };
@@ -187,8 +190,6 @@ void Engine::Model::LoadMesh(std::string filePath)
         // go through all the animations
         for (unsigned i = 0; i < scene->mNumAnimations; i++)
         {
-            std::vector<Engine::Animation> animations;
-
             aiAnimation& aiAnim = *scene->mAnimations[i];
 
             // push back a new animation
@@ -388,7 +389,6 @@ void Engine::Model::LoadMesh(std::string filePath)
 
             // decapacitate the assembled tree since the root node was just a manually made seed with zero data
             root->GetChildren().back()->DeleteAbove();
-
 
             skeleton.SetRootNode(root);
 

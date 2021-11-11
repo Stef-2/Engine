@@ -119,7 +119,10 @@ int main()
                               engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\static.frag"));
 
     Engine::Shader testAnimated(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.vert"),
-                               engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.frag"));
+                                engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.frag"));
+
+    Engine::Shader volume(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.vert"),
+                          engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.frag"));
 
     //Engine::Actor obj1;
     //obj1.SetShader(basic);
@@ -167,6 +170,12 @@ int main()
     obj3.MoveAbsolute(-60.0f, 0.0f, 0.0f);
     obj3.ScaleRelative(10.0f, 10.0f, 10.0f);
 
+    Engine::Actor obj4;
+    obj4.SetShader(volume);
+    obj4.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\box.obj")));
+    obj4.MoveAbsolute(0.0f, 100.0f, 0.0f);
+    obj4.ScaleRelative(1000.0f, 100.0f, 1000.0f);
+
     /*
     Engine::Actor obj3;
     obj3.SetShader(basic);
@@ -213,12 +222,12 @@ int main()
     actors.push_back(&obj2);
     //actors.push_back(&obj3);
 
-    Engine::Terrain terrain({ 50, 50.0 }, 1.0, engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\heightmap.png"));
-    terrain.SetShader(testStatic);
-    terrain.GetMesh().GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\grey.png"));
-    terrain.GetMesh().GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\white.png"));
-    terrain.GetMesh().GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\grey.png"));
-    terrain.GetMesh().GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\normal map.jpg"));
+    //Engine::Terrain terrain({ 5000, 5000.0 }, 0.01, engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\heightmap.png"));
+    //terrain.SetShader(testStatic);
+    //terrain.GetMesh().GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\grey.png"));
+    //terrain.GetMesh().GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\white.png"));
+    //terrain.GetMesh().GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\grey.png"));
+    //terrain.GetMesh().GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\normal map.jpg"));
     //std::cout << terrain.GetHeightMap().GetData() << std::endl;
 
     for (size_t i = 0; i < actors.size(); i++)
@@ -259,16 +268,19 @@ int main()
     
     dirLight.SetIntensity(2.0f);
     dirLight.SetOrientation({ 0.0f, 1.0f, 0.0f });
+    dirLight.SetPosition({ 300.0f, 0.0f, 0.0f });
     //dirLight.SetColor({ 0.4f, 0.4f, 0.8f });
     ambientLight.SetIntensity(50.0f);
 
 
     // -----------------------------------------------
-    glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
+    glClearColor(0.6f, 0.8f, 1.0f, 1.0f);
     
-    //glEnable(GL_CULL_FACE);
-    //glEnable(GL_FRAMEBUFFER_SRGB);
+    glEnable(GL_CULL_FACE);
+    //glEnable(GL_FRAMEBUFFER_SRGBA);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // glDisable(GL_DEPTH_TEST);
     lastTime = glfwGetTime();
     // !!!-------------- main loop --------------!!!
@@ -311,11 +323,21 @@ int main()
 
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_E) == GLFW_PRESS) {
             engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back().GetAnimations().back().GetName());
+            //glm::mat4 asd = glm::mat4_cast(glm::inverse(camera.GetOrientation())) * camera.GetView();
+            glm::mat4 asd = glm::inverse(camera.GetView());
+            for (size_t i = 0; i < 4; i++)
+            {
+                for (size_t j = 0; j < 4; j++)
+                    std::cout << asd[i][j] << " ";
+                std::cout << std::endl;
+            }
+            std::cout << "--------------------" << std::endl;
+            //std::cout << *glm::value_ptr(camera.GetView()[0][0]) << std::endl;
         }
 
         obj1.RotateRelative(0.0f, 15.0f * deltaTime, 0.0f);
         obj3.RotateRelative(0.0f, 15.0f * deltaTime, 0.0f);
-        //obj2.MoveRelative(0.2f, 0.0f, 0.0f);
+        //obj4.MoveRelative(0.2f * deltaTime, 0.0f, 0.0f);
         //spotLight.RotateRelative(0.0f, 1.0f * deltaTime, 0.0f);
         engine.GetAnimator().UpdateAnimations();
         std::vector<Engine::Actor*> culled = engine.GetRenderer().FrustumCull(camera, actors);
@@ -332,7 +354,8 @@ int main()
         //pointLight5.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
         //engine.GetRenderer().Render(camera, pointLight5);
 
-        engine.GetRenderer().Render(camera, terrain);
+        //engine.GetRenderer().Render(camera, terrain);
+        
         //engine.GetRenderer().Render(camera, obj1);
         //engine.GetRenderer().Render(camera, obj3);
 
@@ -340,8 +363,8 @@ int main()
         //engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());
         // camera.Draw(&obj1);
         // camera.Draw(&obj2);
-        engine.GetRenderer().Render(camera, skyBox);
-        
+        //engine.GetRenderer().Render(camera, skyBox);
+        engine.GetRenderer().Render(camera, obj4);
         engine.GetWindow().SetTitle(std::string((const char*)(u8"Engine™ - Frame time: ") + std::to_string(frameMs) + " ms - FPS: " + std::to_string(fps) +
             " - Position: X: " + std::to_string(camera.GetPosition().x) + " - Y: " + std::to_string(camera.GetPosition().y) + " - Z: " + std::to_string(camera.GetPosition().z) +
             " - Rotation: X: " + std::to_string(camera.GetRotation().x) + " - Y: " + std::to_string(camera.GetRotation().y) + " - Z: " + std::to_string(camera.GetRotation().z) +
@@ -397,15 +420,15 @@ void Engine::MouseCallback(GLFWwindow* window, double xPos, double yPos)
     lastX = xPos;
     lastY = yPos;
 
-    double sensitivity = 150;
+    double sensitivity = 1;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
     yaw   += xoffset;
     pitch += yoffset;
 
-    double difX = (xPos - oldX) * (sensitivity * deltaTime);
-    double difY = (yPos - oldY) * (sensitivity * deltaTime);
+    double difX = (xPos - oldX) * (sensitivity);
+    double difY = (yPos - oldY) * (sensitivity);
 
     oldX = xPos;
     oldY = yPos;

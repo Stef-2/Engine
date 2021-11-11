@@ -206,6 +206,6 @@ void main()
     diffuseReflection += pointLightContributions[0];
     specularReflection += pointLightContributions[1];
 
-    fragColor = vec4(TBN[2][0], TBN[2][1], TBN[2][2], 1);
+    fragColor = vec4(TBN[2][0], TBN[2][1], TBN[2][2], 1f);
     //fragColor = color * (diffuseReflection + specularReflection);
 }
