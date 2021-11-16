@@ -8,6 +8,7 @@
 #include "Shader.h"
 #include "Light.h"
 #include "Terrain.h"
+#include "FrameBuffer.h"
 
 #include "vector"
 
@@ -30,8 +31,8 @@ namespace Engine
         void Render(const Engine::Camera& camera, Engine::Terrain& terrain);
 
         // shadow mapping
-        void Render(const Engine::Light& light, Engine::Actor& actor);
-        void Render(const Engine::Light& light, const std::vector<Engine::Actor*>& actors);
+        void Render(const Engine::Light& light, const Engine::FrameBuffer& shadowBuffer, const Engine::Actor& actor);
+        void Render(const Engine::Light& light, const Engine::FrameBuffer& shadowBuffer, const std::vector<Engine::Actor*>& actors);
 
         template<typename T>
         void Render(const Engine::Camera& camera, const Engine::OcTree<T>& tree);
@@ -44,11 +45,17 @@ namespace Engine
         int GetColorDepth();
 
     private:
+        int colorDepth;
+
+        // utility shaders
+
         // wireframe utility shader, meant to be used for bounding volume rendering -
         // no real point in defining it outside, or attaching it to individual bounding box objects - 
         // they are meant to be lightweight by design, and bounding box rendering is intended to be mostly used for debugging
-        Shader wireframeShader;
-        int colorDepth;
+        Shader wireFrameShader;
+
+        // shadow mapping shader, used for dynamic shadows
+        Shader shadowMapShader;
     };
 
     // ==========================================================================

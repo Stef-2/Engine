@@ -1,8 +1,8 @@
 #include "Light.h"
 
-//=============================================================================
+// ============================================================================
 // -------------------------------- Light -------------------------------------
-//=============================================================================
+// ============================================================================
 
 glm::vec3 Engine::Light::GetColor()
 {
@@ -26,9 +26,9 @@ void Engine::Light::SetColor(glm::vec3 color)
 	this->UpdateLight();
 }
 
-//=============================================================================
+// ============================================================================
 // ---------------------------- Physical Light --------------------------------
-//=============================================================================
+// ============================================================================
 
 Engine::Mesh& Engine::PhysicalLight::GetMesh()
 {
@@ -48,6 +48,16 @@ void Engine::PhysicalLight::SetMesh(Engine::Mesh mesh)
 void Engine::PhysicalLight::SetShader(Engine::Shader shader)
 {
 	this->shader = shader;
+}
+
+void Engine::PhysicalLight::SetIntensity(float intensity)
+{
+	this->intensity = intensity;
+
+	// given our current intensity and the inverse square intensity decay law, calculate the distance past which this lights contribution can be discarded
+	// threshold is an arbitrary value that we consider to no longer provide a significant contribution to final lighting output
+	float threshold = 100;
+	this->effectiveRadius = glm::sqrt(this->intensity / threshold);
 }
 
 void Engine::PhysicalLight::MoveRelative(glm::vec3 direction, float intensity)
@@ -104,9 +114,9 @@ void Engine::PhysicalLight::SetView()
 	this->view =  direction * position;
 }
 
-//=============================================================================
+// ============================================================================
 // ----------------------------- Point Light ----------------------------------
-//=============================================================================
+// ============================================================================
 
 std::vector<Engine::PointLight*> Engine::PointLight::lights = {};
 
@@ -115,6 +125,8 @@ Engine::PointLight::PointLight()
 	this->position = {0.0f, 0.0f, 0.0f};
 	this->color = {1.0f, 1.0f, 1.0f};
 	this->intensity = {};
+	this->effectiveRadius = {};
+	this->SetProjection();
 
 	// add ourselves to the stack
 	Engine::PointLight::lights.push_back(this);
@@ -152,10 +164,7 @@ float Engine::PointLight::GetIntensityAt(glm::vec3 atPosition)
 
 float Engine::PointLight::GetEffectiveRadius()
 {
-	// given our current intensity and the inverse square intensity decay law, calculate the distance past which this lights contribution can be discarded
-	// threshold is an arbitrary value that we consider to no longer provide a significant contribution to final lighting output
-	float threshold = 100;
-	return glm::sqrt(this->intensity / threshold);
+	return this->effectiveRadius;
 }
 
 void Engine::PointLight::UpdateLight()
@@ -225,9 +234,14 @@ void Engine::PointLight::UpdateLights()
 	}
 }
 
-//=============================================================================
+void Engine::PointLight::SetProjection()
+{
+	this->projection = glm::perspective(90.0f, 1.0f, 0.1f, this->GetEffectiveRadius());
+}
+
+// ============================================================================
 // ---------------------------- Spot Light ------------------------------------
-//=============================================================================
+// ============================================================================
 
 std::vector<Engine::SpotLight*> Engine::SpotLight::lights = {};
 
@@ -238,6 +252,8 @@ Engine::SpotLight::SpotLight()
 	this->color = { 1.0f, 1.0f, 1.0f };
 	this->intensity = {};
 	this->angle = {};
+	this->effectiveRadius = {};
+	this->SetProjection();
 
 	// add ourselves to the stack
 	Engine::SpotLight::lights.push_back(this);
@@ -367,6 +383,9 @@ void Engine::SpotLight::SetAngle(float angle)
 {
 	this->angle = angle;
 
+	// update the projection matrix since it depends on the angle
+	this->SetProjection();
+
 	// update the light stack on the GPU
 	this->UpdateLight();
 }
@@ -384,9 +403,9 @@ void Engine::SpotLight::SetProjection()
 	this->projection = glm::perspective(this->angle, 1.0f, 0.1f, this->GetEffectiveRadius());
 }
 
-//=============================================================================
+// ============================================================================
 // --------------------------- Directional Light ------------------------------
-//=============================================================================
+// ============================================================================
 
 std::vector<Engine::DirectionalLight*> Engine::DirectionalLight::lights = {};
 
@@ -395,6 +414,7 @@ Engine::DirectionalLight::DirectionalLight()
 	this->orientation = {0.0f, 1.0f, 0.0f};
 	this->color = {1.0f, 1.0f, 1.0f};
 	this->intensity = {};
+	this->SetProjection();
 
 	// add ourselves to the stack
 	Engine::DirectionalLight::lights.push_back(this);
@@ -527,9 +547,9 @@ void Engine::DirectionalLight::SetProjection()
 	this->projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
 }
 
-//=============================================================================
+// ============================================================================
 // ---------------------------- Ambient Light ---------------------------------
-//=============================================================================
+// ============================================================================
 
 std::vector<Engine::AmbientLight*> Engine::AmbientLight::lights = {};
 

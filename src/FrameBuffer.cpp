@@ -38,12 +38,12 @@ Engine::FrameBuffer& Engine::FrameBuffer::GetCurrentFrameBuffer()
 	return *Engine::FrameBuffer::currentFramebuffer;
 }
 
-unsigned int Engine::FrameBuffer::GetFBO()
+unsigned int Engine::FrameBuffer::GetFBO() const
 {
 	return this->FBO;
 }
 
-unsigned int Engine::FrameBuffer::GetColorBuffer()
+unsigned int Engine::FrameBuffer::GetColorBuffer() const
 {
 	if (this->colorBuffer.size())
 		return this->colorBuffer.at(0);
@@ -51,7 +51,7 @@ unsigned int Engine::FrameBuffer::GetColorBuffer()
 		std::cerr << "frame buffer has no color attachments" << std::endl;
 }
 
-unsigned int Engine::FrameBuffer::GetColorBuffer(unsigned short index)
+unsigned int Engine::FrameBuffer::GetColorBuffer(unsigned short index) const
 {
 	if (this->colorBuffer.size() > index)
 		return this->colorBuffer.at(index);
@@ -59,7 +59,7 @@ unsigned int Engine::FrameBuffer::GetColorBuffer(unsigned short index)
 		std::cerr << "invalid index: " << index << std::endl;
 }
 
-unsigned int Engine::FrameBuffer::GetDepthBuffer()
+unsigned int Engine::FrameBuffer::GetDepthBuffer() const
 {
 	if (this->depthBuffer)
 		return this->depthBuffer;
@@ -67,7 +67,7 @@ unsigned int Engine::FrameBuffer::GetDepthBuffer()
 		std::cerr << "frame buffer has no depth attachments" << std::endl;
 }
 
-unsigned int Engine::FrameBuffer::GetStencilBuffer()
+unsigned int Engine::FrameBuffer::GetStencilBuffer() const
 {
 	if (this->stencilBuffer)
 		return this->stencilBuffer;
@@ -75,8 +75,22 @@ unsigned int Engine::FrameBuffer::GetStencilBuffer()
 		std::cerr << "frame buffer has no stencil attachments" << std::endl;
 }
 
+unsigned int Engine::FrameBuffer::GetWidth() const
+{
+	return this->width;
+}
+
+unsigned int Engine::FrameBuffer::GetHeight() const
+{
+	return this->height;
+}
+
 void Engine::FrameBuffer::AddAttachment(AttachmentType type)
 {
+	// check if the frame buffer object has been generated, if not, make one
+	if (!this->FBO)
+		this->Setup();
+
 	switch (type)
 	{
 	case Engine::FrameBuffer::AttachmentType::COLOR_ATTACHMENT:
@@ -119,6 +133,13 @@ void Engine::FrameBuffer::AddAttachment(AttachmentType type)
 		// attach it to the frame buffer
 		glBindRenderbuffer(GL_FRAMEBUFFER, this->FBO);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, this->depthBuffer, 0);
+
+		// in case we don't have a color buffer, we need to explicitly tell OpenGL we're not using it
+		if (!this->colorBuffer.size()) {
+			glDrawBuffer(GL_NONE);
+			glReadBuffer(GL_NONE);
+		}
+
 		glBindRenderbuffer(GL_FRAMEBUFFER, 0u);
 
 		break;
@@ -140,6 +161,13 @@ void Engine::FrameBuffer::AddAttachment(AttachmentType type)
 		// attach it to the frame buffer
 		glBindRenderbuffer(GL_FRAMEBUFFER, this->FBO);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, this->stencilBuffer, 0);
+
+		// in case we don't have a color buffer, we need to explicitly tell OpenGL we're not using it
+		if (!this->colorBuffer.size()) {
+			glDrawBuffer(GL_NONE);
+			glReadBuffer(GL_NONE);
+		}
+
 		glBindRenderbuffer(GL_FRAMEBUFFER, 0u);
 
 		break;
@@ -150,14 +178,15 @@ void Engine::FrameBuffer::AddAttachment(AttachmentType type)
 	}
 }
 
-void Engine::FrameBuffer::Activate()
+void Engine::FrameBuffer::Activate() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, this->FBO);
-	Engine::FrameBuffer::currentFramebuffer = this;
+	Engine::FrameBuffer::currentFramebuffer = const_cast<Engine::FrameBuffer*>(this);
 }
 
-void Engine::FrameBuffer::Deactivate()
+void Engine::FrameBuffer::Deactivate() const
 {
+	// reset back to default context framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0u);
 	Engine::FrameBuffer::currentFramebuffer = nullptr;
 }
@@ -165,5 +194,4 @@ void Engine::FrameBuffer::Deactivate()
 void Engine::FrameBuffer::Setup()
 {
 	glGenFramebuffers(1, &this->FBO);
-	
 }

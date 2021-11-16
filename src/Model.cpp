@@ -273,8 +273,6 @@ void Engine::Model::LoadMesh(std::string filePath)
             aiVector3ToGlm(tangent),
             // UVs
             glm::vec2(aiVector3ToGlm(uv)) };
-            
-            if (vertex.bitangent.g > 1.0f || vertex.bitangent.g < -1.0f) std::cout << "we got a problem, sir: " << vertex.bitangent.g << std::endl;
 
             // push it onto the stack
             vertices.push_back(vertex);

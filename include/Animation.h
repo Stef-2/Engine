@@ -82,4 +82,5 @@ namespace Engine
         double startTime;
     };
 }
+
 #endif //  ANIMATION_H

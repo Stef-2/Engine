@@ -135,14 +135,14 @@ void Engine::Renderer::Render(const Engine::Camera& camera, const Engine::Boundi
     glm::mat4 transform(1.0f);
 
     // use the wireframe utility shader
-    this->wireframeShader.Activate();
+    this->wireFrameShader.Activate();
 
     // pass the model, view and projection (MVP) matrices to the shader
-    glUniformMatrix4fv(this->wireframeShader.GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(transform));
+    glUniformMatrix4fv(this->wireFrameShader.GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(transform));
 
-    glUniformMatrix4fv(this->wireframeShader.GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetView()));
+    glUniformMatrix4fv(this->wireFrameShader.GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetView()));
 
-    glUniformMatrix4fv(this->wireframeShader.GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
+    glUniformMatrix4fv(this->wireFrameShader.GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
 
     // create vertex buffer and element buffer objects
     unsigned int VAO;
@@ -287,6 +287,30 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Terrain& ter
     // render
     glDrawElements(GL_TRIANGLES, terrain.GetMesh().GetIndices().size(), GL_UNSIGNED_INT, 0);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+}
+
+void Engine::Renderer::Render(const Engine::Light& light, const Engine::FrameBuffer& shadowBuffer, const Engine::Actor& actor)
+{
+    // setup the viewport size to match the shadow frame buffer
+    glViewport(0, 0, shadowBuffer.GetWidth(), shadowBuffer.GetHeight());
+
+    // activate the shadow buffer
+    shadowBuffer.Activate();
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    // activate the shadow mapping shader
+    this->shadowMapShader.Activate();
+
+    // find the locations of uniform variables in the shader and assign transform matrices to them
+    glBindBuffer(GL_UNIFORM_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::MVP_MATRICES));
+
+    //glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(terrain.GetTransform()));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetView()));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(camera.GetProjection()));
+
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 
 }
 

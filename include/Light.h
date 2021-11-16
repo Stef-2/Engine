@@ -23,7 +23,7 @@ namespace Engine
 		virtual void UpdateLight() = 0;
 		virtual void UpdateLights() = 0;
 
-		void SetIntensity(float intensity);
+		virtual void SetIntensity(float intensity);
 		void SetColor(glm::vec3 color);
 
 	protected:
@@ -50,6 +50,7 @@ namespace Engine
 
 		void SetMesh(Engine::Mesh mesh);
 		void SetShader(Engine::Shader shader);
+		void SetIntensity(float intensity) override;
 
 		void MoveRelative(glm::vec3 direction, float intensity) override;
 		void MoveRelative(float x, float y, float z) override;
@@ -58,13 +59,15 @@ namespace Engine
 		virtual void RotateRelative(float x, float y, float z) override;
 		virtual void RotateAbsolute(float x, float y, float z) override;
 
-	private:
-		void SetView();
+	protected:
+		virtual void SetProjection() = 0;
 
 		Engine::Mesh mesh;
 		Engine::Shader shader;
 
-		glm::mat4 view;
+		glm::mat4 projection;
+
+		float effectiveRadius;
 	};
 	
 	// specialized physical light
@@ -91,8 +94,11 @@ namespace Engine
 
 		void UpdateLight() override;
 		void UpdateLights() override;
-	private:
 
+	private:
+		void SetProjection() override;
+
+		glm::mat4 views[6];
 		static std::vector<Engine::PointLight*> lights;
 	};
 	
@@ -107,12 +113,13 @@ namespace Engine
 		SpotLight(SpotLight&&) = default;
 		SpotLight& operator= (SpotLight&&) = default;
 
-		SpotLight(SpotLight&) = default;
-		SpotLight& operator= (SpotLight&) = default;
+		SpotLight(const SpotLight&) = default;
+		SpotLight& operator= (const SpotLight&) = default;
 
 		~SpotLight();
 
 		static std::vector<Engine::SpotLight*>& GetLights();
+
 		float GetIntensityAt(glm::vec3 atPosition) override;
 		float GetAngle();
 		float GetSharpness();
@@ -120,13 +127,12 @@ namespace Engine
 
 		void UpdateLight() override;
 		void UpdateLights() override;
+
 		void SetAngle(float angle);
 		void SetSharpness(float sharpness);
 
 	private:
-		void SetProjection();
-
-		glm::mat4 projection;
+		void SetProjection() override;
 
 		static std::vector<Engine::SpotLight*> lights;
 		float angle;
@@ -135,7 +141,7 @@ namespace Engine
 
 	// specialized non physical light
 	// has an orientation and intensity
-	// radiates simd light rays with an infinite radius and no decay
+	// radiates parallel light rays with an infinite radius and no decay
 	class DirectionalLight : public Engine::Light
 	{
 	public:
@@ -144,8 +150,8 @@ namespace Engine
 		DirectionalLight(DirectionalLight&&) = default;
 		DirectionalLight& operator= (DirectionalLight&&) = default;
 
-		DirectionalLight(DirectionalLight&) = default;
-		DirectionalLight& operator= (DirectionalLight&) = default;
+		DirectionalLight(const DirectionalLight&) = default;
+		DirectionalLight& operator= (const DirectionalLight&) = default;
 
 		~DirectionalLight();
 
@@ -180,8 +186,8 @@ namespace Engine
 		AmbientLight(AmbientLight&&) = default;
 		AmbientLight& operator= (AmbientLight&&) = default;
 
-		AmbientLight(AmbientLight&) = default;
-		AmbientLight& operator= (AmbientLight&) = default;
+		AmbientLight(const AmbientLight&) = default;
+		AmbientLight& operator= (const AmbientLight&) = default;
 
 		~AmbientLight();
 
@@ -199,4 +205,4 @@ namespace Engine
 	
 }
 
-#endif
+#endif // LIGHT_H
