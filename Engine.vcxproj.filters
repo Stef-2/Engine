@@ -90,6 +90,12 @@
     <ClInclude Include="include\Animator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FrameBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp">
@@ -161,6 +167,9 @@
     <ClCompile Include="src\Animator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\FrameBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.frag">
@@ -227,6 +236,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shaders\volume.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\shadowmap.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\shadowmap.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

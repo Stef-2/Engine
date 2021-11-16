@@ -145,9 +145,9 @@ std::string Engine::Window::GetGivenVersion()
     return this->openGlGivenVersion;
 }
 
-glm::ivec2 Engine::Window::GetDimensions()
+glm::uvec2 Engine::Window::GetDimensions()
 {
-    return glm::ivec2(width, height);
+    return glm::uvec2(width, height);
 }
 
 std::string Engine::Window::GetTitle()

@@ -46,6 +46,8 @@ namespace Engine
 		Engine::Mesh& GetMesh();
 		Engine::Shader& GetShader();
 
+		virtual float GetEffectiveRadius() = 0;
+
 		void SetMesh(Engine::Mesh mesh);
 		void SetShader(Engine::Shader shader);
 
@@ -57,8 +59,12 @@ namespace Engine
 		virtual void RotateAbsolute(float x, float y, float z) override;
 
 	private:
+		void SetView();
+
 		Engine::Mesh mesh;
 		Engine::Shader shader;
+
+		glm::mat4 view;
 	};
 	
 	// specialized physical light
@@ -72,8 +78,8 @@ namespace Engine
 		PointLight(PointLight&&) = default;
 		PointLight& operator= (PointLight&&) = default;
 
-		PointLight(PointLight&) = default;
-		PointLight& operator= (PointLight&) = default;
+		PointLight(const PointLight&) = default;
+		PointLight& operator= (const PointLight&) = default;
 
 		~PointLight();
 
@@ -81,7 +87,7 @@ namespace Engine
 
 		// calculates this lights intensity at a given position
 		float GetIntensityAt(glm::vec3 atPosition) override;
-		float GetEffectiveRadius();
+		float GetEffectiveRadius() override;
 
 		void UpdateLight() override;
 		void UpdateLights() override;
@@ -110,6 +116,7 @@ namespace Engine
 		float GetIntensityAt(glm::vec3 atPosition) override;
 		float GetAngle();
 		float GetSharpness();
+		glm::mat4& GetProjection();
 
 		void UpdateLight() override;
 		void UpdateLights() override;
@@ -117,6 +124,10 @@ namespace Engine
 		void SetSharpness(float sharpness);
 
 	private:
+		void SetProjection();
+
+		glm::mat4 projection;
+
 		static std::vector<Engine::SpotLight*> lights;
 		float angle;
 		float sharpness;
@@ -141,6 +152,7 @@ namespace Engine
 		static std::vector<Engine::DirectionalLight*>& GetLights();
 		glm::vec3 GetPosition();
 		glm::vec3 GetOrientation();
+		glm::mat4& GetProjection();
 
 		void SetPosition(glm::vec3 position);
 		void SetOrientation(glm::vec3 orientation);
@@ -148,6 +160,10 @@ namespace Engine
 		void UpdateLights() override;
 
 	private:
+		void SetProjection();
+
+		glm::mat4 projection;
+
 		static std::vector<Engine::DirectionalLight*> lights;
 		glm::vec3 position;
 		glm::vec3 orientation;

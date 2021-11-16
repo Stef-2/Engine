@@ -36,7 +36,7 @@ glm::vec3 Engine::Camera::GetRightDirection()
 
 glm::mat4 Engine::Camera::GetView() const
 {
-    // we're way too cool to construct a view matrix using LookAt(), so, 
+    // we're way too cool to construct a view matrix using LookAt(),
     // convert our orientation quaternion into a rotation matix
     glm::mat4 direction = glm::mat4_cast(this->orientation);
     

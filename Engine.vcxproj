@@ -163,6 +163,7 @@
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Collider.h" />
     <ClInclude Include="include\Engine.h" />
+    <ClInclude Include="include\FrameBuffer.h" />
     <ClInclude Include="include\Node.h" />
     <ClInclude Include="include\glfw3.h" />
     <ClInclude Include="include\Light.h" />
@@ -181,6 +182,7 @@
     <ClInclude Include="include\BoundingVolume.h" />
     <ClInclude Include="include\Animation.h" />
     <ClInclude Include="include\Window.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Actor.cpp" />
@@ -189,6 +191,7 @@
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Collider.cpp" />
     <ClCompile Include="src\Engine.cpp" />
+    <ClCompile Include="src\FrameBuffer.cpp" />
     <ClCompile Include="src\Node.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Light.cpp" />
@@ -218,6 +221,8 @@
     <None Include="shaders\illuminated.vert" />
     <None Include="shaders\light.frag" />
     <None Include="shaders\light.vert" />
+    <None Include="shaders\shadowmap.frag" />
+    <None Include="shaders\shadowmap.vert" />
     <None Include="shaders\skybox.frag" />
     <None Include="shaders\skybox.vert" />
     <None Include="shaders\basic.vert" />

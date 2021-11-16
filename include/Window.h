@@ -38,7 +38,7 @@ class Window
         double GetAspectRatio();
         glm::ivec2 GetRequestedVersion();
         std::string GetGivenVersion();
-        glm::ivec2 GetDimensions();
+        glm::uvec2 GetDimensions();
 
         void SetWidth(int width);
         void SetHeight(int height);

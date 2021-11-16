@@ -29,6 +29,10 @@ namespace Engine
         void Render(const Engine::Camera& camera, Engine::PointLight& light);
         void Render(const Engine::Camera& camera, Engine::Terrain& terrain);
 
+        // shadow mapping
+        void Render(const Engine::Light& light, Engine::Actor& actor);
+        void Render(const Engine::Light& light, const std::vector<Engine::Actor*>& actors);
+
         template<typename T>
         void Render(const Engine::Camera& camera, const Engine::OcTree<T>& tree);
         template<typename T>

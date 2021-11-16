@@ -90,6 +90,20 @@ void Engine::PhysicalLight::RotateAbsolute(float x, float y, float z)
 	this->UpdateLight();
 }
 
+void Engine::PhysicalLight::SetView()
+{
+	// we're way too cool to construct a view matrix using LookAt(), so, 
+	// convert our orientation quaternion into a rotation matix
+	glm::mat4 direction = glm::mat4_cast(this->orientation);
+
+	// construct a translation matrix from our position
+	glm::mat4 position = glm::mat4(1.0f);
+	position = glm::translate(position, -this->position);
+
+	// multiply the two to create a view matrix B-)
+	this->view =  direction * position;
+}
+
 //=============================================================================
 // ----------------------------- Point Light ----------------------------------
 //=============================================================================
@@ -258,6 +272,11 @@ float Engine::SpotLight::GetSharpness()
 	return this->sharpness;
 }
 
+glm::mat4& Engine::SpotLight::GetProjection()
+{
+	return this->projection;
+}
+
 float Engine::SpotLight::GetIntensityAt(glm::vec3 atPosition)
 {
 	// physical light decay is proportional to inverse of the square of the distance between the source and point X
@@ -360,6 +379,11 @@ void Engine::SpotLight::SetSharpness(float sharpness)
 	this->UpdateLight();
 }
 
+void Engine::SpotLight::SetProjection()
+{
+	this->projection = glm::perspective(this->angle, 1.0f, 0.1f, this->GetEffectiveRadius());
+}
+
 //=============================================================================
 // --------------------------- Directional Light ------------------------------
 //=============================================================================
@@ -408,6 +432,11 @@ glm::vec3 Engine::DirectionalLight::GetPosition()
 glm::vec3 Engine::DirectionalLight::GetOrientation()
 {
 	return this->orientation;
+}
+
+glm::mat4& Engine::DirectionalLight::GetProjection()
+{
+	return this->projection;
 }
 
 void Engine::DirectionalLight::SetPosition(glm::vec3 position)
@@ -491,6 +520,11 @@ void Engine::DirectionalLight::UpdateLights()
 		glNamedBufferData(Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::DIRECTIONAL_LIGHTS),
 			(this->lights.size()) * sizeof(DirectionalLightData), &directionalLights[0], GL_DYNAMIC_DRAW);
 	}
+}
+
+void Engine::DirectionalLight::SetProjection()
+{
+	this->projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
 }
 
 //=============================================================================
