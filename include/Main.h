@@ -27,6 +27,7 @@
 #include "BoundingVolume.h"
 #include "Skybox.h"
 #include "Terrain.h"
+#include "FrameBuffer.h"
 
 #include "fstream"
 #include "math.h"

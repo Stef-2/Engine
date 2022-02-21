@@ -59,22 +59,22 @@ Engine::Object::Object(float tx, float ty, float tz,
     this->scale = glm::vec3(sx, sy, sz);
 }
 
-glm::vec3 Engine::Object::GetPosition()
+glm::vec3 Engine::Object::GetPosition() const
 {
     return this->position;
 }
 
-glm::vec3 Engine::Object::GetRotation()
+glm::vec3 Engine::Object::GetRotation() const
 {
     return this->rotation;
 }
 
-glm::vec3 Engine::Object::GetScale()
+glm::vec3 Engine::Object::GetScale() const
 {
     return this->scale;
 }
 
-glm::quat Engine::Object::GetOrientation()
+glm::quat Engine::Object::GetOrientation() const
 {
     return this->orientation;
 }
@@ -149,7 +149,7 @@ void Engine::Object::ScaleAbsolute(float x, float y, float z)
     this->scale = glm::vec3(x, y, z);
 }
 
-glm::mat4 Engine::Object::GetTransform()
+glm::mat4 Engine::Object::GetTransform() const
 {
     // build an identity matrix
     glm::mat4 transform = glm::mat4(1.0f);
@@ -162,7 +162,7 @@ glm::mat4 Engine::Object::GetTransform()
     return translate * rotate * scale;
 }
 
-bool Engine::Object::IsMoving()
+bool Engine::Object::IsMoving() const
 {
     return this->isMoving;
 }
@@ -177,7 +177,7 @@ void Engine::Object::SetActiveObject(Engine::Object& object)
     Engine::Object::active = &object;
 }
 
-std::string Engine::Object::ToString()
+std::string Engine::Object::ToString() const
 {
     std::string str = "Class name: ";
     str.append(typeid(this).name());

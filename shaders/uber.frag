@@ -7,6 +7,8 @@
 #define MAX_DIRECTIONAL_LIGHTS_PER_VERTEX 2
 #define MAX_NUM_AMBIENT_LIGHTS_PER_VERTEX 2
 
+#define MAX_SHADOW_MAPS 4
+
 struct PointLight {
     vec4 position;
     vec4 color;
@@ -113,7 +115,12 @@ uniform sampler2D specularMap;
 uniform sampler2D normalMap;
 uniform sampler2D alphaMap;
 
+// skybox sampler
 uniform samplerCube cubeMap;
+
+// shadow map samplers
+
+uniform sampler2D shadowMaps[MAX_SHADOW_MAPS];
 
 layout (binding = 5, std140) uniform materialParameters
 {

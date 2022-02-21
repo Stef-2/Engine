@@ -2,9 +2,29 @@
 
 Engine::Renderer::Renderer()
 {
-    this->colorDepth = 24;
-    this->wireframeShader = { "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.vert",
+    this->colorDepth = 24u;
+
+    this->wireFrameShader = { "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.vert",
                               "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.frag" };
+
+    this->shadowMapShader = { "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.vert",
+                              "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.frag" };
+
+    // get OpenGL implementation limits for rendering related info
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &this->maxFragmentTextureUnits);
+    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &this->maxTotalTextureUnits);
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &this->max1DTextureSize);
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &this->max2DTextureSize);
+    glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &this->max3DTextureSize);
+    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &this->maxCubMapTextureSize);
+    glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &this->maxArrayTextureLayers);
+    glGetIntegerv(GL_MAX_FRAMEBUFFER_WIDTH, &this->maxFrameBufferWidth);
+    glGetIntegerv(GL_MAX_FRAMEBUFFER_HEIGHT, &this->maxFrameBufferHeight);
+    glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &this->maxRenderBufferSize);
+    glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &this->maxTextureBuferSize);
+    glGetIntegerv(GL_MAX_FRAGMENT_INPUT_COMPONENTS, &this->maxFragmentInputs);
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &this->maxVertexAttributes);
+    glGetIntegerv(GL_MAX_VERTEX_OUTPUT_COMPONENTS, &this->maxVertexOutputs);
 }
 
 std::vector<Engine::Actor*> Engine::Renderer::FrustumCull(const Engine::Camera& camera, const std::vector<Engine::Actor*> actors)
@@ -290,7 +310,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Terrain& ter
 
 }
 
-void Engine::Renderer::Render(const Engine::Light& light, const Engine::FrameBuffer& shadowBuffer, const Engine::Actor& actor)
+void Engine::Renderer::Render(const Engine::DirectionalLight& light, const Engine::FrameBuffer& shadowBuffer, Engine::Actor& actor)
 {
     // setup the viewport size to match the shadow frame buffer
     glViewport(0, 0, shadowBuffer.GetWidth(), shadowBuffer.GetHeight());
@@ -305,13 +325,25 @@ void Engine::Renderer::Render(const Engine::Light& light, const Engine::FrameBuf
     // find the locations of uniform variables in the shader and assign transform matrices to them
     glBindBuffer(GL_UNIFORM_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::MVP_MATRICES));
 
-    //glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(terrain.GetTransform()));
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetView()));
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(camera.GetProjection()));
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(actor.GetTransform()));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(light.GetView()));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(light.GetProjection()));
 
+    // go through all static meshes in actor's model and draw them
+    for (size_t i = 0; i < actor.GetModel().GetStaticMeshes().size(); i++) {
+
+        // bind the vertex array buffer
+        glBindVertexArray(actor.GetModel().GetStaticMeshes().at(i).GetVAO());
+
+        // render
+        glDrawElements(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i).GetIndices().size(), GL_UNSIGNED_INT, 0);
+    }
+    
+    // unbind the uniform buffer
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-
+    // revert back to default frame buffer
+    shadowBuffer.Deactivate();
 }
 
 void Engine::Renderer::SetColorDepth(int colorDepth)
@@ -319,7 +351,44 @@ void Engine::Renderer::SetColorDepth(int colorDepth)
     this->colorDepth = colorDepth;
 }
 
-int Engine::Renderer::GetColorDepth()
+unsigned short Engine::Renderer::GetColorDepth()
 {
     return this->colorDepth;
+}
+
+unsigned int Engine::Renderer::QueryProperty(QueryableProperty property)
+{
+    switch (property)
+    {
+    case Engine::Renderer::QueryableProperty::MAX_TOTAL_TEXTURE_UNITS:
+        return this->maxTotalTextureUnits;
+    case Engine::Renderer::QueryableProperty::MAX_FRAGMENT_TEXTURE_UNITS:
+        return this->maxFragmentTextureUnits;
+    case Engine::Renderer::QueryableProperty::MAX_1D_TEXTURE_SIZE:
+        return this->max1DTextureSize;
+    case Engine::Renderer::QueryableProperty::MAX_2D_TEXTURE_SIZE:
+        return this->max2DTextureSize;
+    case Engine::Renderer::QueryableProperty::MAX_3D_TEXTURE_SIZE:
+        return this->max3DTextureSize;
+    case Engine::Renderer::QueryableProperty::MAX_CUBEMAP_TEXTURE_SIZE:
+        return this->maxCubMapTextureSize;
+    case Engine::Renderer::QueryableProperty::MAX_ARRAY_TEXTURE_LAYERS:
+        return this->maxArrayTextureLayers;
+    case Engine::Renderer::QueryableProperty::MAX_FRAMEBUFFER_WIDTH:
+        return this->maxFrameBufferWidth;
+    case Engine::Renderer::QueryableProperty::MAX_FRAMEBUFFER_HEIGHT:
+        return this->maxFrameBufferHeight;
+    case Engine::Renderer::QueryableProperty::MAX_RENDERBUFFER_SIZE:
+        return this->maxRenderBufferSize;
+    case Engine::Renderer::QueryableProperty::MAX_TEXTUREBUFFER_SIZE:
+        return this->maxTextureBuferSize;
+    case Engine::Renderer::QueryableProperty::MAX_FRAGMENT_INPUTS:
+        return this->maxFragmentInputs;
+    case Engine::Renderer::QueryableProperty::MAX_VERTEX_ATTRIBUTES:
+        return this->maxVertexAttributes;
+    case Engine::Renderer::QueryableProperty::MAX_VERTEX_OUTPUTS:
+        return this->maxVertexOutputs;
+    default:
+        break;
+    }
 }

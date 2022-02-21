@@ -5,7 +5,7 @@
 #include "glad/glad.h"
 #endif
 
-#include "Engine.h"
+#include "Window.h"
 
 #include "glfw3.h"
 
@@ -14,7 +14,6 @@
 
 namespace Engine
 {
-
 	// OpenGL Frame Buffer Object wrapper
 	// handles creation, initialization, activation and deactivation of frame buffer objects
 	// provides access to textures to which the frame buffer can write
@@ -22,6 +21,8 @@ namespace Engine
 	{
 	public:
 		FrameBuffer();
+		FrameBuffer(unsigned int width, unsigned int height);
+		FrameBuffer(Engine::Window& window);
 		~FrameBuffer();
 
 		FrameBuffer(FrameBuffer&&) = default;
@@ -49,6 +50,8 @@ namespace Engine
 		unsigned int GetHeight() const;
 
 		void AddAttachment(AttachmentType type);
+		void SetWidth(unsigned int width);
+		void SetHeight(unsigned int height);
 
 		void Activate() const;
 		void Deactivate() const;
@@ -65,7 +68,6 @@ namespace Engine
 		unsigned int stencilBuffer;
 
 		static FrameBuffer* currentFramebuffer;
-
 	};
 
 }

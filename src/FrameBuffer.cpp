@@ -4,13 +4,41 @@ Engine::FrameBuffer* Engine::FrameBuffer::currentFramebuffer = {};
 
 Engine::FrameBuffer::FrameBuffer()
 {
-	this->width = {Engine::Motor::GetInstance().GetWindow().GetDimensions().x};
-	this->height = { Engine::Motor::GetInstance().GetWindow().GetDimensions().y};
+	this->width = {};
+	this->height = {};
 	this->FBO = {};
 
 	this->colorBuffer = {};
 	this->depthBuffer = {};
 	this->stencilBuffer = {};
+
+	this->Setup();
+}
+
+Engine::FrameBuffer::FrameBuffer(unsigned int width, unsigned int height)
+{
+	this->width = width;
+	this->height = height;
+	this->FBO = {};
+
+	this->colorBuffer = {};
+	this->depthBuffer = {};
+	this->stencilBuffer = {};
+
+	this->Setup();
+}
+
+Engine::FrameBuffer::FrameBuffer(Engine::Window& window)
+{
+	this->width = window.GetDimensions().x;
+	this->height = window.GetDimensions().y;
+	this->FBO = {};
+
+	this->colorBuffer = {};
+	this->depthBuffer = {};
+	this->stencilBuffer = {};
+
+	this->Setup();
 }
 
 Engine::FrameBuffer::~FrameBuffer()
@@ -109,9 +137,9 @@ void Engine::FrameBuffer::AddAttachment(AttachmentType type)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		// attach it to the frame buffer
-		glBindRenderbuffer(GL_FRAMEBUFFER, this->FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, this->FBO);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + this->colorBuffer.size() - 1, GL_TEXTURE_2D, this->colorBuffer.back(), 0);
-		glBindRenderbuffer(GL_FRAMEBUFFER, 0u);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0u);
 
 		break; 
 	}
@@ -131,7 +159,7 @@ void Engine::FrameBuffer::AddAttachment(AttachmentType type)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		// attach it to the frame buffer
-		glBindRenderbuffer(GL_FRAMEBUFFER, this->FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, this->FBO);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, this->depthBuffer, 0);
 
 		// in case we don't have a color buffer, we need to explicitly tell OpenGL we're not using it
@@ -140,7 +168,7 @@ void Engine::FrameBuffer::AddAttachment(AttachmentType type)
 			glReadBuffer(GL_NONE);
 		}
 
-		glBindRenderbuffer(GL_FRAMEBUFFER, 0u);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0u);
 
 		break;
 	}
@@ -159,7 +187,7 @@ void Engine::FrameBuffer::AddAttachment(AttachmentType type)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		// attach it to the frame buffer
-		glBindRenderbuffer(GL_FRAMEBUFFER, this->FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, this->FBO);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, this->stencilBuffer, 0);
 
 		// in case we don't have a color buffer, we need to explicitly tell OpenGL we're not using it
@@ -168,7 +196,7 @@ void Engine::FrameBuffer::AddAttachment(AttachmentType type)
 			glReadBuffer(GL_NONE);
 		}
 
-		glBindRenderbuffer(GL_FRAMEBUFFER, 0u);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0u);
 
 		break;
 	}
@@ -176,6 +204,16 @@ void Engine::FrameBuffer::AddAttachment(AttachmentType type)
 	default:
 		break;
 	}
+}
+
+void Engine::FrameBuffer::SetWidth(unsigned int width)
+{
+	this->width = width;
+}
+
+void Engine::FrameBuffer::SetHeight(unsigned int height)
+{
+	this->height = height;
 }
 
 void Engine::FrameBuffer::Activate() const

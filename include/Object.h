@@ -35,17 +35,17 @@ namespace Engine
             Object(glm::vec3 position);
             Object(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
 
-            glm::quat GetOrientation();
-            glm::vec3 GetPosition();
-            glm::vec3 GetRotation();
-            glm::vec3 GetScale();
+            glm::quat GetOrientation() const;
+            glm::vec3 GetPosition() const;
+            glm::vec3 GetRotation() const;
+            glm::vec3 GetScale() const;
 
             static Object& GetActiveObject();
             static void SetActiveObject(Object& object);
-            bool IsMoving();
+            bool IsMoving() const;
 
-            std::string ToString();
-            glm::mat4 GetTransform();
+            std::string ToString() const;
+            glm::mat4 GetTransform() const;
 
             void SetOrientation(glm::quat quaternion);
 

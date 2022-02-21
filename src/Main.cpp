@@ -6,23 +6,10 @@ double deltaTime = 0.0f;
 double oldX = 1280.0 / 2.0;
 double oldY = 720.0 / 2.0;
 
-bool IsPrime(int n)
-{
-    if (n <= 1) return false;
-
-    else if (n <= 3) return true;
-
-    else if ((n % 2 == 0) || (n % 3 == 0)) return false;
-    int i = 5;
-        while (i * i <= n) {
-            if ((n % i == 0) || (n % (i + 2) == 0)) return false;
-            i = i + 6;
-        }
-        return true;
-}
-
 int main()
 {
+
+    //------------------------
     Engine::Window window(1920, 1080, "Engine", NULL, NULL, glm::ivec2(4, 6));
     Engine::Motor& engine = Engine::Motor::GetInstance();
     
@@ -36,38 +23,10 @@ int main()
     camera.Setup(1.0f, engine.GetWindow().GetAspectRatio(), 0.1f, 10000, 45.0f);
     camera.SetUpDirection(glm::vec3(0.0f, 1.0f, 0.0f));
     Engine::InitializeCallbacks(&engine);
-    /*
-    unsigned long long b = 0;
-    time_t t = time(nullptr);
-    //#pragma omp parallel for ordered shared(b)
-    for (int i = 0; i < 100000000; i++)
-    {
-        b += IsPrime(i);
-    }
-    std::cout << b << " passed time: " << time(nullptr) - t << std::endl;
-    exit(0);
-    */
-    /*
-    float m22 = -camera.GetProjection()[2][2];
-    float m32 = -camera.GetProjection()[3][2];
 
-    float far = ((2.0f * m32) / (2.0f * m22 - 2.0f));
-    float near = ((m22 - 1.0f) * far) / (m22 + 1.0);
-    
-    std::cout << "near: " << near << ", far: " << far << std::endl;
-    exit(0);
-    */
-    /*
-    int d;
-    glGetIntegerv(GL_MAX_GEOMETRY_INPUT_COMPONENTS, &d);
-    std::cout << d << std::endl;
-    exit(0);
-    */
-    // -----------------------------------------------
-    // Engine::OcTree<int> octree(3);;
-    // octree.child.mins = { -64.0f, -64.0f, -64.0f };
-    // octree.child.maxs = { 64.0f, 64.0f, 64.0f };
-    // octree.Subdivide();
+    // shadow buffer
+    Engine::FrameBuffer shadowBuffer(window);
+    shadowBuffer.AddAttachment(Engine::FrameBuffer::AttachmentType::DEPTH_ATTACHMENT);
 
     unsigned int vertexCount = 0;
     unsigned int triangleCount = 0;
@@ -79,38 +38,7 @@ int main()
     double frameMs = 0.0f;
     int nFrames = 0;
     int fps = 0;
-
-    /*Engine::Triangle tri1{ {{0.0f, 5.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                           {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                           {{8.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}} };
-
-    Engine::Triangle tri2{ {{6.0f, 8.0f, 3.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                           {{6.0f, -4.0f, -2.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                           {{6.0f, 8.0f, -2.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}} };
-
-    Engine::Triangle tri3{ {{0.0f, 5.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                           {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                           {{0.0f, -5.0f, 5.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}} };
-
-    Engine::Triangle tri4{ {{6.0f, 5.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                           {{6.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                           {{6.0f, -5.0f, 5.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}} };
-
-    std::string str = collider.Intersects(tri1, tri2) ? "da" : "ne";
-
-    std::cout << str << std::endl;*/
-
-    /*
-    Engine::Shader Static(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\static.vert"),
-                         engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\static.frag"));
-
-    Engine::Shader animated(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.vert"),
-                            engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.frag"));
     
-    Engine::Shader illuminated (engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\illuminated.vert"),
-                                engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\illuminated.frag"));
-
-    */
     Engine::Shader uber(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.vert"),
                         engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.geom"),
                         engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.frag"));
@@ -123,14 +51,6 @@ int main()
 
     Engine::Shader volume(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.vert"),
                           engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.frag"));
-
-    //Engine::Actor obj1;
-    //obj1.SetShader(basic);
-    
-    //obj1.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\barrel.obj")));
-
-    //obj1.GetModel().LoadMaterial(Engine::Material());
-    //obj1.GetModel().GetMaterials().at(0).SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_BaseColor.png"));
     
     // ---------------------------------------------------------------------------------------------------------------------
 
@@ -155,8 +75,6 @@ int main()
     obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_specular2.png"));
     obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\black.png"));
     obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_normal.png"));
-    
-    //obj2.MoveRelative(30.0f, 0.0f, 30.0f);
 
     Engine::Actor obj3;
     obj3.SetShader(uber);
@@ -175,26 +93,6 @@ int main()
     obj4.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\box.obj")));
     obj4.MoveAbsolute(0.0f, 100.0f, 0.0f);
     obj4.ScaleRelative(1000.0f, 100.0f, 1000.0f);
-
-    /*
-    Engine::Actor obj3;
-    obj3.SetShader(basic);
-
-    obj3.SetModel(Engine::Model("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Anoplophora.obj"));
-
-    obj3.GetModel()->LoadMaterial(Engine::Material());
-    obj3.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Stefan\\source\\repos\\Engine\\resources\\Anoplophora_Diffuse.png");
-    obj3.MoveRelative(-10.0f, 0.0f, -10.0f);
-    */
-    /*
-    Engine::Actor obj1;
-    obj1.SetShader(basic);
-
-    obj1.SetModel(Engine::Model("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\PLANTS ON TABLE.fbx"));
-
-    obj1.GetModel()->LoadMaterial(Engine::Material());
-    obj1.GetModel()->GetMaterials()->at(0).SetDiffuse("C:\\Users\\Cofara\\source\\repos\\Engine\\resources\\PLANTS_ON_TABLE.jpg");
-    */
 
     // ----------------------------------------------------------
     
@@ -215,12 +113,9 @@ int main()
     skyBox.SetTexture(skyBoxTex);
 
     skyBox.Setup();
-    // skyBox.ScaleAbsolute(10.0f, 10.0f, 10.0f);
     
     std::vector<Engine::Actor*> actors;
-    //actors.push_back(&obj1);
     actors.push_back(&obj2);
-    //actors.push_back(&obj3);
 
     //Engine::Terrain terrain({ 5000, 5000.0 }, 0.01, engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\heightmap.png"));
     //terrain.SetShader(testStatic);
@@ -363,8 +258,12 @@ int main()
         //engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());
         // camera.Draw(&obj1);
         // camera.Draw(&obj2);
-        //engine.GetRenderer().Render(camera, skyBox);
-        engine.GetRenderer().Render(camera, obj4);
+        engine.GetRenderer().Render(camera, skyBox);
+
+        // render shadows
+        engine.GetRenderer().Render(dirLight, shadowBuffer, obj1);
+
+        engine.GetRenderer().Render(camera, obj1);
         engine.GetWindow().SetTitle(std::string((const char*)(u8"Engine™ - Frame time: ") + std::to_string(frameMs) + " ms - FPS: " + std::to_string(fps) +
             " - Position: X: " + std::to_string(camera.GetPosition().x) + " - Y: " + std::to_string(camera.GetPosition().y) + " - Z: " + std::to_string(camera.GetPosition().z) +
             " - Rotation: X: " + std::to_string(camera.GetRotation().x) + " - Y: " + std::to_string(camera.GetRotation().y) + " - Z: " + std::to_string(camera.GetRotation().z) +

@@ -4,12 +4,12 @@
 // -------------------------------- Light -------------------------------------
 // ============================================================================
 
-glm::vec3 Engine::Light::GetColor()
+glm::vec3 Engine::Light::GetColor() const
 {
 	return this->color;
 }
 
-float Engine::Light::GetIntensity()
+float Engine::Light::GetIntensity() const
 {
 	return this->intensity;
 }
@@ -40,6 +40,11 @@ Engine::Shader& Engine::PhysicalLight::GetShader()
 	return this->shader;
 }
 
+float Engine::PhysicalLight::GetEffectiveRadius() const
+{
+	return this->effectiveRadius;
+}
+
 void Engine::PhysicalLight::SetMesh(Engine::Mesh mesh)
 {
 	this->mesh = mesh;
@@ -63,6 +68,7 @@ void Engine::PhysicalLight::SetIntensity(float intensity)
 void Engine::PhysicalLight::MoveRelative(glm::vec3 direction, float intensity)
 {
 	Engine::Object::MoveRelative(direction, intensity);
+	this->SetView();
 
 	// update the light stack on the GPU
 	this->UpdateLight();
@@ -71,6 +77,7 @@ void Engine::PhysicalLight::MoveRelative(glm::vec3 direction, float intensity)
 void Engine::PhysicalLight::MoveRelative(float x, float y, float z)
 {
 	Engine::Object::MoveRelative(x, y, z);
+	this->SetView();
 
 	// update the light stack on the GPU
 	this->UpdateLight();
@@ -79,6 +86,7 @@ void Engine::PhysicalLight::MoveRelative(float x, float y, float z)
 void Engine::PhysicalLight::MoveAbsolute(float x, float y, float z)
 {
 	Engine::Object::MoveAbsolute(x, y, z);
+	this->SetView();
 
 	// update the light stack on the GPU
 	this->UpdateLight();
@@ -87,6 +95,7 @@ void Engine::PhysicalLight::MoveAbsolute(float x, float y, float z)
 void Engine::PhysicalLight::RotateRelative(float x, float y, float z)
 {
 	Engine::Object::RotateRelative(x, y, z);
+	this->SetView();
 
 	// update the light stack on the GPU
 	this->UpdateLight();
@@ -95,23 +104,10 @@ void Engine::PhysicalLight::RotateRelative(float x, float y, float z)
 void Engine::PhysicalLight::RotateAbsolute(float x, float y, float z)
 {
 	Engine::Object::RotateAbsolute(x, y, z);
+	this->SetView();
 
 	// update the light stack on the GPU
 	this->UpdateLight();
-}
-
-void Engine::PhysicalLight::SetView()
-{
-	// we're way too cool to construct a view matrix using LookAt(), so, 
-	// convert our orientation quaternion into a rotation matix
-	glm::mat4 direction = glm::mat4_cast(this->orientation);
-
-	// construct a translation matrix from our position
-	glm::mat4 position = glm::mat4(1.0f);
-	position = glm::translate(position, -this->position);
-
-	// multiply the two to create a view matrix B-)
-	this->view =  direction * position;
 }
 
 // ============================================================================
@@ -156,15 +152,20 @@ std::vector<Engine::PointLight*>& Engine::PointLight::GetLights()
 	return Engine::PointLight::lights;
 }
 
-float Engine::PointLight::GetIntensityAt(glm::vec3 atPosition)
+float Engine::PointLight::GetIntensityAt(glm::vec3 atPosition) const
 {
 	// physical light decay is proportional to inverse of the square of the distance between the source and point X
 	return this->intensity * glm::pow(glm::distance(this->position, atPosition), 2);
 }
 
-float Engine::PointLight::GetEffectiveRadius()
+glm::mat4 Engine::PointLight::GetProjection() const
 {
-	return this->effectiveRadius;
+	return this->projection;
+}
+
+std::array<glm::mat4, 6> Engine::PointLight::GetView() const
+{
+	return this->views;
 }
 
 void Engine::PointLight::UpdateLight()
@@ -190,7 +191,6 @@ void Engine::PointLight::UpdateLight()
 		PointLightData pointLight = ToVec4Allignement(*this);
 
 		// bind the buffer and replace updated light data
-		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::POINT_LIGHTS));
 
 		// find ourselves in the lights stack and replace the old data
 		for (size_t i = 0; i < this->lights.size(); i++)
@@ -199,8 +199,6 @@ void Engine::PointLight::UpdateLight()
 					i * sizeof(PointLightData), sizeof(PointLightData), &pointLight);
 				break;
 			}
-
-		//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
 }
 
@@ -237,6 +235,17 @@ void Engine::PointLight::UpdateLights()
 void Engine::PointLight::SetProjection()
 {
 	this->projection = glm::perspective(90.0f, 1.0f, 0.1f, this->GetEffectiveRadius());
+}
+
+void Engine::PointLight::SetView()
+{
+	// create 6 views for the cubemap shadow mapping
+	this->views[0] = glm::lookAt(this->position, this->position + glm::vec3{ 1.0f, 0.0f, 0.0f },  { 0.0f, 1.0f, 0.0f });
+	this->views[1] = glm::lookAt(this->position, this->position + glm::vec3{ -1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
+	this->views[2] = glm::lookAt(this->position, this->position + glm::vec3{ 0.0f, 1.0f, 0.0f },  { 0.0f, 1.0f, 0.0f });
+	this->views[3] = glm::lookAt(this->position, this->position + glm::vec3{ 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
+	this->views[4] = glm::lookAt(this->position, this->position + glm::vec3{ 0.0f, 0.0f, 1.0f },  { 0.0f, 1.0f, 0.0f });
+	this->views[5] = glm::lookAt(this->position, this->position + glm::vec3{ 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f, 0.0f });
 }
 
 // ============================================================================
@@ -278,22 +287,27 @@ Engine::SpotLight::~SpotLight()
 	this->UpdateLights();
 }
 
-float Engine::SpotLight::GetAngle()
+float Engine::SpotLight::GetAngle() const
 {
 	return this->angle;
 }
 
-float Engine::SpotLight::GetSharpness()
+float Engine::SpotLight::GetSharpness() const
 {
 	return this->sharpness;
 }
 
-glm::mat4& Engine::SpotLight::GetProjection()
+glm::mat4 Engine::SpotLight::GetProjection() const
 {
 	return this->projection;
 }
 
-float Engine::SpotLight::GetIntensityAt(glm::vec3 atPosition)
+glm::mat4 Engine::SpotLight::GetView() const
+{
+	return this->view;
+}
+
+float Engine::SpotLight::GetIntensityAt(glm::vec3 atPosition) const
 {
 	// physical light decay is proportional to inverse of the square of the distance between the source and point X
 	return this->intensity * glm::pow(glm::distance(this->position, atPosition), 2);
@@ -403,6 +417,20 @@ void Engine::SpotLight::SetProjection()
 	this->projection = glm::perspective(this->angle, 1.0f, 0.1f, this->GetEffectiveRadius());
 }
 
+void Engine::SpotLight::SetView()
+{
+	// we're way too cool to construct a view matrix using LookAt(),
+	// convert our orientation quaternion into a rotation matix
+	glm::mat4 direction = glm::mat4_cast(this->orientation);
+
+	// construct a translation matrix from our position
+	glm::mat4 position = glm::mat4(1.0f);
+	position = glm::translate(position, -this->position);
+
+	// multiply the two to create a view matrix B-)
+	this->view = direction * position;
+}
+
 // ============================================================================
 // --------------------------- Directional Light ------------------------------
 // ============================================================================
@@ -444,19 +472,24 @@ std::vector<Engine::DirectionalLight*>& Engine::DirectionalLight::GetLights()
 	return Engine::DirectionalLight::lights;
 }
 
-glm::vec3 Engine::DirectionalLight::GetPosition()
+glm::vec3 Engine::DirectionalLight::GetPosition() const
 {
 	return this->position;
 }
 
-glm::vec3 Engine::DirectionalLight::GetOrientation()
+glm::vec3 Engine::DirectionalLight::GetOrientation() const
 {
 	return this->orientation;
 }
 
-glm::mat4& Engine::DirectionalLight::GetProjection()
+glm::mat4 Engine::DirectionalLight::GetProjection() const
 {
 	return this->projection;
+}
+
+glm::mat4 Engine::DirectionalLight::GetView() const
+{
+	return this->view;
 }
 
 void Engine::DirectionalLight::SetPosition(glm::vec3 position)
@@ -544,7 +577,18 @@ void Engine::DirectionalLight::UpdateLights()
 
 void Engine::DirectionalLight::SetProjection()
 {
-	this->projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
+	// construct an ortographic projection for the directional light
+							// left, right
+	this->projection = glm::ortho(-this->projectionSize / 2.0f, this->projectionSize / 2.0f,
+							// bottom, top
+							-this->projectionSize / 2.0f, this->projectionSize / 2.0f,
+							// near, far
+							0.1f, 1000.0f);
+}
+
+void Engine::DirectionalLight::SetView()
+{
+	this->view = glm::lookAt(this->position, this->position + this->orientation, { 0.0f, 1.0f, 0.0f });
 }
 
 // ============================================================================
@@ -603,7 +647,7 @@ void Engine::AmbientLight::SetPosition(glm::vec3 position)
 void Engine::AmbientLight::UpdateLight()
 {
 	// GLSL forces a 4x4 byte allignement in data structures
-		// we need to convert our vec3s into vec4s and temporarily make an actual data object to be passed to the shader
+	// we need to convert our vec3s into vec4s and temporarily make an actual data object to be passed to the shader
 
 	struct AmbientLightData
 	{

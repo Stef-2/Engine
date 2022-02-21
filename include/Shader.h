@@ -44,7 +44,8 @@ namespace Engine
                 SPECULAR_MAP,
                 NORMAL_MAP,
                 ALPHA_MAP,
-                CUBE_MAP
+                CUBE_MAP,
+                SHADOW_MAPS
             };
 
             // enumerator for different uniform or shader storage buffer objects
@@ -141,6 +142,7 @@ namespace Engine
             unsigned int BoneTransformsLocation;
             unsigned int shaderFlagsLocation;
 
+            // texture locations
             unsigned int diffuseMapLocation;
             unsigned int roughnessMapLocation;
             unsigned int metallicMapLocation;
@@ -148,6 +150,7 @@ namespace Engine
             unsigned int normalMapLocation;
             unsigned int alphaMapLocation;
             unsigned int cubeMapLocation;
+            unsigned int shadowMapsLocation;
 
             // shader block locations
             static unsigned int mvpBlock;

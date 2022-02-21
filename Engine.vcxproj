@@ -142,6 +142,7 @@
       <OpenMPSupport>true</OpenMPSupport>
       <EnableModules>true</EnableModules>
       <AdditionalOptions>-openmp:experimental %(AdditionalOptions)</AdditionalOptions>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

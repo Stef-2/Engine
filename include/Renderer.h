@@ -22,6 +22,24 @@ namespace Engine
     public:
         Renderer();
 
+        enum class QueryableProperty
+        {
+            MAX_TOTAL_TEXTURE_UNITS,
+            MAX_FRAGMENT_TEXTURE_UNITS,
+            MAX_1D_TEXTURE_SIZE,
+            MAX_2D_TEXTURE_SIZE,
+            MAX_3D_TEXTURE_SIZE,
+            MAX_CUBEMAP_TEXTURE_SIZE,
+            MAX_ARRAY_TEXTURE_LAYERS,
+            MAX_FRAMEBUFFER_WIDTH,
+            MAX_FRAMEBUFFER_HEIGHT,
+            MAX_RENDERBUFFER_SIZE,
+            MAX_TEXTUREBUFFER_SIZE,
+            MAX_FRAGMENT_INPUTS,
+            MAX_VERTEX_ATTRIBUTES,
+            MAX_VERTEX_OUTPUTS,
+        };
+
         void Render(const Engine::Camera& camera, Engine::Actor& actor);
         void Render(const Engine::Camera& camera, const std::vector<Engine::Actor*>& actors);
         void Render(const Engine::Camera& camera, const Engine::BoundingBox& box);
@@ -31,8 +49,8 @@ namespace Engine
         void Render(const Engine::Camera& camera, Engine::Terrain& terrain);
 
         // shadow mapping
-        void Render(const Engine::Light& light, const Engine::FrameBuffer& shadowBuffer, const Engine::Actor& actor);
-        void Render(const Engine::Light& light, const Engine::FrameBuffer& shadowBuffer, const std::vector<Engine::Actor*>& actors);
+        void Render(const Engine::DirectionalLight& light, const Engine::FrameBuffer& shadowBuffer, Engine::Actor& actor);
+        void Render(const Engine::DirectionalLight& light, const Engine::FrameBuffer& shadowBuffer, const std::vector<Engine::Actor*>& actors) {};
 
         template<typename T>
         void Render(const Engine::Camera& camera, const Engine::OcTree<T>& tree);
@@ -42,10 +60,28 @@ namespace Engine
         std::vector<Engine::Actor*> FrustumCull(const Engine::Camera& camera, const std::vector<Engine::Actor*> actors);
 
         void SetColorDepth(const int colorDepth);
-        int GetColorDepth();
+
+        unsigned short GetColorDepth();
+        unsigned int QueryProperty(QueryableProperty property);
 
     private:
-        int colorDepth;
+        unsigned short colorDepth;
+
+        // OpenGL implementation limits on this system
+        int maxTotalTextureUnits;
+        int maxFragmentTextureUnits;
+        int max1DTextureSize;
+        int max2DTextureSize;
+        int max3DTextureSize;
+        int maxCubMapTextureSize;
+        int maxArrayTextureLayers;
+        int maxFrameBufferWidth;
+        int maxFrameBufferHeight;
+        int maxRenderBufferSize;
+        int maxTextureBuferSize;
+        int maxFragmentInputs;
+        int maxVertexAttributes;
+        int maxVertexOutputs;
 
         // utility shaders
 

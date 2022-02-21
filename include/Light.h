@@ -8,6 +8,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtx/string_cast.hpp"
 
+#include "array"
 #include "vector"
 
 namespace Engine
@@ -17,8 +18,8 @@ namespace Engine
 	class Light
 	{
 	public:
-		glm::vec3 GetColor();
-		float GetIntensity();
+		glm::vec3 GetColor() const;
+		float GetIntensity() const;
 
 		virtual void UpdateLight() = 0;
 		virtual void UpdateLights() = 0;
@@ -41,12 +42,12 @@ namespace Engine
 
 	public:
 		// calculates this lights intensity at a given position
-		virtual float GetIntensityAt(glm::vec3 atPosition) = 0;
+		virtual float GetIntensityAt(glm::vec3 atPosition) const = 0;
 
 		Engine::Mesh& GetMesh();
 		Engine::Shader& GetShader();
 
-		virtual float GetEffectiveRadius() = 0;
+		virtual float GetEffectiveRadius() const;
 
 		void SetMesh(Engine::Mesh mesh);
 		void SetShader(Engine::Shader shader);
@@ -60,6 +61,7 @@ namespace Engine
 		virtual void RotateAbsolute(float x, float y, float z) override;
 
 	protected:
+		virtual void SetView() = 0;
 		virtual void SetProjection() = 0;
 
 		Engine::Mesh mesh;
@@ -89,16 +91,19 @@ namespace Engine
 		static std::vector<Engine::PointLight*>& GetLights();
 
 		// calculates this lights intensity at a given position
-		float GetIntensityAt(glm::vec3 atPosition) override;
-		float GetEffectiveRadius() override;
+		float GetIntensityAt(glm::vec3 atPosition) const override;
+
+		glm::mat4 GetProjection() const;
+		std::array<glm::mat4, 6> GetView() const;
 
 		void UpdateLight() override;
 		void UpdateLights() override;
 
 	private:
 		void SetProjection() override;
+		void SetView() override;
 
-		glm::mat4 views[6];
+		std::array<glm::mat4, 6> views;
 		static std::vector<Engine::PointLight*> lights;
 	};
 	
@@ -120,10 +125,11 @@ namespace Engine
 
 		static std::vector<Engine::SpotLight*>& GetLights();
 
-		float GetIntensityAt(glm::vec3 atPosition) override;
-		float GetAngle();
-		float GetSharpness();
-		glm::mat4& GetProjection();
+		float GetIntensityAt(glm::vec3 atPosition) const override;
+		float GetAngle() const;
+		float GetSharpness() const;
+		glm::mat4 GetProjection() const;
+		glm::mat4 GetView() const;
 
 		void UpdateLight() override;
 		void UpdateLights() override;
@@ -133,6 +139,9 @@ namespace Engine
 
 	private:
 		void SetProjection() override;
+		void SetView() override;
+
+		glm::mat4 view;
 
 		static std::vector<Engine::SpotLight*> lights;
 		float angle;
@@ -156,9 +165,10 @@ namespace Engine
 		~DirectionalLight();
 
 		static std::vector<Engine::DirectionalLight*>& GetLights();
-		glm::vec3 GetPosition();
-		glm::vec3 GetOrientation();
-		glm::mat4& GetProjection();
+		glm::vec3 GetPosition() const;
+		glm::vec3 GetOrientation() const;
+		glm::mat4 GetProjection() const;
+		glm::mat4 GetView() const;
 
 		void SetPosition(glm::vec3 position);
 		void SetOrientation(glm::vec3 orientation);
@@ -167,8 +177,12 @@ namespace Engine
 
 	private:
 		void SetProjection();
+		void SetView();
+
+		inline static constexpr const float projectionSize = 20.0f;
 
 		glm::mat4 projection;
+		glm::mat4 view;
 
 		static std::vector<Engine::DirectionalLight*> lights;
 		glm::vec3 position;
