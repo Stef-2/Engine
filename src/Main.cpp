@@ -6,9 +6,10 @@ double deltaTime = 0.0f;
 double oldX = 1280.0 / 2.0;
 double oldY = 720.0 / 2.0;
 
+float moveSpeed = 10.0f;
+
 int main()
 {
-
     //------------------------
     Engine::Window window(1920, 1080, "Engine", NULL, NULL, glm::ivec2(4, 6));
     Engine::Motor& engine = Engine::Motor::GetInstance();
@@ -48,6 +49,9 @@ int main()
 
     Engine::Shader testAnimated(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.vert"),
                                 engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.frag"));
+
+    Engine::Shader wireFrame(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\wireframe.vert"),
+                             engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\wireframe.frag"));
 
     Engine::Shader volume(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.vert"),
                           engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.frag"));
@@ -90,9 +94,9 @@ int main()
 
     Engine::Actor obj4;
     obj4.SetShader(volume);
-    obj4.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\box.obj")));
-    obj4.MoveAbsolute(0.0f, 100.0f, 0.0f);
-    obj4.ScaleRelative(1000.0f, 100.0f, 1000.0f);
+    obj4.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\sphere.obj")));
+    //obj4.MoveAbsolute(10.0f, 10.0f, 10.0f);
+    //obj4.ScaleRelative(10.0f, 10.0f, 10.0f);
 
     // ----------------------------------------------------------
     
@@ -198,35 +202,38 @@ int main()
         }
 
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_W) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetForwardDirection(), 100 * deltaTime);
+            camera.MoveRelative(camera.GetForwardDirection(), moveSpeed * deltaTime);
         }
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_S) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetForwardDirection(), -100 * deltaTime);
+            camera.MoveRelative(camera.GetForwardDirection(), -moveSpeed * deltaTime);
         }
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_A) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetRightDirection(), -100 * deltaTime);
+            camera.MoveRelative(camera.GetRightDirection(), -moveSpeed * deltaTime);
         }
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_D) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetRightDirection(), 100 * deltaTime);
+            camera.MoveRelative(camera.GetRightDirection(), moveSpeed* deltaTime);
         }
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetUpDirection(), 100 * deltaTime);
+            camera.MoveRelative(camera.GetUpDirection(), moveSpeed * deltaTime);
         }
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-            camera.MoveRelative(camera.GetUpDirection(), -100 * deltaTime);
+            camera.MoveRelative(camera.GetUpDirection(), -moveSpeed * deltaTime);
+        }
+
+        if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_Q) == GLFW_PRESS) {
+            glDisable(GL_CULL_FACE);
         }
 
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_E) == GLFW_PRESS) {
             engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back().GetAnimations().back().GetName());
             //glm::mat4 asd = glm::mat4_cast(glm::inverse(camera.GetOrientation())) * camera.GetView();
-            glm::mat4 asd = glm::inverse(camera.GetView());
-            for (size_t i = 0; i < 4; i++)
-            {
+            glm::mat4 asd = camera.GetView();
+            glm::vec3 inv = -asd[3] * glm::mat3(asd);
                 for (size_t j = 0; j < 4; j++)
-                    std::cout << asd[i][j] << " ";
+                    std::cout << inv[j] << " ";
                 std::cout << std::endl;
-            }
             std::cout << "--------------------" << std::endl;
+            glEnable(GL_CULL_FACE);
             //std::cout << *glm::value_ptr(camera.GetView()[0][0]) << std::endl;
         }
 
@@ -263,7 +270,11 @@ int main()
         // render shadows
         engine.GetRenderer().Render(dirLight, shadowBuffer, obj1);
 
-        engine.GetRenderer().Render(camera, obj1);
+        //obj4.SetShader(wireFrame);
+        //engine.GetRenderer().Render(camera, obj4);
+        obj4.SetShader(volume);
+        engine.GetRenderer().Render(camera, obj4);
+
         engine.GetWindow().SetTitle(std::string((const char*)(u8"Engine™ - Frame time: ") + std::to_string(frameMs) + " ms - FPS: " + std::to_string(fps) +
             " - Position: X: " + std::to_string(camera.GetPosition().x) + " - Y: " + std::to_string(camera.GetPosition().y) + " - Z: " + std::to_string(camera.GetPosition().z) +
             " - Rotation: X: " + std::to_string(camera.GetRotation().x) + " - Y: " + std::to_string(camera.GetRotation().y) + " - Z: " + std::to_string(camera.GetRotation().z) +

@@ -240,7 +240,7 @@ void Engine::Terrain::Generate()
 		float averageTriangleHeight = (A.position.y + B.position.y + C.position.y) / 3.0f;
 
 		// go through samples and accumulate the difference in height
-		#pragma omp parallel for
+		//#pragma omp parallel for
 		for (long i = 0; i < numSamples; i++)
 		{
 			// take a pair of random (0.0f, 1.0f) samples
