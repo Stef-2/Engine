@@ -38,7 +38,7 @@ namespace Engine
         void Setup(std::string filePaths[6]);
 
         // this is the handle to the texture object
-        // pass it to OpenGL before any rendering using this texture takes place
+        // pass it to OpenGL before any rendering using this texture
         unsigned int GetTextureID();
         void SetTextureID(unsigned int id);
             

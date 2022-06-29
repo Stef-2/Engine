@@ -39,7 +39,20 @@ int main()
     double frameMs = 0.0f;
     int nFrames = 0;
     int fps = 0;
-    
+
+    std::default_random_engine generator;
+    generator.seed(std::chrono::system_clock::now().time_since_epoch().count());
+
+    std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+
+    float texture3D[32][32][32] {};
+
+    for (size_t i = 0; i < 32; i++)
+        for (size_t j = 0; j < 32; j++)
+            for (size_t k = 0; k < 32; k++)
+                texture3D[i][j][k] = distribution(generator);
+
+
     Engine::Shader uber(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.vert"),
                         engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.geom"),
                         engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.frag"));
@@ -94,9 +107,9 @@ int main()
 
     Engine::Actor obj4;
     obj4.SetShader(volume);
-    obj4.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\sphere.obj")));
-    //obj4.MoveAbsolute(10.0f, 10.0f, 10.0f);
-    //obj4.ScaleRelative(10.0f, 10.0f, 10.0f);
+    obj4.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\box.obj")));
+    //obj4.MoveAbsolute(0.0f, 100.0f, 0.0f);
+    obj4.ScaleAbsolute(100.0f, 10.0f, 100.0f);
 
     // ----------------------------------------------------------
     

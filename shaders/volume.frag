@@ -1,5 +1,7 @@
 #version 460 core
 
+const float epsilon = 0.01f;
+
 struct PointLight {
     vec4 position;
     vec4 color;
@@ -44,6 +46,11 @@ in vertexOutput
     vec4 position;
     flat vec3 viewDirection;
     vec4 rayDirection;
+
+    vec4 WSpos;
+    flat vec4 WSviewPos;
+
+    flat mat4 pw;
 };
 
 layout (binding = 1, std430) buffer PointLights {
@@ -65,6 +72,30 @@ layout (binding = 4, std430) buffer AmbientLights {
 uniform sampler3D volumeSampler;
 
 out vec4 fragColor;
+
+struct Box
+{
+    vec3 frontBottomLeft;
+    vec3 backTopRight;
+};
+
+struct Sphere
+{
+    vec3 position;
+    float radius;
+};
+
+bool PointInsideBox(inout vec3 point, inout Box box)
+{
+    return point.x >= box.frontBottomLeft.x && point.x <= box.backTopRight.x
+        && point.y >= box.frontBottomLeft.y && point.y <= box.backTopRight.y
+        && point.z >= box.frontBottomLeft.z && point.z <= box.backTopRight.z;
+}
+
+bool PointInsideSphere(inout vec3 point, inout Sphere sphere)
+{
+    return distance(point, sphere.position) <= sphere.radius;
+}
 
 const mat3 m3  = mat3( 0.00,  0.80,  0.60,
                       -0.80,  0.36, -0.48,
@@ -404,46 +435,88 @@ float cnoise(vec3 P){
   return 2.2 * n_xyz;
 }
 
+float hash(float n) { return fract(sin(n) * 1e4); }
+float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
+
+float noise(vec3 x) {
+	const vec3 step = vec3(110, 241, 171);
+
+	vec3 i = floor(x);
+	vec3 f = fract(x);
+ 
+	// For performance, compute the base input to a 1D hash from the integer part of the argument and the 
+	// incremental change to the 1D based on the 3D -> 1D wrapping
+    float n = dot(i, step);
+
+	vec3 u = f * f * (3.0 - 2.0 * f);
+	return mix(mix(mix( hash(n + dot(step, vec3(0, 0, 0))), hash(n + dot(step, vec3(1, 0, 0))), u.x),
+                   mix( hash(n + dot(step, vec3(0, 1, 0))), hash(n + dot(step, vec3(1, 1, 0))), u.x), u.y),
+               mix(mix( hash(n + dot(step, vec3(0, 0, 1))), hash(n + dot(step, vec3(1, 0, 1))), u.x),
+                   mix( hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
+}
+
 void main()
 {
+    mat3 invmvp = inverse(mat3(view));
+    float linearDepth = LinearizeDepth();
     vec3 spherePos = vec3(0.0f, 0.0f, 0.0f);
+
+    Box box = {{-50.0f - epsilon, -5.0f - epsilon, -50.0f - epsilon},
+                {50.0f + epsilon, 5.0f + epsilon, 50.0f + epsilon}};
+    
     float density = 0;
-    vec4 samplePos = position;
+    vec4 samplePos = WSpos;
     float flatColor;
     vec3 color = vec3(1f);
-    vec3 rayDir = (vec3(view[0][3], view[1][3], view[2][3]));
+    vec3 rayDir = normalize(WSpos - WSviewPos).xyz;
     float dist = 0;
     const unsigned int loop = 50;
 
+    vec3 sunDirection = vec3(0.0f, 1.0f, 0.0f); //normalize(directionalLights[0].position.xyz - samplePos);
+    vec3 toLight;
+    float stepSize = 1f;
+    float noiseScale = 0.02f;
     vec3 fragViewPos = -view[3].xyz * mat3(view);
     //vec3 ray = normalize(fragViewPos - position);
 
-    for (unsigned int i = 0; i < loop; i++)
+    while (true)
     {
-        density += fbm(samplePos.xyz) * 0.05f;
+        density += max(snoise((samplePos).xyz * noiseScale), 0.0f) * 0.2f;
         //color = mix(vec3(1.0f), vec3(0.0f), snoise(samplePos) > 0);
-        samplePos += rayDirection * 0.02f;
-        dist = distance(samplePos.xyz, spherePos);
-        if (density >= 1.0f)
-            break;
-        /*
-        if (dist >= 1.0f)
-            break;*/
         
-        color = vec3(dist);
-        //color += -0.02;
+        toLight = samplePos.xyz;
+
+        while (true)
+        {
+            color += -max(snoise(toLight * noiseScale), 0.0f) * 0.01f;
+            toLight += sunDirection * stepSize;
+            if (color.r <= 0.0f || !PointInsideBox(toLight, box))
+                break;
+        }
+        //dist = distance(samplePos.xyz, spherePos);
+
+        //color = (samplePos).xyz;
+        //color = vec3(dist);
+        //color += -0.015;
+        
+        if (density >= 1.0f || !PointInsideBox(samplePos.xyz, box))
+            break;
+
+        samplePos += vec4(rayDir, 1.0f) * stepSize;
     }
-    
-    vec3 sunDirection = vec3(0.0f, 1.0f, 0.0f); //normalize(directionalLights[0].position.xyz - samplePos);
+
+    //color = max(color, 0.0f);
+    //density = max(density, 0.0f);
+
 
     float thickness = 0.0f;
     /*
     for (unsigned int i = 0; i < loop; i++)
     {
-        thickness += min(0.0f, snoise(samplePos) * 0.05f);
-        samplePos += sunDirection * 0.02f;
+        thickness += max(0.0f, fbm(samplePos.xyz) * 0.05f);
+        samplePos += vec4(sunDirection, 0.0f) * 0.02f;
 
-        dist = distance(samplePos, spherePos);
+        dist = distance(samplePos.xyz, spherePos);
 
         if (thickness >= 1.0f)
             break;
@@ -454,7 +527,7 @@ void main()
     */
 
     //if (density < 0.1) discard;
-    //if (density < 0.01) discard;
+    //if (density < 0.1) discard;
     //flatColor = distance(spherePos, samplePos);
     fragColor = vec4(color, density);
 }
