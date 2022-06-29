@@ -60,7 +60,7 @@ void Engine::Skybox::SetShader(const Engine::Shader& shader)
 	this->shader = shader;
 }
 
-void Engine::Skybox::SetTexture(Engine::Texture& texture)
+void Engine::Skybox::SetTexture(Engine::Texture2D& texture)
 {
     this->texture = texture;
 }
@@ -80,7 +80,7 @@ Engine::Shader& Engine::Skybox::GetShader()
 	return this->shader;
 }
 
-Engine::Texture& Engine::Skybox::GetTexture()
+Engine::Texture2D& Engine::Skybox::GetTexture()
 {
 	return this->texture;
 }

@@ -126,90 +126,90 @@ void Engine::Material::Activate(Engine::Shader& shader)
 
 void Engine::Material::SetDiffuseMap(const char* filePath)
 {
-	this->diffuseMap = Engine::Texture(filePath);
+	this->diffuseMap = Engine::Texture2D(filePath);
 }
 
 void Engine::Material::SetDiffuseMap(std::string filePath)
 {
-	this->diffuseMap = Engine::Texture(filePath);
+	this->diffuseMap = Engine::Texture2D(filePath);
 }
 
-void Engine::Material::SetDiffuseMap(const Texture& texture)
+void Engine::Material::SetDiffuseMap(const Texture2D& texture)
 {
 	this->diffuseMap = texture;
 }
 
 void Engine::Material::SetRoughnessMap(const char* filePath)
 {
-	this->roughnessMap = Engine::Texture(filePath);
+	this->roughnessMap = Engine::Texture2D(filePath);
 }
 
 void Engine::Material::SetRoughnessMap(std::string filePath)
 {
-	this->roughnessMap = Engine::Texture(filePath);
+	this->roughnessMap = Engine::Texture2D(filePath);
 }
 
-void Engine::Material::SetRoughnessMap(const Texture& texture)
+void Engine::Material::SetRoughnessMap(const Texture2D& texture)
 {
 	this->roughnessMap = texture;
 }
 
 void Engine::Material::SetMetallicMap(const char* filePath)
 {
-	this->metallicMap = Engine::Texture(filePath);
+	this->metallicMap = Engine::Texture2D(filePath);
 }
 
 void Engine::Material::SetMetallicMap(std::string filePath)
 {
-	this->metallicMap = Engine::Texture(filePath);
+	this->metallicMap = Engine::Texture2D(filePath);
 }
 
-void Engine::Material::SetMetallicMap(const Texture& texture)
+void Engine::Material::SetMetallicMap(const Texture2D& texture)
 {
 	this->metallicMap = texture;
 }
 
 void Engine::Material::SetNormalMap(const char* filePath)
 {
-	this->normalMap = Engine::Texture(filePath);
+	this->normalMap = Engine::Texture2D(filePath);
 }
 
 void Engine::Material::SetNormalMap(std::string filePath)
 {
-	this->normalMap = Engine::Texture(filePath);
+	this->normalMap = Engine::Texture2D(filePath);
 }
 
-void Engine::Material::SetNormalMap(const Texture& texture)
+void Engine::Material::SetNormalMap(const Texture2D& texture)
 {
 	this->normalMap = texture;
 }
 
-Engine::Texture& Engine::Material::GetDiffuseMap()
+Engine::Texture2D& Engine::Material::GetDiffuseMap()
 {
 	return this->diffuseMap;
 }
 
-Engine::Texture& Engine::Material::GetRougnessMap()
+Engine::Texture2D& Engine::Material::GetRougnessMap()
 {
 	return this->roughnessMap;
 }
 
-Engine::Texture& Engine::Material::GetMetallicMap()
+Engine::Texture2D& Engine::Material::GetMetallicMap()
 {
 	return this->metallicMap;
 }
 
-Engine::Texture& Engine::Material::GetSpecularMap()
+Engine::Texture2D& Engine::Material::GetSpecularMap()
 {
 	return this->specularMap;
 }
 
-Engine::Texture& Engine::Material::GetNormalMap()
+Engine::Texture2D& Engine::Material::GetNormalMap()
 {
 	return this->normalMap;
 }
 
-Engine::Texture& Engine::Material::GetAlphaMap()
+Engine::Texture2D& Engine::Material::GetAlphaMap()
 {
 	return this->alphaMap;
 }

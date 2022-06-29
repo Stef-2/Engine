@@ -11,7 +11,7 @@
 
 #include "glfw3.h"
 #include "Shader.h"
-#include "Texture.h"
+#include "Texture2D.h"
 #include "glm/vec3.hpp"
 
 #include "vector"
@@ -49,38 +49,38 @@ namespace Engine
 		// diffuse reflection map (aka albedo or surface color)
 		void SetDiffuseMap(const char* filePath);
 		void SetDiffuseMap(std::string filePath);
-		void SetDiffuseMap(const Texture& texture);
+		void SetDiffuseMap(const Texture2D& texture);
 
 		// roughness map, inverse of a "glossiness" or "specular" reflection map
 		void SetRoughnessMap(const char* filePath);
 		void SetRoughnessMap(std::string filePath);
-		void SetRoughnessMap(const Texture& texture);
+		void SetRoughnessMap(const Texture2D& texture);
 
 		// metalic map, for physically correct results the values within should be either 1 or 0, not in between
 		void SetMetallicMap(const char* filePath);
 		void SetMetallicMap(std::string filePath);
-		void SetMetallicMap(const Texture& texture);
+		void SetMetallicMap(const Texture2D& texture);
 
 		// normal map, alters the surface normals, affecting the way light interacts with it
 		void SetNormalMap(const char* filePath);
 		void SetNormalMap(std::string filePath);
-		void SetNormalMap(const Texture& texture);
+		void SetNormalMap(const Texture2D& texture);
 
-		Texture& GetDiffuseMap();
-		Texture& GetRougnessMap();
-		Texture& GetMetallicMap();
+		Texture2D& GetDiffuseMap();
+		Texture2D& GetRougnessMap();
+		Texture2D& GetMetallicMap();
 
-		Texture& GetSpecularMap();
-		Texture& GetNormalMap();
-		Texture& GetAlphaMap();
+		Texture2D& GetSpecularMap();
+		Texture2D& GetNormalMap();
+		Texture2D& GetAlphaMap();
 
 	private:
 
 		//-----------------physically correct data----------------//
 																  //
-		Engine::Texture diffuseMap;								  //
-		Engine::Texture roughnessMap;							  //
-		Engine::Texture metallicMap;							  //
+		Engine::Texture2D diffuseMap;							  //
+		Engine::Texture2D roughnessMap;							  //
+		Engine::Texture2D metallicMap;							  //
 																  //
 		// global multipliers for the channels above			  //
 		// can be used as a value in case a map is not provided	  //
@@ -92,9 +92,9 @@ namespace Engine
 
 		//----------------physically incorrect data---------------//
 																  //
-		Engine::Texture specularMap;							  //
-		Engine::Texture normalMap;								  //
-		Engine::Texture alphaMap;								  //
+		Engine::Texture2D specularMap;							  //
+		Engine::Texture2D normalMap;							  //
+		Engine::Texture2D alphaMap;								  //
 															 	  //
 		// global multipliers for the channels above		 	  //
 		// can be used as a value in case a map is not provided	  //

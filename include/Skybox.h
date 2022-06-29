@@ -2,7 +2,7 @@
 #define SKYBOX_H
 
 #include "Object.h"
-#include "Texture.h"
+#include "Texture2D.h"
 #include "Shader.h"
 
 #include "fstream"
@@ -19,7 +19,7 @@ namespace Engine
         Skybox();
 
         void SetShader(const Engine::Shader& shader);
-        void SetTexture(Engine::Texture& texture);
+        void SetTexture(Engine::Texture2D& texture);
 
         // given current implementation, it makes no sense to ever have more than one skybox
         // so we're providing an easy way to retrieve and set it from wherever
@@ -27,7 +27,7 @@ namespace Engine
         static void SetActiveSkybox(Skybox& skybox);
 
         Engine::Shader& GetShader();
-        Engine::Texture& GetTexture();
+        Engine::Texture2D& GetTexture();
 
         // handles for Vertex Buffer
         // needs to be passed to OpenGL functions that are supposed to draw the mesh
@@ -43,7 +43,7 @@ namespace Engine
         void SetActive();
 
     private:
-        Engine::Texture texture;
+        Engine::Texture2D texture;
         Engine::Shader shader;
 
         // vertex  and element buffer objects

@@ -62,7 +62,7 @@ Engine::Shader& Engine::Terrain::GetShader()
 	return this->shader;
 }
 
-Engine::Texture& Engine::Terrain::GetHeightMap()
+Engine::Texture2D& Engine::Terrain::GetHeightMap()
 {
 	return this->heightMap;
 }
@@ -92,7 +92,7 @@ void Engine::Terrain::SetHeightMap(std::string hightMapPath)
 	// utility var to be passed to the loader since stbi_load() doesn't like to work with nullpointers
 	int temp;
 	// load the heightmap texture the regular way
-	this->heightMap = Engine::Texture(hightMapPath);
+	this->heightMap = Engine::Texture2D(hightMapPath);
 
 	// normally the texture loading process cleans up its data after its been bound and uploaded to the GPU
 	// but in this case we want to keep it available for sampling as we're planning to use it for terrain generation

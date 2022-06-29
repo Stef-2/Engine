@@ -126,7 +126,7 @@ int main()
                                       engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\5.bmp"),
                                       engine.GetFilePath(Engine::EngineFilePath::SKYBOXES_PATH).append("\\day\\6.bmp") };
 
-    Engine::Texture skyBoxTex(skyBoxTextures);
+    Engine::Texture2D skyBoxTex(skyBoxTextures);
     skyBox.SetTexture(skyBoxTex);
 
     skyBox.Setup();

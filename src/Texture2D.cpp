@@ -1,6 +1,6 @@
-#include "Texture.h"
+#include "Texture2D.h"
 
-Engine::Texture::Texture()
+Engine::Texture2D::Texture2D()
 {
     this->data = {};
     this->width = {};
@@ -9,12 +9,12 @@ Engine::Texture::Texture()
     this->textureID = {};
 }
 
-Engine::Texture::~Texture()
+Engine::Texture2D::~Texture2D()
 {
     // if (this->data != NULL) delete data;
 }
 
-Engine::Texture::Texture(std::string filePath)
+Engine::Texture2D::Texture2D(std::string filePath)
 {
     this->data = {};
     this->width = {};
@@ -24,7 +24,7 @@ Engine::Texture::Texture(std::string filePath)
     this->Setup(filePath);
 }
 
-Engine::Texture::Texture(std::string filePaths[6])
+Engine::Texture2D::Texture2D(std::string filePaths[6])
 {
     this->data = {};
     this->width = {};
@@ -34,7 +34,7 @@ Engine::Texture::Texture(std::string filePaths[6])
     this->Setup(filePaths);
 }
 
-void Engine::Texture::Setup(std::string filePath)
+void Engine::Texture2D::Setup(std::string filePath)
 {
     int width;
     int height;
@@ -95,7 +95,7 @@ void Engine::Texture::Setup(std::string filePath)
     }
 }
 
-void Engine::Texture::Setup(std::string filePaths[6])
+void Engine::Texture2D::Setup(std::string filePaths[6])
 {
     int width;
     int height;
@@ -161,52 +161,52 @@ void Engine::Texture::Setup(std::string filePaths[6])
     this->numChannels = nPixelComponents;
 }
 
-unsigned char* Engine::Texture::GetData()
+unsigned char* Engine::Texture2D::GetData()
 {
     return this->data;
 }
 
-unsigned int Engine::Texture::GetWidth()
+unsigned int Engine::Texture2D::GetWidth()
 {
     return this->width;
 }
 
-unsigned int Engine::Texture::GetHeight()
+unsigned int Engine::Texture2D::GetHeight()
 {
     return this->height;
 }
 
-unsigned int Engine::Texture::GetNumChannels()
+unsigned int Engine::Texture2D::GetNumChannels()
 {
     return this->numChannels;
 }
 
-unsigned int Engine::Texture::GetTextureID()
+unsigned int Engine::Texture2D::GetTextureID()
 {
     return this->textureID;
 }
 
-void Engine::Texture::SetWidth(unsigned int width)
+void Engine::Texture2D::SetWidth(unsigned int width)
 {
     this->width = width;
 }
 
-void Engine::Texture::SetHeight(unsigned int height)
+void Engine::Texture2D::SetHeight(unsigned int height)
 {
     this->height = height;
 }
 
-void Engine::Texture::SetNumChannels(unsigned int numChannels)
+void Engine::Texture2D::SetNumChannels(unsigned int numChannels)
 {
     this->numChannels = numChannels;
 }
 
-void Engine::Texture::SetData(unsigned char* data)
+void Engine::Texture2D::SetData(unsigned char* data)
 {
     this->data = data;
 }
 
-void Engine::Texture::SetTextureID(unsigned int id)
+void Engine::Texture2D::SetTextureID(unsigned int id)
 {
     this->textureID = id;
 }

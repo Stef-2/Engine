@@ -1,5 +1,5 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#ifndef TEXTURE3D_H
+#define TEXTURE3D_H
 
 #ifndef __glad_h_
 #include "glad/glad.h"
@@ -18,49 +18,50 @@
 namespace Engine
 {
 
-    class Texture
+    class Texture3D
     {
     public:
-        Texture();
+        Texture3D();
 
-        // regular textures
-        Texture(std::string filePath);
-        Texture(std::string filePaths[6]);
+        // regular textures from a file
+        Texture3D(std::string filePath);
+        // generate a 3D texture by passing all the data and params manually
+        Texture3D(unsigned int width, unsigned int height, unsigned int depth, unsigned int numChannels, float* data);
 
-        ~Texture();
+        ~Texture3D();
 
         // loads the texture from a file
         // and binds it into an OpenGL texture object
         void Setup(std::string filePath);
 
-        // loads 6 texture files for skyboxes (Cubemaps)
-        // order is left, right, top, bottom, front, back
-        void Setup(std::string filePaths[6]);
-
         // this is the handle to the texture object
         // pass it to OpenGL before any rendering using this texture
         unsigned int GetTextureID();
         void SetTextureID(unsigned int id);
-            
+
         // raw texture data extracted from the file
         unsigned char* GetData();
         void SetData(unsigned char* data);
 
         unsigned int GetWidth();
         unsigned int GetHeight();
+        unsigned int GetDepth();
         unsigned int GetNumChannels();
 
         void SetWidth(unsigned int width);
         void SetHeight(unsigned int height);
+        void SetDepth(unsigned int depth);
         void SetNumChannels(unsigned int numChannels);
 
     private:
         unsigned int width;
         unsigned int height;
+        unsigned int depth;
+
         unsigned int numChannels;
         unsigned char* data;
         unsigned int textureID;
     };
 
 }
-#endif //  TEXTURE_H
+#endif //  TEXTURE3D_H

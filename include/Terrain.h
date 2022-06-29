@@ -7,7 +7,7 @@
 #endif
 
 #include "Object.h"
-#include "Texture.h"
+#include "Texture2D.h"
 #include "Shader.h"
 #include "Mesh.h"
 
@@ -64,7 +64,7 @@ namespace Engine
 
         Engine::Mesh& GetMesh();
         Engine::Shader& GetShader();
-        Engine::Texture& GetHeightMap();
+        Engine::Texture2D& GetHeightMap();
         std::vector<Engine::Material>& GetMaterials();
 
         glm::dvec2& GetSize();
@@ -89,7 +89,7 @@ namespace Engine
 
         Engine::Mesh mesh;
         Engine::Shader shader;
-        Engine::Texture heightMap;
+        Engine::Texture2D heightMap;
         Engine::BoundingBox boundingBox;
 
         std::vector<Engine::Sector> sectors;
