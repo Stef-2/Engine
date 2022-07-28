@@ -9,6 +9,7 @@
 #include "Light.h"
 #include "Terrain.h"
 #include "FrameBuffer.h"
+#include "Volume.h"
 
 #include "vector"
 
@@ -47,6 +48,7 @@ namespace Engine
         void Render(const Engine::Camera& camera, Engine::Skeleton& skeleton);
         void Render(const Engine::Camera& camera, Engine::PointLight& light);
         void Render(const Engine::Camera& camera, Engine::Terrain& terrain);
+        void Render(const Engine::Camera& camera, Engine::Volume volume);
 
         // shadow mapping
         void Render(const Engine::DirectionalLight& light, const Engine::FrameBuffer& shadowBuffer, Engine::Actor& actor);

@@ -183,6 +183,7 @@
     <ClInclude Include="include\BoundingVolume.h" />
     <ClInclude Include="include\Animation.h" />
     <ClInclude Include="include\Texture3D.h" />
+    <ClInclude Include="include\Volume.h" />
     <ClInclude Include="include\Window.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
@@ -211,6 +212,7 @@
     <ClCompile Include="src\BoundingVolume.cpp" />
     <ClCompile Include="src\Animation.cpp" />
     <ClCompile Include="src\Texture3D.cpp" />
+    <ClCompile Include="src\Volume.cpp" />
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>

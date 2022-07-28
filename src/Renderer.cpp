@@ -9,7 +9,7 @@ Engine::Renderer::Renderer()
 
     this->shadowMapShader = { "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.vert",
                               "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.frag" };
-
+    
     // get OpenGL implementation limits for rendering related info
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &this->maxFragmentTextureUnits);
     glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &this->maxTotalTextureUnits);
@@ -308,6 +308,32 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Terrain& ter
     glDrawElements(GL_TRIANGLES, terrain.GetMesh().GetIndices().size(), GL_UNSIGNED_INT, 0);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+}
+
+void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Volume volume)
+{
+    // activate that abomination of a shader
+    volume.GetShader().Activate();
+
+    // find the locations of uniform variables in the shader and assign transform matrices to them
+    glBindBuffer(GL_UNIFORM_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::MVP_MATRICES));
+
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(volume.GetTransform()));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetView()));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(camera.GetProjection()));
+
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    // bind the vertex array buffer
+    glBindVertexArray(volume.GetMesh().GetVAO());
+
+    // bind the corresponding texture(s)
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_3D, volume.GetTexture().GetTextureID());
+    glUniform1i(Shader::GetCurrentShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::VOLUME_MAP), 0);
+
+    // render
+    glDrawElements(GL_TRIANGLES, volume.GetMesh().GetIndices().size(), GL_UNSIGNED_INT, 0);
 }
 
 void Engine::Renderer::Render(const Engine::DirectionalLight& light, const Engine::FrameBuffer& shadowBuffer, Engine::Actor& actor)

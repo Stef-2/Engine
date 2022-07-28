@@ -69,7 +69,7 @@ layout (binding = 4, std430) buffer AmbientLights {
   AmbientLight ambientLights[];
 };
 
-uniform sampler3D volumeSampler;
+uniform sampler3D volumeMap;
 
 out vec4 fragColor;
 
@@ -85,14 +85,14 @@ struct Sphere
     float radius;
 };
 
-bool PointInsideBox(inout vec3 point, inout Box box)
+bool PointInsideBox(in vec3 point, in Box box)
 {
     return point.x >= box.frontBottomLeft.x && point.x <= box.backTopRight.x
         && point.y >= box.frontBottomLeft.y && point.y <= box.backTopRight.y
         && point.z >= box.frontBottomLeft.z && point.z <= box.backTopRight.z;
 }
 
-bool PointInsideSphere(inout vec3 point, inout Sphere sphere)
+bool PointInsideSphere(in vec3 point, in Sphere sphere)
 {
     return distance(point, sphere.position) <= sphere.radius;
 }
@@ -459,8 +459,10 @@ void main()
 {
     mat3 invmvp = inverse(mat3(view));
     float linearDepth = LinearizeDepth();
+
     vec3 spherePos = vec3(0.0f, 0.0f, 0.0f);
 
+    Sphere sphere = {{0.0f, 0.0f, 0.0f}, 1.0f};
     Box box = {{-50.0f - epsilon, -5.0f - epsilon, -50.0f - epsilon},
                 {50.0f + epsilon, 5.0f + epsilon, 50.0f + epsilon}};
     
@@ -474,23 +476,23 @@ void main()
 
     vec3 sunDirection = vec3(0.0f, 1.0f, 0.0f); //normalize(directionalLights[0].position.xyz - samplePos);
     vec3 toLight;
-    float stepSize = 1f;
-    float noiseScale = 0.02f;
+    float stepSize = 0.2f;
+    float noiseScale = 1.0f;
     vec3 fragViewPos = -view[3].xyz * mat3(view);
     //vec3 ray = normalize(fragViewPos - position);
 
     while (true)
     {
-        density += max(snoise((samplePos).xyz * noiseScale), 0.0f) * 0.2f;
+        density += max(fbm((samplePos).xyz * noiseScale), 0.0f) * 0.3f;
         //color = mix(vec3(1.0f), vec3(0.0f), snoise(samplePos) > 0);
         
         toLight = samplePos.xyz;
 
         while (true)
         {
-            color += -max(snoise(toLight * noiseScale), 0.0f) * 0.01f;
+            color += -max(fbm(toLight * noiseScale), 0.0f) * 0.01f;
             toLight += sunDirection * stepSize;
-            if (color.r <= 0.0f || !PointInsideBox(toLight, box))
+            if (color.r <= 0.0f || !PointInsideSphere(toLight, sphere))
                 break;
         }
         //dist = distance(samplePos.xyz, spherePos);
@@ -499,7 +501,7 @@ void main()
         //color = vec3(dist);
         //color += -0.015;
         
-        if (density >= 1.0f || !PointInsideBox(samplePos.xyz, box))
+        if (density >= 1.0f || !PointInsideSphere(samplePos.xyz, sphere))
             break;
 
         samplePos += vec4(rayDir, 1.0f) * stepSize;

@@ -107,9 +107,9 @@ int main()
 
     Engine::Actor obj4;
     obj4.SetShader(volume);
-    obj4.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\box.obj")));
+    obj4.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\sphere.obj")));
     //obj4.MoveAbsolute(0.0f, 100.0f, 0.0f);
-    obj4.ScaleAbsolute(100.0f, 10.0f, 100.0f);
+    //obj4.ScaleAbsolute(100.0f, 10.0f, 100.0f);
 
     // ----------------------------------------------------------
     
@@ -285,7 +285,7 @@ int main()
 
         //obj4.SetShader(wireFrame);
         //engine.GetRenderer().Render(camera, obj4);
-        obj4.SetShader(volume);
+        //obj4.SetShader(volume);
         engine.GetRenderer().Render(camera, obj4);
 
         engine.GetWindow().SetTitle(std::string((const char*)(u8"Engine™ - Frame time: ") + std::to_string(frameMs) + " ms - FPS: " + std::to_string(fps) +

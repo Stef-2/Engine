@@ -311,6 +311,7 @@ int Engine::Shader::CompileProgram()
         this->normalMapLocation = glGetUniformLocation(this->programID, "normalMap");
         this->alphaMapLocation = glGetUniformLocation(this->programID, "alphaMap");
         this->cubeMapLocation = glGetUniformLocation(this->programID, "cubeMap");
+        this->volumeMapLocation = glGetUniformLocation(this->programID, "volumeMap");
         this->shadowMapsLocation = glGetUniformLocation(this->programID, "shadowMaps");
 
         // generate and bind uniform buffer objects and shader storage buffer objects if they're present in the shader(s)
@@ -438,6 +439,9 @@ unsigned int Engine::Shader::GetAttributeLocation(Engine::Shader::ShaderAttribut
 
     case Engine::Shader::ShaderAttribute::CUBE_MAP:
         return this->cubeMapLocation;
+
+    case Engine::Shader::ShaderAttribute::VOLUME_MAP:
+        return this->volumeMapLocation;
 
     case Engine::Shader::ShaderAttribute::SHADOW_MAPS:
         return this->shadowMapsLocation;
