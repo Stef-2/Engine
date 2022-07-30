@@ -13,90 +13,83 @@
 #include "string"
 #include "iostream"
 #include "memory"
-#include <vector>
-#include <utility>
+#include "vector"
+#include "utility"
 
 namespace Engine
 {
-    // OpenGL vertex shader
-    class VertexShader
+    // base to be inherited by all OpenGL shaders
+    class Shader
     {
+	public:
+        Shader();
+        ~Shader();
+
+        void AddSource(std::string filePath);
+
+		char* GetCompileLog();
+		unsigned int GetShader();
+        bool GetCompilatonStatus();
+
+	protected:
+        virtual void SetShaderType() = 0;
+
+		char compileLog[512];
+		unsigned int shader;
+        bool compilationStatus;
+    };
+
+    // ===== Shader implementations ======
+
+    // OpenGL vertex shader
+    class VertexShader : public Engine::Shader
+    {
+        
     public:
-        VertexShader();
-        VertexShader(std::string filePath);
-
-        void SetVertexShader(std::string filePath);
-        int Compile();
-
-        char* GetCompileLog();
-        unsigned int GetVertexShader();
 
     private:
-        char compilelog[512];
-        unsigned int vertexShader;
+        void SetShaderType() override;
     };
 
     // OpenGL geometry shader
-    class GeometryShader
+    class GeometryShader : public Engine::Shader
     {
+        using Engine::Shader::Shader;
+
 	public:
-        GeometryShader();
-        GeometryShader(std::string filePath);
 
-		void SetGeometryShader(std::string filePath);
-		int Compile();
-
-		char* GetCompileLog();
-		unsigned int GetGeometryShader();
-
-	private:
-		char compilelog[512];
-		unsigned int geometryShader;
+    private:
+        void SetShaderType() override;
     };
 
     // OpenGL fragment shader
-    class FragmentShader
+    class FragmentShader : public Engine::Shader
     {
+        using Engine::Shader::Shader;
+
 	public:
-        FragmentShader();
-        FragmentShader(std::string filePath);
 
-		void SetFragmentShader(std::string filePath);
-		int Compile();
-
-		char* GetCompileLog();
-		unsigned int GetFragmentShader();
-
-	private:
-		char compilelog[512];
-		unsigned int fragmentShader;
+    private:
+        void SetShaderType() override;
     };
 
     // OpenGL compute shader
-    class ComputeShader
+    class ComputeShader : public Engine::Shader
     {
+        using Engine::Shader::Shader;
+
 	public:
-        ComputeShader();
-        ComputeShader(std::string filePath);
 
-		void SetComputeShader(std::string filePath);
-		int Compile();
-
-		char* GetCompileLog();
-		unsigned int GetComputeShader();
-
-	private:
-		char compilelog[512];
-		unsigned int computeShader;
+    private:
+        void SetShaderType() override;
     };
-
 
     // OpenGL shader program wrapper class
     // encapsulates vertex, geometry and fragment shaders as well as the shader program that binds them
     // performs compiling and linking of shader programs
     // holds the internal OpenGL locations of shader attribute and buffer locations so we don't have to query the GPU for them
     // provides easy retrieval of the currently active shader program
-    class Shader
+    class ShaderProgram
     {
         public:
 			// enumerator for the different shader attribute we may need to retrieve
@@ -145,44 +138,41 @@ namespace Engine
 				BASIC = 0b0000'0110
 			};
 
-            Shader();
-            Shader(std::string vertexShader, std::string fragmentShader);
-            Shader(std::string vertexShader, std::string geometryShader, std::string fragmentShader);
-
-            // Shader(const Shader& other);
-            // Shader& operator=(const Shader& other);
-            // ~Shader();
+            ShaderProgram();
+            ~ShaderProgram();
+            ShaderProgram(std::string vertexShader, std::string fragmentShader);
+            ShaderProgram(std::string vertexShader, std::string geometryShader, std::string fragmentShader);
 
             // glGetCurrentProgram() is very slow, just like all functions that ask the graphics processor for data
             // so we're storing it ourselves in case we need it
-            static Shader& GetCurrentShader();
+            static ShaderProgram& GetCurrentShaderProgram();
 
-            unsigned int GetVertexShader();
-            unsigned int GetGeometryShader();
-            unsigned int GetFragmentShader();
+            VertexShader& GetVertexShader();
+            GeometryShader& GetGeometryShader();
+            FragmentShader& GetFragmentShader();
             unsigned int GetProgramID();
 
-            unsigned int GetAttributeLocation(Engine::Shader::ShaderAttribute attribute);
-            static unsigned int GetUniformBuffer(Engine::Shader::UniformBuffer buffer);
+            unsigned int GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute attribute);
+            static unsigned int GetUniformBuffer(Engine::ShaderProgram::UniformBuffer buffer);
 
             // handle shader flags for uber shader
-            Engine::Shader::ShaderFlag& GetShaderFlags();
-            bool GetShaderFlag(Engine::Shader::ShaderFlag flag);
-            void SetShaderFlag(Engine::Shader::ShaderFlag flag);
+            Engine::ShaderProgram::ShaderFlag& GetShaderFlags();
+            bool GetShaderFlag(Engine::ShaderProgram::ShaderFlag flag);
+            void SetShaderFlag(Engine::ShaderProgram::ShaderFlag flag);
 
             std::string GetLogData();
 
             // load vertex, geometry and fragment shaders from files
-            int SetVertexShader(std::string filePath);
-            int SetGeometryShader(std::string filePath);
-            int SetFragmentShader(std::string filePath);
+            void SetVertexShader(std::string filePath);
+            void SetGeometryShader(std::string filePath);
+            void SetFragmentShader(std::string filePath);
 
             // load vertex, geometry and fragment shaders from objects
-			int SetVertexShader(Engine::VertexShader& shader);
-			int SetGeometryShader(Engine::GeometryShader& shader);
-			int SetFragmentShader(Engine::FragmentShader& shader);
+            void SetVertexShader(Engine::VertexShader& shader);
+            void SetGeometryShader(Engine::GeometryShader& shader);
+            void SetFragmentShader(Engine::FragmentShader& shader);
 
-            // compiles vertex and fragment shaders into a program and binds it
+            // compiles vertex, geometry and fragment shaders into a program and binds it
             // needs to be run after every shader change
             int CompileProgram();
 
@@ -191,27 +181,27 @@ namespace Engine
             void Activate();
 
         private:
+            // necessary for normal shading pipeline
+            Engine::VertexShader vertexShader;
+            Engine::FragmentShader fragmentShader;
+
+            // optional shaders
+            Engine::GeometryShader* geometryShader;
+
             // will be set to 1 if shader compilation succeeds, 0 otherwise
-            int compileSuccess;
-            // vertex shader compile log
-            char vsLog[512];
-            // geometry shader compile log
-            char gsLog[512];
-            // fragment shader compile log
-            char fsLog[512];
-            // shader program compile log
-            char spLog[512];
+            bool compileSuccess;
+            char shaderProgramCompileLog[512];
 
 			// locations of shader attributes
-			std::vector<std::pair<Engine::Shader::ShaderAttribute, unsigned int>> attributeLocations;
+			std::vector<std::pair<Engine::ShaderProgram::ShaderAttribute, unsigned int>> attributeLocations;
             // locations of shader uniform buffers
-            std::vector<std::pair<Engine::Shader::UniformBuffer, unsigned int>> UniformBufferLocations;
+            std::vector<std::pair<Engine::ShaderProgram::UniformBuffer, unsigned int>> UniformBufferLocations;
 
-            // handles for the shaders and program themselves
-            unsigned int vertexShader;
-            unsigned int geometryShader;
-            unsigned int fragmentShader;
             unsigned int programID;
+
+			// names of shader attributes inside the actual shaders, these need to match for OpenGL to be able to find their locations
+			inline const static std::pair<Engine::ShaderProgram::ShaderAttribute, std::string> attributeNames[] =
+			{ {ShaderAttribute::VERTEX_POSITION_LOCATION, "test"} };
 
             // shader attribute locations
             unsigned int vertexPositionLocation;
@@ -246,8 +236,9 @@ namespace Engine
             static unsigned int directionalLightsBLock;
             static unsigned int ambientLightsBLock;
 
-            Engine::Shader::ShaderFlag shaderFlags;
-            static Shader* currentShader;
+            Engine::ShaderProgram::ShaderFlag shaderFlags;
+
+            static ShaderProgram* currentShaderProgram;
     };
 
 }

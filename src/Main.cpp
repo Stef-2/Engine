@@ -53,20 +53,17 @@ int main()
                 texture3D[i][j][k] = distribution(generator);
 
 
-    Engine::Shader uber(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.vert"),
+    Engine::ShaderProgram uber(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.vert"),
                         engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.geom"),
                         engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.frag"));
 
-    Engine::Shader testStatic(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\static.vert"),
+    Engine::ShaderProgram testStatic(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\static.vert"),
                               engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\static.frag"));
 
-    Engine::Shader testAnimated(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.vert"),
+    Engine::ShaderProgram testAnimated(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.vert"),
                                 engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\animated.frag"));
 
-    Engine::Shader wireFrame(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\wireframe.vert"),
-                             engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\wireframe.frag"));
-
-    Engine::Shader volume(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.vert"),
+    Engine::ShaderProgram volume(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.vert"),
                           engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.frag"));
     
     // ---------------------------------------------------------------------------------------------------------------------
@@ -113,7 +110,7 @@ int main()
 
     // ----------------------------------------------------------
     
-    Engine::Shader skyBoxShader(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\skybox.vert"),
+    Engine::ShaderProgram skyBoxShader(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\skybox.vert"),
                                 engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\skybox.frag"));
 
     Engine::Skybox skyBox;
@@ -284,7 +281,9 @@ int main()
         engine.GetRenderer().Render(dirLight, shadowBuffer, obj1);
 
         //obj4.SetShader(wireFrame);
-        //engine.GetRenderer().Render(camera, obj4);
+        engine.GetRenderer().Render(camera, obj1);
+        engine.GetRenderer().Render(camera, obj2);
+        engine.GetRenderer().Render(camera, obj3);
         //obj4.SetShader(volume);
         engine.GetRenderer().Render(camera, obj4);
 

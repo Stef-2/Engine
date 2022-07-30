@@ -12,19 +12,19 @@ namespace Engine
 		using Engine::Object::Object;
 
 	public:
-		Engine::Shader& GetShader();
+		Engine::ShaderProgram& GetShader();
 		Engine::Model& GetModel();
 
 		void MoveRelative(glm::vec3 direction, float magnitude) override;
 		void MoveRelative(float x, float y, float z) override;
 		void MoveAbsolute(float x, float y, float z) override;
 
-		void SetShader(const Engine::Shader& shader);
+		void SetShader(const Engine::ShaderProgram& shader);
 		void SetModel(const Engine::Model& model);
 
 	private:
 		Model model;
-		Shader shader;
+		ShaderProgram shader;
 
 		bool isVisible;
 	};

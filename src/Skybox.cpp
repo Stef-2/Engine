@@ -55,7 +55,7 @@ Engine::Skybox::Skybox()
     });
 }
 
-void Engine::Skybox::SetShader(const Engine::Shader& shader)
+void Engine::Skybox::SetShader(const Engine::ShaderProgram& shader)
 {
 	this->shader = shader;
 }
@@ -75,7 +75,7 @@ void Engine::Skybox::SetActiveSkybox(Engine::Skybox& skybox)
     Engine::Skybox::activeSkybox = &skybox;
 }
 
-Engine::Shader& Engine::Skybox::GetShader()
+Engine::ShaderProgram& Engine::Skybox::GetShader()
 {
 	return this->shader;
 }

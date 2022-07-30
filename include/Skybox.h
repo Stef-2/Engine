@@ -18,7 +18,7 @@ namespace Engine
     public:
         Skybox();
 
-        void SetShader(const Engine::Shader& shader);
+        void SetShader(const Engine::ShaderProgram& shader);
         void SetTexture(Engine::Texture2D& texture);
 
         // given current implementation, it makes no sense to ever have more than one skybox
@@ -26,7 +26,7 @@ namespace Engine
         static Skybox& GetActiveSkybox();
         static void SetActiveSkybox(Skybox& skybox);
 
-        Engine::Shader& GetShader();
+        Engine::ShaderProgram& GetShader();
         Engine::Texture2D& GetTexture();
 
         // handles for Vertex Buffer
@@ -44,7 +44,7 @@ namespace Engine
 
     private:
         Engine::Texture2D texture;
-        Engine::Shader shader;
+        Engine::ShaderProgram shader;
 
         // vertex  and element buffer objects
         unsigned int VAO;

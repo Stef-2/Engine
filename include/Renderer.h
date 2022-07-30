@@ -90,10 +90,10 @@ namespace Engine
         // wireframe utility shader, meant to be used for bounding volume rendering -
         // no real point in defining it outside, or attaching it to individual bounding box objects - 
         // they are meant to be lightweight by design, and bounding box rendering is intended to be mostly used for debugging
-        Shader wireFrameShader;
+        ShaderProgram wireFrameShader;
 
         // shadow mapping shader, used for dynamic shadows
-        Shader shadowMapShader;
+        ShaderProgram shadowMapShader;
     };
 
     // ==========================================================================

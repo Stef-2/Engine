@@ -19,16 +19,16 @@ namespace Engine
 		~Volume();
 
 		Engine::Mesh& GetMesh();
-		Engine::Shader& GetShader();
+		Engine::ShaderProgram& GetShader();
 		Engine::Texture3D& GetTexture();
 
 		void SetMesh(Engine::Mesh& mesh);
-		void SetShader(Engine::Shader& shader);
+		void SetShader(Engine::ShaderProgram& shader);
 		void SetTexture(Engine::Texture3D& texture);
 
 	private:
 		Engine::Mesh mesh;
-		Engine::Shader shader;
+		Engine::ShaderProgram shader;
 		Engine::Texture3D texture;
 	};
 

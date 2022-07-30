@@ -57,7 +57,7 @@ Engine::Mesh& Engine::Terrain::GetMesh()
 	return this->mesh;
 }
 
-Engine::Shader& Engine::Terrain::GetShader()
+Engine::ShaderProgram& Engine::Terrain::GetShader()
 {
 	return this->shader;
 }
@@ -82,7 +82,7 @@ double& Engine::Terrain::GetDensity()
 	return this->density;
 }
 
-void Engine::Terrain::SetShader(const Engine::Shader& shader)
+void Engine::Terrain::SetShader(const Engine::ShaderProgram& shader)
 {
 	this->shader = shader;
 }

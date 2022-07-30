@@ -44,7 +44,7 @@ namespace Engine
 
 		// upload and activate all texture handles of this material to OpenGL; to be used before rendering a mesh
 		void Activate();
-		void Activate(Engine::Shader& shader);
+		void Activate(Engine::ShaderProgram& shader);
 
 		// diffuse reflection map (aka albedo or surface color)
 		void SetDiffuseMap(const char* filePath);

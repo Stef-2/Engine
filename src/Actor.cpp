@@ -1,6 +1,6 @@
 #include "Actor.h"
 
-void Engine::Actor::SetShader(const Engine::Shader& shader)
+void Engine::Actor::SetShader(const Engine::ShaderProgram& shader)
 {
     this->shader = shader;
 }
@@ -33,7 +33,7 @@ void Engine::Actor::MoveAbsolute(float x, float y, float z)
     this->model.GetBoundingBox().maxs -= distance;
 }
 
-Engine::Shader& Engine::Actor::GetShader()
+Engine::ShaderProgram& Engine::Actor::GetShader()
 {
     return this->shader;
 }

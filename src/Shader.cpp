@@ -1,22 +1,20 @@
 #include "Shader.h"
 
-Engine::Shader* Engine::Shader::currentShader = {};
+Engine::ShaderProgram* Engine::ShaderProgram::currentShaderProgram = {};
 
-unsigned int Engine::Shader::mvpBlock = -1;
-unsigned int Engine::Shader::materialParametersBlock = -1;
-unsigned int Engine::Shader::pointLightsBLock = -1;
-unsigned int Engine::Shader::spotLightsBLock = -1;
-unsigned int Engine::Shader::directionalLightsBLock = -1;
-unsigned int Engine::Shader::ambientLightsBLock = -1;
+unsigned int Engine::ShaderProgram::mvpBlock = -1;
+unsigned int Engine::ShaderProgram::materialParametersBlock = -1;
+unsigned int Engine::ShaderProgram::pointLightsBLock = -1;
+unsigned int Engine::ShaderProgram::spotLightsBLock = -1;
+unsigned int Engine::ShaderProgram::directionalLightsBLock = -1;
+unsigned int Engine::ShaderProgram::ambientLightsBLock = -1;
 
-Engine::Shader::Shader()
+Engine::ShaderProgram::ShaderProgram()
 {
     this->compileSuccess = 0;
-    this->vertexShader = 0;
-    this->geometryShader = 0;
-    this->fragmentShader = 0;
+
     this->programID = 0;
-    this->shaderFlags = Engine::Shader::ShaderFlag(0u);
+    this->shaderFlags = Engine::ShaderProgram::ShaderFlag(0u);
 
     this->modelTransformLocation = {};
     this->viewTransformLocation = {};
@@ -39,14 +37,19 @@ Engine::Shader::Shader()
     this->shadowMapsLocation = {};
 }
 
-Engine::Shader::Shader(std::string vertexShader, std::string fragmentShader)
+Engine::ShaderProgram::~ShaderProgram()
+{
+    glDeleteProgram(this->programID);
+
+    if (Engine::ShaderProgram::currentShaderProgram == this)
+        Engine::ShaderProgram::currentShaderProgram = nullptr;
+}
+
+Engine::ShaderProgram::ShaderProgram(std::string vertexShader, std::string fragmentShader)
 {
     this->compileSuccess = 0;
-    this->vertexShader = 0;
-    this->geometryShader = 0;
-    this->fragmentShader = 0;
     this->programID = 0;
-    this->shaderFlags = Engine::Shader::ShaderFlag(0u);
+    this->shaderFlags = Engine::ShaderProgram::ShaderFlag(0u);
 
     this->modelTransformLocation = {};
     this->viewTransformLocation = {};
@@ -67,20 +70,18 @@ Engine::Shader::Shader(std::string vertexShader, std::string fragmentShader)
     this->alphaMapLocation = {};
     this->cubeMapLocation = {};
 
-    this->compileSuccess = this->SetVertexShader(vertexShader);
-    this->compileSuccess = this->SetFragmentShader(fragmentShader);
+    this->geometryShader = {};
+    this->SetVertexShader(vertexShader);
+    this->SetFragmentShader(fragmentShader);
 
     this->compileSuccess = this->CompileProgram();
 }
 
-Engine::Shader::Shader(std::string vertexShader, std::string geometryShader, std::string fragmentShader)
+Engine::ShaderProgram::ShaderProgram(std::string vertexShader, std::string geometryShader, std::string fragmentShader)
 {
     this->compileSuccess = 0;
-    this->vertexShader = 0;
-    this->geometryShader = 0;
-    this->fragmentShader = 0;
     this->programID = 0;
-    this->shaderFlags = Engine::Shader::ShaderFlag(0u);
+    this->shaderFlags = Engine::ShaderProgram::ShaderFlag(0u);
 
     this->modelTransformLocation = {};
     this->viewTransformLocation = {};
@@ -101,148 +102,56 @@ Engine::Shader::Shader(std::string vertexShader, std::string geometryShader, std
     this->alphaMapLocation = {};
     this->cubeMapLocation = {};
 
-    this->compileSuccess = this->SetVertexShader(vertexShader);
-    this->compileSuccess = this->SetGeometryShader(geometryShader);
-    this->compileSuccess = this->SetFragmentShader(fragmentShader);
+	this->SetVertexShader(vertexShader);
+	this->SetGeometryShader(geometryShader);
+	this->SetFragmentShader(fragmentShader);
 
     this->compileSuccess = this->CompileProgram();
 }
 
-int Engine::Shader::SetVertexShader(std::string filePath)
+void Engine::ShaderProgram::SetVertexShader(Engine::VertexShader& shader)
 {
-    std::string code;
-    char c;
-
-    int success = false;
-    int length = 0;
-    // char* data;
-
-    // vertex shader read
-    std::ifstream reader(filePath);
-    while(!reader.eof())
-    {
-        reader.read(&c,1);
-        code += c;
-    }
-
-    reader.close();
-    const char* data = code.c_str();
-    length = code.size();
-
-    // vertex shader compile and bind
-    unsigned int vertexShader;
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &data, NULL);
-    glCompileShader(vertexShader);
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    this->vertexShader = vertexShader;
-
-    if(!success) {
-        glGetShaderInfoLog(vertexShader, 512, NULL, this->vsLog);
-        std::cerr << filePath << " - vertex shader compilation failed: " << std::endl << this->vsLog << std::endl;
-        std::cerr<< "vertex shader: " << std::endl << data << ", Length: " << length << std::endl;
-        // delete data;
-        return 0;
-    }
-    else {
-        std::cout << filePath << " vertex shader compiled successfully" << std::endl;
-        return vertexShader;
-    }
+    this->vertexShader = shader;
 }
 
-int Engine::Shader::SetGeometryShader(std::string filePath)
+void Engine::ShaderProgram::SetVertexShader(std::string filePath)
 {
-    std::string code;
-    char c;
-
-    int success = false;
-    int length = 0;
-    // char* data;
-
-    // vertex shader read
-    std::ifstream reader(filePath);
-    while (!reader.eof())
-    {
-        reader.read(&c, 1);
-        code += c;
-    }
-
-    reader.close();
-    const char* data = code.c_str();
-    length = code.size();
-
-    // vertex shader compile and bind
-    unsigned int geometryShader;
-    geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
-    glShaderSource(geometryShader, 1, &data, NULL);
-    glCompileShader(geometryShader);
-    glGetShaderiv(geometryShader, GL_COMPILE_STATUS, &success);
-    this->geometryShader = geometryShader;
-
-    if (!success) {
-        glGetShaderInfoLog(geometryShader, 512, NULL, this->vsLog);
-        std::cerr << filePath << " - geometry shader compilation failed: " << std::endl << this->gsLog << std::endl;
-        std::cerr << "geometry shader: " << std::endl << data << ", Length: " << length << std::endl;
-        // delete data;
-        return 0;
-    }
-    else {
-        std::cout << filePath << " geometry shader compiled successfully" << std::endl;
-        return geometryShader;
-    }
+    this->vertexShader.AddSource(filePath);
 }
 
-int Engine::Shader::SetFragmentShader(std::string filePath)
+void Engine::ShaderProgram::SetGeometryShader(std::string filePath)
 {
-    std::string code;
-    char c;
-    int success = false;
-    int length = 0;
-
-    std::ifstream reader(filePath);
-
-    while(!reader.eof())
-    {
-        reader.read(&c, 1);
-        code += c;
-    }
-    reader.close();
-    const char* data = code.c_str();
-    length = code.size();
-
-    // fragment shader compile and bind
-    unsigned int fragmentShader;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &data, NULL);
-    glCompileShader(fragmentShader);
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    this->fragmentShader = fragmentShader;
-
-    if(!success) {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, this->fsLog);
-        std::cerr << filePath << " - fragment shader compilation failed: " << std::endl << this->fsLog << std::endl;
-        std::cerr<< "fragment shader: " << std::endl << data << ", Length: " << length << std::endl;
-        delete data;
-        return 0;
-    }
-    else {
-        std::cout << filePath << " fragment shader compiled successfully" << std::endl;
-        return fragmentShader;
-    }
+    this->geometryShader = new Engine::GeometryShader {};
+    this->geometryShader->AddSource(filePath);
 }
 
-int Engine::Shader::CompileProgram()
+void Engine::ShaderProgram::SetFragmentShader(std::string filePath)
+{
+    this->fragmentShader.AddSource(filePath);
+}
+
+void Engine::ShaderProgram::SetGeometryShader(Engine::GeometryShader& shader)
+{
+    *this->geometryShader = shader;
+}
+
+void Engine::ShaderProgram::SetFragmentShader(Engine::FragmentShader& shader)
+{
+    this->fragmentShader = shader;
+}
+
+int Engine::ShaderProgram::CompileProgram()
 {
     int success;
 
     // check if both the required shaders are present
-    if(!this->vertexShader) {
+    if(!this->vertexShader.GetShader()) {
         std::cerr << "unable to compile shader program, vertex shader is missing" << std::endl;
         this->compileSuccess = 0;
         this->programID = 0;
         return 0;
     }
-    if(!this->fragmentShader) {
+    if(!this->fragmentShader.GetShader()) {
         std::cerr << "unable to compile shader program, fragment shader is missing" << std::endl;
         this->compileSuccess = 0;
         this->programID = 0;
@@ -255,29 +164,30 @@ int Engine::Shader::CompileProgram()
     // compile and link
     shaderProgram = glCreateProgram();
 
-    if (this->vertexShader)
-    glAttachShader(shaderProgram, this->vertexShader);
+    glAttachShader(shaderProgram, this->vertexShader.GetShader());
 
     if (this->geometryShader)
-        glAttachShader(shaderProgram, this->geometryShader);
+        glAttachShader(shaderProgram, this->geometryShader->GetShader());
 
-    glAttachShader(shaderProgram, this->fragmentShader);
+    glAttachShader(shaderProgram, this->fragmentShader.GetShader());
+
     glLinkProgram(shaderProgram);
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    glDeleteShader(this->vertexShader);
-    glDeleteShader(this->fragmentShader);
+
+    glDeleteShader(this->vertexShader.GetShader());
+    glDeleteShader(this->fragmentShader.GetShader());
 
     // check for and print any errors we may have had
     if(!success) {
         
-        glGetProgramInfoLog(shaderProgram, 512, NULL, spLog);
-        std::cerr << "shader program linking failed: " << std::endl << spLog << std::endl;
+        glGetProgramInfoLog(shaderProgram, 512, NULL, this->shaderProgramCompileLog);
+        std::cerr << "shader program linking failed: " << std::endl << this->shaderProgramCompileLog << std::endl;
         this->compileSuccess = 0;
         return 0;
     }
     else 
     {
-        // if everything wen't smoothly...
+        // if everything went smoothly...
         this->compileSuccess = 1;
         this->programID = shaderProgram;
         std::cout << "shader program compiled and linked successfully" << std::endl;
@@ -289,6 +199,7 @@ int Engine::Shader::CompileProgram()
         this->vertexPositionLocation = glGetAttribLocation(this->programID, "vertexPosition");
         this->vertexNormalLocation = glGetAttribLocation(this->programID, "vertexNormal");
         this->vertexUvLocation = glGetAttribLocation(this->programID, "vertexCoordinate");
+        this->attributeLocations.push_back({ Engine::ShaderProgram::ShaderAttribute::VERTEX_POSITION_LOCATION, glGetAttribLocation(this->programID, "vertexPosition") });
 
         // basic MVP matrices with separate input
         this->modelTransformLocation = glGetUniformLocation(this->programID, "model");
@@ -385,65 +296,65 @@ int Engine::Shader::CompileProgram()
     }
 }
 
-unsigned int Engine::Shader::GetAttributeLocation(Engine::Shader::ShaderAttribute attribute)
+unsigned int Engine::ShaderProgram::GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute attribute)
 {
     switch (attribute)
     {
-    case Engine::Shader::ShaderAttribute::MODEL_LOCATION:
+    case Engine::ShaderProgram::ShaderAttribute::MODEL_LOCATION:
         return this->modelTransformLocation;
 
-    case Engine::Shader::ShaderAttribute::VIEW_LOCATION:
+    case Engine::ShaderProgram::ShaderAttribute::VIEW_LOCATION:
         return this->viewTransformLocation;
 
-    case Engine::Shader::ShaderAttribute::PROJECTION_LOCATION:
+    case Engine::ShaderProgram::ShaderAttribute::PROJECTION_LOCATION:
         return this->projectionTransformLocation;
 
-    case Engine::Shader::ShaderAttribute::BONE_TRANSFORMATIONS:
+    case Engine::ShaderProgram::ShaderAttribute::BONE_TRANSFORMATIONS:
         return this->BoneTransformsLocation;
 
-    case Engine::Shader::ShaderAttribute::VERTEX_POSITION_LOCATION:
+    case Engine::ShaderProgram::ShaderAttribute::VERTEX_POSITION_LOCATION:
         return this->vertexPositionLocation;
 
-    case Engine::Shader::ShaderAttribute::VERTEX_NORMAL_LOCATION:
+    case Engine::ShaderProgram::ShaderAttribute::VERTEX_NORMAL_LOCATION:
         return this->vertexNormalLocation;
 
-    case Engine::Shader::ShaderAttribute::VERTEX_UV_LOCATION:
+    case Engine::ShaderProgram::ShaderAttribute::VERTEX_UV_LOCATION:
         return this->vertexUvLocation;
 
-    case Engine::Shader::ShaderAttribute::VERTEX_BONE_ID_LOCATION:
+    case Engine::ShaderProgram::ShaderAttribute::VERTEX_BONE_ID_LOCATION:
         return this->vertexBoneIdLocation;
 
-    case Engine::Shader::ShaderAttribute::VERTEX_BONE_WEIGHTS_LOCATION:
+    case Engine::ShaderProgram::ShaderAttribute::VERTEX_BONE_WEIGHTS_LOCATION:
         return this->vertexBoneWeights;
 
-    case Engine::Shader::ShaderAttribute::SHADER_PARAMETERS:
+    case Engine::ShaderProgram::ShaderAttribute::SHADER_PARAMETERS:
         return this->shaderFlagsLocation;
 
-    case Engine::Shader::ShaderAttribute::DIFFUSE_MAP:
+    case Engine::ShaderProgram::ShaderAttribute::DIFFUSE_MAP:
         return this->diffuseMapLocation;
 
-    case Engine::Shader::ShaderAttribute::ROUGHNESS_MAP:
+    case Engine::ShaderProgram::ShaderAttribute::ROUGHNESS_MAP:
         return this->roughnessMapLocation;
 
-    case Engine::Shader::ShaderAttribute::METALLIC_MAP:
+    case Engine::ShaderProgram::ShaderAttribute::METALLIC_MAP:
         return this->metallicMapLocation;
 
-    case Engine::Shader::ShaderAttribute::SPECULAR_MAP:
+    case Engine::ShaderProgram::ShaderAttribute::SPECULAR_MAP:
         return this->specularMapLocation;
 
-    case Engine::Shader::ShaderAttribute::NORMAL_MAP:
+    case Engine::ShaderProgram::ShaderAttribute::NORMAL_MAP:
         return this->normalMapLocation;
 
-    case Engine::Shader::ShaderAttribute::ALPHA_MAP:
+    case Engine::ShaderProgram::ShaderAttribute::ALPHA_MAP:
         return this->alphaMapLocation;
 
-    case Engine::Shader::ShaderAttribute::CUBE_MAP:
+    case Engine::ShaderProgram::ShaderAttribute::CUBE_MAP:
         return this->cubeMapLocation;
 
-    case Engine::Shader::ShaderAttribute::VOLUME_MAP:
+    case Engine::ShaderProgram::ShaderAttribute::VOLUME_MAP:
         return this->volumeMapLocation;
 
-    case Engine::Shader::ShaderAttribute::SHADOW_MAPS:
+    case Engine::ShaderProgram::ShaderAttribute::SHADOW_MAPS:
         return this->shadowMapsLocation;
 
     default:
@@ -451,67 +362,71 @@ unsigned int Engine::Shader::GetAttributeLocation(Engine::Shader::ShaderAttribut
     }
 }
 
-Engine::Shader::ShaderFlag& Engine::Shader::GetShaderFlags()
+Engine::ShaderProgram::ShaderFlag& Engine::ShaderProgram::GetShaderFlags()
 {
     return this->shaderFlags;
 }
 
-bool Engine::Shader::GetShaderFlag(Engine::Shader::ShaderFlag flag)
+bool Engine::ShaderProgram::GetShaderFlag(Engine::ShaderProgram::ShaderFlag flag)
 {
     return bool(unsigned int(this->shaderFlags) & unsigned int(flag));
 }
 
-unsigned int Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer buffer)
+unsigned int Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::UniformBuffer buffer)
 {
     switch (buffer)
     {
-    case Engine::Shader::UniformBuffer::MVP_MATRICES:
-        return Engine::Shader::mvpBlock;
+    case Engine::ShaderProgram::UniformBuffer::MVP_MATRICES:
+        return Engine::ShaderProgram::mvpBlock;
 
-    case Engine::Shader::UniformBuffer::POINT_LIGHTS:
-        return Engine::Shader::pointLightsBLock;
+    case Engine::ShaderProgram::UniformBuffer::POINT_LIGHTS:
+        return Engine::ShaderProgram::pointLightsBLock;
 
-    case Engine::Shader::UniformBuffer::SPOT_LIGHTS:
-        return Engine::Shader::spotLightsBLock;
+    case Engine::ShaderProgram::UniformBuffer::SPOT_LIGHTS:
+        return Engine::ShaderProgram::spotLightsBLock;
 
-    case Engine::Shader::UniformBuffer::DIRECTIONAL_LIGHTS:
-        return Engine::Shader::directionalLightsBLock;
+    case Engine::ShaderProgram::UniformBuffer::DIRECTIONAL_LIGHTS:
+        return Engine::ShaderProgram::directionalLightsBLock;
 
-    case Engine::Shader::UniformBuffer::AMBIENT_LIGHTS:
-        return Engine::Shader::ambientLightsBLock;
+    case Engine::ShaderProgram::UniformBuffer::AMBIENT_LIGHTS:
+        return Engine::ShaderProgram::ambientLightsBLock;
 
-    case Engine::Shader::UniformBuffer::MATERIAL_PARAMETERS:
-        return Engine::Shader::materialParametersBlock;
+    case Engine::ShaderProgram::UniformBuffer::MATERIAL_PARAMETERS:
+        return Engine::ShaderProgram::materialParametersBlock;
 
     default:
         break;
     }
 }
 
-void Engine::Shader::SetShaderFlag(Engine::Shader::ShaderFlag flag)
+void Engine::ShaderProgram::SetShaderFlag(Engine::ShaderProgram::ShaderFlag flag)
 {
     this->shaderFlags = flag;
 
     glUniform1ui(this->shaderFlagsLocation, unsigned int(this->shaderFlags));
 }
 
-void Engine::Shader::Activate()
+void Engine::ShaderProgram::Activate()
 {
-    Engine::Shader::currentShader = this;
+    Engine::ShaderProgram::currentShaderProgram = this;
     glUseProgram(this->programID);
 }
 
-Engine::Shader& Engine::Shader::GetCurrentShader()
+Engine::ShaderProgram& Engine::ShaderProgram::GetCurrentShaderProgram()
 {
-    return *Engine::Shader::currentShader;
+    return *Engine::ShaderProgram::currentShaderProgram;
 }
 
-std::string Engine::Shader::GetLogData()
+std::string Engine::ShaderProgram::GetLogData()
 {
-    std::string vs(this->vsLog);
-    std::string gs(this->gsLog);
-    std::string fg(this->fsLog);
-    std::string sp(this->spLog);
+    std::string vs(this->vertexShader.GetCompileLog());
+    std::string gs {};
+
+    if (this->geometryShader) 
+        gs = this->geometryShader->GetCompileLog();
+
+    std::string fg(this->fragmentShader.GetCompileLog());
+    std::string sp(this->shaderProgramCompileLog);
 
     std::string log = "vertex Shader log: \n" + vs;
     log += "\n geometry shader log: \n" + gs;
@@ -521,22 +436,109 @@ std::string Engine::Shader::GetLogData()
     return log;
 }
 
-unsigned int Engine::Shader::GetVertexShader()
+Engine::VertexShader& Engine::ShaderProgram::GetVertexShader()
 {
     return this->vertexShader;
 }
 
-unsigned int Engine::Shader::GetGeometryShader()
+Engine::GeometryShader& Engine::ShaderProgram::GetGeometryShader()
 {
-    return this->geometryShader;
+    return *this->geometryShader;
 }
 
-unsigned int Engine::Shader::GetFragmentShader()
+Engine::FragmentShader& Engine::ShaderProgram::GetFragmentShader()
 {
     return this->fragmentShader;
 }
 
-unsigned int Engine::Shader::GetProgramID()
+unsigned int Engine::ShaderProgram::GetProgramID()
 {
     return this->programID;
+}
+
+Engine::Shader::Shader()
+{
+    *this->compileLog = {};
+    this->compilationStatus = false;
+    this->shader = {};
+}
+
+void Engine::Shader::AddSource(std::string filePath)
+{
+    // read shader data from the file
+	std::string shaderCode;
+    char temp = {};
+	int success = false;
+	int length = 0;
+
+	std::ifstream reader(filePath);
+
+	while (!reader.eof())
+	{
+		reader.read(&temp, 1);
+        shaderCode += temp;
+	}
+	reader.close();
+	const char* data = shaderCode.c_str();
+	length = shaderCode.size();
+
+	// shader compile and bind
+    this->SetShaderType();
+	glShaderSource(this->shader, 1, &data, NULL);
+	glCompileShader(this->shader);
+	glGetShaderiv(this->shader, GL_COMPILE_STATUS, &success);
+
+    // check if everything went smoothly
+	if (!success) {
+		glGetShaderInfoLog(this->shader, 512, NULL, this->compileLog);
+		std::cerr << filePath << typeid(*this).name() << " shader compilation failed: " << std::endl << this->compileLog << std::endl;
+		std::cerr << typeid(*this).name() << ": " << std::endl << data << ", Length: " << length << std::endl;
+        this->compilationStatus = false;
+		delete data;
+	}
+    else {
+        std::cout << filePath << typeid(*this).name() << " shader compiled successfully" << std::endl;
+        this->compilationStatus = true;
+    }
+	
+}
+
+char* Engine::Shader::GetCompileLog()
+{
+    return this->compileLog;
+}
+
+unsigned int Engine::Shader::GetShader()
+{
+    return this->shader;
+}
+
+bool Engine::Shader::GetCompilatonStatus()
+{
+    return this->compilationStatus;
+}
+
+Engine::Shader::~Shader()
+{
+    glDeleteShader(this->shader);
+}
+
+void Engine::VertexShader::SetShaderType()
+{
+    this->shader = glCreateShader(GL_VERTEX_SHADER);
+}
+
+void Engine::GeometryShader::SetShaderType()
+{
+    this->shader = glCreateShader(GL_GEOMETRY_SHADER);
+}
+
+void Engine::FragmentShader::SetShaderType()
+{
+    this->shader = glCreateShader(GL_FRAGMENT_SHADER);
+}
+
+void Engine::ComputeShader::SetShaderType()
+{
+    this->shader = glCreateShader(GL_COMPUTE_SHADER);
 }

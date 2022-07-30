@@ -45,12 +45,12 @@ namespace Engine
 		virtual float GetIntensityAt(glm::vec3 atPosition) const = 0;
 
 		Engine::Mesh& GetMesh();
-		Engine::Shader& GetShader();
+		Engine::ShaderProgram& GetShader();
 
 		virtual float GetEffectiveRadius() const;
 
 		void SetMesh(Engine::Mesh mesh);
-		void SetShader(Engine::Shader shader);
+		void SetShader(Engine::ShaderProgram shader);
 		void SetIntensity(float intensity) override;
 
 		void MoveRelative(glm::vec3 direction, float intensity) override;
@@ -65,7 +65,7 @@ namespace Engine
 		virtual void SetProjection() = 0;
 
 		Engine::Mesh mesh;
-		Engine::Shader shader;
+		Engine::ShaderProgram shader;
 
 		glm::mat4 projection;
 

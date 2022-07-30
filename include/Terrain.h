@@ -63,14 +63,14 @@ namespace Engine
         Terrain(glm::dvec2 size, double density, glm::vec3 position, std::string hightMapPath);
 
         Engine::Mesh& GetMesh();
-        Engine::Shader& GetShader();
+        Engine::ShaderProgram& GetShader();
         Engine::Texture2D& GetHeightMap();
         std::vector<Engine::Material>& GetMaterials();
 
         glm::dvec2& GetSize();
         double& GetDensity();
 
-        void SetShader(const Engine::Shader& shader);
+        void SetShader(const Engine::ShaderProgram& shader);
         void SetHeightMap(std::string hightMapPath);
 
         void SetSize(glm::dvec2 size);
@@ -88,7 +88,7 @@ namespace Engine
         void Generate();
 
         Engine::Mesh mesh;
-        Engine::Shader shader;
+        Engine::ShaderProgram shader;
         Engine::Texture2D heightMap;
         Engine::BoundingBox boundingBox;
 

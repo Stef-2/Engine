@@ -4,8 +4,8 @@ Engine::Renderer::Renderer()
 {
     this->colorDepth = 24u;
 
-    this->wireFrameShader = { "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.vert",
-                              "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.frag" };
+    /*this->wireFrameShader = {"C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.vert",
+                              "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.frag" };*/
 
     this->shadowMapShader = { "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.vert",
                               "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.frag" };
@@ -86,7 +86,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
     actor.GetShader().Activate();
 
     // find the locations of uniform variables in the shader and assign transform matrices to them
-    glBindBuffer(GL_UNIFORM_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::MVP_MATRICES));
+    glBindBuffer(GL_UNIFORM_BUFFER, Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::UniformBuffer::MVP_MATRICES));
 
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(actor.GetTransform()));
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetView()));
@@ -96,9 +96,9 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
 
     glActiveTexture(GL_TEXTURE0 + 6);
     glBindTexture(GL_TEXTURE_CUBE_MAP, Engine::Skybox::GetActiveSkybox().GetTexture().GetTextureID());
-    glUniform1i(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::CUBE_MAP), 6);
+    glUniform1i(actor.GetShader().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::CUBE_MAP), 6);
 
-    actor.GetShader().SetShaderFlag(Engine::Shader::ShaderFlag::STATIC);
+    actor.GetShader().SetShaderFlag(Engine::ShaderProgram::ShaderFlag::STATIC);
 
     // go through all static meshes in actor's model and draw them
     for (size_t i = 0; i < actor.GetModel().GetStaticMeshes().size(); i++) {
@@ -113,7 +113,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
         glDrawElements(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i).GetIndices().size(), GL_UNSIGNED_INT, 0);
     }
 
-    actor.GetShader().SetShaderFlag(Engine::Shader::ShaderFlag::ANIMATED);
+    actor.GetShader().SetShaderFlag(Engine::ShaderProgram::ShaderFlag::ANIMATED);
 
     // go through all animated meshes in actor's model and draw them
     for (size_t i = 0; i < actor.GetModel().GetAnimatedMeshes().size(); i++) {
@@ -127,7 +127,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
         for (unsigned int j = 0; j < skeleton.GetBones().size(); j++)
             bones[j] = skeleton.GetFinalBoneTransformAnimated(j);
 
-        glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::BONE_TRANSFORMATIONS), skeleton.GetBones().size(), GL_FALSE,
+        glUniformMatrix4fv(actor.GetShader().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::BONE_TRANSFORMATIONS), skeleton.GetBones().size(), GL_FALSE,
             glm::value_ptr(bones[0]));
 
         delete[]bones;
@@ -158,11 +158,11 @@ void Engine::Renderer::Render(const Engine::Camera& camera, const Engine::Boundi
     this->wireFrameShader.Activate();
 
     // pass the model, view and projection (MVP) matrices to the shader
-    glUniformMatrix4fv(this->wireFrameShader.GetAttributeLocation(Engine::Shader::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(transform));
+    glUniformMatrix4fv(this->wireFrameShader.GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::MODEL_LOCATION), 1, GL_FALSE, glm::value_ptr(transform));
 
-    glUniformMatrix4fv(this->wireFrameShader.GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetView()));
+    glUniformMatrix4fv(this->wireFrameShader.GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetView()));
 
-    glUniformMatrix4fv(this->wireFrameShader.GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
+    glUniformMatrix4fv(this->wireFrameShader.GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
 
     // create vertex buffer and element buffer objects
     unsigned int VAO;
@@ -234,16 +234,16 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Skybox& skyb
     // we can do that by converting the 4x4 view matrix into a 3x3 one and then back
     glm::mat4 view = glm::mat4(glm::mat3(camera.GetView()));
 
-    glUniformMatrix4fv(skybox.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(skybox.GetShader().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::VIEW_LOCATION), 1, GL_FALSE, glm::value_ptr(view));
 
-    glUniformMatrix4fv(skybox.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
+    glUniformMatrix4fv(skybox.GetShader().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::PROJECTION_LOCATION), 1, GL_FALSE, glm::value_ptr(camera.GetProjection()));
 
     // bind the vertex array buffer
     glBindVertexArray(skybox.GetVAO());
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.GetTexture().GetTextureID());
-    glUniform1i(skybox.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::CUBE_MAP), 0);
+    glUniform1i(skybox.GetShader().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::CUBE_MAP), 0);
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -284,7 +284,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Terrain& ter
     terrain.GetShader().Activate();
 
     // find the locations of uniform variables in the shader and assign transform matrices to them
-    glBindBuffer(GL_UNIFORM_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::MVP_MATRICES));
+    glBindBuffer(GL_UNIFORM_BUFFER, Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::UniformBuffer::MVP_MATRICES));
 
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(terrain.GetTransform()));
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetView()));
@@ -294,9 +294,9 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Terrain& ter
 
     glActiveTexture(GL_TEXTURE0 + 6);
     glBindTexture(GL_TEXTURE_CUBE_MAP, Engine::Skybox::GetActiveSkybox().GetTexture().GetTextureID());
-    glUniform1i(terrain.GetShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::CUBE_MAP), 6);
+    glUniform1i(terrain.GetShader().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::CUBE_MAP), 6);
 
-    terrain.GetShader().SetShaderFlag(Engine::Shader::ShaderFlag::STATIC);
+    terrain.GetShader().SetShaderFlag(Engine::ShaderProgram::ShaderFlag::STATIC);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     // bind the vertex array buffer
     glBindVertexArray(terrain.GetMesh().GetVAO());
@@ -316,7 +316,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Volume volum
     volume.GetShader().Activate();
 
     // find the locations of uniform variables in the shader and assign transform matrices to them
-    glBindBuffer(GL_UNIFORM_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::MVP_MATRICES));
+    glBindBuffer(GL_UNIFORM_BUFFER, Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::UniformBuffer::MVP_MATRICES));
 
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(volume.GetTransform()));
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetView()));
@@ -330,7 +330,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Volume volum
     // bind the corresponding texture(s)
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_3D, volume.GetTexture().GetTextureID());
-    glUniform1i(Shader::GetCurrentShader().GetAttributeLocation(Engine::Shader::ShaderAttribute::VOLUME_MAP), 0);
+    glUniform1i(ShaderProgram::GetCurrentShaderProgram().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::VOLUME_MAP), 0);
 
     // render
     glDrawElements(GL_TRIANGLES, volume.GetMesh().GetIndices().size(), GL_UNSIGNED_INT, 0);
@@ -349,7 +349,7 @@ void Engine::Renderer::Render(const Engine::DirectionalLight& light, const Engin
     this->shadowMapShader.Activate();
 
     // find the locations of uniform variables in the shader and assign transform matrices to them
-    glBindBuffer(GL_UNIFORM_BUFFER, Engine::Shader::GetUniformBuffer(Engine::Shader::UniformBuffer::MVP_MATRICES));
+    glBindBuffer(GL_UNIFORM_BUFFER, Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::UniformBuffer::MVP_MATRICES));
 
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(actor.GetTransform()));
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(light.GetView()));
