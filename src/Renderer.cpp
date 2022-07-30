@@ -1,14 +1,12 @@
 #include "Renderer.h"
 
-Engine::Renderer::Renderer()
+Engine::Renderer::Renderer() :
+    wireFrameShader{ "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.vert" ,
+                     "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.frag" },
+	shadowMapShader{ "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.vert",
+					 "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.frag" }
 {
     this->colorDepth = 24u;
-
-    /*this->wireFrameShader = {"C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.vert",
-                              "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.frag" };*/
-
-    this->shadowMapShader = { "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.vert",
-                              "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.frag" };
     
     // get OpenGL implementation limits for rendering related info
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &this->maxFragmentTextureUnits);
@@ -93,10 +91,14 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(camera.GetProjection()));
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    glActiveTexture(GL_TEXTURE0 + 6);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, Engine::Skybox::GetActiveSkybox().GetTexture().GetTextureID());
-    glUniform1i(actor.GetShader().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::CUBE_MAP), 6);
+    
+    // hack in a cubemap
+    if (actor.GetShader().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::CUBE_MAP))
+    {
+        glActiveTexture(GL_TEXTURE0 + 6);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, Engine::Skybox::GetActiveSkybox().GetTexture().GetTextureID());
+        glUniform1i(actor.GetShader().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::CUBE_MAP), 6);
+    }
 
     actor.GetShader().SetShaderFlag(Engine::ShaderProgram::ShaderFlag::STATIC);
 
@@ -336,7 +338,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Volume volum
     glDrawElements(GL_TRIANGLES, volume.GetMesh().GetIndices().size(), GL_UNSIGNED_INT, 0);
 }
 
-void Engine::Renderer::Render(const Engine::DirectionalLight& light, const Engine::FrameBuffer& shadowBuffer, Engine::Actor& actor)
+void Engine::Renderer::Render(const Engine::DirectionalLight& light, Engine::FrameBuffer& shadowBuffer, Engine::Actor& actor)
 {
     // setup the viewport size to match the shadow frame buffer
     glViewport(0, 0, shadowBuffer.GetWidth(), shadowBuffer.GetHeight());

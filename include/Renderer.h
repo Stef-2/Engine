@@ -51,7 +51,7 @@ namespace Engine
         void Render(const Engine::Camera& camera, Engine::Volume volume);
 
         // shadow mapping
-        void Render(const Engine::DirectionalLight& light, const Engine::FrameBuffer& shadowBuffer, Engine::Actor& actor);
+        void Render(const Engine::DirectionalLight& light, Engine::FrameBuffer& shadowBuffer, Engine::Actor& actor);
         void Render(const Engine::DirectionalLight& light, const Engine::FrameBuffer& shadowBuffer, const std::vector<Engine::Actor*>& actors) {};
 
         template<typename T>

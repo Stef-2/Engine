@@ -1,13 +1,7 @@
 #include "Shader.h"
 
+std::map<Engine::ShaderProgram::UniformBuffer, unsigned int> Engine::ShaderProgram::UniformBufferLocations = {};
 Engine::ShaderProgram* Engine::ShaderProgram::currentShaderProgram = {};
-
-unsigned int Engine::ShaderProgram::mvpBlock = -1;
-unsigned int Engine::ShaderProgram::materialParametersBlock = -1;
-unsigned int Engine::ShaderProgram::pointLightsBLock = -1;
-unsigned int Engine::ShaderProgram::spotLightsBLock = -1;
-unsigned int Engine::ShaderProgram::directionalLightsBLock = -1;
-unsigned int Engine::ShaderProgram::ambientLightsBLock = -1;
 
 Engine::ShaderProgram::ShaderProgram()
 {
@@ -16,25 +10,6 @@ Engine::ShaderProgram::ShaderProgram()
     this->programID = 0;
     this->shaderFlags = Engine::ShaderProgram::ShaderFlag(0u);
 
-    this->modelTransformLocation = {};
-    this->viewTransformLocation = {};
-    this->projectionTransformLocation = {};
-    this->BoneTransformsLocation = {};
-
-    this->vertexPositionLocation = {};
-    this->vertexNormalLocation = {};
-    this->vertexUvLocation = {};
-    this->vertexBoneIdLocation = {};
-    this->vertexBoneWeights = {};
-
-    this->diffuseMapLocation = {};
-    this->roughnessMapLocation = {};
-    this->metallicMapLocation = {};
-    this->specularMapLocation = {};
-    this->normalMapLocation = {};
-    this->alphaMapLocation = {};
-    this->cubeMapLocation = {};
-    this->shadowMapsLocation = {};
 }
 
 Engine::ShaderProgram::~ShaderProgram()
@@ -51,25 +26,6 @@ Engine::ShaderProgram::ShaderProgram(std::string vertexShader, std::string fragm
     this->programID = 0;
     this->shaderFlags = Engine::ShaderProgram::ShaderFlag(0u);
 
-    this->modelTransformLocation = {};
-    this->viewTransformLocation = {};
-    this->projectionTransformLocation = {};
-    this->BoneTransformsLocation = {};
-
-    this->vertexPositionLocation = {};
-    this->vertexNormalLocation = {};
-    this->vertexUvLocation = {};
-    this->vertexBoneIdLocation = {};
-    this->vertexBoneWeights = {};
-
-    this->diffuseMapLocation = {};
-    this->roughnessMapLocation = {};
-    this->metallicMapLocation = {};
-    this->specularMapLocation = {};
-    this->normalMapLocation = {};
-    this->alphaMapLocation = {};
-    this->cubeMapLocation = {};
-
     this->geometryShader = {};
     this->SetVertexShader(vertexShader);
     this->SetFragmentShader(fragmentShader);
@@ -82,25 +38,6 @@ Engine::ShaderProgram::ShaderProgram(std::string vertexShader, std::string geome
     this->compileSuccess = 0;
     this->programID = 0;
     this->shaderFlags = Engine::ShaderProgram::ShaderFlag(0u);
-
-    this->modelTransformLocation = {};
-    this->viewTransformLocation = {};
-    this->projectionTransformLocation = {};
-    this->BoneTransformsLocation = {};
-
-    this->vertexPositionLocation = {};
-    this->vertexNormalLocation = {};
-    this->vertexUvLocation = {};
-    this->vertexBoneIdLocation = {};
-    this->vertexBoneWeights = {};
-
-    this->diffuseMapLocation = {};
-    this->roughnessMapLocation = {};
-    this->metallicMapLocation = {};
-    this->specularMapLocation = {};
-    this->normalMapLocation = {};
-    this->alphaMapLocation = {};
-    this->cubeMapLocation = {};
 
 	this->SetVertexShader(vertexShader);
 	this->SetGeometryShader(geometryShader);
@@ -142,8 +79,6 @@ void Engine::ShaderProgram::SetFragmentShader(Engine::FragmentShader& shader)
 
 int Engine::ShaderProgram::CompileProgram()
 {
-    int success;
-
     // check if both the required shaders are present
     if(!this->vertexShader.GetShader()) {
         std::cerr << "unable to compile shader program, vertex shader is missing" << std::endl;
@@ -157,31 +92,32 @@ int Engine::ShaderProgram::CompileProgram()
         this->programID = 0;
         return 0;
     }
+    
+	int success;
+	char compileLog[512];
 
-    // main shader program
-    unsigned int shaderProgram = 0;
+    // main shader program compile and link
+    this->programID = glCreateProgram();
 
-    // compile and link
-    shaderProgram = glCreateProgram();
-
-    glAttachShader(shaderProgram, this->vertexShader.GetShader());
+    glAttachShader(this->programID, this->vertexShader.GetShader());
 
     if (this->geometryShader)
-        glAttachShader(shaderProgram, this->geometryShader->GetShader());
+        glAttachShader(this->programID, this->geometryShader->GetShader());
 
-    glAttachShader(shaderProgram, this->fragmentShader.GetShader());
+    glAttachShader(this->programID, this->fragmentShader.GetShader());
 
-    glLinkProgram(shaderProgram);
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    glLinkProgram(this->programID);
+    glGetProgramiv(this->programID, GL_LINK_STATUS, &success);
 
+    // delete vertex and fragment shaders once we don't need them anymore
     glDeleteShader(this->vertexShader.GetShader());
     glDeleteShader(this->fragmentShader.GetShader());
 
     // check for and print any errors we may have had
     if(!success) {
         
-        glGetProgramInfoLog(shaderProgram, 512, NULL, this->shaderProgramCompileLog);
-        std::cerr << "shader program linking failed: " << std::endl << this->shaderProgramCompileLog << std::endl;
+        glGetProgramInfoLog(this->programID, 512, NULL, compileLog);
+        std::cerr << "shader program linking failed: " << std::endl << compileLog << std::endl;
         this->compileSuccess = 0;
         return 0;
     }
@@ -189,59 +125,88 @@ int Engine::ShaderProgram::CompileProgram()
     {
         // if everything went smoothly...
         this->compileSuccess = 1;
-        this->programID = shaderProgram;
         std::cout << "shader program compiled and linked successfully" << std::endl;
 
         // get and bind the location of shader attributes and uniforms
         // we can use these later without having to bother the gfx card since most glGetX() functions are very slow
+        volatile int location = 0u;
 
         // basic vertex shader input
-        this->vertexPositionLocation = glGetAttribLocation(this->programID, "vertexPosition");
-        this->vertexNormalLocation = glGetAttribLocation(this->programID, "vertexNormal");
-        this->vertexUvLocation = glGetAttribLocation(this->programID, "vertexCoordinate");
-        this->attributeLocations.push_back({ Engine::ShaderProgram::ShaderAttribute::VERTEX_POSITION_LOCATION, glGetAttribLocation(this->programID, "vertexPosition") });
+        location = glGetAttribLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::VERTEX_POSITION_LOCATION).c_str());
+        if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::VERTEX_POSITION_LOCATION, location });
+		location = glGetAttribLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::VERTEX_NORMAL_LOCATION).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::VERTEX_NORMAL_LOCATION, location });
+		location = glGetAttribLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::VERTEX_UV_LOCATION).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::VERTEX_UV_LOCATION, location });
 
         // basic MVP matrices with separate input
-        this->modelTransformLocation = glGetUniformLocation(this->programID, "model");
-        this->viewTransformLocation = glGetUniformLocation(this->programID, "view");
-        this->projectionTransformLocation = glGetUniformLocation(this->programID, "projection");
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::MODEL_LOCATION).c_str());
+        if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::MODEL_LOCATION, location });
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::VIEW_LOCATION).c_str());
+        if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::VIEW_LOCATION, location });
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::PROJECTION_LOCATION).c_str());
+        if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::PROJECTION_LOCATION, location });
 
         // extended vertex shader inputs for animated meshes
-        this->BoneTransformsLocation = glGetUniformLocation(this->programID, "boneTransformations");
-        this->vertexBoneIdLocation = glGetAttribLocation(this->programID, "boneIDs");
-        this->vertexBoneWeights = glGetAttribLocation(this->programID, "boneWeights");
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::BONE_TRANSFORMATIONS).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::BONE_TRANSFORMATIONS, location });
+		location = glGetAttribLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::VERTEX_BONE_ID_LOCATION).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::VERTEX_BONE_ID_LOCATION, location });
+		location = glGetAttribLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::VERTEX_BONE_WEIGHTS_LOCATION).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::VERTEX_BONE_WEIGHTS_LOCATION, location });
 
         // shader flags for uber shader
-        this->shaderFlagsLocation = glGetUniformLocation(this->programID, "shaderFlags");
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::SHADER_PARAMETERS).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::SHADER_PARAMETERS, location });
 
         // uniform samplers for material textures
-        this->diffuseMapLocation = glGetUniformLocation(this->programID, "diffuseMap");
-        this->roughnessMapLocation = glGetUniformLocation(this->programID, "roughnessMap");
-        this->metallicMapLocation = glGetUniformLocation(this->programID, "metallicMap");
-        this->specularMapLocation = glGetUniformLocation(this->programID, "specularMap");
-        this->normalMapLocation = glGetUniformLocation(this->programID, "normalMap");
-        this->alphaMapLocation = glGetUniformLocation(this->programID, "alphaMap");
-        this->cubeMapLocation = glGetUniformLocation(this->programID, "cubeMap");
-        this->volumeMapLocation = glGetUniformLocation(this->programID, "volumeMap");
-        this->shadowMapsLocation = glGetUniformLocation(this->programID, "shadowMaps");
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::DIFFUSE_MAP).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::DIFFUSE_MAP, location });
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::ROUGHNESS_MAP).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::ROUGHNESS_MAP, location });
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::METALLIC_MAP).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::METALLIC_MAP, location });
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::SPECULAR_MAP).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::SPECULAR_MAP, location });
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::NORMAL_MAP).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::NORMAL_MAP, location });
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::ALPHA_MAP).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::ALPHA_MAP, location });
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::CUBE_MAP).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::CUBE_MAP, location });
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::VOLUME_MAP).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::VOLUME_MAP, location });
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::SHADOW_MAPS).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::SHADOW_MAPS, location });
 
         // generate and bind uniform buffer objects and shader storage buffer objects if they're present in the shader(s)
         // this initialization needs to happen only once for each one of these as they are global in GPU memory
         
+        // check if the shader contains one of these uniform blocks and that our map of uniform vars - values doesn't already contain such a pair
+
         // model-view-projection (MVP) matrices
-        if (int(glGetUniformBlockIndex(shaderProgram, "mvpMatrices")) >= 0 &&
-            !(this->mvpBlock >= 0 && this->mvpBlock < unsigned(-1)))
+        if (glGetUniformBlockIndex(this->programID, ShaderProgram::uniformBufferNames.at(ShaderProgram::UniformBuffer::MVP_MATRICES).c_str()) != GL_INVALID_INDEX
+            && !ShaderProgram::UniformBufferLocations.contains(ShaderProgram::UniformBuffer::MVP_MATRICES))
         {
-            glGenBuffers(1, &this->mvpBlock);
-            glBindBufferBase(GL_UNIFORM_BUFFER, 0, this->mvpBlock);
+            // add the pair to the map
+            ShaderProgram::UniformBufferLocations.insert
+            ({ShaderProgram::UniformBuffer::MVP_MATRICES, glGetUniformBlockIndex(this->programID,
+                ShaderProgram::uniformBufferNames.at(UniformBuffer::MVP_MATRICES).c_str())});
+
+            glGenBuffers(1, &ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::MVP_MATRICES));
+            glBindBufferBase(GL_UNIFORM_BUFFER, 0, ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::MVP_MATRICES));
             glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
-            
         }
 
         // material parameters
-        if (int(glGetUniformBlockIndex(shaderProgram, "materialParameters")) >= 0 &&
-            !(this->materialParametersBlock >= 0 && this->materialParametersBlock < unsigned(-1)))
+		if (glGetUniformBlockIndex(this->programID, ShaderProgram::uniformBufferNames.at(ShaderProgram::UniformBuffer::MATERIAL_PARAMETERS).c_str()) != GL_INVALID_INDEX
+			&& !ShaderProgram::UniformBufferLocations.contains(ShaderProgram::UniformBuffer::MATERIAL_PARAMETERS))
         {
+			// add the pair to the map
+			ShaderProgram::UniformBufferLocations.insert
+			({ ShaderProgram::UniformBuffer::MATERIAL_PARAMETERS, glGetUniformBlockIndex(this->programID,
+				ShaderProgram::uniformBufferNames.at(UniformBuffer::MATERIAL_PARAMETERS).c_str()) });
+
             // struct that matches the shader material parameters uniform buffer object
             // to be used as sizeof() and offsetof() reference in data alignment and size matching
             struct MaterialParametersReference
@@ -255,111 +220,73 @@ int Engine::ShaderProgram::CompileProgram()
                 float alpha;
             };
 
-            glGenBuffers(1, &this->materialParametersBlock);
-            glBindBufferBase(GL_UNIFORM_BUFFER, 5, this->materialParametersBlock);
+            glGenBuffers(1, &ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::MATERIAL_PARAMETERS));
+            glBindBufferBase(GL_UNIFORM_BUFFER, 5, ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::MATERIAL_PARAMETERS));
             glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(MaterialParametersReference), NULL, GL_DYNAMIC_DRAW);
         }
 
         // point lights
-        if (int(glGetProgramResourceIndex(shaderProgram, GL_SHADER_STORAGE_BLOCK, "PointLights")) >= 0 && 
-            !(this->pointLightsBLock >= 0 && this->pointLightsBLock < unsigned(-1)))
+        if (glGetProgramResourceIndex(this->programID, GL_SHADER_STORAGE_BLOCK, ShaderProgram::uniformBufferNames.at(ShaderProgram::UniformBuffer::POINT_LIGHTS).c_str()) != GL_INVALID_INDEX
+            && !ShaderProgram::UniformBufferLocations.contains(ShaderProgram::UniformBuffer::POINT_LIGHTS))
         {
-            glGenBuffers(1, &this->pointLightsBLock);
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, this->pointLightsBLock);
+			// add the pair to the map
+			ShaderProgram::UniformBufferLocations.insert
+			({ ShaderProgram::UniformBuffer::POINT_LIGHTS, glGetUniformBlockIndex(this->programID,
+				ShaderProgram::uniformBufferNames.at(UniformBuffer::POINT_LIGHTS).c_str()) });
+
+            glGenBuffers(1, &ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::POINT_LIGHTS));
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::POINT_LIGHTS));
         }
         
         // spot lights
-        if (int(glGetProgramResourceIndex(shaderProgram, GL_SHADER_STORAGE_BLOCK, "SpotLights")) >= 0 &&
-            !(this->spotLightsBLock >= 0 && this->spotLightsBLock < unsigned(-1)))
+		if (glGetProgramResourceIndex(this->programID, GL_SHADER_STORAGE_BLOCK, ShaderProgram::uniformBufferNames.at(ShaderProgram::UniformBuffer::SPOT_LIGHTS).c_str()) != GL_INVALID_INDEX
+			&& !ShaderProgram::UniformBufferLocations.contains(ShaderProgram::UniformBuffer::SPOT_LIGHTS))
         {
-            glGenBuffers(1, &this->spotLightsBLock);
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, this->spotLightsBLock);
+			// add the pair to the map
+			ShaderProgram::UniformBufferLocations.insert
+			({ ShaderProgram::UniformBuffer::SPOT_LIGHTS, glGetUniformBlockIndex(this->programID,
+				ShaderProgram::uniformBufferNames.at(UniformBuffer::SPOT_LIGHTS).c_str()) });
+
+            glGenBuffers(1, &ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::SPOT_LIGHTS));
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::SPOT_LIGHTS));
         }
 
         // directional lights
-        if (int(glGetProgramResourceIndex(shaderProgram, GL_SHADER_STORAGE_BLOCK, "DirectionalLights")) >= 0 &&
-            !(this->directionalLightsBLock >= 0 && this->directionalLightsBLock < unsigned(-1)))
+		if (glGetProgramResourceIndex(this->programID, GL_SHADER_STORAGE_BLOCK, ShaderProgram::uniformBufferNames.at(ShaderProgram::UniformBuffer::DIRECTIONAL_LIGHTS).c_str()) != GL_INVALID_INDEX
+			&& !ShaderProgram::UniformBufferLocations.contains(ShaderProgram::UniformBuffer::DIRECTIONAL_LIGHTS))
         {
-            glGenBuffers(1, &this->directionalLightsBLock);
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, this->directionalLightsBLock);
+			// add the pair to the map
+			ShaderProgram::UniformBufferLocations.insert
+			({ ShaderProgram::UniformBuffer::DIRECTIONAL_LIGHTS, glGetUniformBlockIndex(this->programID,
+				ShaderProgram::uniformBufferNames.at(UniformBuffer::DIRECTIONAL_LIGHTS).c_str()) });
+
+            glGenBuffers(1, &ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::DIRECTIONAL_LIGHTS));
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::DIRECTIONAL_LIGHTS));
         }
 
         // ambient lights
-        if (int(glGetProgramResourceIndex(shaderProgram, GL_SHADER_STORAGE_BLOCK, "AmbientLights")) >= 0 &&
-            !(this->ambientLightsBLock >= 0 && this->ambientLightsBLock < unsigned(-1)))
+		if (glGetProgramResourceIndex(this->programID, GL_SHADER_STORAGE_BLOCK, ShaderProgram::uniformBufferNames.at(ShaderProgram::UniformBuffer::AMBIENT_LIGHTS).c_str()) != GL_INVALID_INDEX
+			&& !ShaderProgram::UniformBufferLocations.contains(ShaderProgram::UniformBuffer::AMBIENT_LIGHTS))
         {
-            glGenBuffers(1, &this->ambientLightsBLock);
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, this->ambientLightsBLock);
+			// add the pair to the map
+			ShaderProgram::UniformBufferLocations.insert
+			({ ShaderProgram::UniformBuffer::AMBIENT_LIGHTS, glGetUniformBlockIndex(this->programID,
+				ShaderProgram::uniformBufferNames.at(UniformBuffer::AMBIENT_LIGHTS).c_str()) });
+
+            glGenBuffers(1, &ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::AMBIENT_LIGHTS));
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::AMBIENT_LIGHTS));
         }
 
-        return shaderProgram;
+        return this->programID;
     }
 }
 
 unsigned int Engine::ShaderProgram::GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute attribute)
 {
-    switch (attribute)
-    {
-    case Engine::ShaderProgram::ShaderAttribute::MODEL_LOCATION:
-        return this->modelTransformLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::VIEW_LOCATION:
-        return this->viewTransformLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::PROJECTION_LOCATION:
-        return this->projectionTransformLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::BONE_TRANSFORMATIONS:
-        return this->BoneTransformsLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::VERTEX_POSITION_LOCATION:
-        return this->vertexPositionLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::VERTEX_NORMAL_LOCATION:
-        return this->vertexNormalLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::VERTEX_UV_LOCATION:
-        return this->vertexUvLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::VERTEX_BONE_ID_LOCATION:
-        return this->vertexBoneIdLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::VERTEX_BONE_WEIGHTS_LOCATION:
-        return this->vertexBoneWeights;
-
-    case Engine::ShaderProgram::ShaderAttribute::SHADER_PARAMETERS:
-        return this->shaderFlagsLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::DIFFUSE_MAP:
-        return this->diffuseMapLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::ROUGHNESS_MAP:
-        return this->roughnessMapLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::METALLIC_MAP:
-        return this->metallicMapLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::SPECULAR_MAP:
-        return this->specularMapLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::NORMAL_MAP:
-        return this->normalMapLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::ALPHA_MAP:
-        return this->alphaMapLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::CUBE_MAP:
-        return this->cubeMapLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::VOLUME_MAP:
-        return this->volumeMapLocation;
-
-    case Engine::ShaderProgram::ShaderAttribute::SHADOW_MAPS:
-        return this->shadowMapsLocation;
-
-    default:
-        break;
-    }
+    if (this->attributeLocations.contains(attribute))
+        return this->attributeLocations.at(attribute);
+    else
+        return 0;
 }
 
 Engine::ShaderProgram::ShaderFlag& Engine::ShaderProgram::GetShaderFlags()
@@ -374,36 +301,19 @@ bool Engine::ShaderProgram::GetShaderFlag(Engine::ShaderProgram::ShaderFlag flag
 
 unsigned int Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::UniformBuffer buffer)
 {
-    switch (buffer)
-    {
-    case Engine::ShaderProgram::UniformBuffer::MVP_MATRICES:
-        return Engine::ShaderProgram::mvpBlock;
-
-    case Engine::ShaderProgram::UniformBuffer::POINT_LIGHTS:
-        return Engine::ShaderProgram::pointLightsBLock;
-
-    case Engine::ShaderProgram::UniformBuffer::SPOT_LIGHTS:
-        return Engine::ShaderProgram::spotLightsBLock;
-
-    case Engine::ShaderProgram::UniformBuffer::DIRECTIONAL_LIGHTS:
-        return Engine::ShaderProgram::directionalLightsBLock;
-
-    case Engine::ShaderProgram::UniformBuffer::AMBIENT_LIGHTS:
-        return Engine::ShaderProgram::ambientLightsBLock;
-
-    case Engine::ShaderProgram::UniformBuffer::MATERIAL_PARAMETERS:
-        return Engine::ShaderProgram::materialParametersBlock;
-
-    default:
-        break;
-    }
+    if (Engine::ShaderProgram::UniformBufferLocations.contains(buffer))
+        return Engine::ShaderProgram::UniformBufferLocations.at(buffer);
+    else
+        return 0;
 }
 
 void Engine::ShaderProgram::SetShaderFlag(Engine::ShaderProgram::ShaderFlag flag)
 {
-    this->shaderFlags = flag;
-
-    glUniform1ui(this->shaderFlagsLocation, unsigned int(this->shaderFlags));
+    if (this->attributeLocations.contains(ShaderProgram::ShaderAttribute::SHADER_PARAMETERS))
+    {
+        this->shaderFlags = flag;
+        glUniform1ui(this->ShaderProgram::attributeLocations.at(ShaderProgram::ShaderAttribute::SHADER_PARAMETERS), unsigned int(flag));
+    }
 }
 
 void Engine::ShaderProgram::Activate()
@@ -415,25 +325,6 @@ void Engine::ShaderProgram::Activate()
 Engine::ShaderProgram& Engine::ShaderProgram::GetCurrentShaderProgram()
 {
     return *Engine::ShaderProgram::currentShaderProgram;
-}
-
-std::string Engine::ShaderProgram::GetLogData()
-{
-    std::string vs(this->vertexShader.GetCompileLog());
-    std::string gs {};
-
-    if (this->geometryShader) 
-        gs = this->geometryShader->GetCompileLog();
-
-    std::string fg(this->fragmentShader.GetCompileLog());
-    std::string sp(this->shaderProgramCompileLog);
-
-    std::string log = "vertex Shader log: \n" + vs;
-    log += "\n geometry shader log: \n" + gs;
-    log += "\n fragment Shader log: \n" + fg;
-    log += "\n shader program log: \n" + sp;
-
-    return log;
 }
 
 Engine::VertexShader& Engine::ShaderProgram::GetVertexShader()
@@ -458,7 +349,6 @@ unsigned int Engine::ShaderProgram::GetProgramID()
 
 Engine::Shader::Shader()
 {
-    *this->compileLog = {};
     this->compilationStatus = false;
     this->shader = {};
 }
@@ -467,6 +357,7 @@ void Engine::Shader::AddSource(std::string filePath)
 {
     // read shader data from the file
 	std::string shaderCode;
+    char compileLog[512];
     char temp = {};
 	int success = false;
 	int length = 0;
@@ -490,22 +381,17 @@ void Engine::Shader::AddSource(std::string filePath)
 
     // check if everything went smoothly
 	if (!success) {
-		glGetShaderInfoLog(this->shader, 512, NULL, this->compileLog);
-		std::cerr << filePath << typeid(*this).name() << " shader compilation failed: " << std::endl << this->compileLog << std::endl;
+		glGetShaderInfoLog(this->shader, 512, NULL, compileLog);
+		std::cerr << filePath << " " << typeid(*this).name() << " shader compilation failed: " << std::endl << compileLog << std::endl;
 		std::cerr << typeid(*this).name() << ": " << std::endl << data << ", Length: " << length << std::endl;
         this->compilationStatus = false;
 		delete data;
 	}
     else {
-        std::cout << filePath << typeid(*this).name() << " shader compiled successfully" << std::endl;
+        std::cout << filePath << " " << typeid(*this).name() << " shader compiled successfully" << std::endl;
         this->compilationStatus = true;
     }
 	
-}
-
-char* Engine::Shader::GetCompileLog()
-{
-    return this->compileLog;
 }
 
 unsigned int Engine::Shader::GetShader()

@@ -65,7 +65,8 @@ int main()
 
     Engine::ShaderProgram volume(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.vert"),
                           engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.frag"));
-    
+
+	
     // ---------------------------------------------------------------------------------------------------------------------
 
     Engine::Actor obj1;
@@ -281,9 +282,9 @@ int main()
         engine.GetRenderer().Render(dirLight, shadowBuffer, obj1);
 
         //obj4.SetShader(wireFrame);
-        engine.GetRenderer().Render(camera, obj1);
-        engine.GetRenderer().Render(camera, obj2);
-        engine.GetRenderer().Render(camera, obj3);
+		engine.GetRenderer().Render(camera, obj1);
+		engine.GetRenderer().Render(camera, obj2);
+		engine.GetRenderer().Render(camera, obj3);
         //obj4.SetShader(volume);
         engine.GetRenderer().Render(camera, obj4);
 

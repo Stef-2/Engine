@@ -14,7 +14,7 @@
 #include "iostream"
 #include "memory"
 #include "vector"
-#include "utility"
+#include "map"
 
 namespace Engine
 {
@@ -27,14 +27,12 @@ namespace Engine
 
         void AddSource(std::string filePath);
 
-		char* GetCompileLog();
 		unsigned int GetShader();
         bool GetCompilatonStatus();
 
 	protected:
         virtual void SetShaderType() = 0;
 
-		char compileLog[512];
 		unsigned int shader;
         bool compilationStatus;
     };
@@ -44,8 +42,7 @@ namespace Engine
     // OpenGL vertex shader
     class VertexShader : public Engine::Shader
     {
-        
-    public:
+        using Engine::Shader::Shader;
 
     private:
         void SetShaderType() override;
@@ -56,8 +53,6 @@ namespace Engine
     {
         using Engine::Shader::Shader;
 
-	public:
-
     private:
         void SetShaderType() override;
     };
@@ -67,8 +62,6 @@ namespace Engine
     {
         using Engine::Shader::Shader;
 
-	public:
-
     private:
         void SetShaderType() override;
     };
@@ -77,8 +70,6 @@ namespace Engine
     class ComputeShader : public Engine::Shader
     {
         using Engine::Shader::Shader;
-
-	public:
 
     private:
         void SetShaderType() override;
@@ -139,7 +130,15 @@ namespace Engine
 			};
 
             ShaderProgram();
+            
+            ShaderProgram(ShaderProgram&&) = default;
+            ShaderProgram& operator= (ShaderProgram&&) = default;
+
+            ShaderProgram(const ShaderProgram&) = default;
+            ShaderProgram& operator= (const ShaderProgram&) = default;
+            
             ~ShaderProgram();
+
             ShaderProgram(std::string vertexShader, std::string fragmentShader);
             ShaderProgram(std::string vertexShader, std::string geometryShader, std::string fragmentShader);
 
@@ -160,8 +159,6 @@ namespace Engine
             bool GetShaderFlag(Engine::ShaderProgram::ShaderFlag flag);
             void SetShaderFlag(Engine::ShaderProgram::ShaderFlag flag);
 
-            std::string GetLogData();
-
             // load vertex, geometry and fragment shaders from files
             void SetVertexShader(std::string filePath);
             void SetGeometryShader(std::string filePath);
@@ -181,6 +178,13 @@ namespace Engine
             void Activate();
 
         private:
+
+            // shading program handle
+            unsigned int programID;
+
+			// will be set to 1 if shader compilation succeeds, 0 otherwise
+			bool compileSuccess;
+
             // necessary for normal shading pipeline
             Engine::VertexShader vertexShader;
             Engine::FragmentShader fragmentShader;
@@ -188,53 +192,49 @@ namespace Engine
             // optional shaders
             Engine::GeometryShader* geometryShader;
 
-            // will be set to 1 if shader compilation succeeds, 0 otherwise
-            bool compileSuccess;
-            char shaderProgramCompileLog[512];
-
 			// locations of shader attributes
-			std::vector<std::pair<Engine::ShaderProgram::ShaderAttribute, unsigned int>> attributeLocations;
+			std::map<Engine::ShaderProgram::ShaderAttribute, unsigned int> attributeLocations;
             // locations of shader uniform buffers
-            std::vector<std::pair<Engine::ShaderProgram::UniformBuffer, unsigned int>> UniformBufferLocations;
+            static std::map<Engine::ShaderProgram::UniformBuffer, unsigned int> UniformBufferLocations;
 
-            unsigned int programID;
+			// names of shader attributes and uniform buffers inside the actual GLSL shaders
+            // these need to match for OpenGL to be able to find their locations and send them data
+			inline const static std::map<Engine::ShaderProgram::ShaderAttribute, std::string> attributeNames =
+			{ 
+                {ShaderAttribute::VERTEX_POSITION_LOCATION, "vertexPosition"},
+                {ShaderAttribute::VERTEX_NORMAL_LOCATION, "vertexNormal"},
+                {ShaderAttribute::VERTEX_UV_LOCATION, "vertexCoordinate"},
 
-			// names of shader attributes inside the actual shaders, these need to match for OpenGL to be able to find their locations
-			inline const static std::pair<Engine::ShaderProgram::ShaderAttribute, std::string> attributeNames[] =
-			{ {ShaderAttribute::VERTEX_POSITION_LOCATION, "test"} };
+                {ShaderAttribute::BONE_TRANSFORMATIONS, "boneTransformations"},
+                {ShaderAttribute::VERTEX_BONE_ID_LOCATION, "boneIDs"},
+                {ShaderAttribute::VERTEX_BONE_WEIGHTS_LOCATION, "boneWeights"},
 
-            // shader attribute locations
-            unsigned int vertexPositionLocation;
-            unsigned int vertexNormalLocation;
-            unsigned int vertexUvLocation;
-            unsigned int vertexBoneIdLocation;
-            unsigned int vertexBoneWeights;
+                {ShaderAttribute::MODEL_LOCATION, "model"},
+                {ShaderAttribute::VIEW_LOCATION, "view"},
+                {ShaderAttribute::PROJECTION_LOCATION, "projection"},
 
-            // shader uniform locations
-            unsigned int modelTransformLocation;
-            unsigned int viewTransformLocation;
-            unsigned int projectionTransformLocation;
-            unsigned int BoneTransformsLocation;
-            unsigned int shaderFlagsLocation;
+                {ShaderAttribute::SHADER_PARAMETERS, "shaderFlags"},
 
-            // texture locations
-            unsigned int diffuseMapLocation;
-            unsigned int roughnessMapLocation;
-            unsigned int metallicMapLocation;
-            unsigned int specularMapLocation;
-            unsigned int normalMapLocation;
-            unsigned int alphaMapLocation;
-            unsigned int cubeMapLocation;
-            unsigned int volumeMapLocation;
-            unsigned int shadowMapsLocation;
+                {ShaderAttribute::DIFFUSE_MAP, "diffuseMap"},
+                {ShaderAttribute::ROUGHNESS_MAP, "roughnessMap"},
+                {ShaderAttribute::METALLIC_MAP, "metallicMap"},
+                {ShaderAttribute::SPECULAR_MAP, "specularMap"},
+                {ShaderAttribute::NORMAL_MAP, "normalMap"},
+                {ShaderAttribute::ALPHA_MAP, "alphaMap"},
+                {ShaderAttribute::CUBE_MAP, "cubeMap"},
+                {ShaderAttribute::VOLUME_MAP, "volumeMap"},
+                {ShaderAttribute::SHADOW_MAPS, "shadowMaps"}
+            };
 
-            // shader block locations
-            static unsigned int mvpBlock;
-            static unsigned int materialParametersBlock;
-            static unsigned int pointLightsBLock;
-            static unsigned int spotLightsBLock;
-            static unsigned int directionalLightsBLock;
-            static unsigned int ambientLightsBLock;
+            inline const static std::map<Engine::ShaderProgram::UniformBuffer, std::string> uniformBufferNames =
+            {
+                {UniformBuffer::MVP_MATRICES, "mvpMatrices"},
+                {UniformBuffer::MATERIAL_PARAMETERS, "materialParameters"},
+				{UniformBuffer::POINT_LIGHTS, "PointLights"},
+                {UniformBuffer::SPOT_LIGHTS, "SpotLights"},
+                {UniformBuffer::DIRECTIONAL_LIGHTS, "DirectionalLights"},
+                {UniformBuffer::AMBIENT_LIGHTS, "AmbientLights"}
+            };
 
             Engine::ShaderProgram::ShaderFlag shaderFlags;
 
