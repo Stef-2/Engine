@@ -23,8 +23,8 @@ namespace Engine
 		void SetModel(const Engine::Model& model);
 
 	private:
-		Model model;
-		ShaderProgram shader;
+		std::shared_ptr<Engine::Model> model;
+		std::shared_ptr<Engine::ShaderProgram> shader;
 
 		bool isVisible;
 	};

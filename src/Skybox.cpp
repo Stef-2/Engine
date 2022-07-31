@@ -57,12 +57,12 @@ Engine::Skybox::Skybox()
 
 void Engine::Skybox::SetShader(const Engine::ShaderProgram& shader)
 {
-	this->shader = shader;
+	this->shader = std::make_shared<Engine::ShaderProgram>(shader);
 }
 
 void Engine::Skybox::SetTexture(Engine::Texture2D& texture)
 {
-    this->texture = texture;
+    this->texture = std::make_shared<Engine::Texture2D>(texture);
 }
 
 Engine::Skybox& Engine::Skybox::GetActiveSkybox()
@@ -77,12 +77,12 @@ void Engine::Skybox::SetActiveSkybox(Engine::Skybox& skybox)
 
 Engine::ShaderProgram& Engine::Skybox::GetShader()
 {
-	return this->shader;
+	return *this->shader;
 }
 
 Engine::Texture2D& Engine::Skybox::GetTexture()
 {
-	return this->texture;
+	return *this->texture;
 }
 
 unsigned int Engine::Skybox::GetVAO()

@@ -92,7 +92,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     
-    // hack in a cubemap
+    // hack in a cubemap, do this properly later
     if (actor.GetShader().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::CUBE_MAP))
     {
         glActiveTexture(GL_TEXTURE0 + 6);
@@ -106,13 +106,14 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
     for (size_t i = 0; i < actor.GetModel().GetStaticMeshes().size(); i++) {
 
         // bind the vertex array buffer
-        glBindVertexArray(actor.GetModel().GetStaticMeshes().at(i).GetVAO());
+        glBindVertexArray(actor.GetModel().GetStaticMeshes().at(i)->GetVAO());
 
-        // bind the corresponding texture(s)
-        actor.GetModel().GetStaticMeshes().at(i).GetMaterial().Activate(actor.GetShader());
+        // bind the corresponding materials if they exist
+        if (&actor.GetModel().GetStaticMeshes().at(i)->GetMaterial())
+            actor.GetModel().GetStaticMeshes().at(i)->GetMaterial().Activate(actor.GetShader());
         
         // render
-        glDrawElements(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i).GetIndices().size(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i)->GetIndices().size(), GL_UNSIGNED_INT, 0);
     }
 
     actor.GetShader().SetShaderFlag(Engine::ShaderProgram::ShaderFlag::ANIMATED);
@@ -120,7 +121,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
     // go through all animated meshes in actor's model and draw them
     for (size_t i = 0; i < actor.GetModel().GetAnimatedMeshes().size(); i++) {
 
-        Engine::Skeleton& skeleton = actor.GetModel().GetAnimatedMeshes().at(i).GetSkeleton();
+        Engine::Skeleton& skeleton = actor.GetModel().GetAnimatedMeshes().at(i)->GetSkeleton();
 
         // make a stack of bone transforms that we'll send to the GPU
         glm::mat4* bones = new glm::mat4[skeleton.GetBones().size()];
@@ -135,13 +136,13 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
         delete[]bones;
 
         // bind the vertex array buffer
-        glBindVertexArray(actor.GetModel().GetAnimatedMeshes().at(i).GetVAO());
+        glBindVertexArray(actor.GetModel().GetAnimatedMeshes().at(i)->GetVAO());
 
         // bind the corresponding texture(s)
-        actor.GetModel().GetAnimatedMeshes().at(i).GetMaterial().Activate(actor.GetShader());
+        actor.GetModel().GetAnimatedMeshes().at(i)->GetMaterial().Activate(actor.GetShader());
 
         // render
-        glDrawElements(GL_TRIANGLES, actor.GetModel().GetAnimatedMeshes().at(i).GetIndices().size(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, actor.GetModel().GetAnimatedMeshes().at(i)->GetIndices().size(), GL_UNSIGNED_INT, 0);
     }
 }
 
@@ -361,10 +362,10 @@ void Engine::Renderer::Render(const Engine::DirectionalLight& light, Engine::Fra
     for (size_t i = 0; i < actor.GetModel().GetStaticMeshes().size(); i++) {
 
         // bind the vertex array buffer
-        glBindVertexArray(actor.GetModel().GetStaticMeshes().at(i).GetVAO());
+        glBindVertexArray(actor.GetModel().GetStaticMeshes().at(i).get()->GetVAO());
 
         // render
-        glDrawElements(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i).GetIndices().size(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i).get()->GetIndices().size(), GL_UNSIGNED_INT, 0);
     }
     
     // unbind the uniform buffer

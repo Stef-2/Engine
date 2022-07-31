@@ -18,9 +18,9 @@ void Engine::Animator::Animate(Engine::Actor& actor, std::string animationName)
 
 	// find the requested animation
 	for (size_t i = 0; i < actor.GetModel().GetAnimatedMeshes().size(); i++)
-		for (size_t j = 0; j < actor.GetModel().GetAnimatedMeshes().at(i).GetAnimations().size(); j++)
-			if (actor.GetModel().GetAnimatedMeshes().at(i).GetAnimations().at(j).GetName() == animationName)
-				animation = &actor.GetModel().GetAnimatedMeshes().at(i).GetAnimations().at(j);
+		for (size_t j = 0; j < actor.GetModel().GetAnimatedMeshes().at(i)->GetAnimations().size(); j++)
+			if (actor.GetModel().GetAnimatedMeshes().at(i).get()->GetAnimations().at(j).GetName() == animationName)
+				animation = &actor.GetModel().GetAnimatedMeshes().at(i).get()->GetAnimations().at(j);
 	
 	// check if we found the animation with the given name
 	if (animation)

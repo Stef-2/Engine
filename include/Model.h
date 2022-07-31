@@ -24,8 +24,7 @@
 
 namespace Engine
 {
-	// Model class, primarely encapsulates mesh(es) and material(s)
-	// Is able to hold animation data for models using skeletal animation
+	// Model class, primarily encapsulates mesh(es)
 	class Model
 	{
 	public:
@@ -37,14 +36,14 @@ namespace Engine
 		void LoadMesh(const AnimatedMesh& other);
 		void SetBoundingBox(glm::vec3 mins, glm::vec3 maxs);
 
-		std::vector<Mesh>& GetStaticMeshes();
-		std::vector<AnimatedMesh>& GetAnimatedMeshes();
+		std::vector<std::shared_ptr<Engine::Mesh>>& GetStaticMeshes();
+		std::vector<std::shared_ptr<Engine::AnimatedMesh>>& GetAnimatedMeshes();
 		
 		Engine::BoundingBox& GetBoundingBox();
 
 	private:
-		std::vector<Mesh> staticMeshes;
-		std::vector<AnimatedMesh> animatedMeshes;
+		std::vector<std::shared_ptr<Engine::Mesh>> staticMeshes;
+		std::vector<std::shared_ptr<Engine::AnimatedMesh>> animatedMeshes;
 
 		Engine::BoundingBox boundingBox;
 	};

@@ -14,30 +14,30 @@ Engine::Volume::~Volume()
 
 Engine::Mesh& Engine::Volume::GetMesh()
 {
-	return this->mesh;
+	return *this->mesh;
 }
 
 Engine::ShaderProgram& Engine::Volume::GetShader()
 {
-	return this->shader;
+	return *this->shader;
 }
 
 Engine::Texture3D& Engine::Volume::GetTexture()
 {
-	return this->texture;
+	return *this->texture;
 }
 
 void Engine::Volume::SetMesh(Engine::Mesh& mesh)
 {
-	this->mesh = mesh;
+	this->mesh = std::make_shared<Engine::Mesh>(mesh);
 }
 
 void Engine::Volume::SetShader(Engine::ShaderProgram& shader)
 {
-	this->shader = shader;
+	this->shader = std::make_shared<Engine::ShaderProgram>(shader);
 }
 
 void Engine::Volume::SetTexture(Engine::Texture3D& texture)
 {
-	this->texture = texture;
+	this->texture = std::make_shared<Engine::Texture3D>(texture);
 }

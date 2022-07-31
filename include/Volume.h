@@ -27,9 +27,9 @@ namespace Engine
 		void SetTexture(Engine::Texture3D& texture);
 
 	private:
-		Engine::Mesh mesh;
-		Engine::ShaderProgram shader;
-		Engine::Texture3D texture;
+		std::shared_ptr<Engine::Mesh> mesh;
+		std::shared_ptr<Engine::ShaderProgram> shader;
+		std::shared_ptr<Engine::Texture3D> texture;
 	};
 
 }

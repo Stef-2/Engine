@@ -415,13 +415,13 @@ void Engine::Model::LoadMesh(std::string filePath)
             }
 
             // animated mesh
-            this->animatedMeshes.push_back(AnimatedMesh(vertexBoneData, indices, skeleton, animations));
-            this->animatedMeshes.back().SetBoundingBox(aiVector3ToGlm(mesh->mAABB.mMin), aiVector3ToGlm(mesh->mAABB.mMax));
+            this->animatedMeshes.push_back(std::shared_ptr<Engine::AnimatedMesh>(new AnimatedMesh(vertexBoneData, indices, skeleton, animations)));
+            this->animatedMeshes.back().get()->SetBoundingBox(aiVector3ToGlm(mesh->mAABB.mMin), aiVector3ToGlm(mesh->mAABB.mMax));
         }
         else {
             // static mesh with no animations nor bones
-            this->staticMeshes.push_back(Mesh(vertices, indices));
-            this->staticMeshes.back().SetBoundingBox(aiVector3ToGlm(mesh->mAABB.mMin), aiVector3ToGlm(mesh->mAABB.mMax));
+            this->staticMeshes.push_back(std::shared_ptr<Engine::Mesh>(new Mesh(vertices, indices)));
+            this->staticMeshes.back().get()->SetBoundingBox(aiVector3ToGlm(mesh->mAABB.mMin), aiVector3ToGlm(mesh->mAABB.mMax));
         }
     }
 
@@ -437,12 +437,12 @@ void Engine::Model::LoadMesh(std::string filePath)
 
 void Engine::Model::LoadMesh(const Engine::Mesh& other)
 {
-    this->staticMeshes.push_back(other);
+    this->staticMeshes.push_back(std::make_shared<Engine::Mesh>(other));
 }
 
 void Engine::Model::LoadMesh(const Engine::AnimatedMesh& other)
 {
-    this->animatedMeshes.push_back(other);
+    this->animatedMeshes.push_back(std::make_shared<Engine::AnimatedMesh>(other));
 }
 
 void Engine::Model::SetBoundingBox(glm::vec3 mins, glm::vec3 maxs)
@@ -451,12 +451,12 @@ void Engine::Model::SetBoundingBox(glm::vec3 mins, glm::vec3 maxs)
 }
 
 
-std::vector<Engine::Mesh>& Engine::Model::GetStaticMeshes()
+std::vector<std::shared_ptr<Engine::Mesh>>& Engine::Model::GetStaticMeshes()
 {
     return this->staticMeshes;
 }
 
-std::vector<Engine::AnimatedMesh>& Engine::Model::GetAnimatedMeshes()
+std::vector<std::shared_ptr<Engine::AnimatedMesh>>& Engine::Model::GetAnimatedMeshes()
 {
     return this->animatedMeshes;
 }

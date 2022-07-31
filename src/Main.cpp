@@ -73,11 +73,11 @@ int main()
     obj1.SetShader(uber);
     obj1.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\barrel.obj")));
 
-    obj1.GetModel().GetStaticMeshes().at(0).SetMaterial(Engine::Material());
-    obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_BaseColor.png"));
-    obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Roughness.png"));
-    obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Metallic.png"));
-    obj1.GetModel().GetStaticMeshes().at(0).GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Normal.png"));
+    obj1.GetModel().GetStaticMeshes().at(0)->SetMaterial(Engine::Material());
+    obj1.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_BaseColor.png"));
+    obj1.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Roughness.png"));
+    obj1.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Metallic.png"));
+    obj1.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Normal.png"));
     obj1.MoveAbsolute(100.0f, 0.0f, 0.0f);
 
     Engine::Actor obj2;
@@ -85,21 +85,21 @@ int main()
 
     obj2.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\dancing_vampire.dae")));
 
-    obj2.GetModel().GetAnimatedMeshes().at(0).SetMaterial(Engine::Material());
-    obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_diffuse.png"));
-    obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_specular2.png"));
-    obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\black.png"));
-    obj2.GetModel().GetAnimatedMeshes().at(0).GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_normal.png"));
+    obj2.GetModel().GetAnimatedMeshes().at(0)->SetMaterial(Engine::Material());
+    obj2.GetModel().GetAnimatedMeshes().at(0)->GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_diffuse.png"));
+    obj2.GetModel().GetAnimatedMeshes().at(0)->GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_specular2.png"));
+    obj2.GetModel().GetAnimatedMeshes().at(0)->GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\black.png"));
+    obj2.GetModel().GetAnimatedMeshes().at(0)->GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\Vampire_normal.png"));
 
     Engine::Actor obj3;
     obj3.SetShader(uber);
     obj3.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\sphere.obj")));
 
-    obj3.GetModel().GetStaticMeshes().at(0).SetMaterial(Engine::Material());
-    obj3.GetModel().GetStaticMeshes().at(0).GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\rustediron2_basecolor.png"));
-    obj3.GetModel().GetStaticMeshes().at(0).GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\rustediron2_roughness.png"));
-    obj3.GetModel().GetStaticMeshes().at(0).GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\rustediron2_metallic.png"));
-    obj3.GetModel().GetStaticMeshes().at(0).GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\rustediron2_normal.png"));
+    obj3.GetModel().GetStaticMeshes().at(0)->SetMaterial(Engine::Material());
+    obj3.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\rustediron2_basecolor.png"));
+    obj3.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\rustediron2_roughness.png"));
+    obj3.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\rustediron2_metallic.png"));
+    obj3.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\rustediron2_normal.png"));
     obj3.MoveAbsolute(-60.0f, 0.0f, 0.0f);
     obj3.ScaleRelative(10.0f, 10.0f, 10.0f);
 
@@ -131,25 +131,28 @@ int main()
     
     std::vector<Engine::Actor*> actors;
     actors.push_back(&obj2);
-
-    //Engine::Terrain terrain({ 5000, 5000.0 }, 0.01, engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\heightmap.png"));
-    //terrain.SetShader(testStatic);
-    //terrain.GetMesh().GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\grey.png"));
-    //terrain.GetMesh().GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\white.png"));
-    //terrain.GetMesh().GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\grey.png"));
-    //terrain.GetMesh().GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\normal map.jpg"));
-    //std::cout << terrain.GetHeightMap().GetData() << std::endl;
+    /*
+    Engine::Terrain terrain({ 5000, 5000.0 }, 0.01, engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\heightmap.png"));
+    terrain.SetShader(uber);
+    Engine::Material mat;
+    terrain.AddMaterial(mat);
+    terrain.GetMesh().SetMaterial(mat);
+    terrain.GetMesh().GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\grey.png"));
+    terrain.GetMesh().GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\white.png"));
+    terrain.GetMesh().GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\grey.png"));
+    terrain.GetMesh().GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\normal map.jpg"));
+    std::cout << terrain.GetHeightMap().GetData() << std::endl;*/
 
     for (size_t i = 0; i < actors.size(); i++)
     {
         for (size_t j = 0; j < actors.at(i)->GetModel().GetAnimatedMeshes().size(); j++)
         {
-            vertexCount += actors.at(i)->GetModel().GetAnimatedMeshes().at(j).GetVertices().size();
-            triangleCount += actors.at(i)->GetModel().GetAnimatedMeshes().at(j).GetTriangles().size();
+            vertexCount += actors.at(i)->GetModel().GetAnimatedMeshes().at(j)->GetVertices().size();
+            triangleCount += actors.at(i)->GetModel().GetAnimatedMeshes().at(j)->GetTriangles().size();
         }
     }
 
-    engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back().GetAnimations().back().GetName());
+    engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back()->GetAnimations().back().GetName());
     
     Engine::PointLight pointLight1;
     Engine::PointLight pointLight2;
@@ -236,7 +239,7 @@ int main()
         }
 
         if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_E) == GLFW_PRESS) {
-            engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back().GetAnimations().back().GetName());
+            engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back()->GetAnimations().back().GetName());
             //glm::mat4 asd = glm::mat4_cast(glm::inverse(camera.GetOrientation())) * camera.GetView();
             glm::mat4 asd = camera.GetView();
             glm::vec3 inv = -asd[3] * glm::mat3(asd);
@@ -267,7 +270,7 @@ int main()
         //pointLight5.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
         //engine.GetRenderer().Render(camera, pointLight5);
 
-        //engine.GetRenderer().Render(camera, terrain);
+        engine.GetRenderer().Render(camera, terrain);
         
         //engine.GetRenderer().Render(camera, obj1);
         //engine.GetRenderer().Render(camera, obj3);

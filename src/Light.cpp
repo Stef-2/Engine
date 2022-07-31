@@ -32,12 +32,12 @@ void Engine::Light::SetColor(glm::vec3 color)
 
 Engine::Mesh& Engine::PhysicalLight::GetMesh()
 {
-	return this->mesh;
+	return *this->mesh;
 }
 
 Engine::ShaderProgram& Engine::PhysicalLight::GetShader()
 {
-	return this->shader;
+	return *this->shader;
 }
 
 float Engine::PhysicalLight::GetEffectiveRadius() const
@@ -47,12 +47,12 @@ float Engine::PhysicalLight::GetEffectiveRadius() const
 
 void Engine::PhysicalLight::SetMesh(Engine::Mesh mesh)
 {
-	this->mesh = mesh;
+	this->mesh = std::make_shared<Engine::Mesh>(mesh);
 }
 
 void Engine::PhysicalLight::SetShader(Engine::ShaderProgram shader)
 {
-	this->shader = shader;
+	this->shader = std::make_shared<Engine::ShaderProgram>(shader);
 }
 
 void Engine::PhysicalLight::SetIntensity(float intensity)

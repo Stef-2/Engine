@@ -92,7 +92,7 @@ std::vector<Engine::VertexBoneData>& Engine::AnimatedMesh::GetVertices()
 
 Engine::Material& Engine::Mesh::GetMaterial()
 {
-    return this->material;
+    return *this->material;
 }
 
 Engine::BoundingBox& Engine::Mesh::GetBoundingBox()
@@ -102,7 +102,7 @@ Engine::BoundingBox& Engine::Mesh::GetBoundingBox()
 
 void Engine::Mesh::SetMaterial(const Engine::Material& material)
 {
-    this->material = material;
+    this->material = std::make_shared<Engine::Material>(material);
 }
 
 void Engine::Mesh::SetBoundingBox(glm::vec3 mins, glm::vec3 maxs)

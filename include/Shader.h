@@ -186,11 +186,11 @@ namespace Engine
 			bool compileSuccess;
 
             // necessary for normal shading pipeline
-            Engine::VertexShader vertexShader;
-            Engine::FragmentShader fragmentShader;
+            std::shared_ptr<Engine::VertexShader> vertexShader;
+            std::shared_ptr<Engine::FragmentShader> fragmentShader;
 
             // optional shaders
-            Engine::GeometryShader* geometryShader;
+            std::shared_ptr<Engine::GeometryShader> geometryShader;
 
 			// locations of shader attributes
 			std::map<Engine::ShaderProgram::ShaderAttribute, unsigned int> attributeLocations;

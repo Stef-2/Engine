@@ -48,23 +48,25 @@ Engine::ShaderProgram::ShaderProgram(std::string vertexShader, std::string geome
 
 void Engine::ShaderProgram::SetVertexShader(Engine::VertexShader& shader)
 {
-    this->vertexShader = shader;
+    this->vertexShader = std::make_shared<Engine::VertexShader>(shader);
 }
 
 void Engine::ShaderProgram::SetVertexShader(std::string filePath)
 {
-    this->vertexShader.AddSource(filePath);
+    this->vertexShader = std::make_shared<Engine::VertexShader>();
+    this->vertexShader->AddSource(filePath);
 }
 
 void Engine::ShaderProgram::SetGeometryShader(std::string filePath)
 {
-    this->geometryShader = new Engine::GeometryShader {};
+    this->geometryShader = std::make_shared<Engine::GeometryShader>();
     this->geometryShader->AddSource(filePath);
 }
 
 void Engine::ShaderProgram::SetFragmentShader(std::string filePath)
 {
-    this->fragmentShader.AddSource(filePath);
+    this->fragmentShader = std::make_shared<Engine::FragmentShader>();
+    this->fragmentShader->AddSource(filePath);
 }
 
 void Engine::ShaderProgram::SetGeometryShader(Engine::GeometryShader& shader)
@@ -74,19 +76,19 @@ void Engine::ShaderProgram::SetGeometryShader(Engine::GeometryShader& shader)
 
 void Engine::ShaderProgram::SetFragmentShader(Engine::FragmentShader& shader)
 {
-    this->fragmentShader = shader;
+    this->fragmentShader = std::make_shared<Engine::FragmentShader>(shader);
 }
 
 int Engine::ShaderProgram::CompileProgram()
 {
     // check if both the required shaders are present
-    if(!this->vertexShader.GetShader()) {
+    if(this->vertexShader && !this->vertexShader->GetShader()) {
         std::cerr << "unable to compile shader program, vertex shader is missing" << std::endl;
         this->compileSuccess = 0;
         this->programID = 0;
         return 0;
     }
-    if(!this->fragmentShader.GetShader()) {
+    if(this->fragmentShader && !this->fragmentShader->GetShader()) {
         std::cerr << "unable to compile shader program, fragment shader is missing" << std::endl;
         this->compileSuccess = 0;
         this->programID = 0;
@@ -99,19 +101,19 @@ int Engine::ShaderProgram::CompileProgram()
     // main shader program compile and link
     this->programID = glCreateProgram();
 
-    glAttachShader(this->programID, this->vertexShader.GetShader());
+    glAttachShader(this->programID, this->vertexShader->GetShader());
 
     if (this->geometryShader)
         glAttachShader(this->programID, this->geometryShader->GetShader());
 
-    glAttachShader(this->programID, this->fragmentShader.GetShader());
+    glAttachShader(this->programID, this->fragmentShader->GetShader());
 
     glLinkProgram(this->programID);
     glGetProgramiv(this->programID, GL_LINK_STATUS, &success);
 
     // delete vertex and fragment shaders once we don't need them anymore
-    glDeleteShader(this->vertexShader.GetShader());
-    glDeleteShader(this->fragmentShader.GetShader());
+    glDeleteShader(this->vertexShader->GetShader());
+    glDeleteShader(this->fragmentShader->GetShader());
 
     // check for and print any errors we may have had
     if(!success) {
@@ -329,7 +331,7 @@ Engine::ShaderProgram& Engine::ShaderProgram::GetCurrentShaderProgram()
 
 Engine::VertexShader& Engine::ShaderProgram::GetVertexShader()
 {
-    return this->vertexShader;
+    return *this->vertexShader;
 }
 
 Engine::GeometryShader& Engine::ShaderProgram::GetGeometryShader()
@@ -339,7 +341,7 @@ Engine::GeometryShader& Engine::ShaderProgram::GetGeometryShader()
 
 Engine::FragmentShader& Engine::ShaderProgram::GetFragmentShader()
 {
-    return this->fragmentShader;
+    return *this->fragmentShader;
 }
 
 unsigned int Engine::ShaderProgram::GetProgramID()

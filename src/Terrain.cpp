@@ -54,22 +54,22 @@ Engine::Terrain::Terrain(glm::dvec2 size, double density, glm::vec3 position, st
 
 Engine::Mesh& Engine::Terrain::GetMesh()
 {
-	return this->mesh;
+	return *this->mesh;
 }
 
 Engine::ShaderProgram& Engine::Terrain::GetShader()
 {
-	return this->shader;
+	return *this->shader;
 }
 
 Engine::Texture2D& Engine::Terrain::GetHeightMap()
 {
-	return this->heightMap;
+	return *this->heightMap;
 }
 
 std::vector<Engine::Material>& Engine::Terrain::GetMaterials()
 {
-	return this->materials;
+	return (std::vector<Engine::Material>&)(this->materials);
 }
 
 glm::dvec2& Engine::Terrain::GetSize()
@@ -84,7 +84,7 @@ double& Engine::Terrain::GetDensity()
 
 void Engine::Terrain::SetShader(const Engine::ShaderProgram& shader)
 {
-	this->shader = shader;
+	this->shader = std::make_shared<Engine::ShaderProgram>(shader);
 }
 
 void Engine::Terrain::SetHeightMap(std::string hightMapPath)
@@ -92,13 +92,13 @@ void Engine::Terrain::SetHeightMap(std::string hightMapPath)
 	// utility var to be passed to the loader since stbi_load() doesn't like to work with nullpointers
 	int temp;
 	// load the heightmap texture the regular way
-	this->heightMap = Engine::Texture2D(hightMapPath);
+	this->heightMap = std::make_shared<Engine::Texture2D>(hightMapPath);
 
 	// normally the texture loading process cleans up its data after its been bound and uploaded to the GPU
 	// but in this case we want to keep it available for sampling as we're planning to use it for terrain generation
 	// so this little hack just shoves the data back in so we can access it later
 	// we're also making sure that the resulting data has 3 components / channels per pixel
-	this->heightMap.SetData(stbi_load(hightMapPath.c_str(), &temp, &temp, &temp, 1));
+	this->heightMap->SetData(stbi_load(hightMapPath.c_str(), &temp, &temp, &temp, 1));
 }
 
 void Engine::Terrain::SetSize(glm::dvec2 size)
@@ -123,7 +123,10 @@ void Engine::Terrain::SetBoundingBox(glm::vec3 mins, glm::vec3 maxs)
 
 void Engine::Terrain::AddMaterial(Engine::Material& material)
 {
-	this->materials.push_back(material);
+	if (!this->materials)
+		this->materials = std::make_shared<std::vector<std::shared_ptr<Engine::Material>>>();
+
+	this->materials->push_back(std::make_shared<Engine::Material>(material));
 }
 
 void Engine::Terrain::AddSector(Engine::Sector& sector)
@@ -176,8 +179,8 @@ void Engine::Terrain::Generate()
 	const unsigned int numVerticesY = unsigned int(this->size.y * this->density + 1);
 
 	// find the heightmap / terrain size scaling factors to be used later
-	const double scalingFactorX = this->heightMap.GetWidth() / this->size.x;
-	const double scalingFactorY = this->heightMap.GetHeight() / this->size.y;
+	const double scalingFactorX = this->heightMap->GetWidth() / this->size.x;
+	const double scalingFactorY = this->heightMap->GetHeight() / this->size.y;
 	const double heightScalingFactor = ((scalingFactorX + scalingFactorY) / 2.0) / heightFactor;
 
 	// number of pixels we sample from the map should vary depending on its size and the size of the terrain
@@ -188,7 +191,7 @@ void Engine::Terrain::Generate()
 	// utility lambda that samples the heightmap data at a given point
 	auto HeightMapSample = [this](unsigned int x, unsigned int y) -> float
 	{
-		unsigned char* pixel = this->heightMap.GetData() + (x + this->heightMap.GetWidth() * y);
+		unsigned char* pixel = this->heightMap->GetData() + (x + this->heightMap->GetWidth() * y);
 
 		return float(unsigned(*pixel));
 	};
@@ -202,12 +205,12 @@ void Engine::Terrain::Generate()
 		for (signed short i = -(neighborhoodSize - 1) / 2; i <= (neighborhoodSize - 1) / 2; i++)
 			for (signed short j = -(neighborhoodSize - 1) / 2; j <= (neighborhoodSize - 1) / 2; j++)
 			{
-				unsigned int offset = (x + i) + this->heightMap.GetWidth() * (y + j);
+				unsigned int offset = (x + i) + this->heightMap->GetWidth() * (y + j);
 
 				// check if we'd sample out of bounds
-				if (offset >= 0 && offset <= this->heightMap.GetWidth() * this->heightMap.GetHeight())
+				if (offset >= 0 && offset <= this->heightMap->GetWidth() * this->heightMap->GetHeight())
 				{
-					unsigned char* pixel = this->heightMap.GetData() + ((x + i) + this->heightMap.GetWidth() * (y + j));
+					unsigned char* pixel = this->heightMap->GetData() + ((x + i) + this->heightMap->GetWidth() * (y + j));
 
 					samples[index] = float((unsigned(*pixel)));
 
@@ -229,7 +232,7 @@ void Engine::Terrain::Generate()
 	(const Engine::Vertex& A, const Engine::Vertex& B, const Engine::Vertex& C) -> double
 	{
 		// number of samples to take, relative to the size of the height map
-		const unsigned int numSamples = this->heightMap.GetWidth() * this->heightMap.GetHeight() / ((this->heightMap.GetWidth() + this->heightMap.GetHeight()) * 32u);
+		const unsigned int numSamples = this->heightMap->GetWidth() * this->heightMap->GetHeight() / ((this->heightMap->GetWidth() + this->heightMap->GetHeight()) * 32u);
 		// accumulated height difference
 		float heightDifference = 0.0f;
 
@@ -270,8 +273,8 @@ void Engine::Terrain::Generate()
 		float positionZ = (A.position.z + B.position.z + C.position.z) / 3.0f;
 
 		// sample the heightmap for the Y coordinate
-		float positionY = HeightMapSample((positionX * scalingFactorX + this->heightMap.GetWidth() / 2),
-			(positionZ * scalingFactorY + this->heightMap.GetHeight() / 2)) / heightScalingFactor;
+		float positionY = HeightMapSample((positionX * scalingFactorX + this->heightMap->GetWidth() / 2),
+			(positionZ * scalingFactorY + this->heightMap->GetHeight() / 2)) / heightScalingFactor;
 
 		float uvX = (A.uv.x + B.uv.x + C.uv.x) / 3.0f;
 		float uvY = (A.uv.y + B.uv.y + C.uv.y) / 3.0f;
@@ -300,8 +303,8 @@ void Engine::Terrain::Generate()
 		float positionZ = (A.position.z * sideA + B.position.z * sideB + C.position.z * sideC) / (sideA + sideB + sideC);
 
 		// sample the heightmap for the Y coordinate
-		float positionY = HeightMapSample((positionX * scalingFactorX + this->heightMap.GetWidth() / 2),
-			(positionZ * scalingFactorY + this->heightMap.GetHeight() / 2)) / heightScalingFactor;
+		float positionY = HeightMapSample((positionX * scalingFactorX + this->heightMap->GetWidth() / 2),
+			(positionZ * scalingFactorY + this->heightMap->GetHeight() / 2)) / heightScalingFactor;
 
 		sideA = glm::distance(B.uv, C.uv);
 		sideB = glm::distance(A.uv, C.uv);
@@ -495,8 +498,8 @@ void Engine::Terrain::Generate()
 					// uv, needs to be in [0,1] range
 					{(offsetX * i) / this->size.x, (offsetY * j) / this->size.y} });
 
-				vertices.back().position.y = HeightMapSample((vertices.back().position.x * scalingFactorX + this->heightMap.GetWidth() / 2),
-					(vertices.back().position.z * scalingFactorY + this->heightMap.GetHeight() / 2)) / heightScalingFactor;
+				vertices.back().position.y = HeightMapSample((vertices.back().position.x * scalingFactorX + this->heightMap->GetWidth() / 2),
+					(vertices.back().position.z * scalingFactorY + this->heightMap->GetHeight() / 2)) / heightScalingFactor;
 			}
 		}
 	
@@ -673,8 +676,9 @@ void Engine::Terrain::Generate()
 	}
 
 	// push vertices and indices into the mesh and have it generate its internal rendering data
-	this->mesh.SetVertices(vertices);
-	this->mesh.SetIndices(indices);
+	this->mesh = std::make_shared<Engine::Mesh>();
+	this->mesh->SetVertices(vertices);
+	this->mesh->SetIndices(indices);
 
-	this->mesh.Setup();
+	this->mesh->Setup();
 }

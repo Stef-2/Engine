@@ -76,33 +76,33 @@ namespace Engine
 
 	private:
 
-		//-----------------physically correct data----------------//
-																  //
-		Engine::Texture2D diffuseMap;							  //
-		Engine::Texture2D roughnessMap;							  //
-		Engine::Texture2D metallicMap;							  //
-																  //
-		// global multipliers for the channels above			  //
-		// can be used as a value in case a map is not provided	  //
-		glm::vec3 diffuse;										  //
-		float roughness;										  //
-		float metallic;											  //
-																  //
-		//--------------------------------------------------------// 
+		//-----------------physically correct data----------------
+																  
+		std::shared_ptr<Engine::Texture2D> diffuseMap;			  
+		std::shared_ptr<Engine::Texture2D> roughnessMap;		  
+		std::shared_ptr<Engine::Texture2D> metallicMap;			  
+																  
+		// global multipliers for the channels above			  
+		// can be used as a value in case a map is not provided	  
+		glm::vec3 diffuse;										  
+		float roughness;										  
+		float metallic;											  
+																  
+		//-------------------------------------------------------- 
 
-		//----------------physically incorrect data---------------//
-																  //
-		Engine::Texture2D specularMap;							  //
-		Engine::Texture2D normalMap;							  //
-		Engine::Texture2D alphaMap;								  //
-															 	  //
-		// global multipliers for the channels above		 	  //
-		// can be used as a value in case a map is not provided	  //
-		float specular;											  //
-		glm::vec3 normal;										  //
-		float alpha;											  //
-																  //
-		//--------------------------------------------------------//
+		//----------------physically incorrect data---------------
+																  
+		std::shared_ptr<Engine::Texture2D> specularMap;							  
+		std::shared_ptr<Engine::Texture2D> normalMap;							  
+		std::shared_ptr<Engine::Texture2D> alphaMap;								  
+															 	  
+		// global multipliers for the channels above		 	  
+		// can be used as a value in case a map is not provided	  
+		float specular;											  
+		glm::vec3 normal;										  
+		float alpha;											  
+																  
+		//--------------------------------------------------------
 	};
 
 }

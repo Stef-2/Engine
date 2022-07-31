@@ -86,7 +86,7 @@ namespace Engine
         std::vector<Triangle<Vertex>> triangles;
 
     protected:
-        Engine::Material material;
+        std::shared_ptr<Engine::Material> material;
 
         // node containing transformation data
         Engine::Node* node;

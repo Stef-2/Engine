@@ -64,8 +64,8 @@ namespace Engine
 		virtual void SetView() = 0;
 		virtual void SetProjection() = 0;
 
-		Engine::Mesh mesh;
-		Engine::ShaderProgram shader;
+		std::shared_ptr<Engine::Mesh> mesh;
+		std::shared_ptr<Engine::ShaderProgram> shader;
 
 		glm::mat4 projection;
 

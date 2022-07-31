@@ -47,7 +47,7 @@ namespace Engine
 
         // terrain divisor if its size is greater than this value
         // competition to see how many specifiers we can put before the actual value
-        inline static constexpr const unsigned int sectorSize = 16u;
+        inline static constexpr const unsigned short sectorSize = 16u;
     };
 
     // Terrain
@@ -87,13 +87,13 @@ namespace Engine
         // generate the terrain mesh based on our current properties
         void Generate();
 
-        Engine::Mesh mesh;
-        Engine::ShaderProgram shader;
-        Engine::Texture2D heightMap;
-        Engine::BoundingBox boundingBox;
+        std::shared_ptr<Engine::Mesh> mesh;
+        std::shared_ptr<Engine::Texture2D> heightMap;
+        std::shared_ptr<Engine::ShaderProgram> shader;
+        std::shared_ptr<std::vector<std::shared_ptr<Engine::Material>>> materials;
 
+        Engine::BoundingBox boundingBox;
         std::vector<Engine::Sector> sectors;
-        std::vector<Engine::Material> materials;
 
         glm::dvec2 size;
         double density;
