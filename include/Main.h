@@ -34,6 +34,8 @@
 #include "math.h"
 #include "random"
 #include "chrono"
+#include "TimeDate.h"
+#include "Random.h"
 
 namespace Engine
 {

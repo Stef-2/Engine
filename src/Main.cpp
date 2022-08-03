@@ -39,12 +39,9 @@ int main()
 	double frameMs = 0.0f;
 	int nFrames = 0;
 	int fps = 0;
-
+	double glfwTestStart = glfwGetTime();
 	// =============================== test site =================================
-	Engine::Shared<int> b = 3;
-	auto c = b;
-	c.Claim();
-	std::cout << *b;
+	Engine::Random::Generate(0.0f, 1.0f);
 	// ===========================================================================
 	std::default_random_engine generator;
 	generator.seed(std::chrono::system_clock::now().time_since_epoch().count());
