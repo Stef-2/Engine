@@ -30,6 +30,8 @@ namespace Engine
         glm::vec2 uv;
     };
  
+    // ========================================================================
+
     // vertex extension for animated meshes
     struct VertexBoneData
     {
@@ -42,22 +44,52 @@ namespace Engine
         glm::vec4 boneWeight;
     };
 
+    // ========================================================================
+
     // triangle data for collision detection
     template<typename T>
     struct Triangle
     {
-        T* a;
-        T* b;
-        T* c;
-    };
+        Triangle(T& x, T& y, T& z) : a(x), b(y), c(z) {};
+        Triangle& operator=(const Triangle<T>& other);
 
-    // a mesh class that stores vertex data to be used for rendering
+        bool operator==(const Triangle& other);
+
+		T& a;
+		T& b;
+		T& c;
+    };
+    
+	template<typename T>
+	Triangle<T>& Engine::Triangle<T>::operator=(const Triangle<T>& other)
+	{
+        if (this != &other)
+        {
+            this->a = other.a;
+            this->b = other.b;
+            this->c = other.c;
+        }
+        return *this;
+	}
+
+
+
+	template<typename T>
+	bool Engine::Triangle<T>::operator==(const Triangle& other)
+	{
+        return &this->a == &other.a &&
+               &this->b == &other.b &&
+               &this->c == &other.c;
+	}
+
+    // ========================================================================
+
+    // a static mesh class that stores vertex data to be used for rendering
     class Mesh
     {
     public:
         Mesh();
             
-        // non animatied mesh
         Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
 
         void Setup();
@@ -102,14 +134,15 @@ namespace Engine
         unsigned int EBO;
     };
 
-    // -----------------------------------------------------------
+    // ========================================================================
 
+    // animated mesh, extending the static one
     class AnimatedMesh : public Mesh
     {
         using Engine::Mesh::Mesh;
 
     public:
-        // animated mesh
+
         AnimatedMesh(std::vector<VertexBoneData> vertices, std::vector<unsigned int> indices, Engine::Skeleton skeleton, std::vector<Engine::Animation> animations);
 
         std::vector<Engine::Animation>& GetAnimations();
@@ -133,7 +166,6 @@ namespace Engine
         // Mr.Skeltal
         Engine::Skeleton skeleton;
     };
-
 }
 
 #endif //  MESH_H

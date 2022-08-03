@@ -61,8 +61,7 @@ void Engine::PhysicalLight::SetIntensity(float intensity)
 
 	// given our current intensity and the inverse square intensity decay law, calculate the distance past which this lights contribution can be discarded
 	// threshold is an arbitrary value that we consider to no longer provide a significant contribution to final lighting output
-	float threshold = 100;
-	this->effectiveRadius = glm::sqrt(this->intensity / threshold);
+	this->effectiveRadius = glm::sqrt(this->intensity / Engine::PhysicalLight::threshold);
 }
 
 void Engine::PhysicalLight::MoveRelative(glm::vec3 direction, float intensity)

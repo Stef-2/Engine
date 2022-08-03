@@ -172,6 +172,7 @@
     <ClInclude Include="include\Material.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\Model.h" />
+    <ClInclude Include="include\Shared.h" />
     <ClInclude Include="include\Terrain.h" />
     <ClInclude Include="include\Skeleton.h" />
     <ClInclude Include="include\Skybox.h" />

@@ -61,6 +61,11 @@ namespace Engine
 		virtual void RotateAbsolute(float x, float y, float z) override;
 
 	protected:
+		// given our current intensity and the inverse square intensity decay law,
+		// we can calculate the distance past which this lights contribution can be discarded for added performance
+		// threshold is an arbitrary value that we consider to no longer provide a significant contribution to final lighting output
+		const inline static float threshold = 100.0f;
+
 		virtual void SetView() = 0;
 		virtual void SetProjection() = 0;
 

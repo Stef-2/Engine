@@ -1,4 +1,5 @@
 #include "Model.h"
+#include <memory>
 
 Engine::Model::Model()
 {
@@ -415,13 +416,13 @@ void Engine::Model::LoadMesh(std::string filePath)
             }
 
             // animated mesh
-            this->animatedMeshes.push_back(std::shared_ptr<Engine::AnimatedMesh>(new AnimatedMesh(vertexBoneData, indices, skeleton, animations)));
-            this->animatedMeshes.back().get()->SetBoundingBox(aiVector3ToGlm(mesh->mAABB.mMin), aiVector3ToGlm(mesh->mAABB.mMax));
+            this->animatedMeshes.push_back(std::make_shared<Engine::AnimatedMesh>(vertexBoneData, indices, skeleton, animations));
+            this->animatedMeshes.back()->SetBoundingBox(aiVector3ToGlm(mesh->mAABB.mMin), aiVector3ToGlm(mesh->mAABB.mMax));
         }
         else {
             // static mesh with no animations nor bones
-            this->staticMeshes.push_back(std::shared_ptr<Engine::Mesh>(new Mesh(vertices, indices)));
-            this->staticMeshes.back().get()->SetBoundingBox(aiVector3ToGlm(mesh->mAABB.mMin), aiVector3ToGlm(mesh->mAABB.mMax));
+            this->staticMeshes.push_back(std::make_shared<Engine::Mesh>(vertices, indices));
+            this->staticMeshes.back()->SetBoundingBox(aiVector3ToGlm(mesh->mAABB.mMin), aiVector3ToGlm(mesh->mAABB.mMax));
         }
     }
 

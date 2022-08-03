@@ -2,7 +2,19 @@
 
 void Engine::Actor::SetShader(const Engine::ShaderProgram& shader)
 {
+    this->shader.reset();
     this->shader = std::make_shared<Engine::ShaderProgram>(shader);
+}
+
+void Engine::Actor::SetShader(const Engine::ShaderProgram* shader)
+{
+    this->shader.reset();
+    this->shader = std::make_shared<Engine::ShaderProgram>(*shader);
+}
+
+void Engine::Actor::SetShader(const std::shared_ptr<Engine::ShaderProgram>& shader)
+{
+    this->shader.reset(shader.get());
 }
 
 void Engine::Actor::MoveRelative(glm::vec3 direction, float intensity)
@@ -40,7 +52,7 @@ Engine::ShaderProgram& Engine::Actor::GetShader()
 
 void Engine::Actor::SetModel(const Engine::Model& model)
 {
-    this->model = std::make_shared<Engine::Model>(model);
+    this->model = model;
 }
 
 Engine::Model& Engine::Actor::GetModel()

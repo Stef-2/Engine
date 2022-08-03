@@ -235,5 +235,5 @@ void Engine::AnimatedMesh::Setup()
     // construct triangle data out of vertices and indices
     #pragma omp simd
     for (size_t i = 0; i < this->indices.size() - 2; i += 3)
-        this->triangles.push_back({ &this->vertices.at(indices.at(i)), &this->vertices.at(indices.at(i + 1)), &this->vertices.at(indices.at(i + 2)) });
+        this->triangles.push_back({ this->vertices.at(indices.at(i)), this->vertices.at(indices.at(i + 1)), this->vertices.at(indices.at(i + 2)) });
 }

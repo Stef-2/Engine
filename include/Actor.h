@@ -2,6 +2,7 @@
 #define ACTOR_H
 
 #include "Object.h"
+#include "Shared.h"
 
 namespace Engine
 {
@@ -20,10 +21,15 @@ namespace Engine
 		void MoveAbsolute(float x, float y, float z) override;
 
 		void SetShader(const Engine::ShaderProgram& shader);
+		void SetShader(const Engine::ShaderProgram* shader);
+		void SetShader(const std::shared_ptr<Engine::ShaderProgram>& shader);
+
 		void SetModel(const Engine::Model& model);
+		void SetModel(const Engine::Model* model);
+		void SetModel(const std::shared_ptr<Engine::Model>& model);
 
 	private:
-		std::shared_ptr<Engine::Model> model;
+		Engine::Shared<Engine::Model> model;
 		std::shared_ptr<Engine::ShaderProgram> shader;
 
 		bool isVisible;
