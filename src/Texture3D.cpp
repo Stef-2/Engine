@@ -20,7 +20,7 @@ Engine::Texture3D::Texture3D(std::string filePath)
     this->width = {};
     this->height = {};
     this->numChannels = {};
-
+    
     this->Setup(filePath);
 }
 

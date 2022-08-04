@@ -5,6 +5,8 @@
 #include "glad/glad.h"
 #endif
 
+#include "Shared.h"
+
 #ifndef STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #define STB_IMAGE_IMPLEMENTATION
@@ -42,7 +44,7 @@ namespace Engine
         // raw texture data extracted from the file
         unsigned char* GetData();
         void SetData(unsigned char* data);
-
+        
         unsigned int GetWidth();
         unsigned int GetHeight();
         unsigned int GetDepth();
@@ -63,5 +65,7 @@ namespace Engine
         unsigned int textureID;
     };
 
+    // typedef for shared textures
+    using SharedTexture3D = Engine::Shared<Texture3D>;
 }
 #endif //  TEXTURE3D_H

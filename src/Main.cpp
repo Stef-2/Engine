@@ -41,19 +41,9 @@ int main()
 	int fps = 0;
 	double glfwTestStart = glfwGetTime();
 	// =============================== test site =================================
-	Engine::Random::Generate(0.0f, 1.0f);
+	//auto shd = Engine::ComputeShader(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\imagewriter.vert"));
+	//Engine::ShaderProgram sp(shd);
 	// ===========================================================================
-	std::default_random_engine generator;
-	generator.seed(std::chrono::system_clock::now().time_since_epoch().count());
-
-	std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
-
-	float texture3D[32][32][32] {};
-
-	for (size_t i = 0; i < 32; i++)
-		for (size_t j = 0; j < 32; j++)
-			for (size_t k = 0; k < 32; k++)
-				texture3D[i][j][k] = distribution(generator);
 	
 
 	Engine::ShaderProgram uber(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.vert"),

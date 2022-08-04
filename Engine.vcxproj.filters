@@ -271,5 +271,11 @@
     <None Include="shaders\shadowmap.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="shaders\imagewriter.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\imagewriter.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

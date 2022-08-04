@@ -22,6 +22,17 @@ namespace Engine
         Node(std::string name, glm::mat4 transform);
         Node(Node* parent, std::vector<Node*> children, std::string name, glm::mat4 transform);
 
+        Node(Node&&) noexcept = default;
+        Node& operator=(Node&&) noexcept = default;
+
+        Node(const Node&) = default;
+        Node& operator=(const Node&) = default;
+
+        // multiple possibilities here
+        // (1) collapse ourselves and connect our children with our parent, if any are present
+        // (2) just vanish and clean up connections with relatives
+        ~Node();
+
         // utility function for tree traversal and management
 
         // returns the root node of this tree
@@ -72,6 +83,11 @@ namespace Engine
         void AddChild(Node* child);
 
     private:
+        static enum class DestuctionType {
+            COLLAPSE,
+            VANISH
+        } inline const destuctionType = DestuctionType::COLLAPSE;
+
         Node* parent;
         std::vector<Node*> children;
 

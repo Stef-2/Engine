@@ -20,8 +20,8 @@ namespace Engine
 		Shared(const T& shared);
 		Shared(const T&& shared);
 
-		Shared(Shared&&)  noexcept = default;
-		Shared& operator=(Shared&&)  noexcept = default;
+		Shared(Shared&&) noexcept = default;
+		Shared& operator=(Shared&&) noexcept = default;
 
 		Shared(const Shared&) = default;
 		Shared& operator=(const Shared&) = default;
@@ -205,7 +205,10 @@ namespace Engine
 	T* Engine::Shared<T>::Get()
 	{
 		// check if the pointer has any data, create a new object if it doesn't
-		return !this->shared.get() ? (this->shared = std::make_shared<T>()).get() : this->shared.get();
+		//return !this->shared.get() ? (this->shared = std::make_shared<T>()).get() : this->shared.get();
+
+		// scrap that ^
+		return this->shared.get();
 	}
 
 	template<typename T>

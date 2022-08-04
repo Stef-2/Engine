@@ -14,6 +14,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "BoundingVolume.h"
 #include "glfw3.h"
+#include "Shared.h"
 
 #include "vector"
 #include "iostream"
@@ -48,6 +49,8 @@ namespace Engine
 		Engine::BoundingBox boundingBox;
 	};
 
+	// typedef for shared models
+	using SharedModel = Engine::Shared<Engine::Model>;
 }
 
 #endif

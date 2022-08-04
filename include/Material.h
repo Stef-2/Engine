@@ -11,6 +11,7 @@
 
 #include "glfw3.h"
 #include "Shader.h"
+#include "Shared.h"
 #include "Texture2D.h"
 #include "glm/vec3.hpp"
 
@@ -105,5 +106,7 @@ namespace Engine
 		//--------------------------------------------------------
 	};
 
+	// typedef for shared materials
+	using SharedMaterial = Engine::Shared<Engine::Material>;
 }
 #endif

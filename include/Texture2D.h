@@ -10,6 +10,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #endif
 
+#include "Shared.h"
+
 #include "glfw3.h"
 #include "fstream"
 #include "iostream"
@@ -62,5 +64,7 @@ namespace Engine
         unsigned int textureID;
     };
 
+    // typdef for shared textures
+    using SharedTexture2D = Engine::Shared<Texture2D>;
 }
 #endif //  TEXTURE_H
