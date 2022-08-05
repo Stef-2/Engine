@@ -12,7 +12,7 @@
 #include "glfw3.h"
 #include "Shader.h"
 #include "Shared.h"
-#include "Texture2D.h"
+#include "Texture.h"
 #include "glm/vec3.hpp"
 
 #include "vector"

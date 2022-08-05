@@ -69,7 +69,7 @@
     <ClInclude Include="include\Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Texture2D.h">
+    <ClInclude Include="include\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Actor.h">
@@ -94,9 +94,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\FrameBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Texture3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Volume.h">
@@ -158,7 +155,7 @@
     <ClCompile Include="src\Object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Texture2D.cpp">
+    <ClCompile Include="src\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Actor.cpp">
@@ -183,9 +180,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\FrameBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Texture3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Volume.cpp">
@@ -275,6 +269,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shaders\imagewriter.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\volume.comp">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

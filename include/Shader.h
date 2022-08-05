@@ -142,7 +142,9 @@ namespace Engine
 				ALPHA_MAP,
 				CUBE_MAP,
 				VOLUME_MAP,
-				SHADOW_MAPS
+				SHADOW_MAPS,
+				IMAGE2D,
+				IMAGE3D
 			};
 
 			// enumerator for different uniform or shader storage buffer objects
@@ -269,7 +271,9 @@ namespace Engine
 				{ShaderAttribute::ALPHA_MAP, "alphaMap"},
 				{ShaderAttribute::CUBE_MAP, "cubeMap"},
 				{ShaderAttribute::VOLUME_MAP, "volumeMap"},
-				{ShaderAttribute::SHADOW_MAPS, "shadowMaps"}
+				{ShaderAttribute::SHADOW_MAPS, "shadowMaps"},
+				{ShaderAttribute::IMAGE2D, "image2d"},
+				{ShaderAttribute::IMAGE3D, "image3d"}
 			};
 
 			inline const static std::map<Engine::ShaderProgram::UniformBuffer, std::string> uniformBufferNames =

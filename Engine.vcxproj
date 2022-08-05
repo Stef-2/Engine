@@ -181,10 +181,9 @@
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\stb_image.h" />
-    <ClInclude Include="include\Texture2D.h" />
+    <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\BoundingVolume.h" />
     <ClInclude Include="include\Animation.h" />
-    <ClInclude Include="include\Texture3D.h" />
     <ClInclude Include="include\TimeDate.h" />
     <ClInclude Include="include\Volume.h" />
     <ClInclude Include="include\Window.h" />
@@ -212,10 +211,9 @@
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
-    <ClCompile Include="src\Texture2D.cpp" />
+    <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\BoundingVolume.cpp" />
     <ClCompile Include="src\Animation.cpp" />
-    <ClCompile Include="src\Texture3D.cpp" />
     <ClCompile Include="src\TimeDate.cpp" />
     <ClCompile Include="src\Volume.cpp" />
     <ClCompile Include="src\Window.cpp" />
@@ -243,6 +241,7 @@
     <None Include="shaders\uber.frag" />
     <None Include="shaders\uber.geom" />
     <None Include="shaders\uber.vert" />
+    <None Include="shaders\volume.comp" />
     <None Include="shaders\volume.frag" />
     <None Include="shaders\volume.vert" />
     <None Include="shaders\wireframe.frag" />

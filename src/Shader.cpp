@@ -30,6 +30,7 @@ Engine::ShaderProgram::ShaderProgram(std::string computerShader)
 	this->programID = 0;
 	this->shaderFlags = Engine::ShaderProgram::ShaderFlag(0u);
 
+	this->SetComputeShader(computerShader);
 
 	this->compileSuccess = this->CompileProgram();
 }
@@ -130,7 +131,7 @@ bool Engine::ShaderProgram::CompileProgram()
 			return false;
 		}
 	}
-	else if (this->computeShader->GetShader()) {
+	else if (!this->computeShader->GetShader()) {
 		std::cerr << "unable to compile compute shader program, shader is missing" << std::endl;
 		this->compileSuccess = false;
 		this->programID = 0;
@@ -227,6 +228,10 @@ bool Engine::ShaderProgram::CompileProgram()
 		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::VOLUME_MAP, location });
 		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::SHADOW_MAPS).c_str());
 		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::SHADOW_MAPS, location });
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::IMAGE2D).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::IMAGE2D, location });
+		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::IMAGE3D).c_str());
+		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::IMAGE3D, location });
 
 		// generate and bind uniform buffer objects and shader storage buffer objects if they're present in the shader(s)
 		// this initialization needs to happen only once for each one of these as they are global in GPU memory

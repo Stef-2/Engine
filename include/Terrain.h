@@ -7,7 +7,7 @@
 #endif
 
 #include "Object.h"
-#include "Texture2D.h"
+#include "Texture.h"
 #include "Shader.h"
 #include "Mesh.h"
 

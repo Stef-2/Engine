@@ -16,6 +16,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include "stb_image_write.h"
 // #include "Shader.h"
 #include "Material.h"
 #include "window.h"

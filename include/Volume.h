@@ -2,7 +2,7 @@
 
 #include "Object.h"
 #include "Mesh.h"
-#include "Texture3D.h"
+#include "Texture.h"
 #include "Shader.h"
 
 namespace Engine
