@@ -42,7 +42,9 @@ int main()
 	double glfwTestStart = glfwGetTime();
 
 	// ===========================================================================
-
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft)) std::cout << "WTF!" << std::endl;
+	FT_Face face;
 	// =============================== test site =================================
 	//Engine::Image3D i3D(32, 32, 32);
 	unsigned int texture;

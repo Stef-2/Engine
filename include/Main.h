@@ -9,6 +9,10 @@
 #define __glad_h_
 #endif
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+
+#include "ft2build.h"
+#include FT_FREETYPE_H
+
 #include "glfw3.h"
 #include "stb_image.h"
 #include "glm/glm.hpp"
