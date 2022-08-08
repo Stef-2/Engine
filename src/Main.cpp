@@ -42,6 +42,7 @@ int main()
 	double glfwTestStart = glfwGetTime();
 
 	// ===========================================================================
+
 	// =============================== test site =================================
 	//Engine::Image3D i3D(32, 32, 32);
 	unsigned int texture;
@@ -49,9 +50,9 @@ int main()
 	glGenTextures(1, &texture);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_3D, texture);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, s, s, s, 0, GL_RGBA, GL_FLOAT, NULL);
@@ -67,8 +68,12 @@ int main()
 	writev.Activate();
 	glUniform1i(glGetUniformLocation(writev.GetProgramID(), "image3d"), 0);
 	glDispatchCompute(32, 32, 32);
-	glMemoryBarrier(GL_ALL_BARRIER_BITS);
-	//stbi_write_jpg("volume.jpg",32,32,)
+	//glMemoryBarrier(GL_ALL_BARRIER_BITS);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	/*
+	float* d = new float[32 * 32 * 32 * 4];
+	glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, d);
+	stbi_write_jpg("volume.jpg", 32 * 8, 32 * 4, 4, d, 100);*/
 	// ===========================================================================
 	// ===========================================================================
 
@@ -260,16 +265,17 @@ int main()
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_E) == GLFW_PRESS) {
 			engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back()->GetAnimations().back().GetName());
 			//glm::mat4 asd = glm::mat4_cast(glm::inverse(camera.GetOrientation())) * camera.GetView();
-			glm::mat4 asd = camera.GetView();
+			/*glm::mat4 asd = camera.GetView();
 			glm::vec3 inv = -asd[3] * glm::mat3(asd);
 				for (size_t j = 0; j < 4; j++)
 					std::cout << inv[j] << " ";
 				std::cout << std::endl;
-			std::cout << "--------------------" << std::endl;
+			std::cout << "--------------------" << std::endl;*/
+			std::cout << Engine::ShaderProgram::DebugOutput();
 			glEnable(GL_CULL_FACE);
 			//std::cout << *glm::value_ptr(camera.GetView()[0][0]) << std::endl;
 		}
-
+		asm("int $3");
 		obj1.RotateRelative(0.0f, 15.0f * deltaTime, 0.0f);
 		obj3.RotateRelative(0.0f, 15.0f * deltaTime, 0.0f);
 		//obj4.MoveRelative(0.2f * deltaTime, 0.0f, 0.0f);
@@ -336,7 +342,7 @@ int main()
 			" - Position: X: " + std::to_string(camera.GetPosition().x) + " - Y: " + std::to_string(camera.GetPosition().y) + " - Z: " + std::to_string(camera.GetPosition().z) +
 			" - Rotation: X: " + std::to_string(camera.GetRotation().x) + " - Y: " + std::to_string(camera.GetRotation().y) + " - Z: " + std::to_string(camera.GetRotation().z) +
 			" - number of culled objects: " + std::to_string(numCulls) + " - vertex count: " + std::to_string(vertexCount) + "- tri count: " + std::to_string(triangleCount)));
-		
+
 		glfwSwapBuffers(engine.GetWindow().GetGlWindow());
 		glfwPollEvents();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

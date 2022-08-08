@@ -468,6 +468,7 @@ void main()
 	vec3 spherePos = vec3(0.0f, 0.0f, 0.0f);
 
 	Sphere sphere = {{0.0f, 0.0f, 0.0f}, 1.0f};
+
 	Box box = {{-50.0f - epsilon, -5.0f - epsilon, -50.0f - epsilon},
 				{50.0f + epsilon, 5.0f + epsilon, 50.0f + epsilon}};
 	
@@ -475,13 +476,13 @@ void main()
 	vec4 samplePos = WSpos;
 	float flatColor;
 	vec3 color = vec3(1f);
-	vec3 rayDir = normalize(WSpos - WSviewPos).xyz;
+	vec3 rayDir = normalize(WSpos.xyz - WSviewPos.xyz);
 	float dist = 0;
 	const unsigned int loop = 50;
 
-	vec3 sunDirection = vec3(0.0f, 1.0f, 0.0f); //normalize(directionalLights[0].position.xyz - samplePos);
-	vec3 toLight;
-	float stepSize = 0.2f;
+	vec4 sunDirection = {0.0f, 1.0f, 0.0f, 0.0f}; //normalize(directionalLights[0].position.xyz - samplePos);
+	vec4 toLight;
+	float stepSize = 0.05f;
 	float noiseScale = 1.0f;
 	vec3 fragViewPos = -view[3].xyz * mat3(view);
 	//vec3 ray = normalize(fragViewPos - position);
@@ -489,17 +490,17 @@ void main()
 	while (true)
 	{
 		//density += max(fbm((samplePos).xyz * noiseScale), 0.0f) * 0.3f;
-		density += RGBToFloat(texture(volumeMap, (samplePos.xyz  - 300)).xyz);
+		density += (texture(volumeMap, (samplePos.xyz / 16)).x) * 0.2;
 		//color = mix(vec3(1.0f), vec3(0.0f), snoise(samplePos) > 0);
 		
-		toLight = samplePos.xyz;
-
+		toLight = samplePos;
+		
 		while (true)
 		{
 			//color += -max(fbm(toLight * noiseScale), 0.0f) * 0.01f;
-			color += -texture(volumeMap, (toLight -300)).xyz * 0.1;
+			color += -texture(volumeMap, (toLight.xyz / 16)).xyz * 0.01;
 			toLight += sunDirection * stepSize;
-			if (color.r <= 0.0f || !PointInsideSphere(toLight, sphere))
+			if (color.r <= 0.0f || !PointInsideSphere(toLight.xyz, sphere))
 				break;
 		}
 		//dist = distance(samplePos.xyz, spherePos);
@@ -511,7 +512,7 @@ void main()
 		if (density >= 1.0f || !PointInsideSphere(samplePos.xyz, sphere))
 			break;
 
-		samplePos += vec4(rayDir, 1.0f) * stepSize;
+		samplePos += (rayDirection * stepSize);
 	}
 
 	//color = max(color, 0.0f);
@@ -538,5 +539,7 @@ void main()
 	//if (density < 0.1) discard;
 	//if (density < 0.1) discard;
 	//flatColor = distance(spherePos, samplePos);
-	fragColor = vec4(color, density);
+
+	//fragColor = vec4((projection * vec4(rayDir,1)).xyz, 1);
+	fragColor = vec4(color , density);
 }

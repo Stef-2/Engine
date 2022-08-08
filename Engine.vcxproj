@@ -143,6 +143,7 @@
       <EnableModules>true</EnableModules>
       <AdditionalOptions>-openmp:experimental %(AdditionalOptions)</AdditionalOptions>
       <ShowIncludes>false</ShowIncludes>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

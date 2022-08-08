@@ -248,7 +248,7 @@ void main()
 	value.y = float(texelCoord.y)/(gl_NumWorkGroups.y);
 	value.z = float(texelCoord.z)/(gl_NumWorkGroups.z);
 
-	float ok = max(fbm(texelCoord), 0);
+	float ok = clamp(fbm(texelCoord), 0, 1);
 
 	vec4 wtf = vec4(vec3(ok), 1.0f);
 

@@ -7,6 +7,7 @@
 
 #include "glfw3.h"
 #include "glm/glm.hpp"
+#include <glm/gtx/string_cast.hpp>
 #include "Shared.h"
 
 #include "fstream"
@@ -155,7 +156,8 @@ namespace Engine
 				SPOT_LIGHTS,
 				DIRECTIONAL_LIGHTS,
 				AMBIENT_LIGHTS,
-				MATERIAL_PARAMETERS
+				MATERIAL_PARAMETERS,
+				DEBUG
 			};
 
 			// enumerator for different kinds of shader flags for the uber shader
@@ -215,6 +217,8 @@ namespace Engine
 			void SetGeometryShader(Engine::GeometryShader& shader);
 			void SetFragmentShader(Engine::FragmentShader& shader);
 			void SetComputeShader(Engine::ComputeShader& shader);
+
+			static std::string DebugOutput();
 
 			// compiles vertex, geometry and fragment shaders into a program and binds it
 			// needs to be run after every shader change
@@ -283,7 +287,8 @@ namespace Engine
 				{UniformBuffer::POINT_LIGHTS, "PointLights"},
 				{UniformBuffer::SPOT_LIGHTS, "SpotLights"},
 				{UniformBuffer::DIRECTIONAL_LIGHTS, "DirectionalLights"},
-				{UniformBuffer::AMBIENT_LIGHTS, "AmbientLights"}
+				{UniformBuffer::AMBIENT_LIGHTS, "AmbientLights"},
+				{UniformBuffer::DEBUG, "Debug"}
 			};
 
 			Engine::ShaderProgram::ShaderFlag shaderFlags;

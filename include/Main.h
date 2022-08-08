@@ -8,7 +8,7 @@
 #include "glad/glad.h"
 #define __glad_h_
 #endif
-
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "glfw3.h"
 #include "stb_image.h"
 #include "glm/glm.hpp"
@@ -31,6 +31,7 @@
 #include "FrameBuffer.h"
 #include "Shared.h"
 
+#include "signal.h"
 #include "fstream"
 #include "math.h"
 #include "random"

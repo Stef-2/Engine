@@ -3,6 +3,40 @@
 std::map<Engine::ShaderProgram::UniformBuffer, unsigned int> Engine::ShaderProgram::UniformBufferLocations = {};
 Engine::ShaderProgram* Engine::ShaderProgram::currentShaderProgram = {};
 
+std::string Engine::ShaderProgram::DebugOutput()
+{
+	struct OutputData
+	{
+		glm::mat4 mats[8];
+		glm::vec4 vecs[8];
+		float floats[8];
+	} shaderOutput = {};
+
+	glGetNamedBufferSubData(Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::UniformBuffer::DEBUG),
+		0, sizeof(OutputData), &shaderOutput);
+
+	std::string output{ "=== Shader debug output: \n matrices: \n"};
+
+	for (auto& i : shaderOutput.mats)
+		if (i != glm::mat4(0))
+			output += glm::to_string(i) + '\n';
+
+	output += "vectors: \n";
+
+	for (auto& i : shaderOutput.vecs)
+		if (i != glm::vec4(0))
+			output += glm::to_string(i) + '\n';
+
+	output += "floats: \n";
+
+	for (auto& i : shaderOutput.floats)
+		output += std::to_string(i) + " ";
+
+	output += '\n';
+
+	return output;
+}
+
 Engine::ShaderProgram::ShaderProgram()
 {
 	this->compileSuccess = false;
@@ -329,6 +363,31 @@ bool Engine::ShaderProgram::CompileProgram()
 
 			glGenBuffers(1, &ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::AMBIENT_LIGHTS));
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::AMBIENT_LIGHTS));
+		}
+
+		// ambient lights
+		if (glGetProgramResourceIndex(this->programID, GL_SHADER_STORAGE_BLOCK, ShaderProgram::uniformBufferNames.at(ShaderProgram::UniformBuffer::DEBUG).c_str()) != GL_INVALID_INDEX
+			&& !ShaderProgram::UniformBufferLocations.contains(ShaderProgram::UniformBuffer::DEBUG))
+		{
+			// add the pair to the map
+			ShaderProgram::UniformBufferLocations.insert
+			({ ShaderProgram::UniformBuffer::DEBUG, glGetUniformBlockIndex(this->programID,
+				ShaderProgram::uniformBufferNames.at(UniformBuffer::DEBUG).c_str()) });
+
+			// struct that matches the output data block in the shaders
+			// to be used as sizeof() and offsetof() reference in data alignment and size matching
+			struct OutputData
+			{
+				glm::mat4 mats[8];
+				glm::vec4 vecs[8];
+				float floats[8];
+			};
+
+			glGenBuffers(1, &ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::DEBUG));
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 69, ShaderProgram::UniformBufferLocations.at(ShaderProgram::UniformBuffer::DEBUG));
+			glBufferData(GL_UNIFORM_BUFFER, sizeof(OutputData), NULL, GL_DYNAMIC_DRAW);
+			glNamedBufferData(Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::UniformBuffer::DEBUG),
+				sizeof(OutputData), 0, GL_DYNAMIC_DRAW);
 		}
 
 		return true;
