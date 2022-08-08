@@ -9,7 +9,7 @@ namespace Engine
 {
 	// static class which provides easy access to time measurment
 	// all time is calculated and provided in milliseconds
-	static class TimeDate
+	class TimeDate
 	{
 		using Clock = std::chrono::system_clock;
 		using TimePoint = std::chrono::time_point<Clock>;

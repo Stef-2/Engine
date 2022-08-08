@@ -275,7 +275,7 @@ int main()
 			glEnable(GL_CULL_FACE);
 			//std::cout << *glm::value_ptr(camera.GetView()[0][0]) << std::endl;
 		}
-		asm("int $3");
+		//asm("int $3");
 		obj1.RotateRelative(0.0f, 15.0f * deltaTime, 0.0f);
 		obj3.RotateRelative(0.0f, 15.0f * deltaTime, 0.0f);
 		//obj4.MoveRelative(0.2f * deltaTime, 0.0f, 0.0f);

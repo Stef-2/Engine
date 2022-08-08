@@ -346,7 +346,7 @@ void Engine::SpotLight::UpdateLight()
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::UniformBuffer::SPOT_LIGHTS));
 
 		// find ourselves in the lights stack and replace the old data
-		#pragma omp simd
+		//#pragma omp simd
 		for (size_t i = 0; i < this->lights.size(); i++)
 			if (this->lights.at(i) == this) {
 				glNamedBufferSubData(Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::UniformBuffer::SPOT_LIGHTS),
@@ -531,7 +531,7 @@ void Engine::DirectionalLight::UpdateLight()
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::UniformBuffer::DIRECTIONAL_LIGHTS));
 
 	// find ourselves in the lights stack and replace the old data
-	#pragma omp simd
+	//#pragma omp simd
 	for (size_t i = 0; i < this->lights.size(); i++)
 		if (this->lights.at(i) == this) {
 			glNamedBufferSubData(Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::UniformBuffer::DIRECTIONAL_LIGHTS),
@@ -666,7 +666,7 @@ void Engine::AmbientLight::UpdateLight()
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::UniformBuffer::AMBIENT_LIGHTS));
 
 	// find ourselves in the lights stack and replace the old data
-	#pragma omp simd
+	//#pragma omp simd
 	for (size_t i = 0; i < this->lights.size(); i++)
 		if (this->lights.at(i) == this) {
 			glNamedBufferSubData(Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::UniformBuffer::AMBIENT_LIGHTS),

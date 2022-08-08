@@ -5,7 +5,7 @@
 
 namespace Engine
 {
-	static class Random
+	class Random
 	{
 	public:
 		Random() = delete;

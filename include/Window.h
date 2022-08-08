@@ -42,7 +42,7 @@ class Window
 
         void SetWidth(int width);
         void SetHeight(int height);
-
+        
         void SetTitle(std::string newTitle);
         void SetTitle(std::u8string newTitle);
 
