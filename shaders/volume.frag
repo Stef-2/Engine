@@ -462,6 +462,7 @@ float RGBToFloat(vec3 x)
 
 void main()
 {
+	int steps = 0;
 	mat3 invmvp = inverse(mat3(view));
 	float linearDepth = LinearizeDepth();
 
@@ -473,16 +474,16 @@ void main()
 				{50.0f + epsilon, 5.0f + epsilon, 50.0f + epsilon}};
 	
 	float density = 0;
-	vec4 samplePos = WSpos;
+	vec3 samplePos = WSpos.xyz;
 	float flatColor;
-	vec3 color = vec3(1f);
+	vec3 color = vec3(1.0f);
 	vec3 rayDir = normalize(WSpos.xyz - WSviewPos.xyz);
 	float dist = 0;
 	const unsigned int loop = 50;
 
 	vec4 sunDirection = {0.0f, 1.0f, 0.0f, 0.0f}; //normalize(directionalLights[0].position.xyz - samplePos);
-	vec4 toLight;
-	float stepSize = 0.05f;
+	vec3 toLight;
+	float stepSize = 0.01f;
 	float noiseScale = 1.0f;
 	vec3 fragViewPos = -view[3].xyz * mat3(view);
 	//vec3 ray = normalize(fragViewPos - position);
@@ -492,14 +493,14 @@ void main()
 		//density += max(fbm((samplePos).xyz * noiseScale), 0.0f) * 0.3f;
 		density += (texture(volumeMap, (samplePos.xyz / 16)).x) * 0.2;
 		//color = mix(vec3(1.0f), vec3(0.0f), snoise(samplePos) > 0);
-		
+
 		toLight = samplePos;
 		
 		while (true)
 		{
 			//color += -max(fbm(toLight * noiseScale), 0.0f) * 0.01f;
 			color += -texture(volumeMap, (toLight.xyz / 16)).xyz * 0.01;
-			toLight += sunDirection * stepSize;
+			toLight += sunDirection.xyz * (stepSize * 4);
 			if (color.r <= 0.0f || !PointInsideSphere(toLight.xyz, sphere))
 				break;
 		}
@@ -508,11 +509,11 @@ void main()
 		//color = (samplePos).xyz;
 		//color = vec3(dist);
 		//color += -0.015;
-		
+
 		if (density >= 1.0f || !PointInsideSphere(samplePos.xyz, sphere))
 			break;
 
-		samplePos += (rayDirection * stepSize);
+		samplePos += (rayDir * stepSize);
 	}
 
 	//color = max(color, 0.0f);

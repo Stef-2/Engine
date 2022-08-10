@@ -24,12 +24,12 @@ namespace Engine
 
 		void SetMesh(Engine::Mesh& mesh);
 		void SetShader(Engine::ShaderProgram& shader);
-		void SetTexture(Engine::Texture3D& texture);
+		void SetTexture(Engine::Image3D& texture);
 
 	private:
-		std::shared_ptr<Engine::Mesh> mesh;
-		std::shared_ptr<Engine::ShaderProgram> shader;
-		std::shared_ptr<Engine::Texture3D> texture;
+		Engine::SharedStaticMesh mesh;
+		Engine::SharedShaderProgram shader;
+		Engine::SharedImage3D texture;
 	};
 
 }

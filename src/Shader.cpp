@@ -416,8 +416,8 @@ unsigned int Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::Unif
 {
 	if (Engine::ShaderProgram::UniformBufferLocations.contains(buffer))
 		return Engine::ShaderProgram::UniformBufferLocations.at(buffer);
-	else
-		return 0;
+	
+	return 0;
 }
 
 void Engine::ShaderProgram::SetShaderFlag(Engine::ShaderProgram::ShaderFlag flag)

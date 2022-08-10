@@ -2,9 +2,7 @@
 
 Engine::Volume::Volume()
 {
-	this->mesh = {};
-	this->shader = {};
-	this->texture = {};
+
 }
 
 Engine::Volume::~Volume()
@@ -37,7 +35,7 @@ void Engine::Volume::SetShader(Engine::ShaderProgram& shader)
 	this->shader = std::make_shared<Engine::ShaderProgram>(shader);
 }
 
-void Engine::Volume::SetTexture(Engine::Texture3D& texture)
+void Engine::Volume::SetTexture(Engine::Image3D& texture)
 {
-	this->texture = std::make_shared<Engine::Texture3D>(texture);
+	this->texture = std::make_shared<Engine::Image3D>(texture);
 }

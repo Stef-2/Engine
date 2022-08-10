@@ -37,15 +37,18 @@ void main()
 {
     gl_Position = projection * view * model * vec4(vertexPosition, 1.0f);
 
+    float Perpective = radians(90);
+
     //mat4 inverseView = inverse(view);
     mat4 projView = projection * view;
+    mat4 invProjView = inverse(projView);
     pw = projView;
     position = model * vec4(vertexPosition, 1.0f);
     //position = gl_Position.xyz;
     vec4 viewPos = (-view[3] * view);
     //viewPos[3] = 1;
     //viewPos /= viewPos.w;
-    WSpos = model * vec4(vertexPosition, 0);
+    WSpos = model * vec4(vertexPosition, 1);
     //WSpos.w = viewPos.w;
     //WSpos[3] = viewPos[3];
     WSviewPos = viewPos;
@@ -54,8 +57,8 @@ void main()
     //vec3 viewPos = vec3(view[0][3], view[1][3], view[2][3]) * mat3(view);
 
     //viewDirection = vec3(view[0][2], view[1][2], view [2][2]);
-    WSviewPos.w = 1;
-    rayDirection = normalize((WSpos) - (WSviewPos));
+    //WSviewPos.w = 1;
+    rayDirection = normalize(WSpos - WSviewPos);
     viewDirection = normalize(view[2].xyz);
     vecs[0] = rayDirection;
     //rayDirection = (projection * vec4(rayDirection, 1.0f)).xyz;

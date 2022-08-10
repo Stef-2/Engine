@@ -11,6 +11,7 @@
 #endif
 
 #include "Shared.h"
+#include "Shader.h"
 
 #include "glfw3.h"
 #include "fstream"
@@ -130,6 +131,9 @@ namespace Engine
 
 		Image3D(unsigned int width, unsigned int height, unsigned int depth);
 		Image3D(unsigned int width, unsigned int height, unsigned int depth, unsigned short numChannels);
+
+		void Compute(Engine::ShaderProgram&);
+		void Compute(Engine::ComputeShader&);
 
 		void Activate() override;
 	private:

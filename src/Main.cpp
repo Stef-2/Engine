@@ -1,6 +1,7 @@
 #include <Main.h>
 
 Engine::Camera camera(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
+Engine::Camera topOrh(0.0, 100.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
 
 double deltaTime = 0.0f;
 double oldX = 1280.0 / 2.0;
@@ -46,32 +47,18 @@ int main()
 	if (FT_Init_FreeType(&ft)) std::cout << "WTF!" << std::endl;
 	FT_Face face;
 	// =============================== test site =================================
-	//Engine::Image3D i3D(32, 32, 32);
-	unsigned int texture;
-	unsigned s = 32;
-	glGenTextures(1, &texture);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_3D, texture);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, s, s, s, 0, GL_RGBA, GL_FLOAT, NULL);
+	Engine::Image3D i3D(32, 32, 32);
 
-	glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-
+	
 	Engine::ShaderProgram writev(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.comp"));
-	//i3D.Activate();
+	i3D.Compute(writev);
+	/*
+	i3D.Activate();
 
-
-	//glBindTexture(GL_TEXTURE_2D, i3D.GetTextureID());
-	//glBindImageTexture(0, i3D.GetTextureID(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 	writev.Activate();
-	glUniform1i(glGetUniformLocation(writev.GetProgramID(), "image3d"), 0);
 	glDispatchCompute(32, 32, 32);
-	//glMemoryBarrier(GL_ALL_BARRIER_BITS);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);*/
 	/*
 	float* d = new float[32 * 32 * 32 * 4];
 	glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, d);
@@ -222,7 +209,9 @@ int main()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// glDisable(GL_DEPTH_TEST);
 	lastTime = glfwGetTime();
-	// !!!-------------- main loop --------------!!!
+	// ===========================================================================
+	// !!!---------------------------- main loop ------------------------------!!!
+	// ===========================================================================
 	while(!glfwWindowShouldClose(engine.GetWindow().GetGlWindow()))
 	{
 		// theres a whole bunch of overlap in here, gotta cleanup
@@ -315,28 +304,9 @@ int main()
 		engine.GetRenderer().Render(camera, obj1);
 		engine.GetRenderer().Render(camera, obj2);
 		engine.GetRenderer().Render(camera, obj3);
+		engine.GetRenderer().Render(camera, obj4);
 
-		{
-			obj4.GetShader().Activate();
-
-			// find the locations of uniform variables in the shader and assign transform matrices to them
-			glBindBuffer(GL_UNIFORM_BUFFER, Engine::ShaderProgram::GetUniformBuffer(Engine::ShaderProgram::UniformBuffer::MVP_MATRICES));
-
-			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(obj4.GetTransform()));
-			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera.GetView()));
-			glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(camera.GetProjection()));
-
-			glBindBuffer(GL_UNIFORM_BUFFER, 0);
-			
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_3D, texture);
-			int l = glGetUniformLocation(obj4.GetShader().GetProgramID(), "volumeMap");
-			glUniform1i(l, 0);
-			
-			glBindVertexArray(obj4.GetModel().GetStaticMeshes().at(0)->GetVAO());
-			glDrawElements(GL_TRIANGLES, obj4.GetModel().GetStaticMeshes().at(0)->GetIndices().size(), GL_UNSIGNED_INT, 0);
-		}
-
+		//obj4.MoveAbsolute(0.0f, glm::cos(glfwGetTime()), 0.0f);
 		//glUniform1i(drawProgram->GetUniformLocation("sampler"), 0);
 		//engine.GetRenderer().Render(camera, obj4);
 
@@ -347,7 +317,7 @@ int main()
 
 		glfwSwapBuffers(engine.GetWindow().GetGlWindow());
 		glfwPollEvents();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		
 

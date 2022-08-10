@@ -256,6 +256,7 @@ Engine::Texture3D::Texture3D(std::string filePath)
 void Engine::Texture3D::Activate()
 {
 	glBindTexture(GLenum(Engine::Texture::TextureType::TEXTURE3D), this->textureID);
+	glBindImageTexture(0, this->textureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 }
 
 unsigned int Engine::Texture3D::GetDepth()
@@ -284,16 +285,21 @@ Engine::Image2D::Image2D(unsigned int width, unsigned int height)
 void Engine::Image2D::Activate()
 {
 	glBindTexture(GL_TEXTURE_2D, this->textureID);
-	glBindImageTexture(0, this->textureID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	//glBindImageTexture(0, this->textureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 }
 
 void Engine::Image2D::GenerateTexture()
 {
 	glGenTextures(1, &this->textureID);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, this->textureID);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, this->numChannels, GL_FLOAT, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, this->width, this->height, 0, GL_RGBA, GL_FLOAT, NULL);
 
-	glBindImageTexture(0, this->textureID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	glBindImageTexture(0, this->textureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 }
 
 Engine::Image2D::Image2D(unsigned int width, unsigned int height, unsigned short numChannels)
@@ -337,19 +343,64 @@ Engine::Image3D::Image3D(unsigned int width, unsigned int height, unsigned int d
 	this->GenerateTexture();
 }
 
+void Engine::Image3D::Compute(Engine::ShaderProgram& shader)
+{
+	// activate both the image and shader
+	this->Activate();
+	shader.Activate();
+
+	// make sure the shader program actually contains a working compute shader
+	if (!shader.GetComputeShader().GetCompilatonStatus()) {
+		std::cerr << "unable to generate texture, compute shader is invalid or missing" << std::endl;
+		return;
+	}
+
+	// else, run the compute shader
+	glDispatchCompute(this->width, this->height, this->depth);
+	// create a memory barrier to prevent possible reading before its finished
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+}
+
+void Engine::Image3D::Compute(Engine::ComputeShader& shader)
+{
+	Engine::ShaderProgram shaderProgram(shader);
+
+	// activate both the image and shader
+	this->Activate();
+	shaderProgram.Activate();
+
+	// make sure the shader program actually contains a working compute shader
+	if (!shaderProgram.GetComputeShader().GetCompilatonStatus()) {
+		std::cerr << "unable to generate texture, compute shader is invalid or missing" << std::endl;
+		return;
+	}
+
+	// else, run the compute shader
+	glDispatchCompute(this->width, this->height, this->depth);
+	// create a memory barrier to prevent possible reading before its finished
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+}
+
 void Engine::Image3D::Activate()
 {
 	glBindTexture(GL_TEXTURE_3D, this->textureID);
-	glBindImageTexture(0, this->textureID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	//glBindImageTexture(0, this->textureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 }
 
 void Engine::Image3D::GenerateTexture()
 {
 	glGenTextures(1, &this->textureID);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_3D, this->textureID);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, this->width, this->height, this->depth, 0, this->numChannels, GL_FLOAT, 0);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, this->width, this->height, this->depth, 0, GL_RGBA, GL_FLOAT, NULL);
 
-	glBindImageTexture(0, this->textureID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	glBindImageTexture(0, this->textureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 }
 
 Engine::Image3D::Image3D(unsigned int width, unsigned int height, unsigned int depth, unsigned short numChannels)

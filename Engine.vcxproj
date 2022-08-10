@@ -188,6 +188,7 @@
     <ClInclude Include="include\BoundingVolume.h" />
     <ClInclude Include="include\Animation.h" />
     <ClInclude Include="include\TimeDate.h" />
+    <ClInclude Include="include\UserInterface.h" />
     <ClInclude Include="include\Volume.h" />
     <ClInclude Include="include\Window.h" />
   </ItemGroup>
@@ -217,6 +218,7 @@
     <ClCompile Include="src\BoundingVolume.cpp" />
     <ClCompile Include="src\Animation.cpp" />
     <ClCompile Include="src\TimeDate.cpp" />
+    <ClCompile Include="src\UserInterface.cpp" />
     <ClCompile Include="src\Volume.cpp" />
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
@@ -233,6 +235,8 @@
     <None Include="shaders\imagewriter.vert" />
     <None Include="shaders\light.frag" />
     <None Include="shaders\light.vert" />
+    <None Include="shaders\panel.frag" />
+    <None Include="shaders\panel.vert" />
     <None Include="shaders\shadowmap.frag" />
     <None Include="shaders\shadowmap.vert" />
     <None Include="shaders\skybox.frag" />

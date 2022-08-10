@@ -105,6 +105,9 @@
     <ClInclude Include="include\TimeDate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\UserInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp">
@@ -188,6 +191,9 @@
     <ClCompile Include="src\TimeDate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\UserInterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.frag">
@@ -269,6 +275,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shaders\volume.comp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\panel.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\panel.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
