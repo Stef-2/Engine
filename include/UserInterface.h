@@ -7,6 +7,7 @@
 #include "glm/glm.hpp"
 
 #include "vector"
+#include "functional"
 
 namespace Engine
 {
@@ -17,6 +18,7 @@ namespace Engine
 	public:
 		UserInterface();
 
+		// ==========================================================================
 		// basic UI element to be inherited from
 		class UIElement
 		{
@@ -32,8 +34,13 @@ namespace Engine
 			bool GetVisiblity() const;
 			void SetVisiblity(bool);
 
+			void SetParent(UIElement*);
 			UIElement* GetParent();
-			std::vector<UIElement*> GetChildren();
+
+			void AddChild(UIElement*);
+			std::vector<UIElement*>& GetChildren();
+
+			virtual void Draw() = 0;
 
 		protected:
 			glm::ivec2 position;
@@ -43,11 +50,16 @@ namespace Engine
 			std::vector<UIElement*> children;
 		};
 
+		// we're collecting visible elements for easy rendering
+		static std::vector<Engine::UserInterface::UIElement*>& GetVisibleElements();
+		// ==========================================================================
+
 		// rectangle shaped UI element
 		class Panel : public UIElement
 		{
 		public:
 			using UIElement::UIElement;
+
 			Panel(glm::ivec2 origin, unsigned int width, unsigned int height);
 			Panel(unsigned int left, unsigned int bottom, unsigned int width, unsigned int height);
 
@@ -59,6 +71,8 @@ namespace Engine
 
 			Engine::SharedShaderProgram& GetShader();
 			void SetShader(const Engine::SharedShaderProgram& value);
+
+			void Draw() override;
 
 		private:
 			Engine::SharedShaderProgram shader;
@@ -74,6 +88,9 @@ namespace Engine
 
 		// mesh consisting of 4 vertices, to be used by UI elements for rendering
 		Engine::Mesh quad;
+
+	private:
+		static std::vector<UIElement*> visibleElements;
 	};
 
 }

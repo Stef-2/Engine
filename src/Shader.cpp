@@ -215,57 +215,15 @@ bool Engine::ShaderProgram::CompileProgram()
 		// we can use these later without having to bother the gfx card since most glGetX() functions are very slow
 		volatile int location = 0u;
 
-		// basic vertex shader input
-		location = glGetAttribLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::VERTEX_POSITION_LOCATION).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::VERTEX_POSITION_LOCATION, location });
-		location = glGetAttribLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::VERTEX_NORMAL_LOCATION).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::VERTEX_NORMAL_LOCATION, location });
-		location = glGetAttribLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::VERTEX_UV_LOCATION).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::VERTEX_UV_LOCATION, location });
-
-		// basic MVP matrices with separate input
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::MODEL_LOCATION).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::MODEL_LOCATION, location });
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::VIEW_LOCATION).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::VIEW_LOCATION, location });
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::PROJECTION_LOCATION).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::PROJECTION_LOCATION, location });
-
-		// extended vertex shader inputs for animated meshes
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::BONE_TRANSFORMATIONS).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::BONE_TRANSFORMATIONS, location });
-		location = glGetAttribLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::VERTEX_BONE_ID_LOCATION).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::VERTEX_BONE_ID_LOCATION, location });
-		location = glGetAttribLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::VERTEX_BONE_WEIGHTS_LOCATION).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::VERTEX_BONE_WEIGHTS_LOCATION, location });
-
-		// shader flags for uber shader
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::SHADER_PARAMETERS).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::SHADER_PARAMETERS, location });
-
-		// uniform samplers for material textures
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::DIFFUSE_MAP).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::DIFFUSE_MAP, location });
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::ROUGHNESS_MAP).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::ROUGHNESS_MAP, location });
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::METALLIC_MAP).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::METALLIC_MAP, location });
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::SPECULAR_MAP).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::SPECULAR_MAP, location });
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::NORMAL_MAP).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::NORMAL_MAP, location });
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::ALPHA_MAP).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::ALPHA_MAP, location });
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::CUBE_MAP).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::CUBE_MAP, location });
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::VOLUME_MAP).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::VOLUME_MAP, location });
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::SHADOW_MAPS).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::SHADOW_MAPS, location });
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::IMAGE2D).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::IMAGE2D, location });
-		location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute::IMAGE3D).c_str());
-		if (location >= 0) this->attributeLocations.insert({ ShaderAttribute::IMAGE3D, location });
+		// find and record locations of all relevant attribute and uniform locations so we don't have to ask openGL about them Later
+		for (unsigned int i = 0; i < Engine::ShaderProgram::attributeNames.size(); i++)
+		{
+			location = glGetAttribLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute(i)).c_str());
+			if (location < 0)
+				location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute(i)).c_str());
+			if (location >= 0)
+				this->attributeLocations.insert({ ShaderAttribute(i), location});
+		}
 
 		// generate and bind uniform buffer objects and shader storage buffer objects if they're present in the shader(s)
 		// this initialization needs to happen only once for each one of these as they are global in GPU memory

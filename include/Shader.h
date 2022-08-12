@@ -123,18 +123,23 @@ namespace Engine
 	{
 		public:
 			// enumerator for the different shader attribute we may need to retrieve
-			enum class ShaderAttribute
+			typedef enum class ShaderAttribute : unsigned int
 			{
+				// basic vertex shader input
 				VERTEX_POSITION_LOCATION,
 				VERTEX_NORMAL_LOCATION,
 				VERTEX_UV_LOCATION,
+				// extended vertex shader inputs for animated meshes
 				VERTEX_BONE_ID_LOCATION,
 				VERTEX_BONE_WEIGHTS_LOCATION,
+				// basic MVP matrices with separate input
 				MODEL_LOCATION,
 				VIEW_LOCATION,
 				PROJECTION_LOCATION,
 				BONE_TRANSFORMATIONS,
+				// shader flags for uber shader
 				SHADER_PARAMETERS,
+				// uniform samplers for material textures
 				DIFFUSE_MAP,
 				ROUGHNESS_MAP,
 				METALLIC_MAP,
@@ -144,8 +149,11 @@ namespace Engine
 				CUBE_MAP,
 				VOLUME_MAP,
 				SHADOW_MAPS,
+				// image samplers
 				IMAGE2D,
-				IMAGE3D
+				IMAGE3D,
+				// transforms for instanced rendering
+				INSTANCED_TRANSFORMS
 			};
 
 			// enumerator for different uniform or shader storage buffer objects
@@ -277,7 +285,8 @@ namespace Engine
 				{ShaderAttribute::VOLUME_MAP, "volumeMap"},
 				{ShaderAttribute::SHADOW_MAPS, "shadowMaps"},
 				{ShaderAttribute::IMAGE2D, "image2d"},
-				{ShaderAttribute::IMAGE3D, "image3d"}
+				{ShaderAttribute::IMAGE3D, "image3d"},
+				{ShaderAttribute::INSTANCED_TRANSFORMS, "instancedTransforms"}
 			};
 
 			inline const static std::map<Engine::ShaderProgram::UniformBuffer, std::string> uniformBufferNames =

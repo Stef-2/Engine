@@ -1,5 +1,7 @@
 #include <Main.h>
 
+
+
 Engine::Camera camera(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
 Engine::Camera topOrh(0.0, 100.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
 
@@ -52,17 +54,14 @@ int main()
 	
 	Engine::ShaderProgram writev(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.comp"));
 	i3D.Compute(writev);
-	/*
-	i3D.Activate();
 
-	writev.Activate();
-	glDispatchCompute(32, 32, 32);
+	Engine::UserInterface::Panel p;
 
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);*/
-	/*
-	float* d = new float[32 * 32 * 32 * 4];
-	glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, d);
-	stbi_write_jpg("volume.jpg", 32 * 8, 32 * 4, 4, d, 100);*/
+	Engine::ShaderProgram panelShader(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\panel.vert"),
+		engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\panel.frag"));
+
+	p.SetShader(panelShader);
+
 	// ===========================================================================
 	// ===========================================================================
 

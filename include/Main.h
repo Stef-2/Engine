@@ -34,6 +34,7 @@
 #include "Terrain.h"
 #include "FrameBuffer.h"
 #include "Shared.h"
+#include "UserInterface.h"
 
 #include "signal.h"
 #include "fstream"

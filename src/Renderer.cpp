@@ -146,6 +146,14 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
 	}
 }
 
+void Engine::Renderer::Render(Engine::UserInterface& UI)
+{
+	for (auto& element : Engine::UserInterface::GetVisibleElements())
+	{
+		//element
+	}
+}
+
 void Engine::Renderer::Render(const Engine::Camera& camera, const Engine::BoundingBox& box)
 {
 	// calculate the size of this bounding box, will be useful for vertex calculations and transform matrix
@@ -313,7 +321,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Terrain& ter
 
 }
 
-void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Volume volume)
+void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Volume& volume)
 {
 	// activate that abomination of a shader
 	volume.GetShader().Activate();
