@@ -106,7 +106,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
 	for (size_t i = 0; i < actor.GetModel().GetStaticMeshes().size(); i++) {
 
 		// bind the vertex array buffer
-		glBindVertexArray(actor.GetModel().GetStaticMeshes().at(i)->GetVAO());
+		glBindVertexArray(actor.GetModel().GetStaticMeshes().at(i)->GetVertexArrayBuffer());
 
 		// bind the corresponding materials if they exist
 		if (&actor.GetModel().GetStaticMeshes().at(i)->GetMaterial())
@@ -136,7 +136,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
 		delete[]bones;
 
 		// bind the vertex array buffer
-		glBindVertexArray(actor.GetModel().GetAnimatedMeshes().at(i)->GetVAO());
+		glBindVertexArray(actor.GetModel().GetAnimatedMeshes().at(i)->GetVertexArrayBuffer());
 
 		// bind the corresponding texture(s)
 		actor.GetModel().GetAnimatedMeshes().at(i)->GetMaterial().Activate(actor.GetShader());
@@ -310,7 +310,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Terrain& ter
 	terrain.GetShader().SetShaderFlag(Engine::ShaderProgram::ShaderFlag::STATIC);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	// bind the vertex array buffer
-	glBindVertexArray(terrain.GetMesh().GetVAO());
+	glBindVertexArray(terrain.GetMesh().GetVertexArrayBuffer());
 
 	// bind the corresponding texture(s)
 	terrain.GetMesh().GetMaterial().Activate(terrain.GetShader());
@@ -336,7 +336,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Volume& volu
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	// bind the vertex array buffer
-	glBindVertexArray(volume.GetMesh().GetVAO());
+	glBindVertexArray(volume.GetMesh().GetVertexArrayBuffer());
 
 	// bind the corresponding texture(s)
 	glActiveTexture(GL_TEXTURE0 + 0);
@@ -370,7 +370,7 @@ void Engine::Renderer::Render(const Engine::DirectionalLight& light, Engine::Fra
 	for (size_t i = 0; i < actor.GetModel().GetStaticMeshes().size(); i++) {
 
 		// bind the vertex array buffer
-		glBindVertexArray(actor.GetModel().GetStaticMeshes().at(i).get()->GetVAO());
+		glBindVertexArray(actor.GetModel().GetStaticMeshes().at(i).get()->GetVertexArrayBuffer());
 
 		// render
 		glDrawElements(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i).get()->GetIndices().size(), GL_UNSIGNED_INT, 0);

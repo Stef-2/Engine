@@ -223,7 +223,7 @@ void Engine::Model::LoadMesh(std::string filePath)
 	for (unsigned int i = 0; i < scene->mNumMeshes; i++)
 	{
 		// utility vectors to be filled with data
-		std::vector<Engine::AnimatedVertex> vertexBoneData{};
+		std::vector<Engine::AnimatedVertexExtension> vertexBoneData{};
 		std::vector<Engine::Vertex> vertices{};
 		std::vector<unsigned int> indices{};
 		std::vector<Engine::Bone> bones;
@@ -251,7 +251,7 @@ void Engine::Model::LoadMesh(std::string filePath)
 
 		// fill the vertex bone data struct with full range of blank data
 		if (mesh->HasBones()) vertexBoneData.assign
-			(mesh->mNumVertices, Engine::AnimatedVertex{ glm::vec3(0.0f),glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::ivec4(-1.0), glm::vec4(0.0f) });
+			(mesh->mNumVertices, Engine::AnimatedVertexExtension{ glm::ivec4(-1.0), glm::vec4(0.0f) });
 
 		// go through all mesh vertices
 		for (unsigned int j = 0; j < mesh->mNumVertices; j++)
@@ -404,7 +404,7 @@ void Engine::Model::LoadMesh(std::string filePath)
 
 		// assemble the whole mesh depending if its animated or not
 		if (mesh->HasBones()) {
-			
+			/*
 			// combine basic vertex data with bone weight data for animated vertices
 			for (size_t i = 0; i < vertices.size(); i++)
 			{
@@ -413,10 +413,10 @@ void Engine::Model::LoadMesh(std::string filePath)
 				vertexBoneData.at(i).bitangent = vertices.at(i).bitangent;
 				vertexBoneData.at(i).tangent = vertices.at(i).tangent;
 				vertexBoneData.at(i).uv = vertices.at(i).uv;
-			}
+			}*/
 
 			// animated mesh
-			this->animatedMeshes.push_back(std::make_shared<Engine::AnimatedMesh>(vertexBoneData, indices, skeleton, animations));
+			this->animatedMeshes.push_back(std::make_shared<Engine::AnimatedMesh>(vertices, vertexBoneData, indices, skeleton, animations));
 			this->animatedMeshes.back()->SetBoundingBox(aiVector3ToGlm(mesh->mAABB.mMin), aiVector3ToGlm(mesh->mAABB.mMax));
 		}
 		else {

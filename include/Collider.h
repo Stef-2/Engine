@@ -20,7 +20,7 @@ namespace Engine
 		bool Intersects(Engine::BoundingBox& box, Engine::BoundingSphere& sphere);
 
 		template<typename T>
-		bool Intersects(Engine::Triangle<T>& first, Engine::Triangle<T>& second);
+		bool Intersects(Engine::Triangle& first, Engine::Triangle& second);
 
 		bool Contains(Engine::BoundingBox& larger, Engine::BoundingBox& smaller);
 		bool Contains(Engine::BoundingSphere& larger, Engine::BoundingSphere& smaller);
