@@ -1,33 +1,33 @@
 #include "TimeDate.h"
 
-Engine::TimeDate::TimePoint Engine::TimeDate::engineStart = TimeDate::Clock::now();
+Engine::Time::TimePoint Engine::Time::engineStart = Time::Clock::now();
 
-unsigned long long Engine::TimeDate::TimeBetween(const TimePoint& x, const TimePoint& y)
+unsigned long long Engine::Time::TimeBetween(const TimePoint& x, const TimePoint& y)
 {
-	return std::abs(std::chrono::duration_cast<Engine::TimeDate::Precision>(x - y).count());
+	return std::abs(std::chrono::duration_cast<Engine::Time::Precision>(x - y).count());
 }
 
-unsigned long long Engine::TimeDate::EngineStartTime()
+unsigned long long Engine::Time::EngineStartTime()
 {
-	return std::chrono::duration_cast<Engine::TimeDate::Precision>(std::chrono::time_point_cast<Engine::TimeDate::Precision>(Engine::TimeDate::engineStart).time_since_epoch()).count();
+	return std::chrono::duration_cast<Engine::Time::Precision>(std::chrono::time_point_cast<Engine::Time::Precision>(Engine::Time::engineStart).time_since_epoch()).count();
 }
 
-unsigned long long Engine::TimeDate::Now()
+unsigned long long Engine::Time::Now()
 {
-	return std::chrono::duration_cast<Engine::TimeDate::Precision>(Engine::TimeDate::Clock::now().time_since_epoch() - Engine::TimeDate::engineStart.time_since_epoch()).count();
+	return std::chrono::duration_cast<Engine::Time::Precision>(Engine::Time::Clock::now().time_since_epoch() - Engine::Time::engineStart.time_since_epoch()).count();
 }
 
-Engine::TimeDate::TimePoint Engine::TimeDate::TimePointNow()
+Engine::Time::TimePoint Engine::Time::TimePointNow()
 {
-	return Engine::TimeDate::Clock::now();
+	return Engine::Time::Clock::now();
 }
 
-std::string Engine::TimeDate::ToString()
+std::string Engine::Time::ToString()
 {
-	return std::format("{:%F %T}", Engine::TimeDate::Clock::now());
+	return std::format("{:%F %T}", Engine::Time::Clock::now());
 }
 
-std::string Engine::TimeDate::ToString(const TimePoint& timePoint)
+std::string Engine::Time::ToString(const TimePoint& timePoint)
 {
 	return std::format("{:%F %T}", timePoint);
 }

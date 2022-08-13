@@ -223,7 +223,7 @@ void Engine::Model::LoadMesh(std::string filePath)
 	for (unsigned int i = 0; i < scene->mNumMeshes; i++)
 	{
 		// utility vectors to be filled with data
-		std::vector<Engine::VertexBoneData> vertexBoneData{};
+		std::vector<Engine::AnimatedVertex> vertexBoneData{};
 		std::vector<Engine::Vertex> vertices{};
 		std::vector<unsigned int> indices{};
 		std::vector<Engine::Bone> bones;
@@ -251,7 +251,7 @@ void Engine::Model::LoadMesh(std::string filePath)
 
 		// fill the vertex bone data struct with full range of blank data
 		if (mesh->HasBones()) vertexBoneData.assign
-			(mesh->mNumVertices, Engine::VertexBoneData{ glm::vec3(0.0f),glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::ivec4(-1.0), glm::vec4(0.0f) });
+			(mesh->mNumVertices, Engine::AnimatedVertex{ glm::vec3(0.0f),glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), glm::vec2(0.0f), glm::ivec4(-1.0), glm::vec4(0.0f) });
 
 		// go through all mesh vertices
 		for (unsigned int j = 0; j < mesh->mNumVertices; j++)

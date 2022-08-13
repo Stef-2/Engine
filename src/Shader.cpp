@@ -218,8 +218,10 @@ bool Engine::ShaderProgram::CompileProgram()
 		// find and record locations of all relevant attribute and uniform locations so we don't have to ask openGL about them Later
 		for (unsigned int i = 0; i < Engine::ShaderProgram::attributeNames.size(); i++)
 		{
+			// try finding it as a vertex attribute first
 			location = glGetAttribLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute(i)).c_str());
 			if (location < 0)
+				// if we didn't find anything, try uniform instead
 				location = glGetUniformLocation(this->programID, ShaderProgram::attributeNames.at(ShaderAttribute(i)).c_str());
 			if (location >= 0)
 				this->attributeLocations.insert({ ShaderAttribute(i), location});

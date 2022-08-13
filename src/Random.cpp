@@ -1,6 +1,6 @@
 #include "Random.h"
 
-std::minstd_rand Engine::Random::generator{unsigned int(Engine::TimeDate::Now())};
+std::minstd_rand Engine::Random::generator{unsigned int(Engine::Time::Now())};
 
 const unsigned char Engine::Random::rndtable[256] = {
 	0,   8, 109, 220, 222, 241, 149, 107,  75, 248, 254, 140,  16,  66 ,
