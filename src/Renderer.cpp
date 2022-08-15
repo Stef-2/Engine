@@ -111,9 +111,12 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
 		// bind the corresponding materials if they exist
 		if (&actor.GetModel().GetStaticMeshes().at(i)->GetMaterial())
 			actor.GetModel().GetStaticMeshes().at(i)->GetMaterial().Activate(actor.GetShader());
-		
+
 		// render
-		glDrawElements(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i)->GetIndices().size(), GL_UNSIGNED_INT, 0);
+		if (actor.GetModel().GetStaticMeshes().at(i)->GetInstanceable())
+			glDrawElementsInstanced(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i)->GetIndices().size(), GL_UNSIGNED_INT, 0, actor.GetModel().GetStaticMeshes().at(i)->GetInstances().size());
+
+			glDrawElements(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i)->GetIndices().size(), GL_UNSIGNED_INT, 0);
 	}
 
 	actor.GetShader().SetShaderFlag(Engine::ShaderProgram::ShaderFlag::ANIMATED);

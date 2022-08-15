@@ -61,6 +61,16 @@ int main()
 		engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\panel.frag"));
 
 	p.SetShader(panelShader);
+	glm::mat4 instance(1.0f);
+
+	unsigned short instancesSize = 3;
+	std::vector<Engine::Instance> instances;
+	instances.reserve(instancesSize);
+
+	for (size_t i = 0; i < instancesSize; i++)
+	{
+		instances.emplace_back(glm::translate(glm::mat4(1.0f), {Engine::Random::Generate(-100.0f, 100.0f), Engine::Random::Generate(-100.0f, 100.0f), Engine::Random::Generate(-100.0f, 100.0f) }));
+	}
 
 	// ===========================================================================
 	// ===========================================================================
@@ -91,6 +101,7 @@ int main()
 	obj1.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Roughness.png"));
 	obj1.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Metallic.png"));
 	obj1.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Normal.png"));
+	obj1.GetModel().GetStaticMeshes().at(0)->SetInstances(instances);
 	obj1.MoveAbsolute(100.0f, 0.0f, 0.0f);
 	
 	Engine::Actor obj2;
@@ -320,7 +331,7 @@ int main()
 
 		
 
-		// obj1.Draw(&camera); // big guy (for me)
+		// obj1.Draw(&camera); // big guy (for obj2)
 		// obj2.Draw(&camera); // small guy
 
 		// camera.Draw(obj1.GetModel()->GetBoundingBox());

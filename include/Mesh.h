@@ -55,6 +55,11 @@ namespace Engine
 		Vertex& c;
 	};
 
+	struct Instance
+	{
+		glm::mat4 transform;
+	};
+
 	// ===========================================================================
 
 	// a static mesh class that stores vertex data to be used for rendering
@@ -69,9 +74,11 @@ namespace Engine
 
 		// handles for Vertex Buffer and Element Buffer objects
 		// they need to be passed to OpenGL functions that are supposed to draw the mesh
-		unsigned int GetVertexArrayBuffer();
-		unsigned int GetVertexBufferObject();
-		unsigned int GetElementBufferObject();
+		unsigned int GetVertexArrayBuffer() const;
+		unsigned int GetVertexBufferObject() const;
+		unsigned int GetElementBufferObject() const;
+		unsigned int GetInstancedVertexBufferObject() const;
+
 
 		std::vector<Vertex>& GetVertices();
 		std::vector<unsigned int>& GetIndices();
@@ -86,8 +93,10 @@ namespace Engine
 
 		bool GetInstanceable() const;
 		void SetInstanceable(bool value);
-	private:
 
+		std::vector<Engine::Instance>& GetInstances();
+		void SetInstances(std::vector<Engine::Instance>& value);
+		void AddInstance(const Engine::Instance&);
 
 	protected:
 		// mesh vertices
@@ -95,7 +104,7 @@ namespace Engine
 		// triangles for collision detection
 		std::vector<Triangle> triangles;
 
-		std::shared_ptr<Engine::Material> material;
+		Engine::SharedMaterial material;
 
 		// node containing transformation data
 		Engine::Node* node;
@@ -110,7 +119,11 @@ namespace Engine
 		unsigned int vertexBufferObject;
 		unsigned int elementBufferObject;
 
+		// instancing data
+		std::vector<Engine::Instance> instances;
+		unsigned int InstancedVertexBufferObject;
 		bool instanceable;
+
 	};
 
 	// ===========================================================================
@@ -132,9 +145,10 @@ namespace Engine
 		void SetVertices(std::vector<AnimatedVertexExtension> vertices);
 		void AddAnimation(Engine::Animation animation);
 		void SetSkeleton(Engine::Skeleton& skelly);
+	private:
+
 		void AddAnimatedVertexExtension();
 
-	private:
 		// mesh vertices
 		std::vector<AnimatedVertexExtension> vertexExtensions;
 

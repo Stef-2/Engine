@@ -173,10 +173,11 @@ namespace Engine
 			{
 				STATIC = 0b0000'0001,
 				ANIMATED = 0b0000'0010,
-				ILLUMINATED = 0b0000'0011,
-				SKYBOX = 0b0000'0100,
-				WIREFRAME = 0b0000'0101,
-				BASIC = 0b0000'0110
+				ILLUMINATED = 0b0000'0100,
+				SKYBOX = 0b0000'1000,
+				WIREFRAME = 0b0001'0000,
+				BASIC = 0b0010'0000,
+				INSTANCED = 0b0100'0000
 			};
 
 			ShaderProgram();
@@ -286,7 +287,7 @@ namespace Engine
 				{ShaderAttribute::SHADOW_MAPS, "shadowMaps"},
 				{ShaderAttribute::IMAGE2D, "image2d"},
 				{ShaderAttribute::IMAGE3D, "image3d"},
-				{ShaderAttribute::INSTANCED_TRANSFORMS, "instancedTransforms"}
+				{ShaderAttribute::INSTANCED_TRANSFORMS, "instancedTransform"}
 			};
 
 			inline const static std::map<Engine::ShaderProgram::UniformBuffer, std::string> uniformBufferNames =
@@ -298,6 +299,19 @@ namespace Engine
 				{UniformBuffer::DIRECTIONAL_LIGHTS, "DirectionalLights"},
 				{UniformBuffer::AMBIENT_LIGHTS, "AmbientLights"},
 				{UniformBuffer::DEBUG, "Debug"}
+			};
+
+			// struct that matches the debug output data block in the shaders
+			// to be used as sizeof() and offsetof() reference in data alignment and size matching
+			struct OutputData
+			{
+				glm::mat4 mats[8];
+				glm::vec4 vecs[8];
+				float floats[8];
+				bool bools[3];
+
+				// setting this to true inside shaders causes a break
+				bool breakPoint;
 			};
 
 			Engine::ShaderProgram::ShaderFlag shaderFlags;

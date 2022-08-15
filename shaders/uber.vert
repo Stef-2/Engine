@@ -24,6 +24,8 @@ layout (location = 4) in vec2 vertexCoordinate;
 layout (location = 5) in ivec4 boneIDs;
 layout (location = 6) in vec4 boneWeights;
 
+layout (location = 7) in mat4 instancedTransform;
+
 struct PointLight {
     vec4 position;
     vec4 color;
@@ -79,13 +81,23 @@ layout (binding = 4, std430) buffer AmbientLights {
   AmbientLight ambientLights[];
 };
 
+layout (binding = 69, std140) buffer Debug {
+    mat4 mats[8];
+    vec4 vecs[8];
+    float floats[8];
+    bool bools[3];
+    
+    bool breakPoint;
+};
+
 // shader flag reference
 const unsigned int SHADER_STATIC      = 1;
 const unsigned int SHADER_ANIMATED    = 2;
-const unsigned int SHADER_ILLUMINATED = 3;
-const unsigned int SHADER_SKYBOX      = 4;
-const unsigned int SHADER_WIREFRAME   = 5;
-const unsigned int SHADER_BASIC       = 6;
+const unsigned int SHADER_ILLUMINATED = 4;
+const unsigned int SHADER_SKYBOX      = 8;
+const unsigned int SHADER_WIREFRAME   = 16;
+const unsigned int SHADER_BASIC       = 32;
+const unsigned int SHADER_INSTANCED   = 64;
 
 // uniforms
 uniform unsigned int shaderFlags;
@@ -321,7 +333,15 @@ void main()
 
     else if (shaderFlags == SHADER_STATIC)
     {
-        gl_Position =  projection * view * model * vec4(vertexPosition, 1.0f);
+        mat4 move = (gl_InstanceID > 0) ? instancedTransform : model; 
+
+        gl_Position =  projection * view * move * vec4(vertexPosition, 1.0f);
+        
+        if (instancedTransform[0][0] == 0) {
+        mats[0] = instancedTransform;
+        breakPoint = true;
+        }
+
         position = (model * vec4(vertexPosition, 1.0f)).xyz;
         TBN = CalculateTBN(mat4(1.0f));
         ProcessLights(position, TBN);
@@ -330,4 +350,5 @@ void main()
     uv = vertexCoordinate;
     tangentFragmentPosition = TBN * position;
     tangentViewDirection = TBN * vec3(view[0][2], view[1][2], view [2][2]);
+
 }

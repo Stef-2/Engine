@@ -283,5 +283,11 @@
     <None Include="shaders\panel.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="shaders\instanced.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\instanced.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -233,6 +233,8 @@
     <None Include="shaders\illuminated.vert" />
     <None Include="shaders\imagewriter.frag" />
     <None Include="shaders\imagewriter.vert" />
+    <None Include="shaders\instanced.frag" />
+    <None Include="shaders\instanced.vert" />
     <None Include="shaders\light.frag" />
     <None Include="shaders\light.vert" />
     <None Include="shaders\panel.frag" />

@@ -5,10 +5,10 @@ Engine::Mesh::Mesh()
 	this->vertices = {};
 	this->indices = {};
 	this->triangles = {};
-	this->material = {};
 	this->vertexArrayObject = 0;
 	this->vertexBufferObject = 0;
 	this->elementBufferObject = 0;
+	this->instanceable = false;
 	this->node = {};
 }
 
@@ -17,10 +17,10 @@ Engine::Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indic
 	this->vertices = vertices;
 	this->indices = indices;
 	this->triangles = {};
-	this->material = {};
 	this->vertexArrayObject = 0;
 	this->vertexBufferObject = 0;
 	this->elementBufferObject = 0;
+	this->instanceable = false;
 
 	this->Setup();
 }
@@ -33,28 +33,33 @@ Engine::AnimatedMesh::AnimatedMesh(std::vector<Vertex> vertices, std::vector<Ani
 	this->skeleton = skeleton;
 	this->animations = animations;
 	this->triangles = {};
-	this->material = {};
 	this->vertexArrayObject = 0;
 	this->vertexBufferObject = 0;
 	this->elementBufferObject = 0;
+	this->instanceable = false;
 
-	//this->Setup();
+	this->Setup();
 	this->AddAnimatedVertexExtension();
 }
 
-unsigned int Engine::Mesh::GetVertexArrayBuffer()
+unsigned int Engine::Mesh::GetVertexArrayBuffer() const
 {
 	return this->vertexArrayObject;
 }
 
-unsigned int Engine::Mesh::GetVertexBufferObject()
+unsigned int Engine::Mesh::GetVertexBufferObject() const
 {
 	return this->vertexBufferObject;
 }
 
-unsigned int Engine::Mesh::GetElementBufferObject()
+unsigned int Engine::Mesh::GetElementBufferObject() const
 {
 	return this->elementBufferObject;
+}
+
+unsigned int Engine::Mesh::GetInstancedVertexBufferObject() const
+{
+	return InstancedVertexBufferObject;
 }
 
 std::vector<Engine::Vertex>& Engine::Mesh::GetVertices()
@@ -124,7 +129,86 @@ bool Engine::Mesh::GetInstanceable() const
 
 void Engine::Mesh::SetInstanceable(bool value)
 {
+	// if its already set then just return
+	if (value == this->instanceable)
+		return;
+
+	// set instanceable
+	if (!this->instanceable)
+	{
+		constexpr auto mat4quarter = sizeof(glm::vec4);
+
+		// bind the old VAO
+		glBindVertexArray(this->vertexArrayObject);
+
+		// generate a new VBO for istancing data
+		glGenBuffers(1, &this->InstancedVertexBufferObject);
+		glBindBuffer(GL_ARRAY_BUFFER, this->InstancedVertexBufferObject);
+
+		glEnableVertexAttribArray(7);
+		glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * mat4quarter, (void*)(0 * mat4quarter));
+		glEnableVertexAttribArray(8);
+		glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, 4 * mat4quarter, (void*)(1 * mat4quarter));
+		glEnableVertexAttribArray(9);
+		glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, 4 * mat4quarter, (void*)(2 * mat4quarter));
+		glEnableVertexAttribArray(10);
+		glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, 4 * mat4quarter, (void*)(3 * mat4quarter));
+
+		glVertexAttribDivisor(7, 1);
+		glVertexAttribDivisor(8, 1);
+		glVertexAttribDivisor(9, 1);
+		glVertexAttribDivisor(10, 1);
+
+		// undbind VAO
+		glBindVertexArray(0);
+	}
+	else
+	{
+		// bind the old VAO
+		glBindVertexArray(this->vertexArrayObject);
+
+		glDeleteBuffers(1, &this->InstancedVertexBufferObject);
+
+		glDisableVertexAttribArray(7);
+		glDisableVertexAttribArray(8);
+		glDisableVertexAttribArray(9);
+		glDisableVertexAttribArray(10);
+
+		// undbind VAO
+		glBindVertexArray(0);
+	}
+
 	instanceable = value;
+}
+
+std::vector<Engine::Instance>& Engine::Mesh::GetInstances()
+{
+	return this->instances;
+}
+
+void Engine::Mesh::SetInstances(std::vector<Engine::Instance>& value)
+{
+	instances = value;
+
+	if (instances.empty())
+		this->SetInstanceable(false);
+	else {
+		this->SetInstanceable(true);
+
+		// bind the vertex buffer
+		glBindBuffer(GL_ARRAY_BUFFER, this->InstancedVertexBufferObject);
+		glBufferData(GL_ARRAY_BUFFER, this->instances.size() * sizeof(Engine::Instance), &this->instances[0], GL_DYNAMIC_DRAW);
+	}
+}
+
+void Engine::Mesh::AddInstance(const Engine::Instance& instance)
+{
+	this->instances.push_back(instance);
+
+	this->SetInstanceable(true);
+	// bind the vertex buffer
+	glBindBuffer(GL_ARRAY_BUFFER, this->InstancedVertexBufferObject);
+	glBufferData(GL_ARRAY_BUFFER, this->instances.size() * sizeof(Engine::Instance), &this->instances[0], GL_DYNAMIC_DRAW);
 }
 
 void Engine::Mesh::SetVertices(std::vector<Engine::Vertex> vertices)
@@ -150,6 +234,7 @@ void Engine::AnimatedMesh::AddAnimation(Engine::Animation animation)
 
 void Engine::Mesh::Setup()
 {
+	// generate the buffers
 	glGenVertexArrays(1, &this->vertexArrayObject);
 
 	glGenBuffers(1, &this->vertexBufferObject);
@@ -198,70 +283,25 @@ void Engine::Mesh::Setup()
 }
 
 void Engine::AnimatedMesh::AddAnimatedVertexExtension()
-{/*
-	glGenVertexArrays(1, &this->vertexArrayObject);
-
-	glGenBuffers(1, &this->vertexBufferObject);
-	glGenBuffers(1, &this->elementBufferObject);
-
+{
+	// bind the old VAO
 	glBindVertexArray(this->vertexArrayObject);
-	
-	// bind the vertex buffer
-	glBindBuffer(GL_ARRAY_BUFFER, this->vertexBufferObject);
-	// fill the vertex buffer with data
-	glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_STATIC_DRAW);
 
-	// bind the element buffer
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
-	// fill the element buffer with data
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(unsigned int), &this->indices[0], GL_STATIC_DRAW);
-
-	// setup vertex attributes
-
-	// vertex positions
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-
-	// vertex normals
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-
-	// vertex bitangents
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bitangent));
-
-	// vertex tangents
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
-
-	// vertex texture coords (UVs)
-	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
-
-	// vertex bone IDs
-	glEnableVertexAttribArray(5);
-	glVertexAttribIPointer(5, 4, GL_INT, sizeof(AnimatedVertexExtension), (void*)offsetof(AnimatedVertexExtension, boneID));
-
-	// vertex bone weights
-	glEnableVertexAttribArray(6);
-	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(AnimatedVertexExtension), (void*)offsetof(AnimatedVertexExtension, boneWeight));
-	
-	// unbind VAO
-	glBindVertexArray(0);
-	*/
-	this->Setup();
-
-	glBindVertexArray(this->vertexArrayObject);
+	// generate a new VBO, bind and fill with data
 	glGenBuffers(1, &this->animatedVertexBufferObject);
 	glBindBuffer(GL_ARRAY_BUFFER, this->animatedVertexBufferObject);
 	glBufferData(GL_ARRAY_BUFFER, this->vertexExtensions.size() * sizeof(Engine::AnimatedVertexExtension), &this->vertexExtensions[0], GL_STATIC_DRAW);
+	
 	// vertex bone IDs
 	glEnableVertexAttribArray(5);
 	glVertexAttribIPointer(5, 4, GL_INT, sizeof(AnimatedVertexExtension), (void*)offsetof(AnimatedVertexExtension, boneID));
 
 	// vertex bone weights
 	glEnableVertexAttribArray(6);
+	
 	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(AnimatedVertexExtension), (void*)offsetof(AnimatedVertexExtension, boneWeight));
+	
+	// undbind VAO
 	glBindVertexArray(0);
 	/*
 	// construct triangle data out of vertices and indices
