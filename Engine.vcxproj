@@ -175,6 +175,7 @@
     <ClInclude Include="include\Material.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\Model.h" />
+    <ClInclude Include="include\OpenGLObject.h" />
     <ClInclude Include="include\Random.h" />
     <ClInclude Include="include\Shared.h" />
     <ClInclude Include="include\Terrain.h" />
@@ -207,6 +208,7 @@
     <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Model.cpp" />
+    <ClCompile Include="src\OpenGLObject.cpp" />
     <ClCompile Include="src\Random.cpp" />
     <ClCompile Include="src\Terrain.cpp" />
     <ClCompile Include="src\Skeleton.cpp" />
@@ -225,6 +227,7 @@
   <ItemGroup>
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
+    <None Include="ClassDiagram.cd" />
     <None Include="README.md" />
     <None Include="shaders\animated.frag" />
     <None Include="shaders\animated.vert" />

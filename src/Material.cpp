@@ -36,42 +36,42 @@ Engine::Material::Material(const char* filePath)
 
 void Engine::Material::Activate()
 {
-	if (this->diffuseMap->GetTextureID())
+	if (this->diffuseMap && this->diffuseMap->GetTextureID() && ShaderProgram::GetCurrentShaderProgram().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::DIFFUSE_MAP) >= -1)
 	{
 		glActiveTexture(GL_TEXTURE0 + 0);
 		glBindTexture(GL_TEXTURE_2D, this->diffuseMap->GetTextureID());
 		glUniform1i(ShaderProgram::GetCurrentShaderProgram().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::DIFFUSE_MAP), 0);
 	}
 
-	if (this->roughnessMap->GetTextureID())
+	if (this->diffuseMap && this->diffuseMap->GetTextureID() && ShaderProgram::GetCurrentShaderProgram().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::ROUGHNESS_MAP) >= -1)
 	{
 		glActiveTexture(GL_TEXTURE0 + 1);
 		glBindTexture(GL_TEXTURE_2D, this->roughnessMap->GetTextureID());
 		glUniform1i(ShaderProgram::GetCurrentShaderProgram().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::ROUGHNESS_MAP), 1);
 	}
 
-	if (this->metallicMap->GetTextureID())
+	if (this->diffuseMap && this->diffuseMap->GetTextureID() && ShaderProgram::GetCurrentShaderProgram().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::METALLIC_MAP) >= -1)
 	{
 		glActiveTexture(GL_TEXTURE0 + 2);
 		glBindTexture(GL_TEXTURE_2D, this->metallicMap->GetTextureID());
 		glUniform1i(ShaderProgram::GetCurrentShaderProgram().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::METALLIC_MAP), 2);
 	}
 
-	if (this->specularMap->GetTextureID())
+	if (this->diffuseMap && this->diffuseMap->GetTextureID() && ShaderProgram::GetCurrentShaderProgram().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::SPECULAR_MAP) >= -1)
 	{
 		glActiveTexture(GL_TEXTURE0 + 3);
 		glBindTexture(GL_TEXTURE_2D, this->specularMap->GetTextureID());
 		glUniform1i(ShaderProgram::GetCurrentShaderProgram().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::SPECULAR_MAP), 3);
 	}
 
-	if (this->normalMap->GetTextureID())
+	if (this->diffuseMap && this->diffuseMap->GetTextureID() && ShaderProgram::GetCurrentShaderProgram().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::NORMAL_MAP) >= -1)
 	{
 		glActiveTexture(GL_TEXTURE0 + 4);
 		glBindTexture(GL_TEXTURE_2D, this->normalMap->GetTextureID());
 		glUniform1i(ShaderProgram::GetCurrentShaderProgram().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::NORMAL_MAP), 4);
 	}
 
-	if (this->alphaMap->GetTextureID())
+	if (this->diffuseMap && this->diffuseMap->GetTextureID() && ShaderProgram::GetCurrentShaderProgram().GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::ALPHA_MAP) >= -1)
 	{
 		glActiveTexture(GL_TEXTURE0 + 5);
 		glBindTexture(GL_TEXTURE_2D, this->alphaMap->GetTextureID());
@@ -81,42 +81,42 @@ void Engine::Material::Activate()
 
 void Engine::Material::Activate(Engine::ShaderProgram& shader)
 {
-	if (this->diffuseMap && this->diffuseMap->GetTextureID())
+	if (this->diffuseMap && this->diffuseMap->GetTextureID() && shader.GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::DIFFUSE_MAP) >= -1)
 	{
 		glActiveTexture(GL_TEXTURE0 + 0);
 		glBindTexture(GL_TEXTURE_2D, this->diffuseMap->GetTextureID());
 		glUniform1i(shader.GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::DIFFUSE_MAP), 0);
 	}
 
-	if (this->roughnessMap && this->roughnessMap->GetTextureID())
+	if (this->roughnessMap && this->roughnessMap->GetTextureID() && shader.GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::ROUGHNESS_MAP) >= -1)
 	{
 		glActiveTexture(GL_TEXTURE0 + 1);
 		glBindTexture(GL_TEXTURE_2D, this->roughnessMap->GetTextureID());
 		glUniform1i(shader.GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::ROUGHNESS_MAP), 1);
 	}
 
-	if (this->metallicMap && this->metallicMap->GetTextureID())
+	if (this->metallicMap && this->metallicMap->GetTextureID() && shader.GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::METALLIC_MAP) >= -1)
 	{
 		glActiveTexture(GL_TEXTURE0 + 2);
 		glBindTexture(GL_TEXTURE_2D, this->metallicMap->GetTextureID());
 		glUniform1i(shader.GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::METALLIC_MAP), 2);
 	}
 
-	if (this->specularMap && this->specularMap->GetTextureID())
+	if (this->specularMap && this->specularMap->GetTextureID() && shader.GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::SPECULAR_MAP) >= -1)
 	{
 		glActiveTexture(GL_TEXTURE0 + 3);
 		glBindTexture(GL_TEXTURE_2D, this->specularMap->GetTextureID());
 		glUniform1i(shader.GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::SPECULAR_MAP), 3);
 	}
 
-	if (this->normalMap &&this->normalMap->GetTextureID())
+	if (this->normalMap &&this->normalMap->GetTextureID() && shader.GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::NORMAL_MAP) >= -1)
 	{
 		glActiveTexture(GL_TEXTURE0 + 4);
 		glBindTexture(GL_TEXTURE_2D, this->normalMap->GetTextureID());
 		glUniform1i(shader.GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::NORMAL_MAP), 4);
 	}
 
-	if (this->alphaMap && this->alphaMap->GetTextureID())
+	if (this->alphaMap && this->alphaMap->GetTextureID() && shader.GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute::ALPHA_MAP) >= -1)
 	{
 		glActiveTexture(GL_TEXTURE0 + 5);
 		glBindTexture(GL_TEXTURE_2D, this->alphaMap->GetTextureID());

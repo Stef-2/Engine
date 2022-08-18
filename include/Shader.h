@@ -207,7 +207,7 @@ namespace Engine
 			Engine::ComputeShader& GetComputeShader();
 			unsigned int GetProgramID();
 
-			unsigned int GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute attribute);
+			int GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute attribute);
 			static unsigned int GetUniformBuffer(Engine::ShaderProgram::UniformBuffer buffer);
 
 			// handle shader flags for uber shader
@@ -305,13 +305,12 @@ namespace Engine
 			// to be used as sizeof() and offsetof() reference in data alignment and size matching
 			struct OutputData
 			{
-				glm::mat4 mats[8];
-				glm::vec4 vecs[8];
-				float floats[8];
-				bool bools[3];
+				glm::mat4 mats[4];
+				glm::vec4 vecs[4];
+				float floats[3];
 
 				// setting this to true inside shaders causes a break
-				bool breakPoint;
+				float breakPoint;
 			};
 
 			Engine::ShaderProgram::ShaderFlag shaderFlags;

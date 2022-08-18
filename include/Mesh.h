@@ -18,6 +18,7 @@
 
 #include "iostream"
 #include "vector"
+#include "variant"
 
 namespace Engine
 {
@@ -55,9 +56,15 @@ namespace Engine
 		Vertex& c;
 	};
 
-	struct Instance
+	// ===========================================================================
+
+	using ComplexInstance = glm::mat4;
+	using SimpleInstance = glm::vec3;
+
+	typedef enum class InstanceType
 	{
-		glm::mat4 transform;
+		SIMPLE_INSTANCE,
+		COMPLEX_INSTANCE
 	};
 
 	// ===========================================================================
@@ -94,10 +101,20 @@ namespace Engine
 		bool GetInstanceable() const;
 		void SetInstanceable(bool value);
 
-		std::vector<Engine::Instance>& GetInstances();
-		void SetInstances(std::vector<Engine::Instance>& value);
-		void AddInstance(const Engine::Instance&);
+		template<typename T>
+		requires (std::is_same<T, SimpleInstance>::value || std::is_same<T, ComplexInstance>::value)
+		std::vector<T>& GetInstances();
 
+		template<typename T>
+		requires (std::is_same<T, SimpleInstance>::value || std::is_same<T, ComplexInstance>::value)
+		void SetInstances(std::vector<T>& value);
+
+		template<typename T>
+		requires (std::is_same<T, SimpleInstance>::value || std::is_same<T, ComplexInstance>::value)
+		void AddInstance(const T&);
+
+		Engine::InstanceType GetInstanceType() const;
+		void SetInstanceType(Engine::InstanceType value);
 	protected:
 		// mesh vertices
 		std::vector<Vertex> vertices;
@@ -120,8 +137,12 @@ namespace Engine
 		unsigned int elementBufferObject;
 
 		// instancing data
-		std::vector<Engine::Instance> instances;
+		std::vector<Engine::SimpleInstance> simpleInstances;
+		std::vector<Engine::ComplexInstance> complexInstances;
+		std::variant<std::vector<SimpleInstance>, std::vector<ComplexInstance>> instances;
+
 		unsigned int InstancedVertexBufferObject;
+		InstanceType instanceType;
 		bool instanceable;
 
 	};
@@ -149,7 +170,7 @@ namespace Engine
 
 		void AddAnimatedVertexExtension();
 
-		// mesh vertices
+		// extended mesh vertices
 		std::vector<AnimatedVertexExtension> vertexExtensions;
 
 		std::vector<Engine::Animation> animations;
@@ -161,6 +182,13 @@ namespace Engine
 		unsigned int animatedVertexBufferObject;
 	};
 	
+	class VertexArrayObject
+	{
+	public:
+
+	private:
+	};
+
 	// typedef for shared meshes
 	using SharedStaticMesh = Engine::Shared<Engine::Mesh>;
 	using SharedAnimatedMesh = Engine::Shared<Engine::AnimatedMesh>;

@@ -6,7 +6,6 @@ layout (location = 0) in vec3 vertexPosition;
 layout (location = 7) in mat4 instancedTransforms;
 
 layout (binding = 0, std140) uniform mvpMatrices
-
 {
 	mat4 model;
 	mat4 view;

@@ -64,4 +64,3 @@ const unsigned char Engine::Random::GetDoomRandom()
 {
 	return Engine::Random::rndtable[Engine::Random::Generate(0, 255)];
 }
-

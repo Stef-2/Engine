@@ -81,13 +81,13 @@ layout (binding = 4, std430) buffer AmbientLights {
   AmbientLight ambientLights[];
 };
 
-layout (binding = 69, std140) buffer Debug {
-    mat4 mats[8];
-    vec4 vecs[8];
-    float floats[8];
-    bool bools[3];
-    
-    bool breakPoint;
+layout (binding = 69, std430) buffer Debug {
+    mat4 mats[4];
+    vec4 vecs[4];
+    float floats[3];
+
+    // set this to a non zero value to trigger a breakpoint
+    float breakPoint;
 };
 
 // shader flag reference
@@ -336,11 +336,6 @@ void main()
         mat4 move = (gl_InstanceID > 0) ? instancedTransform : model; 
 
         gl_Position =  projection * view * move * vec4(vertexPosition, 1.0f);
-        
-        if (instancedTransform[0][0] == 0) {
-        mats[0] = instancedTransform;
-        breakPoint = true;
-        }
 
         position = (model * vec4(vertexPosition, 1.0f)).xyz;
         TBN = CalculateTBN(mat4(1.0f));

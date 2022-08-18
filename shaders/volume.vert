@@ -17,9 +17,12 @@ struct OutputData
 };
 
 layout (binding = 69, std430) buffer Debug {
-mat4 mats[8];
-vec4 vecs[8];
-float floats[8];
+    mat4 mats[4];
+    vec4 vecs[4];
+    float floats[3];
+
+    // set this to a non zero value to trigger a breakpoint
+    float breakPoint;
 };
 
 out vertexOutput

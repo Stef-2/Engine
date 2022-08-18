@@ -63,18 +63,21 @@ int main()
 	p.SetShader(panelShader);
 	glm::mat4 instance(1.0f);
 
-	unsigned short instancesSize = 3;
-	std::vector<Engine::Instance> instances;
+	unsigned long instancesSize = 1000;
+	std::cout << 100000000 * sizeof(glm::mat4) / 1000000;
+	std::vector<Engine::ComplexInstance> instances;
 	instances.reserve(instancesSize);
-
+	float r = 1000.0f;
 	for (size_t i = 0; i < instancesSize; i++)
 	{
-		instances.emplace_back(glm::translate(glm::mat4(1.0f), {Engine::Random::Generate(-100.0f, 100.0f), Engine::Random::Generate(-100.0f, 100.0f), Engine::Random::Generate(-100.0f, 100.0f) }));
+		instances.emplace_back(glm::translate(glm::mat4(1.0f), {Engine::Random::Generate(-r, r), Engine::Random::Generate(-r, r), Engine::Random::Generate(-r, r) }));
 	}
 
 	// ===========================================================================
 	// ===========================================================================
 
+	Engine::ShaderProgram instanced(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\instanced.vert"),
+		engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\instanced.frag"));
 
 	Engine::ShaderProgram uber(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.vert"),
 						engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\uber.geom"),
@@ -93,7 +96,7 @@ int main()
 	// ---------------------------------------------------------------------------------------------------------------------
 
 	Engine::Actor obj1;
-	obj1.SetShader(uber);
+	obj1.SetShader(instanced);
 	obj1.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\barrel.obj")));
 
 	obj1.GetModel().GetStaticMeshes().at(0)->SetMaterial(Engine::Material());

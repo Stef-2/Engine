@@ -181,34 +181,50 @@ void Engine::Mesh::SetInstanceable(bool value)
 	instanceable = value;
 }
 
-std::vector<Engine::Instance>& Engine::Mesh::GetInstances()
+template<>
+void Engine::Mesh::SetInstances(std::vector<Engine::SimpleInstance>& value)
 {
-	return this->instances;
+	this->simpleInstances = value;
 }
 
-void Engine::Mesh::SetInstances(std::vector<Engine::Instance>& value)
+template<>
+void Engine::Mesh::SetInstances(std::vector<Engine::ComplexInstance>& value)
 {
-	instances = value;
-
-	if (instances.empty())
-		this->SetInstanceable(false);
-	else {
-		this->SetInstanceable(true);
-
-		// bind the vertex buffer
-		glBindBuffer(GL_ARRAY_BUFFER, this->InstancedVertexBufferObject);
-		glBufferData(GL_ARRAY_BUFFER, this->instances.size() * sizeof(Engine::Instance), &this->instances[0], GL_DYNAMIC_DRAW);
-	}
+	this->complexInstances = value;
 }
 
-void Engine::Mesh::AddInstance(const Engine::Instance& instance)
+template<>
+void Engine::Mesh::AddInstance(const Engine::SimpleInstance& instance)
 {
-	this->instances.push_back(instance);
+	this->simpleInstances.push_back(instance);
+}
 
-	this->SetInstanceable(true);
-	// bind the vertex buffer
-	glBindBuffer(GL_ARRAY_BUFFER, this->InstancedVertexBufferObject);
-	glBufferData(GL_ARRAY_BUFFER, this->instances.size() * sizeof(Engine::Instance), &this->instances[0], GL_DYNAMIC_DRAW);
+Engine::InstanceType Engine::Mesh::GetInstanceType() const
+{
+	return instanceType;
+}
+
+void Engine::Mesh::SetInstanceType(Engine::InstanceType value)
+{
+	instanceType = value;
+}
+
+template<>
+void Engine::Mesh::AddInstance(const Engine::ComplexInstance& instance)
+{
+	this->complexInstances.push_back(instance);
+}
+
+template<>
+std::vector<Engine::SimpleInstance>& Engine::Mesh::GetInstances()
+{
+	return this->simpleInstances;
+}
+
+template<>
+std::vector<Engine::ComplexInstance>& Engine::Mesh::GetInstances()
+{
+	return this->complexInstances;
 }
 
 void Engine::Mesh::SetVertices(std::vector<Engine::Vertex> vertices)
@@ -246,7 +262,6 @@ void Engine::Mesh::Setup()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
 	// fill the element buffer with data
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-
 	// bind the vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, this->vertexBufferObject);
 	// fill the vertex buffer with data
