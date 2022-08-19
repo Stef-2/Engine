@@ -10,6 +10,7 @@ layout (location = 5) in ivec4 boneIDs;
 layout (location = 6) in vec4 boneWeights;
 
 layout (location = 7) in mat4 instancedTransform;
+layout (location = 11) in vec3 instancedPosition;
 
 layout (binding = 0, std140) uniform mvpMatrices
 {
@@ -18,7 +19,10 @@ layout (binding = 0, std140) uniform mvpMatrices
     mat4 projection;
 };
 
+out vec3 position;
+
 void main()
-{
-    gl_Position = projection * view * instancedTransform * vec4(vertexPosition, 1.0f);
+{   
+    gl_Position = projection * view * vec4(instancedPosition, 1.0f);
+    //position = normalize(instancedPosition);
 }

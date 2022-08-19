@@ -311,12 +311,13 @@ void Engine::Model::LoadMesh(std::string filePath)
 
 		// go through all mesh faces / triangles and form indices
 		for (size_t j = 0; j < mesh->mNumFaces; j++) {
+			for (size_t k = 0; k < mesh->mFaces[j].mNumIndices; k++)
+			{
+				indices.push_back(mesh->mFaces[j].mIndices[k]);
+				//indices.push_back(mesh->mFaces[j].mIndices[1]);
+				//indices.push_back(mesh->mFaces[j].mIndices[2]);
+			}
 
-			indices.push_back(mesh->mFaces[j].mIndices[0]);
-			indices.push_back(mesh->mFaces[j].mIndices[1]);
-			indices.push_back(mesh->mFaces[j].mIndices[2]);
-
-			
 		}
 
 		// create node / bone hierarchy for the skeleton, in case the mesh has one

@@ -25,6 +25,7 @@ layout (location = 5) in ivec4 boneIDs;
 layout (location = 6) in vec4 boneWeights;
 
 layout (location = 7) in mat4 instancedTransform;
+layout (location = 11) in vec3 instancedPosition;
 
 struct PointLight {
     vec4 position;
@@ -333,15 +334,15 @@ void main()
 
     else if (shaderFlags == SHADER_STATIC)
     {
-        mat4 move = (gl_InstanceID > 0) ? instancedTransform : model; 
+        //vec3 move = (gl_InstanceID > 0) ?   vertexPosition : vertexPosition; 
 
-        gl_Position =  projection * view * move * vec4(vertexPosition, 1.0f);
+        gl_Position =  projection * view * model * vec4(vertexPosition , 1.0f);
 
-        position = (model * vec4(vertexPosition, 1.0f)).xyz;
+        position = (model * vec4(vertexPosition , 1.0f)).xyz;
         TBN = CalculateTBN(mat4(1.0f));
         ProcessLights(position, TBN);
     }
-
+    vecs[1] = vec4(instancedPosition, 69.0f);
     uv = vertexCoordinate;
     tangentFragmentPosition = TBN * position;
     tangentViewDirection = TBN * vec3(view[0][2], view[1][2], view [2][2]);

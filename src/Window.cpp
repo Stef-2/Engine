@@ -53,6 +53,7 @@ void Engine::Window::Initialize()
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+            //glfwWindowHint(GLFW_SAMPLES, 4);
             this->openGlWindow = glfwCreateWindow(width, height, title.c_str(), monitor, share);
             glfwMaximizeWindow(openGlWindow);
             //glfwSetWindowPos(this->openGlWindow, 0, 0);

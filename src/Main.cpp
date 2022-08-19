@@ -9,7 +9,7 @@ double deltaTime = 0.0f;
 double oldX = 1280.0 / 2.0;
 double oldY = 720.0 / 2.0;
 
-float moveSpeed = 10.0f;
+float moveSpeed = 100.0f;
 
 int main()
 {
@@ -63,14 +63,17 @@ int main()
 	p.SetShader(panelShader);
 	glm::mat4 instance(1.0f);
 
-	unsigned long instancesSize = 1000;
-	std::cout << 100000000 * sizeof(glm::mat4) / 1000000;
-	std::vector<Engine::ComplexInstance> instances;
-	instances.reserve(instancesSize);
-	float r = 1000.0f;
-	for (size_t i = 0; i < instancesSize; i++)
+	unsigned long instancesSize = 20000000;
+	std::vector<Engine::SimpleInstance> sInstances;
+	std::vector<Engine::ComplexInstance> cInstances;
+	sInstances.reserve(instancesSize);
+	cInstances.reserve(instancesSize);
+	float r = 100.0f;
+	//#pragma omp parallel for
+	for (int i = 0; i < instancesSize; i++)
 	{
-		instances.emplace_back(glm::translate(glm::mat4(1.0f), {Engine::Random::Generate(-r, r), Engine::Random::Generate(-r, r), Engine::Random::Generate(-r, r) }));
+		cInstances.emplace_back(glm::translate(glm::mat4(1.0f), glm::vec3{ Engine::Random::Generate(-r, r), Engine::Random::Generate(-r, r), Engine::Random::Generate(-r, r) }));
+		sInstances.emplace_back(glm::vec3{Engine::Random::Generate(-r, r), Engine::Random::Generate(-r, r), Engine::Random::Generate(-r, r) });
 	}
 
 	// ===========================================================================
@@ -97,14 +100,15 @@ int main()
 
 	Engine::Actor obj1;
 	obj1.SetShader(instanced);
-	obj1.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\barrel.obj")));
-
+	obj1.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\vertex.obj")));
 	obj1.GetModel().GetStaticMeshes().at(0)->SetMaterial(Engine::Material());
 	obj1.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_BaseColor.png"));
 	obj1.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Roughness.png"));
 	obj1.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetMetallicMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Metallic.png"));
 	obj1.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetNormalMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Normal.png"));
-	obj1.GetModel().GetStaticMeshes().at(0)->SetInstances(instances);
+	obj1.GetModel().GetStaticMeshes().at(0)->SetInstances(sInstances);
+	obj1.GetModel().GetStaticMeshes().at(0)->SetInstances(cInstances);
+	obj1.GetModel().GetStaticMeshes().at(0)->SetInstanceable(true, Engine::InstanceType::SIMPLE_INSTANCE);
 	obj1.MoveAbsolute(100.0f, 0.0f, 0.0f);
 	
 	Engine::Actor obj2;
@@ -216,6 +220,7 @@ int main()
 	glClearColor(0.6f, 0.8f, 1.0f, 1.0f);
 	
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_PROGRAM_POINT_SIZE);
 	//glEnable(GL_FRAMEBUFFER_SRGBA);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -265,6 +270,12 @@ int main()
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_Q) == GLFW_PRESS) {
 			glDisable(GL_CULL_FACE);
 		}
+		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_R) == GLFW_PRESS) {
+			obj1.GetModel().GetStaticMeshes().at(0)->SetInstanceable(true, Engine::InstanceType::SIMPLE_INSTANCE);
+		}
+		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_R) == GLFW_PRESS) {
+			obj1.GetModel().GetStaticMeshes().at(0)->SetInstanceable(true, Engine::InstanceType::COMPLEX_INSTANCE);
+		}
 
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_E) == GLFW_PRESS) {
 			engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back()->GetAnimations().back().GetName());
@@ -311,13 +322,13 @@ int main()
 		engine.GetRenderer().Render(camera, skyBox);
 
 		// render shadows
-		engine.GetRenderer().Render(dirLight, shadowBuffer, obj1);
+		//engine.GetRenderer().Render(dirLight, shadowBuffer, obj1);
 
 		//obj4.SetShader(wireFrame);
 		engine.GetRenderer().Render(camera, obj1);
-		engine.GetRenderer().Render(camera, obj2);
-		engine.GetRenderer().Render(camera, obj3);
-		engine.GetRenderer().Render(camera, obj4);
+		//engine.GetRenderer().Render(camera, obj2);
+		//engine.GetRenderer().Render(camera, obj3);
+		//engine.GetRenderer().Render(camera, obj4);
 
 		//obj4.MoveAbsolute(0.0f, glm::cos(glfwGetTime()), 0.0f);
 		//glUniform1i(drawProgram->GetUniformLocation("sampler"), 0);

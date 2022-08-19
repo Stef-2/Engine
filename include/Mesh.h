@@ -99,7 +99,7 @@ namespace Engine
 		void SetBoundingBox(glm::vec3 mins, glm::vec3 maxs);
 
 		bool GetInstanceable() const;
-		void SetInstanceable(bool value);
+		void SetInstanceable(bool value, Engine::InstanceType type);
 
 		template<typename T>
 		requires (std::is_same<T, SimpleInstance>::value || std::is_same<T, ComplexInstance>::value)

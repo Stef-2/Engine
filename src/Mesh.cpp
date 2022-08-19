@@ -127,16 +127,17 @@ bool Engine::Mesh::GetInstanceable() const
 	return instanceable;
 }
 
-void Engine::Mesh::SetInstanceable(bool value)
+void Engine::Mesh::SetInstanceable(bool value, Engine::InstanceType type)
 {
 	// if its already set then just return
-	if (value == this->instanceable)
+	if (value == this->instanceable && this->instanceType == type)
 		return;
 
 	// set instanceable
 	if (!this->instanceable)
 	{
 		constexpr auto mat4quarter = sizeof(glm::vec4);
+		constexpr auto vec3Size = sizeof(glm::vec3);
 
 		// bind the old VAO
 		glBindVertexArray(this->vertexArrayObject);
@@ -144,20 +145,42 @@ void Engine::Mesh::SetInstanceable(bool value)
 		// generate a new VBO for istancing data
 		glGenBuffers(1, &this->InstancedVertexBufferObject);
 		glBindBuffer(GL_ARRAY_BUFFER, this->InstancedVertexBufferObject);
+		// set complex instance
+		if (type == Engine::InstanceType::COMPLEX_INSTANCE)
+		{
+			glBufferData(GL_ARRAY_BUFFER, this->complexInstances.size() * mat4quarter * 4, &complexInstances[0], GL_STATIC_DRAW);
 
-		glEnableVertexAttribArray(7);
-		glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * mat4quarter, (void*)(0 * mat4quarter));
-		glEnableVertexAttribArray(8);
-		glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, 4 * mat4quarter, (void*)(1 * mat4quarter));
-		glEnableVertexAttribArray(9);
-		glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, 4 * mat4quarter, (void*)(2 * mat4quarter));
-		glEnableVertexAttribArray(10);
-		glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, 4 * mat4quarter, (void*)(3 * mat4quarter));
+			glEnableVertexAttribArray(7);
+			glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * mat4quarter, (void*)(0 * mat4quarter));
+			glEnableVertexAttribArray(8);
+			glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, 4 * mat4quarter, (void*)(1 * mat4quarter));
+			glEnableVertexAttribArray(9);
+			glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, 4 * mat4quarter, (void*)(2 * mat4quarter));
+			glEnableVertexAttribArray(10);
+			glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, 4 * mat4quarter, (void*)(3 * mat4quarter));
 
-		glVertexAttribDivisor(7, 1);
-		glVertexAttribDivisor(8, 1);
-		glVertexAttribDivisor(9, 1);
-		glVertexAttribDivisor(10, 1);
+			glDisableVertexAttribArray(11);
+
+			glVertexAttribDivisor(7, 1);
+			glVertexAttribDivisor(8, 1);
+			glVertexAttribDivisor(9, 1);
+			glVertexAttribDivisor(10, 1);
+		}
+		// set simple instance
+		else
+		{
+			glBufferData(GL_ARRAY_BUFFER, this->simpleInstances.size() * vec3Size, &simpleInstances[0], GL_STATIC_DRAW);
+
+			glEnableVertexAttribArray(11);
+			glVertexAttribPointer(11, 3, GL_FLOAT, GL_FALSE, vec3Size, (void*)(0 * vec3Size));
+
+			glDisableVertexAttribArray(7);
+			glDisableVertexAttribArray(8);
+			glDisableVertexAttribArray(9);
+			glDisableVertexAttribArray(10);
+
+			glVertexAttribDivisor(11, 1);
+		}
 
 		// undbind VAO
 		glBindVertexArray(0);
@@ -179,6 +202,7 @@ void Engine::Mesh::SetInstanceable(bool value)
 	}
 
 	instanceable = value;
+	this->instanceType = type;
 }
 
 template<>
