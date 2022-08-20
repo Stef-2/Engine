@@ -24,10 +24,14 @@ namespace Engine
 
 		static TimePoint TimePointNow();
 
+		static void StartStopWatch();
+		static unsigned long long StopStopWatch();
+
 		static std::string ToString();
 		static std::string ToString(const TimePoint&);
 
 	private:
+		static TimePoint stopWatchStart;
 		static TimePoint engineStart;
 	};
 }

@@ -4,6 +4,7 @@
 
 layout (location = 0) in vec3 vertexPosition;
 layout (location = 7) in mat4 instancedTransforms;
+layout (location = 11) in vec3 instancedPositions;
 
 layout (binding = 0, std140) uniform mvpMatrices
 {
@@ -12,9 +13,20 @@ layout (binding = 0, std140) uniform mvpMatrices
 	mat4 projection;
 };
 
-out vec4 vertPosition;
+out vec4 color;
 
 void main()
 {
-	gl_Position = vec4(vertexPosition, 1.0f);
+	float x = vertexPosition.x;
+	float y = vertexPosition.y;
+
+	x *= instancedTransforms[0][2];
+	y *= instancedTransforms[0][3];
+
+	x += instancedTransforms[0][0];
+	y += instancedTransforms[0][1];
+
+	gl_Position = vec4(x, y, 0.0f, 0.0f);
+
+	color = instancedTransforms[2];
 }

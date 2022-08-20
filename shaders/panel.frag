@@ -9,11 +9,11 @@ layout (binding = 0, std140) uniform mvpMatrices
 	mat4 projection;
 };
 
-in vec4 vertPosition;
+in vec4 color;
 
 out vec4 fragColor;
 
 void main()
 {
-	fragColor = vec4(vec3(1.0f), 0.5f);
+	fragColor = color;
 }

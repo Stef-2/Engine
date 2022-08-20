@@ -18,19 +18,21 @@ namespace Engine
 	public:
 		UserInterface();
 
+		Engine::Mesh& GetSharedQuad() const;
+
 		// ==========================================================================
 		// basic UI element to be inherited from
 		class UIElement
 		{
 		public:
 			UIElement();
-			UIElement(int x, int y);
-			UIElement(glm::ivec2 position);
+			UIElement(float x, float y);
+			UIElement(glm::vec2 position);
 
-			void MoveRelative(int x, int y);
-			void MoveAbsolute(int x, int y);
+			void MoveRelative(float x, float y);
+			void MoveAbsolute(float x, float y);
 
-			glm::ivec2 GetPosition() const;
+			glm::vec2 GetPosition() const;
 			bool GetVisiblity() const;
 			void SetVisiblity(bool);
 
@@ -40,56 +42,67 @@ namespace Engine
 			void AddChild(UIElement*);
 			std::vector<UIElement*>& GetChildren();
 
-			virtual void Draw() = 0;
-
 		protected:
-			glm::ivec2 position;
+			// upload our data to Engine::UserInterface::sharedQuad's instance stack
+			virtual void UpdateDrawStack() = 0;
+
+			glm::vec2 position;
+			Engine::ComplexInstance* drawStackPointer;
 			bool visibility;
 
 			UIElement* parent;
 			std::vector<UIElement*> children;
 		};
 
-		// we're collecting visible elements for easy rendering
+		// we're collecting visible elements for easier rendering
 		static std::vector<Engine::UserInterface::UIElement*>& GetVisibleElements();
+
 		// ==========================================================================
 
 		// rectangle shaped UI element
+		// panels use Engine::ComplexInstaces to speed up rendering
+		// the glm::mat4 of ComplexInstance is packed as follows:
+		// 
+		// { this->position.x, this->position.y, this->width, this->height }
+		// { this->color.r, this->color.g, this->color.b, this->color.a	   }
+		// { vec4(0.0f)                                                    }
+		// { vec4(0.0f)                                                    }
 		class Panel : public UIElement
 		{
 		public:
 			using UIElement::UIElement;
 
-			Panel(glm::ivec2 origin, unsigned int width, unsigned int height);
-			Panel(unsigned int left, unsigned int bottom, unsigned int width, unsigned int height);
+			Panel(glm::vec2 position, float width, float height);
+			Panel(float left, float bottom, float width, float height);
 
-			unsigned int GetWidth() const;
-			void SetWidth(unsigned int value);
+			float GetWidth() const;
+			void SetWidth(float value);
 
-			unsigned int GetHeight() const;
-			void SetHeight(unsigned int value);
+			float GetHeight() const;
+			void SetHeight(float value);
 
 			Engine::SharedShaderProgram& GetShader();
 			void SetShader(const Engine::SharedShaderProgram& value);
 
-			void Draw() override;
+			glm::vec4 GetColor() const;
+			void SetColor(glm::vec4 value);
 
 		private:
+			void UpdateDrawStack() override;
 			Engine::SharedShaderProgram shader;
 
-			// bottom left corner
-			glm::ivec2 origin;
-
-			unsigned int width;
-			unsigned int height;
+			glm::vec4 color;
+			float width;
+			float height;
 		};
 
 		// =================================================================
 
-		// mesh consisting of 4 vertices, to be used by UI elements for rendering
-		Engine::Mesh quad;
-
 	private:
+		// mesh consisting of 4 vertices, to be used by UI elements for rendering
+		static Engine::Mesh sharedQuad;
+
+		// stack of visible UI elements
 		static std::vector<UIElement*> visibleElements;
 	};
 

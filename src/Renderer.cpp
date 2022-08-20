@@ -115,7 +115,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
 		// render
 		if (actor.GetModel().GetStaticMeshes().at(i)->GetInstanceable()) {
 			auto type = actor.GetModel().GetStaticMeshes().at(i)->GetInstanceType();
-			glDrawElementsInstanced(GL_POINTS, actor.GetModel().GetStaticMeshes().at(i)->GetIndices().size(), GL_UNSIGNED_INT, 0, actor.GetModel().GetStaticMeshes().at(i)->GetInstances<Engine::SimpleInstance>().size());
+			glDrawElementsInstanced(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i)->GetIndices().size(), GL_UNSIGNED_INT, 0, actor.GetModel().GetStaticMeshes().at(i)->GetInstances<Engine::SimpleInstance>().size());
 		}
 		//glDrawElements(GL_TRIANGLES, actor.GetModel().GetStaticMeshes().at(i)->GetIndices().size(), GL_UNSIGNED_INT, 0);
 	}
@@ -152,10 +152,28 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Actor& actor
 
 void Engine::Renderer::Render(Engine::UserInterface& UI)
 {
+	auto* panel = dynamic_cast<Engine::UserInterface::Panel*>(Engine::UserInterface::GetVisibleElements().at(0));
+
+	if (panel)
+	{
+		panel->GetShader()->Activate();
+	}
+
+	glBindVertexArray(UI.GetSharedQuad().GetVertexArrayBuffer());
+
+	glDrawElementsInstanced(GL_TRIANGLES, UI.GetSharedQuad().GetIndices().size(), GL_UNSIGNED_INT, 0, Engine::UserInterface::GetVisibleElements().size());
+
+	/*
 	for (auto& element : Engine::UserInterface::GetVisibleElements())
 	{
-		//element
-	}
+		// see what we're type of UIElement it is
+		auto* panel = dynamic_cast<Engine::UserInterface::Panel*>(element);
+
+		if (panel)
+		{
+			panel->GetShader()->
+		}
+	}*/
 }
 
 void Engine::Renderer::Render(const Engine::Camera& camera, const Engine::BoundingBox& box)

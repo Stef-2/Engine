@@ -242,6 +242,8 @@
     <None Include="shaders\light.vert" />
     <None Include="shaders\panel.frag" />
     <None Include="shaders\panel.vert" />
+    <None Include="shaders\point.frag" />
+    <None Include="shaders\point.vert" />
     <None Include="shaders\shadowmap.frag" />
     <None Include="shaders\shadowmap.vert" />
     <None Include="shaders\skybox.frag" />

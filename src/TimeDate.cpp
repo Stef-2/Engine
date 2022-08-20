@@ -1,6 +1,7 @@
 #include "TimeDate.h"
 
 Engine::Time::TimePoint Engine::Time::engineStart = Time::Clock::now();
+Engine::Time::TimePoint Engine::Time::stopWatchStart;
 
 unsigned long long Engine::Time::TimeBetween(const TimePoint& x, const TimePoint& y)
 {
@@ -20,6 +21,16 @@ unsigned long long Engine::Time::Now()
 Engine::Time::TimePoint Engine::Time::TimePointNow()
 {
 	return Engine::Time::Clock::now();
+}
+
+void Engine::Time::StartStopWatch()
+{
+	Engine::Time::stopWatchStart = Time::Clock::now();
+}
+
+unsigned long long Engine::Time::StopStopWatch()
+{
+	return std::chrono::duration_cast<Engine::Time::Precision>(Engine::Time::Clock::now().time_since_epoch() - Engine::Time::stopWatchStart.time_since_epoch()).count();
 }
 
 std::string Engine::Time::ToString()

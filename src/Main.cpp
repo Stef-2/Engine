@@ -63,13 +63,13 @@ int main()
 	p.SetShader(panelShader);
 	glm::mat4 instance(1.0f);
 
-	unsigned long instancesSize = 20000000;
+	unsigned long instancesSize = 1000;
 	std::vector<Engine::SimpleInstance> sInstances;
 	std::vector<Engine::ComplexInstance> cInstances;
 	sInstances.reserve(instancesSize);
 	cInstances.reserve(instancesSize);
 	float r = 100.0f;
-	//#pragma omp parallel for
+	#pragma omp simd
 	for (int i = 0; i < instancesSize; i++)
 	{
 		cInstances.emplace_back(glm::translate(glm::mat4(1.0f), glm::vec3{ Engine::Random::Generate(-r, r), Engine::Random::Generate(-r, r), Engine::Random::Generate(-r, r) }));
@@ -100,7 +100,7 @@ int main()
 
 	Engine::Actor obj1;
 	obj1.SetShader(instanced);
-	obj1.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\vertex.obj")));
+	obj1.SetModel(Engine::Model(engine.GetFilePath(Engine::EngineFilePath::MODELS_PATH).append("\\barrel.obj")));
 	obj1.GetModel().GetStaticMeshes().at(0)->SetMaterial(Engine::Material());
 	obj1.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetDiffuseMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_BaseColor.png"));
 	obj1.GetModel().GetStaticMeshes().at(0)->GetMaterial().SetRoughnessMap(engine.GetFilePath(Engine::EngineFilePath::TEXTURES_PATH).append("\\barrel_Roughness.png"));
@@ -273,7 +273,7 @@ int main()
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_R) == GLFW_PRESS) {
 			obj1.GetModel().GetStaticMeshes().at(0)->SetInstanceable(true, Engine::InstanceType::SIMPLE_INSTANCE);
 		}
-		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_R) == GLFW_PRESS) {
+		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_T) == GLFW_PRESS) {
 			obj1.GetModel().GetStaticMeshes().at(0)->SetInstanceable(true, Engine::InstanceType::COMPLEX_INSTANCE);
 		}
 

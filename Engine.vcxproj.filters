@@ -296,5 +296,11 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="ClassDiagram.cd" />
+    <None Include="shaders\point.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\point.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

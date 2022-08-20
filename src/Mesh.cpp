@@ -134,7 +134,7 @@ void Engine::Mesh::SetInstanceable(bool value, Engine::InstanceType type)
 		return;
 
 	// set instanceable
-	if (!this->instanceable)
+	if (value)
 	{
 		constexpr auto mat4quarter = sizeof(glm::vec4);
 		constexpr auto vec3Size = sizeof(glm::vec3);
@@ -145,6 +145,7 @@ void Engine::Mesh::SetInstanceable(bool value, Engine::InstanceType type)
 		// generate a new VBO for istancing data
 		glGenBuffers(1, &this->InstancedVertexBufferObject);
 		glBindBuffer(GL_ARRAY_BUFFER, this->InstancedVertexBufferObject);
+
 		// set complex instance
 		if (type == Engine::InstanceType::COMPLEX_INSTANCE)
 		{
@@ -196,6 +197,7 @@ void Engine::Mesh::SetInstanceable(bool value, Engine::InstanceType type)
 		glDisableVertexAttribArray(8);
 		glDisableVertexAttribArray(9);
 		glDisableVertexAttribArray(10);
+		glDisableVertexAttribArray(11);
 
 		// undbind VAO
 		glBindVertexArray(0);
