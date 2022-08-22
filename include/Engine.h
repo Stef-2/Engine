@@ -71,6 +71,9 @@ namespace Engine
             // animation subsystem
             Engine::Animator& GetAnimator();
 
+            // user inteface subsystem
+            Engine::UserInterface& GetUserInterface();
+
             void Initialize();
 
             // error info handling
@@ -109,12 +112,13 @@ namespace Engine
             // glfw can only accept static or fully global functions as valid callbacks
             void InitializeCallbacks();
 
-            Window window;
+            Engine::Window window;
 
             // subsystems
             Engine::Renderer renderer;
             Engine::Collider collider;
             Engine::Animator animator;
+            Engine::UserInterface userInterface;
 
             double currentTime;
             double lastTime;

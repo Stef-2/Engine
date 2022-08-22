@@ -6,6 +6,15 @@ layout (location = 0) in vec3 vertexPosition;
 layout (location = 7) in mat4 instancedTransforms;
 layout (location = 11) in vec3 instancedPositions;
 
+layout (binding = 69, std430) buffer Debug {
+	mat4 mats[4];
+	vec4 vecs[4];
+	float floats[3];
+
+	// set this to a non zero value to trigger a breakpoint
+	float breakPoint;
+};
+
 layout (binding = 0, std140) uniform mvpMatrices
 {
 	mat4 model;
@@ -26,7 +35,11 @@ void main()
 	x += instancedTransforms[0][0];
 	y += instancedTransforms[0][1];
 
-	gl_Position = vec4(x, y, 0.0f, 0.0f);
+	floats[0] = vertexPosition.x;
+	floats[1] = vertexPosition.y;
 
-	color = instancedTransforms[2];
+	gl_Position = vec4(x, y, instancedTransforms[1][1], 1.0f);
+
+	
+	color = instancedTransforms[1];
 }

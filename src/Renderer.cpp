@@ -160,7 +160,7 @@ void Engine::Renderer::Render(Engine::UserInterface& UI)
 	}
 
 	glBindVertexArray(UI.GetSharedQuad().GetVertexArrayBuffer());
-
+	//std::cout << "elements: " << UI.GetVisibleElements().size() << std::endl;
 	glDrawElementsInstanced(GL_TRIANGLES, UI.GetSharedQuad().GetIndices().size(), GL_UNSIGNED_INT, 0, Engine::UserInterface::GetVisibleElements().size());
 
 	/*

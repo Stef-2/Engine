@@ -3,6 +3,7 @@
 #include "Shared.h"
 #include "Shader.h"
 #include "Mesh.h"
+#include "Window.h"
 
 #include "glm/glm.hpp"
 
@@ -16,7 +17,26 @@ namespace Engine
 	class UserInterface
 	{
 	public:
-		UserInterface();
+		UserInterface() = default;
+		
+		void Setup(Engine::Window&);
+
+		// layer type, to be instanced into valid values by UserInterface
+		// and used by various UI elements as a depth value sent to GPU for rendering
+		class Layer
+		{
+		public:
+			Layer(float value) : layer(glm::clamp(value, -1.0f, 1.0f)) {};
+			Layer(Layer&&) = delete;
+			Layer& operator= (Layer&&) = delete;
+
+			Layer(const Layer&) = default;
+			Layer& operator= (const Layer&) = default;
+
+			operator float() const { return layer; };
+		private:
+			float layer;
+		};
 
 		Engine::Mesh& GetSharedQuad() const;
 
@@ -42,12 +62,18 @@ namespace Engine
 			void AddChild(UIElement*);
 			std::vector<UIElement*>& GetChildren();
 
+			UserInterface::Layer GetLayer() const;
+			void SetLayer(UserInterface::Layer value);
+
 		protected:
 			// upload our data to Engine::UserInterface::sharedQuad's instance stack
 			virtual void UpdateDrawStack() = 0;
 
+			Layer layer;
 			glm::vec2 position;
-			Engine::ComplexInstance* drawStackPointer;
+			
+			// pointer into a stack of complex instances
+			unsigned int drawStackPointer;
 			bool visibility;
 
 			UIElement* parent;
@@ -99,11 +125,14 @@ namespace Engine
 		// =================================================================
 
 	private:
-		// mesh consisting of 4 vertices, to be used by UI elements for rendering
+		// mesh consisting of 4 vertices, to be used by UI elements for instanced rendering
 		static Engine::Mesh sharedQuad;
 
 		// stack of visible UI elements
 		static std::vector<UIElement*> visibleElements;
+
+		static inline Layer layers[11] = { -1.0f, -0.9f, -0.8f, -0.7f, -0.6f, -0.05f,
+										   -0.4f, -0.3f, -0.2f, -0.1f, 0.0f };
 	};
 
 }

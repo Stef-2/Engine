@@ -35,9 +35,6 @@ void main()
     mat4 matrix = (instancedTransform[0][0] != 0.0f) ? instancedTransform : mat4(1.0f);
     vec3 position = (instancedPosition != vec3(0.0f)) ? instancedPosition + vertexPosition : vertexPosition;
 
-    mats[3] = matrix;
-    vecs[3] = vec4(position, 77);
-
     gl_Position = projection * view * matrix * vec4(position, 1.0f);
     //position = normalize(instancedPosition);
 }

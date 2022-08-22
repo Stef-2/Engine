@@ -1,13 +1,11 @@
 #include <Main.h>
 
-
-
 Engine::Camera camera(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
 Engine::Camera topOrh(0.0, 100.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
 
 double deltaTime = 0.0f;
-double oldX = 1280.0 / 2.0;
-double oldY = 720.0 / 2.0;
+double oldX = 1920.0 / 2.0;
+double oldY = 1080.0 / 2.0;
 
 float moveSpeed = 100.0f;
 
@@ -55,13 +53,8 @@ int main()
 	Engine::ShaderProgram writev(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.comp"));
 	i3D.Compute(writev);
 
-	Engine::UserInterface::Panel p;
-
 	Engine::ShaderProgram panelShader(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\panel.vert"),
 		engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\panel.frag"));
-
-	p.SetShader(panelShader);
-	glm::mat4 instance(1.0f);
 
 	unsigned long instancesSize = 1000;
 	std::vector<Engine::SimpleInstance> sInstances;
@@ -77,6 +70,14 @@ int main()
 	}
 
 	// ===========================================================================
+	Engine::UserInterface::Panel panel1(0.0f, 1.0f, 2.0f, 1.0f);
+	Engine::UserInterface::Panel panel2(0.0f, 0.0f, 1.0f, 1.0f);
+	//Engine::UserInterface::Panel panel3(-0.2f, 0.0f, 1.0f, 1.0f);
+	panel1.SetColor({ 0.3f, -0.1f, 1.0f, 0.5f });
+	panel2.SetColor({ 0.5f, -1.0f, 0.3f, 0.4f });
+	panel1.SetShader(panelShader);
+
+	
 	// ===========================================================================
 
 	Engine::ShaderProgram instanced(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\instanced.vert"),
@@ -95,7 +96,6 @@ int main()
 	Engine::ShaderProgram volume(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.vert"),
 						  engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\volume.frag"));
 
-	
 	// ---------------------------------------------------------------------------------------------------------------------
 
 	Engine::Actor obj1;
@@ -215,7 +215,6 @@ int main()
 	//dirLight.SetColor({ 0.4f, 0.4f, 0.8f });
 	ambientLight.SetIntensity(50.0f);
 
-
 	// -----------------------------------------------
 	glClearColor(0.6f, 0.8f, 1.0f, 1.0f);
 	
@@ -326,6 +325,7 @@ int main()
 
 		//obj4.SetShader(wireFrame);
 		engine.GetRenderer().Render(camera, obj1);
+		engine.GetRenderer().Render(engine.GetUserInterface());
 		//engine.GetRenderer().Render(camera, obj2);
 		//engine.GetRenderer().Render(camera, obj3);
 		//engine.GetRenderer().Render(camera, obj4);

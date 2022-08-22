@@ -1,6 +1,6 @@
 #version 460 core
 
-layout (location = 0) in vec3 vertexPosition;
+layout (location = 7) in mat4 instancedTransforms;
 
 layout (binding = 0, std140) uniform mvpMatrices
 {
@@ -15,5 +15,7 @@ out vec4 fragColor;
 
 void main()
 {
+	fragColor = instancedTransforms[1];
 	fragColor = color;
+	//fragColor = vec4(0.3f, 0.5f, 0.1f, 1.0f);
 }

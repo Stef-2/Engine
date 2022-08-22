@@ -13,6 +13,7 @@
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
+//#define GLFW_INCLUDE_VULKAN
 #include "glfw3.h"
 #include "stb_image.h"
 #include "glm/glm.hpp"

@@ -181,13 +181,6 @@ namespace Engine
 		// additional vertex buffer object for the animated vertex extension
 		unsigned int animatedVertexBufferObject;
 	};
-	
-	class VertexArrayObject
-	{
-	public:
-
-	private:
-	};
 
 	// typedef for shared meshes
 	using SharedStaticMesh = Engine::Shared<Engine::Mesh>;

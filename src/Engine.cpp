@@ -139,9 +139,15 @@ Engine::Animator& Engine::Motor::GetAnimator()
     return this->animator;
 }
 
+Engine::UserInterface& Engine::Motor::GetUserInterface()
+{
+    return this->userInterface;
+}
+
 void Engine::Motor::SetWindow(Engine::Window& window)
 {
     this->window = window;
+    this->userInterface.Setup(this->window);
 }
 
 void Engine::Motor::Intro()
