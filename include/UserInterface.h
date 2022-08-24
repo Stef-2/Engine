@@ -21,6 +21,9 @@ namespace Engine
 		
 		void Setup(Engine::Window&);
 
+		static unsigned int GetWidth();
+		static unsigned int GetHeight();
+
 		// layer type, to be instanced into valid values by UserInterface
 		// and used by various UI elements as a depth value sent to GPU for rendering
 		class Layer
@@ -37,6 +40,9 @@ namespace Engine
 		private:
 			float layer;
 		};
+
+		static inline Layer layers[11] = { 0.0f, -0.1f, -0.2f, -0.3f, -0.4f, -0.5f,
+								   -0.6f, -0.7f, -0.8f, -0.9f, -1.0f };
 
 		Engine::Mesh& GetSharedQuad() const;
 
@@ -91,8 +97,8 @@ namespace Engine
 		// 
 		// { this->position.x, this->position.y, this->width, this->height }
 		// { this->color.r, this->color.g, this->color.b, this->color.a	   }
-		// { vec4(0.0f)                                                    }
-		// { vec4(0.0f)                                                    }
+		// { vec4(this->layer, this->borderThickness vec3(0.0f))		   }
+		// { this->borderColor                                             }
 		class Panel : public UIElement
 		{
 		public:
@@ -113,11 +119,18 @@ namespace Engine
 			glm::vec4 GetColor() const;
 			void SetColor(glm::vec4 value);
 
+			glm::vec4 GetBorderColor() const;
+			void SetBorderColor(glm::vec4 value);
+
+			float GetBorderThickness() const;
+			void SetBorderThickness(float value);
 		private:
 			void UpdateDrawStack() override;
 			Engine::SharedShaderProgram shader;
 
 			glm::vec4 color;
+			glm::vec4 borderColor;
+			float borderThickness;
 			float width;
 			float height;
 		};
@@ -131,8 +144,8 @@ namespace Engine
 		// stack of visible UI elements
 		static std::vector<UIElement*> visibleElements;
 
-		static inline Layer layers[11] = { -1.0f, -0.9f, -0.8f, -0.7f, -0.6f, -0.05f,
-										   -0.4f, -0.3f, -0.2f, -0.1f, 0.0f };
+		static unsigned int width;
+		static unsigned int height;
 	};
 
 }

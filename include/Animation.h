@@ -11,76 +11,89 @@
 
 namespace Engine
 {
-    // keyframe struct for vector (position, scale) types
-    struct VectorKeyFrame
-    {
-        glm::vec3 value;
-        double timestamp;
-    };
+	// 3D Animation
 
-    // keyframe struct for quaternion (rotation) types
-    struct QuaternionKeyFrame
-    {
-        glm::quat value;
-        double timestamp;
-    };
+	// keyframe struct for vector (position, scale) types
+	struct VectorKeyFrame
+	{
+		glm::vec3 value;
+		double timestamp;
+	};
 
-    // a struct describing a set of transformations for a node at a given time
-    struct NodeAnimation
-    {
-        // affected node
-        Engine::Node* node;
+	// keyframe struct for quaternion (rotation) types
+	struct QuaternionKeyFrame
+	{
+		glm::quat value;
+		double timestamp;
+	};
 
-        // transforms
-        std::vector<VectorKeyFrame> positionKeyFrames;
-        std::vector<QuaternionKeyFrame> rotationKeyFrames;
-        std::vector<VectorKeyFrame> scaleKeyFrames;
-    };
+	// a struct describing a set of transformations for a node at a given time
+	struct NodeAnimation
+	{
+		// affected node
+		Engine::Node* node;
 
-    class Animation
-    {
-    public:
-        Animation();
-        Animation(std::string name, double duration, double ticksPerSecond);
-        Animation(std::string name, double duration, double ticksPerSecond, std::vector<Engine::NodeAnimation> nodeAnimations);
-        
-        std::vector<Engine::NodeAnimation>& GetNodeAnimations();
-        std::string GetName();
-        double GetDuration();
-        double GetTicksPerSecond();
-        double GetStartTime();
+		// transforms
+		std::vector<VectorKeyFrame> positionKeyFrames;
+		std::vector<QuaternionKeyFrame> rotationKeyFrames;
+		std::vector<VectorKeyFrame> scaleKeyFrames;
+	};
 
-        unsigned int GetCurrentPositionKey();
-        unsigned int GetCurrentRotationKey();
-        unsigned int GetCurrentScaleKey();
+	class Animation
+	{
+	public:
+		Animation();
+		Animation(std::string name, double duration, double ticksPerSecond);
+		Animation(std::string name, double duration, double ticksPerSecond, std::vector<Engine::NodeAnimation> nodeAnimations);
+		
+		std::vector<Engine::NodeAnimation>& GetNodeAnimations();
+		std::string GetName();
+		double GetDuration();
+		double GetTicksPerSecond();
+		double GetStartTime();
 
-        void SetName(std::string& name);
-        void SetDuration(double duration);
-        void SetTicksPerSecond(double ticksPerSecond);
-        void SetStartTime(double startTime);
-        void SetNodeAnimations(std::vector<Engine::NodeAnimation> nodeAnimations);
-        void AddNodeAnimation(Engine::NodeAnimation nodeAnimation);
+		unsigned int GetCurrentPositionKey();
+		unsigned int GetCurrentRotationKey();
+		unsigned int GetCurrentScaleKey();
 
-        void SetCurrentPositionKey(unsigned int key);
-        void SetCurrentRotationKey(unsigned int key);
-        void SetCurrentScaleKey(unsigned int key);
+		void SetName(std::string& name);
+		void SetDuration(double duration);
+		void SetTicksPerSecond(double ticksPerSecond);
+		void SetStartTime(double startTime);
+		void SetNodeAnimations(std::vector<Engine::NodeAnimation> nodeAnimations);
+		void AddNodeAnimation(Engine::NodeAnimation nodeAnimation);
 
-        void TransformNodes(double timeOffset);
+		void SetCurrentPositionKey(unsigned int key);
+		void SetCurrentRotationKey(unsigned int key);
+		void SetCurrentScaleKey(unsigned int key);
 
-    private:
-        glm::mat4 TransformNode(Engine::NodeAnimation& nodeAnimation, double timeOffset);
+		void TransformNodes(double timeOffset);
 
-        std::vector<Engine::NodeAnimation> nodeAnimations;
-        std::string name;
-        double duration;
-        double ticksPerSecond;
+	private:
+		glm::mat4 TransformNode(Engine::NodeAnimation& nodeAnimation, double timeOffset);
 
-        unsigned int currentPositionKey;
-        unsigned int currentRotationKey;
-        unsigned int currentScaleKey;
+		std::vector<Engine::NodeAnimation> nodeAnimations;
+		std::string name;
+		double duration;
+		double ticksPerSecond;
 
-        double startTime;
-    };
+		unsigned int currentPositionKey;
+		unsigned int currentRotationKey;
+		unsigned int currentScaleKey;
+
+		double startTime;
+	};
+
+	// 2D animation
+
+	// utility struct that describes a UI element animation
+	struct UIElementAnimation
+	{
+		glm::vec2 translation;
+
+		// animation time in seconds
+		float time;
+	};
 }
 
 #endif //  ANIMATION_H

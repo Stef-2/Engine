@@ -22,10 +22,20 @@ layout (binding = 0, std140) uniform mvpMatrices
 	mat4 projection;
 };
 
-out vec4 color;
+out VertexOutput
+{
+	flat vec4 color;
+	flat vec4 edges;
+	flat vec4 borderColor;
+	flat float borderThickness;
+	flat float screenWidth;
+	flat float screenHeight;
+	vec3 pos;
+};
 
 void main()
 {
+	float depth = instancedTransforms[2][0];
 	float x = vertexPosition.x;
 	float y = vertexPosition.y;
 
@@ -35,11 +45,20 @@ void main()
 	x += instancedTransforms[0][0];
 	y += instancedTransforms[0][1];
 
-	floats[0] = vertexPosition.x;
-	floats[1] = vertexPosition.y;
-
-	gl_Position = vec4(x, y, instancedTransforms[1][1], 1.0f);
-
+	gl_Position = vec4(x, y, depth, 1.0f);
 	
 	color = instancedTransforms[1];
+	borderColor = instancedTransforms[3];
+
+	screenWidth = instancedTransforms[2][2];
+	screenHeight = instancedTransforms[2][3];
+
+	borderThickness =  instancedTransforms[2][1];
+
+	// left, right, bottom, top
+	edges[0] = instancedTransforms[0][0] + instancedTransforms[0][2] * -0.5f;
+	edges[1] = instancedTransforms[0][0] + instancedTransforms[0][2] * 0.5f;
+	edges[2] = instancedTransforms[0][1] + instancedTransforms[0][3] * -0.5f;
+	edges[3] = instancedTransforms[0][1] + instancedTransforms[0][3] * 0.5f;
+	pos = gl_Position.xyz;
 }

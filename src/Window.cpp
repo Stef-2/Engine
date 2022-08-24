@@ -45,6 +45,7 @@ void Engine::Window::Initialize()
         // check if all the required parameters have been set up
         if (this->width && this->height && this->openGlVersion.x)
         {
+            // fullscreen
             //this->monitor = glfwGetPrimaryMonitor();
 
             // politely tell OpenGL which version of it we would like to use
@@ -55,6 +56,7 @@ void Engine::Window::Initialize()
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
             //glfwWindowHint(GLFW_SAMPLES, 4);
             this->openGlWindow = glfwCreateWindow(width, height, title.c_str(), monitor, share);
+            
             glfwMaximizeWindow(openGlWindow);
             //glfwSetWindowPos(this->openGlWindow, 0, 0);
             glfwMakeContextCurrent(openGlWindow);

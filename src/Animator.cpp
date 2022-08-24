@@ -14,7 +14,7 @@ void Engine::Animator::Animate(Engine::Actor& actor, std::string animationName)
 {
 	double currentTime = glfwGetTime();
 	Engine::Animation* animation = nullptr;
-	Engine::AnimationStack animationStack;
+	Engine::ActorAnimationStack animationStack;
 
 	// find the requested animation
 	for (size_t i = 0; i < actor.GetModel().GetAnimatedMeshes().size(); i++)
@@ -32,25 +32,25 @@ void Engine::Animator::Animate(Engine::Actor& actor, std::string animationName)
 		animation->SetCurrentScaleKey(0u);
 
 		// create or update a mapping between an actor and its animation(s)
-		for (size_t i = 0; i < this->runningAnimations.size(); i++)
+		for (size_t i = 0; i < this->runningActorAnimations.size(); i++)
 
 			// check if the actor already exist in the stack
-			if (this->runningAnimations.at(i).actor == &actor) {
+			if (this->runningActorAnimations.at(i).actor == &actor) {
 
 				// check if the animation already exists
-				for (size_t j = 0; j < this->runningAnimations.at(i).animations.size(); j++)
-					if (this->runningAnimations.at(i).animations.at(j) == animation)
+				for (size_t j = 0; j < this->runningActorAnimations.at(i).animations.size(); j++)
+					if (this->runningActorAnimations.at(i).animations.at(j) == animation)
 						goto exit;
 
 				// if not, just add the new animation
-				this->runningAnimations.at(i).animations.push_back(animation);
+				this->runningActorAnimations.at(i).animations.push_back(animation);
 				goto exit;
 			}
 
 		// if the given actor wasn't found, create a new animation stack for it and push it back
 		animationStack.actor = &actor;
 		animationStack.animations.push_back(animation);
-		this->runningAnimations.push_back(animationStack);
+		this->runningActorAnimations.push_back(animationStack);
 
 	exit:;
 		
@@ -59,45 +59,54 @@ void Engine::Animator::Animate(Engine::Actor& actor, std::string animationName)
 		std::cerr << "Could not find an animation with the given name: " << animationName << std::endl;
 }
 
+void Engine::Animator::Animate(Engine::UserInterface::UIElement& element, UIElementAnimation& animation)
+{
+	double currentTime = glfwGetTime();
+
+	Engine::UIAnimationStack newAnimation{&element, &animation, element.GetPosition(), currentTime + animation.time};
+
+	this->runningUIAnimations.emplace_back(newAnimation);
+}
+
 void Engine::Animator::UpdateAnimations()
 {
 	double currentTime = glfwGetTime();
 
 	// go through all running animation stacks
-	for (size_t i = 0; i < this->runningAnimations.size(); i++)
+	for (size_t i = 0; i < this->runningActorAnimations.size(); i++)
 	{
 		// go through all the animations within
-		for (size_t j = 0; j < this->runningAnimations.at(i).animations.size(); j++)
+		for (size_t j = 0; j < this->runningActorAnimations.at(i).animations.size(); j++)
 		{
-			Engine::Animation& animation = *this->runningAnimations.at(i).animations.at(j);
+			Engine::Animation& animation = *this->runningActorAnimations.at(i).animations.at(j);
 
 			// check if the animation is done
 			if (animation.GetStartTime() + animation.GetDuration() < currentTime) {
 				// remove it from the stack
-				this->runningAnimations.at(i).animations.erase(this->runningAnimations.at(i).animations.begin() + j);
-				this->runningAnimations.at(i).animations.shrink_to_fit();
+				this->runningActorAnimations.at(i).animations.erase(this->runningActorAnimations.at(i).animations.begin() + j);
+				this->runningActorAnimations.at(i).animations.shrink_to_fit();
 			}
 
 			// check if the actor has no more active animations after removal of last one
-			if (!this->runningAnimations.at(i).animations.size()) {
+			if (!this->runningActorAnimations.at(i).animations.size()) {
 				// remove the entire animation stack
-				this->runningAnimations.erase(this->runningAnimations.begin() + i);
-				this->runningAnimations.shrink_to_fit();
+				this->runningActorAnimations.erase(this->runningActorAnimations.begin() + i);
+				this->runningActorAnimations.shrink_to_fit();
 				return;
 			}
 		}
 	}
 
 	// check if there are any animation stacks left after the pruning
-	if (this->runningAnimations.size() > 0) {
+	if (this->runningActorAnimations.size() > 0) {
 		// animate the remaining animations
-		for (size_t i = 0; i < this->runningAnimations.size(); i++)
+		for (size_t i = 0; i < this->runningActorAnimations.size(); i++)
 		{
 			// go through all the animations within
-			for (size_t j = 0; j < this->runningAnimations.at(i).animations.size(); j++)
+			for (size_t j = 0; j < this->runningActorAnimations.at(i).animations.size(); j++)
 			{
-				Engine::Actor& actor = *this->runningAnimations.at(i).actor;
-				Engine::Animation& animation = *this->runningAnimations.at(i).animations.at(j);
+				Engine::Actor& actor = *this->runningActorAnimations.at(i).actor;
+				Engine::Animation& animation = *this->runningActorAnimations.at(i).animations.at(j);
 
 				double timeOffset = currentTime - animation.GetStartTime();
 
@@ -105,6 +114,24 @@ void Engine::Animator::UpdateAnimations()
 			}
 		}
 	}
+
+	// animate any UI elements
+	for (auto& animation : this->runningUIAnimations)
+	{
+		if (currentTime < animation.targetTime)
+		{
+			float startTime = animation.targetTime - animation.animation->time;
+			float scale = startTime + currentTime * (animation.targetTime - startTime);
+			glm::vec2 move = glm::mix(animation.originalPosition, animation.originalPosition + animation.animation->translation, scale);
+			animation.element->MoveRelative(move.x, move.y);
+		}
+	}
+
+	// remove any UI animations past their expiry date
+	this->runningUIAnimations.erase(std::remove_if
+	(runningUIAnimations.begin(), runningUIAnimations.end(),
+		[&currentTime](UIAnimationStack& e) {return currentTime > e.targetTime;}),
+		runningUIAnimations.end());
 }
 
 float Engine::Animator::GetSpeedMultiplier()

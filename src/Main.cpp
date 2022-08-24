@@ -72,12 +72,23 @@ int main()
 	// ===========================================================================
 	Engine::UserInterface::Panel panel1(0.0f, 1.0f, 2.0f, 1.0f);
 	Engine::UserInterface::Panel panel2(0.0f, 0.0f, 1.0f, 1.0f);
-	//Engine::UserInterface::Panel panel3(-0.2f, 0.0f, 1.0f, 1.0f);
-	panel1.SetColor({ 0.3f, -0.1f, 1.0f, 0.5f });
-	panel2.SetColor({ 0.5f, -1.0f, 0.3f, 0.4f });
-	panel1.SetShader(panelShader);
+	Engine::UserInterface::Panel panel3(0.0f, 0.0f, 1.2f, 0.6f);
 
-	
+	panel1.SetColor({ 0.3f, 0.1f, 1.0f, 1.0f });
+	panel2.SetColor({ 0.5f, 0.4f, 0.3f, 1.0f });
+	panel3.SetColor({ 0.1f, 1.0f, 0.2f, 1.0f });
+	panel1.SetLayer(Engine::UserInterface::layers[8]);
+	panel1.SetShader(panelShader);
+	panel2.SetShader(panelShader);
+	panel3.SetShader(panelShader);
+
+	panel3.SetLayer(Engine::UserInterface::layers[10]);
+
+	panel3.SetBorderColor(glm::vec4{ 1.0f, 0.0f, 0.3f, 1.0f });
+	panel3.SetBorderThickness(5.0f);
+
+	Engine::UIElementAnimation anim{ {0.2f, 0.2f}, 6.0f };
+
 	// ===========================================================================
 
 	Engine::ShaderProgram instanced(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\instanced.vert"),
@@ -214,7 +225,7 @@ int main()
 	dirLight.SetPosition({ 300.0f, 0.0f, 0.0f });
 	//dirLight.SetColor({ 0.4f, 0.4f, 0.8f });
 	ambientLight.SetIntensity(50.0f);
-
+	engine.GetAnimator().Animate(panel3, anim);
 	// -----------------------------------------------
 	glClearColor(0.6f, 0.8f, 1.0f, 1.0f);
 	
@@ -271,9 +282,11 @@ int main()
 		}
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_R) == GLFW_PRESS) {
 			obj1.GetModel().GetStaticMeshes().at(0)->SetInstanceable(true, Engine::InstanceType::SIMPLE_INSTANCE);
+			panel3.SetVisiblity(false);
 		}
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_T) == GLFW_PRESS) {
 			obj1.GetModel().GetStaticMeshes().at(0)->SetInstanceable(true, Engine::InstanceType::COMPLEX_INSTANCE);
+			panel3.SetVisiblity(true);
 		}
 
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_E) == GLFW_PRESS) {

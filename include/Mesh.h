@@ -46,7 +46,7 @@ namespace Engine
 	// triangle data for collision detection
 	struct Triangle
 	{
-		Triangle(Vertex& x, Vertex& y,Vertex& z) : a(x), b(y), c(z) {};
+		Triangle(Vertex& x, Vertex& y, Vertex& z) : a(x), b(y), c(z) {};
 		Triangle& operator=(const Triangle& other);
 
 		bool operator==(const Triangle& other);
