@@ -40,6 +40,7 @@ class Window
         std::string GetGivenVersion();
         glm::uvec2 GetDimensions();
 
+        void SetWindowSize(int width, int height);
         void SetWidth(int width);
         void SetHeight(int height);
         

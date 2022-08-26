@@ -46,7 +46,7 @@ void Engine::Window::Initialize()
         if (this->width && this->height && this->openGlVersion.x)
         {
             // fullscreen
-            //this->monitor = glfwGetPrimaryMonitor();
+            this->monitor = glfwGetPrimaryMonitor();
 
             // politely tell OpenGL which version of it we would like to use
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, this->openGlVersion.x);
@@ -64,6 +64,10 @@ void Engine::Window::Initialize()
             glfwSwapInterval(0);
             gladLoadGL();
 
+            int width, height;
+            glfwGetWindowSize(this->openGlWindow, &width, &height);
+            this->SetWindowSize(width, height);
+            std::cout << "size: " << width << " " << height << '\n';
             // OpenGL isn't required to give us the requested version, we'll store whatever it gave us
             this->openGlGivenVersion = (const char*)(glGetString(GL_VERSION));
 
@@ -111,11 +115,13 @@ void Engine::Window::SetTitle(std::u8string newTitle)
 void Engine::Window::SetWidth(int width)
 {
     this->width = width;
+    glfwSetWindowSize(this->openGlWindow, this->width, this->height);
 }
 
 void Engine::Window::SetHeight(int height)
 {
     this->height = height;
+    glfwSetWindowSize(this->openGlWindow, this->width, this->height);
 }
 
 void Engine::Window::SetVersion(glm::ivec2 version)
@@ -151,6 +157,13 @@ std::string Engine::Window::GetGivenVersion()
 glm::uvec2 Engine::Window::GetDimensions()
 {
     return glm::uvec2(width, height);
+}
+
+void Engine::Window::SetWindowSize(int width, int height)
+{
+    this->width = width;
+    this->height = height;
+    glfwSetWindowSize(this->openGlWindow, this->width, this->height);
 }
 
 std::string Engine::Window::GetTitle()

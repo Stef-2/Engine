@@ -25,12 +25,11 @@ layout (binding = 0, std140) uniform mvpMatrices
 out VertexOutput
 {
 	flat vec4 color;
-	flat vec4 edges;
+	flat float edges[4];
 	flat vec4 borderColor;
 	flat float borderThickness;
 	flat float screenWidth;
 	flat float screenHeight;
-	vec3 pos;
 };
 
 void main()
@@ -55,10 +54,14 @@ void main()
 
 	borderThickness =  instancedTransforms[2][1];
 
+	float ratio = screenWidth / screenHeight;
+
+	borderThickness =  instancedTransforms[2][1];
+
 	// left, right, bottom, top
 	edges[0] = instancedTransforms[0][0] + instancedTransforms[0][2] * -0.5f;
 	edges[1] = instancedTransforms[0][0] + instancedTransforms[0][2] * 0.5f;
-	edges[2] = instancedTransforms[0][1] + instancedTransforms[0][3] * -0.5f;
-	edges[3] = instancedTransforms[0][1] + instancedTransforms[0][3] * 0.5f;
-	pos = gl_Position.xyz;
+
+	edges[2] = instancedTransforms[0][1] + instancedTransforms[0][3] * -0.5f * ratio;
+	edges[3] = instancedTransforms[0][1] + instancedTransforms[0][3] * 0.5f * ratio;
 }

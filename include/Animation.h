@@ -89,6 +89,23 @@ namespace Engine
 	// utility struct that describes a UI element animation
 	struct UIElementAnimation
 	{
+		// negative value operatior
+		UIElementAnimation operator-() {
+			UIElementAnimation negative { -this->translation, this->time }; return negative;
+		}
+
+		// addition operator
+		UIElementAnimation& operator+(UIElementAnimation& other) {
+			UIElementAnimation result {this->translation + other.translation, this->time + other.time};
+			return result;
+		}
+
+		// subtraction operator
+		UIElementAnimation& operator-(UIElementAnimation& other) {
+			UIElementAnimation result{ this->translation - other.translation, this->time - other.time };
+			return result;
+		}
+
 		glm::vec2 translation;
 
 		// animation time in seconds

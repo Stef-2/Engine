@@ -12,21 +12,21 @@ std::string Engine::ShaderProgram::DebugOutput()
 
 	std::string output{ "========== Shader debug output: ==========\n-----matrices:-----\n"};
 
-	for (auto& i : shaderOutput.mats)
-		if (i != glm::mat4())
-			output += glm::to_string(i) + '\n';
+	for (unsigned short i = 0; i < sizeof(shaderOutput.mats) / sizeof(shaderOutput.mats[0]); i++)
+		if (shaderOutput.mats[i] != glm::mat4())
+			output += std::to_string(i) + ": " + glm::to_string(shaderOutput.mats[i]) + '\n';
 
 	output += "\n-----vectors:-----\n";
 
-	for (auto& i : shaderOutput.vecs)
-		if (i != glm::vec4(0))
-			output += glm::to_string(i) + '\n';
+	for (unsigned short i = 0; i < sizeof(shaderOutput.vecs) / sizeof(shaderOutput.vecs[0]); i++)
+		if (shaderOutput.vecs[i] != glm::vec4(0))
+			output += std::to_string(i) + ": " + glm::to_string(shaderOutput.vecs[i]) + '\n';
 
 	output += "\n-----floats:-----\n";
-
-	for (auto& i : shaderOutput.floats)
-		if (i)
-			output += std::to_string(i) + " | ";
+	int*************************************************************************** b;
+	for (unsigned short i = 0; i < sizeof(shaderOutput.floats) / sizeof(shaderOutput.floats[0]); i++)
+		if (shaderOutput.floats[i])
+			output += std::to_string(i) + ": " + std::to_string(i) + " | ";
 
 	output += '\n';
 

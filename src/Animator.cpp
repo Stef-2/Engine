@@ -115,15 +115,19 @@ void Engine::Animator::UpdateAnimations()
 		}
 	}
 
-	// animate any UI elements
+	// animate UI elements
 	for (auto& animation : this->runningUIAnimations)
 	{
+		// check if we're in the time range
 		if (currentTime < animation.targetTime)
 		{
+			// based on current time, calculate where in the animation are we
 			float startTime = animation.targetTime - animation.animation->time;
-			float scale = startTime + currentTime * (animation.targetTime - startTime);
+			float middle = currentTime - startTime;
+			float delta = animation.targetTime - startTime;
+			float scale = middle / delta;
 			glm::vec2 move = glm::mix(animation.originalPosition, animation.originalPosition + animation.animation->translation, scale);
-			animation.element->MoveRelative(move.x, move.y);
+			animation.element->MoveAbsolute(move.x, move.y);
 		}
 	}
 
