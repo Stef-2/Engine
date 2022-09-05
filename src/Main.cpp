@@ -70,24 +70,22 @@ int main()
 	}
 
 	// ===========================================================================
-	Engine::UserInterface::Panel panel1(0.0f, 1.0f, 2.0f, 1.0f);
-	Engine::UserInterface::Panel panel2(0.0f, 0.0f, 1.0f, 1.0f);
-	Engine::UserInterface::Panel panel3(0.0f, 0.0f, 1.2f, 0.7f);
+	Engine::UserInterface::Panel mainMenu(0.0f, 0.0f, 0.8f, 1.0f);
+	Engine::UserInterface::Panel console(0.0f, 2.0f, 2.0f, 1.0f);
 
-	panel1.SetColor({ 0.3f, 0.1f, 1.0f, 1.0f });
-	panel2.SetColor({ 0.5f, 0.4f, 0.3f, 1.0f });
-	panel3.SetColor({ 0.1f, 1.0f, 0.2f, 1.0f });
-	panel1.SetLayer(Engine::UserInterface::layers[8]);
-	panel1.SetShader(panelShader);
-	panel2.SetShader(panelShader);
-	panel3.SetShader(panelShader);
+	mainMenu.SetColor({ 0.1f, 0.1f, 1.0f, 0.5f });
+	console.SetColor({ 0.1f, 0.1f, 0.1f, 0.5f });
 
-	panel3.SetLayer(Engine::UserInterface::layers[10]);
+	console.SetLayer(mainMenu.GetLayer() + 1);
+	mainMenu.SetShader(panelShader);
 
-	panel3.SetBorderColor(glm::vec4{ 1.0f, 0.0f, 0.3f, 1.0f });
-	panel3.SetBorderThickness(5.0f);
 
-	Engine::UIElementAnimation ani1{ {0.2f, 0.2f}, 1.0f };
+	mainMenu.SetBorderColor(glm::vec4{ 0.5f, 0.5f, 0.5f, 0.8f });
+	mainMenu.SetBorderThickness(5.0f);
+	console.SetBorderColor(glm::vec4 {0.5f, 0.5f, 0.5f, 0.8f});
+	console.SetBorderThickness(5.0f);
+
+	Engine::UIElementAnimation ani1{ {0.0f, -2.0f}, 1.0f };
 	Engine::UIElementAnimation ani2 = -ani1;
 	// ===========================================================================
 
@@ -276,6 +274,9 @@ int main()
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
 			camera.MoveRelative(camera.GetUpDirection(), -moveSpeed * deltaTime);
 		}
+		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_GRAVE_ACCENT) == GLFW_PRESS) {
+			
+		}
 
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_Q) == GLFW_PRESS) {
 			glDisable(GL_CULL_FACE);
@@ -283,12 +284,12 @@ int main()
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_R) == GLFW_PRESS) {
 			obj1.GetModel().GetStaticMeshes().at(0)->SetInstanceable(true, Engine::InstanceType::SIMPLE_INSTANCE);
 			//panel3.SetVisiblity(false);
-			engine.GetAnimator().Animate(panel3, ani1);
+			engine.GetAnimator().Animate(console, ani1);
 		}
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_T) == GLFW_PRESS) {
 			obj1.GetModel().GetStaticMeshes().at(0)->SetInstanceable(true, Engine::InstanceType::COMPLEX_INSTANCE);
 			//panel3.SetVisiblity(true);
-			engine.GetAnimator().Animate(panel3, ani2);
+			engine.GetAnimator().Animate(console, ani2);
 		}
 
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_E) == GLFW_PRESS) {

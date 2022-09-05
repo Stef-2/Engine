@@ -18,7 +18,6 @@
 
 #include "iostream"
 #include "vector"
-#include "variant"
 
 namespace Engine
 {
@@ -139,7 +138,6 @@ namespace Engine
 		// instancing data
 		std::vector<Engine::SimpleInstance> simpleInstances;
 		std::vector<Engine::ComplexInstance> complexInstances;
-		std::variant<std::vector<SimpleInstance>, std::vector<ComplexInstance>> instances;
 
 		unsigned int InstancedVertexBufferObject;
 		InstanceType instanceType;

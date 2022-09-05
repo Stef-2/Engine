@@ -33,6 +33,12 @@ namespace Engine
 			Layer(Layer&&) = delete;
 			Layer& operator= (Layer&&) = delete;
 
+			// convenience
+			Layer& operator+(const Layer& other) { Layer add(this->layer + other.layer); return add;};
+			Layer& operator-(const Layer& other) { Layer sub(this->layer - other.layer); return sub;};
+			Layer& operator+(const int i) { Layer add(this->layer + i); return add;};
+			Layer& operator-(const int i) { Layer sub(this->layer - i); return sub;};
+
 			Layer(const Layer&) = default;
 			Layer& operator= (const Layer&) = default;
 
@@ -40,6 +46,7 @@ namespace Engine
 		private:
 			float layer;
 		};
+
 
 		static inline Layer layers[11] = { 0.0f, -0.1f, -0.2f, -0.3f, -0.4f, -0.5f,
 								   -0.6f, -0.7f, -0.8f, -0.9f, -1.0f };
