@@ -40,25 +40,25 @@ bool Engine::Collider::Intersects(Engine::BoundingBox& box, Engine::BoundingSphe
 	double distance = glm::pow(sphere.radius, 2);
 
 	// x axis
-	if (sphere.center.x < box.mins.x)
-		distance -= glm::pow(sphere.center.x - box.mins.x, 2);
+	if (sphere.center.x < box.minimums.x)
+		distance -= glm::pow(sphere.center.x - box.minimums.x, 2);
 	else
-		if (sphere.center.x > box.maxs.x)
-			distance -= glm::pow(sphere.center.x - box.maxs.x, 2);
+		if (sphere.center.x > box.maximums.x)
+			distance -= glm::pow(sphere.center.x - box.maximums.x, 2);
 
 	// y axis
-	if (sphere.center.y < box.mins.y)
-		distance -= glm::pow(sphere.center.y - box.mins.y, 2);
+	if (sphere.center.y < box.minimums.y)
+		distance -= glm::pow(sphere.center.y - box.minimums.y, 2);
 	else
-		if (sphere.center.y > box.maxs.y)
-			distance -= glm::pow(sphere.center.y - box.maxs.y, 2);
+		if (sphere.center.y > box.maximums.y)
+			distance -= glm::pow(sphere.center.y - box.maximums.y, 2);
 
 	// z axis
-	if (sphere.center.z < box.mins.z)
-		distance -= glm::pow(sphere.center.z - box.mins.z, 2);
+	if (sphere.center.z < box.minimums.z)
+		distance -= glm::pow(sphere.center.z - box.minimums.z, 2);
 	else
-		if (sphere.center.z > box.maxs.z)
-			distance -= glm::pow(sphere.center.z - box.maxs.z, 2);
+		if (sphere.center.z > box.maximums.z)
+			distance -= glm::pow(sphere.center.z - box.maximums.z, 2);
 
 	return distance > 0.0;
 }
@@ -314,8 +314,8 @@ bool Engine::Collider::Intersects(Engine::Triangle& first, Engine::Triangle& sec
 
 bool Engine::Collider::Contains(Engine::BoundingBox& larger, Engine::BoundingBox& smaller)
 {
-	if (smaller.mins.x > larger.mins.x && smaller.mins.y > larger.mins.y && smaller.mins.z > larger.mins.z)
-		if (smaller.maxs.x < larger.maxs.x && smaller.maxs.y < larger.maxs.y && smaller.maxs.z < larger.maxs.z)
+	if (smaller.minimums.x > larger.minimums.x && smaller.minimums.y > larger.minimums.y && smaller.minimums.z > larger.minimums.z)
+		if (smaller.maximums.x < larger.maximums.x && smaller.maximums.y < larger.maximums.y && smaller.maximums.z < larger.maximums.z)
 			return true;
 	
 	return false;
@@ -331,7 +331,7 @@ bool Engine::Collider::Contains(Engine::BoundingSphere& larger, Engine::Bounding
 
 bool Engine::Collider::Contains(Engine::BoundingBox& larger, Engine::BoundingSphere& smaller)
 {
-	if (glm::distance(larger.mins, smaller.center) > smaller.radius && glm::distance(larger.mins, smaller.center) > smaller.radius)
+	if (glm::distance(larger.minimums, smaller.center) > smaller.radius && glm::distance(larger.minimums, smaller.center) > smaller.radius)
 		return true;
 	
 	return false;
@@ -339,7 +339,7 @@ bool Engine::Collider::Contains(Engine::BoundingBox& larger, Engine::BoundingSph
 
 bool Engine::Collider::Contains(Engine::BoundingSphere& larger, Engine::BoundingBox& smaller)
 {
-	if (glm::distance(smaller.mins, larger.center) < larger.radius && glm::distance(smaller.mins, larger.center) < larger.radius)
+	if (glm::distance(smaller.minimums, larger.center) < larger.radius && glm::distance(smaller.minimums, larger.center) < larger.radius)
 		return true;
 
 	return false;

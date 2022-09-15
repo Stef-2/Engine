@@ -14,10 +14,25 @@ namespace Engine
 	class Collider
 	{
 	public:
-
+		// aabb - aabb
 		bool Intersects(Engine::BoundingBox& first, Engine::BoundingBox& second);
+		// sphere - sphere
 		bool Intersects(Engine::BoundingSphere& first, Engine::BoundingSphere& second);
+		// capsule - capsule
+		bool Intersects(Engine::BoundingCapsule& first, Engine::BoundingCapsule& second);
+
+		// point - aabb
+		bool Intersects(Engine::BoundingBox& box, Engine::Point& point);
+		// point - sphere
+		bool Intersects(Engine::BoundingSphere& sphere, Engine::Point& point);
+		// point - capsule
+		bool Intersects(Engine::BoundingCapsule& capsule, Engine::Point& point);
+
+		// aabb - sphere
 		bool Intersects(Engine::BoundingBox& box, Engine::BoundingSphere& sphere);
+		// aabb - capsule
+		bool Intersects(Engine::BoundingBox&, Engine::BoundingCapsule& capsule);
+		// sphere - capsule
 
 		template<typename T>
 		bool Intersects(Engine::Triangle& first, Engine::Triangle& second);

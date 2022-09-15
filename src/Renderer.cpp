@@ -1,8 +1,8 @@
 #include "Renderer.h"
 
 Engine::Renderer::Renderer() :
-	wireFrameShader{ "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.vert" ,
-					 "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.frag" },
+	/*wireFrameShader{ "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.vert" ,
+					 "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.frag" },*/
 	shadowMapShader{ "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.vert",
 					 "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.frag" }
 {
@@ -50,14 +50,14 @@ std::vector<Engine::Actor*> Engine::Renderer::FrustumCull(const Engine::Camera& 
 			visible = true;
 
 			// find the vertex of object's bounding box that is farthest along the current frustum plane's normal
-			front = actors.at(i)->GetModel().GetBoundingBox().mins;
+			front = actors.at(i)->GetModel().GetBoundingBox().minimums;
 
 			if (frustumPlanes[j].x >= 0)
-				front.x = actors.at(i)->GetModel().GetBoundingBox().maxs.x;
+				front.x = actors.at(i)->GetModel().GetBoundingBox().maximums.x;
 			if (frustumPlanes[j].y >= 0)
-				front.y = actors.at(i)->GetModel().GetBoundingBox().maxs.y;
+				front.y = actors.at(i)->GetModel().GetBoundingBox().maximums.y;
 			if (frustumPlanes[j].z >= 0)
-				front.z = actors.at(i)->GetModel().GetBoundingBox().maxs.z;
+				front.z = actors.at(i)->GetModel().GetBoundingBox().maximums.z;
 			
 			// if the distance from the furthest point to the current plane is less than zero, the whole object is outside the frustum
 			if (glm::dot(glm::vec3(frustumPlanes[j]),front) + frustumPlanes[j].w < 0.0f) {
@@ -179,7 +179,7 @@ void Engine::Renderer::Render(Engine::UserInterface& UI)
 void Engine::Renderer::Render(const Engine::Camera& camera, const Engine::BoundingBox& box)
 {
 	// calculate the size of this bounding box, will be useful for vertex calculations and transform matrix
-	glm::vec3 sizeOffset = glm::vec3(box.maxs - box.mins);
+	glm::vec3 sizeOffset = glm::vec3(box.maximums - box.minimums);
 	float xOffset = sizeOffset.x;
 	float yOffset = sizeOffset.y;
 	float zOffset = sizeOffset.z;
@@ -204,14 +204,14 @@ void Engine::Renderer::Render(const Engine::Camera& camera, const Engine::Boundi
 
 	// form a full array of vertices from the two bounding ones
 	// starting at mins, clockwise order +Y
-	float vertices[] = { box.mins.x, box.mins.y, box.mins.z,
-						 box.mins.x, box.mins.y, box.mins.z + zOffset,
-						 box.mins.x + xOffset, box.mins.y, box.mins.z + zOffset,
-						 box.mins.x + xOffset, box.mins.y, box.mins.z,
-						 box.mins.x, box.mins.y + yOffset, box.mins.z,
-						 box.mins.x, box.mins.y + yOffset, box.mins.z + zOffset,
-						 box.maxs.x, box.maxs.y, box.maxs.z,
-						 box.mins.x + xOffset, box.mins.y + yOffset, box.mins.z };
+	float vertices[] = { box.minimums.x, box.minimums.y, box.minimums.z,
+						 box.minimums.x, box.minimums.y, box.minimums.z + zOffset,
+						 box.minimums.x + xOffset, box.minimums.y, box.minimums.z + zOffset,
+						 box.minimums.x + xOffset, box.minimums.y, box.minimums.z,
+						 box.minimums.x, box.minimums.y + yOffset, box.minimums.z,
+						 box.minimums.x, box.minimums.y + yOffset, box.minimums.z + zOffset,
+						 box.maximums.x, box.maximums.y, box.maximums.z,
+						 box.minimums.x + xOffset, box.minimums.y + yOffset, box.minimums.z };
 
 	// form a line strip out of vertices to simulate quad drawing
 	// there is a very slight overhead here as 3 lines have to be drawn twice
@@ -299,7 +299,7 @@ void Engine::Renderer::Render(const Engine::Camera& camera, Engine::Skeleton& sk
 		//glm::vec3 bonePosition = glm::vec3(matrix[3][0], matrix[3][1], matrix[3][2]);
 		glm::vec3 bonePosition = glm::vec3(skeleton.GetFinalBoneTransformAnimated(i)[3][0], skeleton.GetFinalBoneTransformAnimated(i)[3][1], skeleton.GetFinalBoneTransformAnimated(i)[3][2]);
 		//std::cout << skeleton.GetBones().at(i).GetNode().GetName() << " - Position: " << glm::to_string(bonePosition) << std::endl;
-		Engine::BoundingBox box{ bonePosition - 0.5f, bonePosition + 0.5f };
+		Engine::BoundingBox box(bonePosition - 0.5f, bonePosition + 0.5f);
 
 		//if (bonePosition.y < 0) std::cout << "BONE : " << skeleton.GetBones().at(i).GetNode().GetName() << " IS IN BANGLADESH: " << bonePosition.y << std::endl;
 		this->Render(camera, box);

@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-Engine::Motor& Engine::Motor::GetInstance()
+Engine::Motor& Engine::Motor::GetEngine()
 {
     static Motor instance;
 
@@ -176,7 +176,7 @@ void Engine::Motor::KeyCallback(GLFWwindow* window, int key, int scancode, int a
     {
         std::cout << "Window closure requested." << std::endl;
         glfwSetWindowShouldClose(window, GLFW_TRUE);
-        Engine::Motor::GetInstance().running = false;
+        Engine::Motor::GetEngine().running = false;
     }
 }
 

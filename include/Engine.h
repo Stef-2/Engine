@@ -6,6 +6,7 @@
 #include "Renderer.h"
 #include "Collider.h"
 #include "Animator.h"
+#include "Input.h"
 
 #include "glm/glm.hpp"
 #include "glm/vec2.hpp"
@@ -47,7 +48,7 @@ namespace Engine
     {
         public:
             // singleton instance provider
-            static Motor& GetInstance();
+            static Motor& GetEngine();
 
             // make sure it can't be copy constructed
             Motor(Motor const&) = delete;
@@ -105,6 +106,7 @@ namespace Engine
             void Run();
             
         private:
+            // hide the engine constructor
             Motor();
 
             // initializes glfw callbacks
@@ -119,6 +121,7 @@ namespace Engine
             Engine::Collider collider;
             Engine::Animator animator;
             Engine::UserInterface userInterface;
+            Engine::Input inputHandler;
 
             double currentTime;
             double lastTime;

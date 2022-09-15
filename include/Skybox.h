@@ -44,7 +44,7 @@ namespace Engine
 
     private:
         std::shared_ptr<Engine::Texture2D> texture;
-        std::shared_ptr < Engine::ShaderProgram> shader;
+        std::shared_ptr<Engine::ShaderProgram> shader;
 
         // vertex  and element buffer objects
         unsigned int VAO;

@@ -3,9 +3,9 @@
 Engine::Camera camera(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
 Engine::Camera topOrh(0.0, 100.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
 
-double deltaTime = 0.0f;
-double oldX = 1920.0 / 2.0;
-double oldY = 1080.0 / 2.0;
+float deltaTime = 0.0f;
+float oldX = 1920.0 / 2.0;
+float oldY = 1080.0 / 2.0;
 
 float moveSpeed = 100.0f;
 
@@ -13,7 +13,7 @@ int main()
 {
 	//------------------------
 	Engine::Window window(1920, 1080, "Engine", nullptr, nullptr, glm::ivec2(4, 6));
-	Engine::Motor& engine = Engine::Motor::GetInstance();
+	Engine::Motor& engine = Engine::Motor::GetEngine();
 	
 	engine.Initialize();
 	
@@ -55,7 +55,7 @@ int main()
 
 	Engine::ShaderProgram panelShader(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\panel.vert"),
 		engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\panel.frag"));
-
+	
 	unsigned long instancesSize = 1000;
 	std::vector<Engine::SimpleInstance> sInstances;
 	std::vector<Engine::ComplexInstance> cInstances;
@@ -78,7 +78,7 @@ int main()
 
 	console.SetLayer(mainMenu.GetLayer() + 1);
 	mainMenu.SetShader(panelShader);
-
+	console.SetShader(panelShader);
 
 	mainMenu.SetBorderColor(glm::vec4{ 0.5f, 0.5f, 0.5f, 0.8f });
 	mainMenu.SetBorderThickness(5.0f);
@@ -290,6 +290,8 @@ int main()
 			obj1.GetModel().GetStaticMeshes().at(0)->SetInstanceable(true, Engine::InstanceType::COMPLEX_INSTANCE);
 			//panel3.SetVisiblity(true);
 			engine.GetAnimator().Animate(console, ani2);
+			mainMenu.SetVisiblity(!mainMenu.GetVisiblity());
+
 		}
 
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_E) == GLFW_PRESS) {
@@ -398,22 +400,22 @@ void Engine::FrameBufferCallback(GLFWwindow* window, int width, int height)
 
 void Engine::MouseCallback(GLFWwindow* window, double xPos, double yPos)
 {
-	double lastX = 1280/2, lastY = 720/2;
-	double xoffset = xPos - lastX;
-	double yoffset = lastY - yPos;
-	double yaw = 0, pitch = 0;
+	float lastX = 1280/2, lastY = 720/2;
+	float xoffset = xPos - lastX;
+	float yoffset = lastY - yPos;
+	float yaw = 0, pitch = 0;
 	lastX = xPos;
 	lastY = yPos;
 
-	double sensitivity = 1;
+	float sensitivity = 1;
 	xoffset *= sensitivity;
 	yoffset *= sensitivity;
 
 	yaw   += xoffset;
 	pitch += yoffset;
 
-	double difX = (xPos - oldX) * (sensitivity);
-	double difY = (yPos - oldY) * (sensitivity);
+	float difX = (xPos - oldX) * (sensitivity);
+	float difY = (yPos - oldY) * (sensitivity);
 
 	oldX = xPos;
 	oldY = yPos;

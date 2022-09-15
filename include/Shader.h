@@ -9,6 +9,7 @@
 #include "glm/glm.hpp"
 #include <glm/gtx/string_cast.hpp>
 #include "Shared.h"
+#include "Output.h"
 
 #include "fstream"
 #include "sstream"
@@ -114,6 +115,8 @@ namespace Engine
 	using SharedFragmentShader = Engine::Shared<Engine::FragmentShader>;
 	using SharedComputeShader = Engine::Shared<Engine::ComputeShader>;
 
+	// ===========================================================================
+
 	// OpenGL shader program wrapper class
 	// encapsulates vertex, geometry and fragment shaders as well as the shader program that binds them
 	// performs compiling and linking of shader programs
@@ -154,6 +157,13 @@ namespace Engine
 				IMAGE3D,
 				// transforms for instanced rendering
 				INSTANCED_TRANSFORMS
+			};
+			
+			// locations of OpenGL uniform variables;
+			// these need to match with their corresponding GLSL counterparts
+			typedef enum class UniformLocation : unsigned int
+			{
+			
 			};
 
 			// enumerator for different uniform or shader storage buffer objects
@@ -207,6 +217,11 @@ namespace Engine
 			Engine::ComputeShader& GetComputeShader();
 			unsigned int GetProgramID();
 
+			// validation checks
+			bool GetCompilationStatus();
+			bool IsValid();
+
+			// attribute locations
 			int GetAttributeLocation(Engine::ShaderProgram::ShaderAttribute attribute);
 			static unsigned int GetUniformBuffer(Engine::ShaderProgram::UniformBuffer buffer);
 
@@ -226,6 +241,9 @@ namespace Engine
 			void SetGeometryShader(Engine::GeometryShader& shader);
 			void SetFragmentShader(Engine::FragmentShader& shader);
 			void SetComputeShader(Engine::ComputeShader& shader);
+
+			template<typename T>
+			void SetUniform(T);
 
 			static std::string DebugOutput();
 
@@ -261,7 +279,7 @@ namespace Engine
 			// names of shader attributes and uniform buffers inside the actual GLSL shaders
 			// these need to match for OpenGL to be able to find their locations and send them data
 			inline const static std::map<Engine::ShaderProgram::ShaderAttribute, std::string> attributeNames =
-			{ 
+			{
 				{ShaderAttribute::VERTEX_POSITION_LOCATION, "vertexPosition"},
 				{ShaderAttribute::VERTEX_NORMAL_LOCATION, "vertexNormal"},
 				{ShaderAttribute::VERTEX_UV_LOCATION, "vertexCoordinate"},
@@ -316,6 +334,27 @@ namespace Engine
 			Engine::ShaderProgram::ShaderFlag shaderFlags;
 
 			static ShaderProgram* currentShaderProgram;
+	};
+
+	// ===========================================================================
+
+	// binary representation of an OpenGL shader program
+	// can be generated from a successfuly compiled and linked shader program
+	// can be used to create a shader program
+	class ShaderProgramBinary
+	{
+	public:
+		// generate from a program
+		ShaderProgramBinary(ShaderProgram&);
+
+		// read from a file
+		ShaderProgramBinary(std::string_view);
+
+		std::unique_ptr<std::byte>& GetData();
+	private:
+		std::unique_ptr<std::byte> data;
+		int size;
+		GLenum binaryFormat;
 	};
 
 	// typedef for shared ShaderProgram

@@ -4,6 +4,12 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define OBJL_INCLUDED
 
+/*
+#define GLM_FORCE_MESSAGES
+#define GLM_FORCE_INLINE
+#define GLM_FORCE_INTRINSICS
+*/
+
 #ifndef __glad_h_
 #include "glad/glad.h"
 #define __glad_h_
@@ -37,9 +43,9 @@
 #include "Shared.h"
 #include "UserInterface.h"
 
-#include "signal.h"
+#include <csignal>
 #include "fstream"
-#include "math.h"
+#include <cmath>
 #include "random"
 #include "chrono"
 #include "TimeDate.h"

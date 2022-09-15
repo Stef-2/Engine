@@ -418,6 +418,22 @@ unsigned int Engine::ShaderProgram::GetProgramID()
 	return this->programID;
 }
 
+bool Engine::ShaderProgram::GetCompilationStatus()
+{
+	return this->compileSuccess;
+}
+
+bool Engine::ShaderProgram::IsValid()
+{
+	glValidateProgram(this->programID);
+
+	int valid = false;
+
+	glGetProgramiv(this->programID, GL_VALIDATE_STATUS, &valid);
+
+	return valid;
+}
+
 Engine::Shader::Shader(std::string filePath)
 {
 	this->compilationStatus = false;
@@ -498,4 +514,26 @@ void Engine::FragmentShader::SetShaderType()
 void Engine::ComputeShader::SetShaderType()
 {
 	this->shader = glCreateShader(GLenum(Engine::Shader::ShaderType::COMPUTE_SHADER));
+}
+
+Engine::ShaderProgramBinary::ShaderProgramBinary(ShaderProgram& program) : data(nullptr), size(-1), binaryFormat(GL_INVALID_ENUM)
+{
+	// check if shader program is valid
+	if (!program.GetCompilationStatus()) {
+		Output::Error() << "can't generate a program binary, program is not successfully compiled and linked";
+		return;
+	}
+
+	int size = 0;
+
+	// get program size
+	glGetProgramiv(program.GetProgramID(), GL_PROGRAM_BINARY_LENGTH, &size);
+	this->data = std::make_unique<std::byte>(new std::byte[size]);
+
+	glGetProgramBinary(program.GetProgramID(), size, &this->size, &this->binaryFormat, &this->data);
+}
+
+Engine::ShaderProgramBinary::ShaderProgramBinary(std::string_view filePath)
+{
+
 }

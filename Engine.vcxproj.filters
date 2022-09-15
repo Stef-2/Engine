@@ -114,6 +114,15 @@
     <ClInclude Include="include\Particle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Output.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp">
@@ -204,6 +213,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Particle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Output.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

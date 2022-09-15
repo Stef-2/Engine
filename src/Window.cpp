@@ -46,7 +46,7 @@ void Engine::Window::Initialize()
         if (this->width && this->height && this->openGlVersion.x)
         {
             // fullscreen
-            this->monitor = glfwGetPrimaryMonitor();
+            //this->monitor = glfwGetPrimaryMonitor();
 
             // politely tell OpenGL which version of it we would like to use
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, this->openGlVersion.x);
