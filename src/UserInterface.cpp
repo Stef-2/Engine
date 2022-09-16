@@ -17,8 +17,8 @@ void Engine::UserInterface::Setup(Engine::Window& window)
 	constexpr const float quadSize = 1.0f;
 	constexpr const float quadOffsets = quadSize / 2.0f;
 
-	Engine::UserInterface::width = window.GetDimensions().x;
-	Engine::UserInterface::height = window.GetDimensions().y;
+	Engine::UserInterface::width = window.GetDimensions().width;
+	Engine::UserInterface::height = window.GetDimensions().height;
 
 	const float ratio = window.GetAspectRatio();
 

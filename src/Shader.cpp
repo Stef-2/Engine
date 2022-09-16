@@ -528,7 +528,7 @@ Engine::ShaderProgramBinary::ShaderProgramBinary(ShaderProgram& program) : data(
 
 	// get program size
 	glGetProgramiv(program.GetProgramID(), GL_PROGRAM_BINARY_LENGTH, &size);
-	this->data = std::make_unique<std::byte>(new std::byte[size]);
+	this->data = std::unique_ptr<std::byte[]>(new std::byte[size]);
 
 	glGetProgramBinary(program.GetProgramID(), size, &this->size, &this->binaryFormat, &this->data);
 }

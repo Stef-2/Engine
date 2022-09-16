@@ -25,7 +25,7 @@ namespace Engine
 		static unsigned int GetHeight();
 
 		// layer type, to be instanced into valid values by UserInterface
-		// and used by various UI elements as a depth value sent to GPU for rendering
+		// used by various UI elements as a depth value sent to GPU for rendering
 		class Layer
 		{
 		public:
@@ -47,9 +47,9 @@ namespace Engine
 			float layer;
 		};
 
-
+		// predefined set of 11 layers, all UI elements default to the middle one
 		static inline Layer layers[11] = { 0.0f, -0.1f, -0.2f, -0.3f, -0.4f, -0.5f,
-								   -0.6f, -0.7f, -0.8f, -0.9f, -1.0f };
+										  -0.6f, -0.7f, -0.8f, -0.9f, -1.0f };
 
 		Engine::Mesh& GetSharedQuad() const;
 

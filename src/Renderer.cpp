@@ -1,10 +1,10 @@
 #include "Renderer.h"
 
-Engine::Renderer::Renderer() :
+Engine::Renderer::Renderer() 
 	/*wireFrameShader{ "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.vert" ,
 					 "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\wireframe.frag" },*/
-	shadowMapShader{ "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.vert",
-					 "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.frag" }
+	/*shadowMapShader{ "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.vert",
+					 "C:\\Users\\Stefan\\source\\repos\\Engine\\shaders\\shadowmap.frag" }*/
 {
 	this->colorDepth = 24u;
 	

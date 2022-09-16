@@ -9,12 +9,11 @@ float oldY = 1080.0 / 2.0;
 
 float moveSpeed = 100.0f;
 
+static Engine::Window window(Engine::Window::WindowDimensions{1920, 1080}, "Engine", Engine::OpenGLVersion{4, 6});
+static Engine::Motor& engine = Engine::Motor::GetEngine();
+
 int main()
 {
-	//------------------------
-	Engine::Window window(1920, 1080, "Engine", nullptr, nullptr, glm::ivec2(4, 6));
-	Engine::Motor& engine = Engine::Motor::GetEngine();
-	
 	engine.Initialize();
 	
 	std::cout << "OpenGL version: " << window.GetGivenVersion() << std::endl;

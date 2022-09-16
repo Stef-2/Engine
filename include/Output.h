@@ -38,12 +38,12 @@ namespace Engine
 			std::string buffer;
 		};
 
-		static Engine::Output::Buffer& Message();
+		static Engine::Output::Buffer& Information();
 		static Engine::Output::Buffer& Warning();
 		static Engine::Output::Buffer& Error();
 
 	private:
-		static Buffer message;
+		static Buffer information;
 		static Buffer warning;
 		static Buffer error;
 	};

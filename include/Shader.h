@@ -340,7 +340,7 @@ namespace Engine
 
 	// binary representation of an OpenGL shader program
 	// can be generated from a successfuly compiled and linked shader program
-	// can be used to create a shader program
+	// can be used to create a shader program without compilation
 	class ShaderProgramBinary
 	{
 	public:
@@ -352,7 +352,7 @@ namespace Engine
 
 		std::unique_ptr<std::byte>& GetData();
 	private:
-		std::unique_ptr<std::byte> data;
+		std::unique_ptr<std::byte[]> data;
 		int size;
 		GLenum binaryFormat;
 	};

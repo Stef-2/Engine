@@ -1,6 +1,6 @@
 #include "Output.h"
 
-Engine::Output::Buffer Engine::Output::message;
+Engine::Output::Buffer Engine::Output::information;
 Engine::Output::Buffer Engine::Output::warning;
 Engine::Output::Buffer Engine::Output::error;
 
@@ -35,9 +35,9 @@ void Engine::Output::WriteFile(void* data, size_t size, WriteParameters params, 
 	stream.close();
 }
 
-Engine::Output::Buffer& Engine::Output::Message()
+Engine::Output::Buffer& Engine::Output::Information()
 {
-	return Engine::Output::message;
+	return Engine::Output::information;
 }
 
 Engine::Output::Buffer& Engine::Output::Warning()

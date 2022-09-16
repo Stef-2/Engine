@@ -30,8 +30,8 @@ Engine::FrameBuffer::FrameBuffer(unsigned int width, unsigned int height)
 
 Engine::FrameBuffer::FrameBuffer(Engine::Window& window)
 {
-	this->width = window.GetDimensions().x;
-	this->height = window.GetDimensions().y;
+	this->width = window.GetDimensions().width;
+	this->height = window.GetDimensions().height;
 	this->FBO = {};
 
 	this->colorBuffer = {};

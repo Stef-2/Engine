@@ -13,61 +13,87 @@
 
 namespace Engine
 {
+	struct OpenGLVersion
+	{
+		using OpenGLVersionNumber = unsigned short;
 
-// GLFWwindow* wrapper class
-class Window
-{
-    public:
-        Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share, glm::ivec2 version);
-        Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share);
-        Window(int width, int height, const char* title);
-        Window();
+		OpenGLVersionNumber major;
+		OpenGLVersionNumber minor;
+	};
 
-        Window(Window&&) = default;
-        Window& operator= (Window&&) = default;
+	// GLFWwindow wrapper class
+	class Window
+	{
+	public:
 
-        Window(Window&) = default;
-        Window& operator= (Window&) = default;
+		using ScreenDimension = unsigned int;
 
-        ~Window();
+		struct WindowDimensions
+		{
+			ScreenDimension width;
+			ScreenDimension height;
+		};
 
-        GLFWwindow* GetGlWindow();
-        GLFWwindow* GetShared();
-        GLFWmonitor* GetMonitor();
-        std::string GetTitle();
-        double GetAspectRatio();
-        glm::ivec2 GetRequestedVersion();
-        std::string GetGivenVersion();
-        glm::uvec2 GetDimensions();
+		Window(WindowDimensions, const char* title, OpenGLVersion version, GLFWmonitor* monitor = nullptr, GLFWwindow* share = nullptr);
+		Window(WindowDimensions, const char* title, GLFWmonitor* monitor, GLFWwindow* share);
+		Window(WindowDimensions, const char* title);
+		Window();
 
-        void SetWindowSize(int width, int height);
-        void SetWidth(int width);
-        void SetHeight(int height);
-        
-        void SetTitle(std::string newTitle);
-        void SetTitle(std::u8string newTitle);
+		Window(Window&&) = default;
+		Window& operator= (Window&&) = default;
 
-        void SetMonitor(GLFWmonitor* monitor);
-        void SetShare(GLFWwindow* share);
-        void SetVersion(glm::ivec2 version);
-        void Initialize();
+		Window(Window&) = default;
+		Window& operator= (Window&) = default;
 
-    private:
-        // glfw's own window struct
-        GLFWwindow* openGlWindow;
-        // slots for windows with which we can share content
-        GLFWwindow* share;
-        // monitor associated with the window
-        GLFWmonitor* monitor;
-        // the requested OpenGL version
-        glm::ivec2 openGlVersion;
-        // OpenGL isn't guaranted to give us the version we asked for, we'll store the one we're given here
-        std::string openGlGivenVersion;
-        int width;
-        int height;
-        // OpenGL window title
-        std::string title;
-};
+		~Window();
+
+
+		GLFWwindow* GetGlWindow();
+		GLFWwindow* GetShared();
+		GLFWmonitor* GetMonitor();
+		std::string_view GetTitle();
+		double GetAspectRatio();
+		OpenGLVersion GetRequestedVersion();
+		std::string_view GetGivenVersion();
+		WindowDimensions GetDimensions();
+
+		void SetWindowSize(WindowDimensions);
+		void SetWidth(ScreenDimension);
+		void SetHeight(ScreenDimension);
+		
+		void SetTitle(std::string newTitle);
+		void SetTitle(std::u8string newTitle);
+
+		void SetMonitor(GLFWmonitor* monitor);
+		void SetShare(GLFWwindow* share);
+		void SetVersion(OpenGLVersion version);
+		void SetFullScreen(bool);
+		void Initialize();
+
+	private:
+		// glfw's own window struct
+		GLFWwindow* openGlWindow;
+
+		// slots for windows with which we can share content
+		GLFWwindow* share;
+
+		// monitor associated with the window
+		GLFWmonitor* monitor;
+
+		// the requested OpenGL version
+		OpenGLVersion openGlVersion;
+
+		// OpenGL isn't guaranted to give us the version we asked for;
+		// we'll store the one we're given here
+		std::string openGlGivenVersion;
+
+		WindowDimensions dimensions;
+
+		// OpenGL window title
+		std::string title;
+
+		bool fullscreen;
+	};
 
 }
 
