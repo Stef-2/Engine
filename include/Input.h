@@ -2,8 +2,17 @@
 
 #include "glfw3.h"
 
+#ifndef STB_IMAGE_IMPLEMENTATION
+	#include "stb_image.h"
+	#define STB_IMAGE_IMPLEMENTATION
+#endif
+
+#include "Output.h"
+
 #include "functional"
+#include "variant"
 #include "vector"
+#include "array"
 #include "map"
 
 namespace Engine
@@ -14,7 +23,20 @@ namespace Engine
 	{
 	public:
 
-		typedef enum class PhysicalKey : unsigned int
+		// typedef key actions
+		using Action = std::function<void()>;
+
+		// possible input modes
+		enum class InputMode
+		{
+			GAME_INPUT,
+			USER_INTERFACE,
+			TEXT_INPUT
+		};
+
+		// keyboard input ===========================================================
+
+		typedef enum class KeyboardKey : int
 		{
 			KEY_UNKNOWN				= GLFW_KEY_UNKNOWN,
 			KEY_SPACE				= GLFW_KEY_SPACE,
@@ -139,17 +161,168 @@ namespace Engine
 			KEY_MENU				= GLFW_KEY_MENU
 		};
 
-		struct Key
+		typedef enum class MouseKey : int
 		{
-			PhysicalKey key;
-			
-			bool pressed;
+			MOUSE_BUTTON_1 = GLFW_MOUSE_BUTTON_1,
+			MOUSE_BUTTON_2 = GLFW_MOUSE_BUTTON_2,
+			MOUSE_BUTTON_3 = GLFW_MOUSE_BUTTON_3,
+			MOUSE_BUTTON_4 = GLFW_MOUSE_BUTTON_4,
+			MOUSE_BUTTON_5 = GLFW_MOUSE_BUTTON_5,
+			MOUSE_BUTTON_6 = GLFW_MOUSE_BUTTON_6,
+			MOUSE_BUTTON_7 = GLFW_MOUSE_BUTTON_7,
+			MOUSE_BUTTON_8 = GLFW_MOUSE_BUTTON_8,
+			MOUSE_BUTTON_LAST = GLFW_MOUSE_BUTTON_8,
+			MOUSE_BUTTON_LEFT = GLFW_MOUSE_BUTTON_1,
+			MOUSE_BUTTON_RIGHT = GLFW_MOUSE_BUTTON_2,
+			MOUSE_BUTTON_MIDDLE = GLFW_MOUSE_BUTTON_3
 		};
 
-		static Key& GetLastKey();
+		// combining keyboard and mouse keys
+		using PhysicalKey = std::variant<KeyboardKey, MouseKey>;
 
-		static std::multimap<Key&, std::function<void()>> keyMapping;
+		// keyboard modifier keys
+		typedef enum class ModifierKey : int
+		{
+			SHIFT = GLFW_MOD_SHIFT,
+			CONTROL = GLFW_MOD_CONTROL,
+			ALT = GLFW_MOD_ALT,
+			CAPS_LOCK = GLFW_MOD_CAPS_LOCK,
+			NUM_LOCK = GLFW_MOD_NUM_LOCK,
+			SUPER = GLFW_MOD_SUPER
+		};
+
+		// possible key states
+		typedef enum class KeyState : int
+		{
+			PRESSED = GLFW_PRESS,
+			RELEASED = GLFW_RELEASE,
+			HELD = GLFW_REPEAT
+		};
+
+		// full key input
+		struct KeyInput
+		{
+			PhysicalKey key;
+			ModifierKey modifier;
+			KeyState state;
+		};
+
+		// input event handling 
+
+		// parse hardware inputs
+		static void ParseEvents();
+		// wait for an input indefinitely
+		static void WaitForEvent();
+		// wait for an input for x seconds, trigger after timeout
+		static void WaitForEvent(float seconds);
+		// trigger an event that does nothing, can be used to wake up sleeping threads
+		static void TriggerNullEvent();
+
+		// convert a phyisical key into a system specific scancode
+		static int GetKeyScanCode(PhysicalKey);
+
+		// last pressed keys
+		static KeyboardKey GetLastKeyboardKey();
+		static MouseKey GetLastMouseKey();
+
+		// last recorded key state
+		KeyState GetKeyState(PhysicalKey);
+
+		// input mode
+		static void SetInputMode(InputMode);
+		static InputMode GetCurrentInputMode();
+
+		// key mapping
+		static bool IsKeyMapped(KeyInput);
+		static unsigned int GetNumBoundActions(KeyInput);
+		static void MapKey(KeyInput, Action);
+		static void UnmapActionFromKey(KeyInput, Action);
+		static void UnmapKey(KeyInput);
+
+		// mouse input ==============================================================
+
+		class Cursor
+		{
+			using dimension = unsigned int;
+
+		public:
+			// predefined standard set of window cursor shapes
+			typedef enum class StandardCursorShapes : int
+			{
+				ARROW_CURSOR = GLFW_ARROW_CURSOR,
+				IBEAM_CURSOR = GLFW_IBEAM_CURSOR,
+				CROSSHAIR_CUROSR = GLFW_CROSSHAIR_CURSOR,
+				HAND_CURSOR = GLFW_HAND_CURSOR,
+				HORIZONTAL_RESIZE_CURSOR = GLFW_HRESIZE_CURSOR,
+				VERTICAL_RESIZE_CURSOR = GLFW_VRESIZE_CURSOR
+			};
+
+			typedef enum class CursorMode : int
+			{
+				CURSOR_NORMAL = GLFW_CURSOR_NORMAL,
+				CURSOR_HIDDEN = GLFW_CURSOR_HIDDEN,
+				CURSOR_DISABLED = GLFW_CURSOR_DISABLED
+			};
+
+			// custom cursor images
+			class CursorImage
+			{
+			public:
+				CursorImage(std::string_view filePath);
+
+				GLFWimage& GetGFLFWImage();
+				void SetGLFWImage(GLFWimage&);
+
+			private:
+				GLFWimage image;
+			};
+
+			// standard cursor
+			Cursor();
+			Cursor(dimension xOffset, dimension yOffset);
+			Cursor(CursorImage&, dimension xOffset, dimension yOffset);
+
+			void SetImage(CursorImage&);
+			CursorImage& GetImage();
+
+			void SetGLFWCursor(GLFWcursor&);
+			GLFWcursor& GetGLFWCursor();
+
+			void SetCursorMode(CursorMode);
+			CursorMode GetCursorMode();
+
+			void SetCursorPosition(double x, double y);
+			std::array<double, 2> GetCursorPosition();
+
+			void SetRawMode(bool);
+			bool GetRawMode();
+
+		private:
+			std::unique_ptr<CursorImage> image;
+			std::unique_ptr<GLFWcursor> cursor;
+
+			CursorMode mode;
+			bool rawMode;
+		};
+
+		// input callbacks
+
+		// keyboard input handling
+		static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+		// mouse scroll handling
+		static void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
+		// mouse movement handling
+		static void MouseCallback(GLFWwindow* window, double xPos, double yPos);
+
+	private:
+		static std::map<KeyInput, std::vector<Action>> keyMapping;
+
+		static GLFWwindow* window;
+		static Cursor cursor;
+		static InputMode currentInputMode;
+
+		static KeyboardKey lastKeyboardKey;
+		static MouseKey lastMouseKey;
 	};
-
 }
 

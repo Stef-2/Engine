@@ -55,7 +55,7 @@ namespace Engine
 		double GetAspectRatio();
 		OpenGLVersion GetRequestedVersion();
 		std::string_view GetGivenVersion();
-		WindowDimensions GetDimensions();
+		WindowDimensions& GetDimensions();
 
 		void SetWindowSize(WindowDimensions);
 		void SetWidth(ScreenDimension);

@@ -4,8 +4,7 @@ Engine::Mesh Engine::UserInterface::sharedQuad;
 
 std::vector<Engine::UserInterface::UIElement*> Engine::UserInterface::visibleElements = {};
 
-unsigned int Engine::UserInterface::width = 0;
-unsigned int Engine::UserInterface::height = 0;
+Engine::Window::WindowDimensions* Engine::UserInterface::dimensions = nullptr;
 
 Engine::Mesh& Engine::UserInterface::GetSharedQuad() const
 {
@@ -17,8 +16,7 @@ void Engine::UserInterface::Setup(Engine::Window& window)
 	constexpr const float quadSize = 1.0f;
 	constexpr const float quadOffsets = quadSize / 2.0f;
 
-	Engine::UserInterface::width = window.GetDimensions().width;
-	Engine::UserInterface::height = window.GetDimensions().height;
+Engine::UserInterface::dimensions = &window.GetDimensions();
 
 	const float ratio = window.GetAspectRatio();
 
@@ -46,14 +44,14 @@ void Engine::UserInterface::Setup(Engine::Window& window)
 	Engine::UserInterface::sharedQuad.SetInstanceable(true, InstanceType::COMPLEX_INSTANCE);
 }
 
-unsigned int Engine::UserInterface::GetWidth()
+Engine::Window::ScreenDimension Engine::UserInterface::GetWidth()
 {
-	return Engine::UserInterface::width;
+	return Engine::UserInterface::dimensions->width;
 }
 
-unsigned int Engine::UserInterface::GetHeight()
+Engine::Window::ScreenDimension Engine::UserInterface::GetHeight()
 {
-	return Engine::UserInterface::height;
+	return Engine::UserInterface::dimensions->height;
 }
 
 std::vector<Engine::UserInterface::UIElement*>& Engine::UserInterface::GetVisibleElements()

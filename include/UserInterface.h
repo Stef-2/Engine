@@ -21,8 +21,8 @@ namespace Engine
 		
 		void Setup(Engine::Window&);
 
-		static unsigned int GetWidth();
-		static unsigned int GetHeight();
+		static Engine::Window::ScreenDimension GetWidth();
+		static Engine::Window::ScreenDimension GetHeight();
 
 		// layer type, to be instanced into valid values by UserInterface
 		// used by various UI elements as a depth value sent to GPU for rendering
@@ -151,8 +151,7 @@ namespace Engine
 		// stack of visible UI elements
 		static std::vector<UIElement*> visibleElements;
 
-		static unsigned int width;
-		static unsigned int height;
+		static Engine::Window::WindowDimensions* dimensions;
 	};
 
 }

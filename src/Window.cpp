@@ -163,7 +163,7 @@ std::string_view Engine::Window::GetGivenVersion()
 	return this->openGlGivenVersion;
 }
 
-Engine::Window::WindowDimensions Engine::Window::GetDimensions()
+Engine::Window::WindowDimensions& Engine::Window::GetDimensions()
 {
 	return this->dimensions;
 }
