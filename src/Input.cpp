@@ -1,11 +1,18 @@
 #include "Input.h"
-
-Engine::Input::InputMode Engine::Input::currentInputMode = Engine::Input::InputMode::USER_INTERFACE;
+/*
+Engine::Input::InputMode Engine::Input::currentInputMode = Engine::Input::InputMode::USER_INTERFACE_INPUT;
 std::map<Engine::Input::KeyInput, std::vector<Engine::Input::Action>> Engine::Input::keyMapping {};
 Engine::Input::KeyboardKey Engine::Input::lastKeyboardKey {Engine::Input::KeyboardKey::KEY_UNKNOWN};
 Engine::Input::MouseKey Engine::Input::lastMouseKey {Engine::Input::MouseKey::MOUSE_BUTTON_LAST};
 GLFWwindow* Engine::Input::window = {};
 Engine::Input::Cursor Engine::Input::cursor{};
+*/
+Engine::Input& Engine::Input::GetInput()
+{
+	static Input input;
+
+	return input;
+}
 
 void Engine::Input::ParseEvents()
 {
@@ -24,7 +31,12 @@ void Engine::Input::TriggerNullEvent()
 
 int Engine::Input::GetKeyScanCode(PhysicalKey key)
 {
-	return glfwGetKeyScancode(std::get<unsigned int>(key));
+	return glfwGetKeyScancode(std::to_underlying(std::get<0>(key)));
+}
+
+std::string Engine::Input::GetKeyName(PhysicalKey key)
+{
+	return glfwGetKeyName(std::to_underlying(std::get<0>(key)), 0);
 }
 
 Engine::Input::KeyboardKey Engine::Input::GetLastKeyboardKey()
@@ -39,7 +51,7 @@ Engine::Input::MouseKey Engine::Input::GetLastMouseKey()
 
 Engine::Input::KeyState Engine::Input::GetKeyState(PhysicalKey key)
 {
-	return static_cast<KeyState>(glfwGetKey(Engine::Input::window, std::get<unsigned int>(key)));
+	return static_cast<KeyState>(glfwGetKey(Engine::Input::window, std::to_underlying(std::get<0>(key))));
 }
 
 void Engine::Input::WaitForEvent(float seconds)
@@ -57,25 +69,37 @@ Engine::Input::InputMode Engine::Input::GetCurrentInputMode()
 	return Engine::Input::currentInputMode;
 }
 
+void Engine::Input::SetLockKeys(bool value)
+{
+	glfwSetInputMode(Engine::Input::window, GLFW_LOCK_KEY_MODS, value);
+}
+
+bool Engine::Input::GetLockKeys()
+{
+	return glfwGetInputMode(Engine::Input::window, GLFW_LOCK_KEY_MODS);
+}
+
 bool Engine::Input::IsKeyMapped(KeyInput key)
 {
 	return Engine::Input::keyMapping.contains(key);
 }
 
-void Engine::Input::MapKey(KeyInput key , Action action)
+void Engine::Input::MapKey(KeyInput key, Action& action)
 {
-	if (Engine::Input::keyMapping.contains(key))
+	// if the key is already mapped, just add the action to the stack
+	if (Input::IsKeyMapped(key))
 		Engine::Input::keyMapping.at(key).push_back(action);
-	else
-		Engine::Input::keyMapping.emplace(std::pair{key, action});
 
+	// otherwise, add a new key => actions pair
+	else
+		Engine::Input::keyMapping.emplace(key, std::vector<Action>{action});
 }
 
-void Engine::Input::UnmapActionFromKey(KeyInput key , Action action)
+void Engine::Input::UnmapActionFromKey(KeyInput key, Action& action)
 {
 	// check if the key is mapped
-	if (Engine::Input::IsKeyMapped(key)) {
-
+	if (Engine::Input::IsKeyMapped(key))
+	{
 		auto& actions = Engine::Input::keyMapping.at(key);
 
 		// check if the action exists
@@ -97,7 +121,7 @@ unsigned int Engine::Input::GetNumBoundActions(KeyInput key)
 	if (!Engine::Input::keyMapping.contains(key))
 		return 0;
 
-	return Engine::Input::keyMapping.at(key).size();
+	return Engine::Input::keyMapping.count(key);
 }
 
 Engine::Input::Cursor::CursorImage::CursorImage(std::string_view filePath)
@@ -152,14 +176,14 @@ Engine::Input::Cursor::CursorImage& Engine::Input::Cursor::GetImage()
 	return *this->image;
 }
 
-void Engine::Input::Cursor::SetGLFWCursor(GLFWcursor& cursor)
+void Engine::Input::Cursor::SetGLFWCursor(GLFWcursor* cursor)
 {
-	this->cursor.reset(&cursor);
+	this->cursor = cursor;
 }
 
-GLFWcursor& Engine::Input::Cursor::GetGLFWCursor()
+GLFWcursor* Engine::Input::Cursor::GetGLFWCursor()
 {
-	return *this->cursor;
+	return this->cursor;
 }
 
 void Engine::Input::Cursor::SetCursorMode(CursorMode mode)
@@ -189,13 +213,12 @@ std::array<double, 2> Engine::Input::Cursor::GetCursorPosition()
 
 void Engine::Input::Cursor::SetRawMode(bool value)
 {
-	this->rawMode = value;
 	glfwSetInputMode(Engine::Input::window, GLFW_RAW_MOUSE_MOTION, value);
 }
 
 bool Engine::Input::Cursor::GetRawMode()
 {
-	return this->rawMode;
+	return glfwGetInputMode(Engine::Input::window, GLFW_RAW_MOUSE_MOTION);
 }
 
 Engine::Input::Cursor::Cursor(CursorImage& image, dimension xOffset, dimension yOffset)

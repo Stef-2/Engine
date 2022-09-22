@@ -42,6 +42,7 @@
 #include "FrameBuffer.h"
 #include "Shared.h"
 #include "UserInterface.h"
+#include "Input.h"
 
 #include <csignal>
 #include "fstream"

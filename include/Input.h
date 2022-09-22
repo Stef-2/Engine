@@ -18,25 +18,24 @@
 namespace Engine
 {
 
-	// input handling class, subsystem of Engine::Motor
+	// static input handling class, subsystem of Engine::Motor
 	class Input
 	{
 	public:
-
-		// typedef key actions
-		using Action = std::function<void()>;
+		// singleton instance provider
+		static Input& GetInput();
 
 		// possible input modes
 		enum class InputMode
 		{
 			GAME_INPUT,
-			USER_INTERFACE,
+			USER_INTERFACE_INPUT,
 			TEXT_INPUT
 		};
 
 		// keyboard input ===========================================================
 
-		typedef enum class KeyboardKey : int
+		enum class KeyboardKey : int
 		{
 			KEY_UNKNOWN				= GLFW_KEY_UNKNOWN,
 			KEY_SPACE				= GLFW_KEY_SPACE,
@@ -161,7 +160,7 @@ namespace Engine
 			KEY_MENU				= GLFW_KEY_MENU
 		};
 
-		typedef enum class MouseKey : int
+		enum class MouseKey : int
 		{
 			MOUSE_BUTTON_1 = GLFW_MOUSE_BUTTON_1,
 			MOUSE_BUTTON_2 = GLFW_MOUSE_BUTTON_2,
@@ -177,67 +176,141 @@ namespace Engine
 			MOUSE_BUTTON_MIDDLE = GLFW_MOUSE_BUTTON_3
 		};
 
-		// combining keyboard and mouse keys
+		// typedef combining keyboard and mouse keys into one
 		using PhysicalKey = std::variant<KeyboardKey, MouseKey>;
-
+		
 		// keyboard modifier keys
-		typedef enum class ModifierKey : int
+		enum class ModifierKey : int
 		{
+			NONE = 0x0000'0000,
 			SHIFT = GLFW_MOD_SHIFT,
 			CONTROL = GLFW_MOD_CONTROL,
 			ALT = GLFW_MOD_ALT,
+			SUPER = GLFW_MOD_SUPER,
 			CAPS_LOCK = GLFW_MOD_CAPS_LOCK,
 			NUM_LOCK = GLFW_MOD_NUM_LOCK,
-			SUPER = GLFW_MOD_SUPER
+			DEFAULT = NONE
 		};
 
 		// possible key states
-		typedef enum class KeyState : int
+		enum class KeyState : int
 		{
 			PRESSED = GLFW_PRESS,
 			RELEASED = GLFW_RELEASE,
-			HELD = GLFW_REPEAT
+			HELD = GLFW_REPEAT,
+			DEFAULT = PRESSED
 		};
 
-		// full key input
+		// full key input, combining a key, modifier(s), and state which should trigger it
+		// allows initialization from just a key, with modifiers defaulting to NONE and state to PRESSED
 		struct KeyInput
 		{
-			PhysicalKey key;
-			ModifierKey modifier;
-			KeyState state;
+			// make constructible from PhysicalKey
+			inline KeyInput(PhysicalKey& key)
+				: key(key), modifiers(ModifierKey::DEFAULT), state(KeyState::DEFAULT)
+				{};
+
+			// default constructor from physical key, usually a mouthful to declare properly
+			inline KeyInput(PhysicalKey& key, ModifierKey& modifier, KeyState& state)
+				: key(key), modifiers(modifier), state(state)
+				{};
+
+			// make constructible from keyboard and mouse keys for convenience
+			inline KeyInput(KeyboardKey& key)
+				: key{key}, modifiers(ModifierKey::DEFAULT), state(KeyState::DEFAULT)
+				{};
+
+			inline KeyInput(MouseKey& key)
+				: key {key}, modifiers(ModifierKey::DEFAULT), state(KeyState::DEFAULT)
+				{};
+
+			// comparison operator needed for std::map
+			friend bool operator<(const KeyInput& lhs, const KeyInput& rhs) {return lhs.key < rhs.key;};
+
+			const PhysicalKey key;
+			const ModifierKey modifiers;
+			const KeyState state;
+		};
+
+		// indexed std::function<>() wrapper, plain ones are indistinguishable from each other
+		struct Action
+		{
+			// make constructible from std::function&
+			inline Action(std::function<void()>& action)
+				: action{action}, id(count)
+				{ count++; };
+
+			// and from std::function&&
+			inline Action(std::function<void()>&& action)
+				: action {action}, id(count)
+				{ count++; };
+
+			// copy and move constructors needed for std::vector and other containers
+			Action(Action&&) noexcept = default;
+			Action& operator=(Action&&) noexcept = default;
+			
+			Action(const Action&) = default;
+			Action& operator=(const Action&) = default;
+
+			// comparison operators needed for std::map
+			inline friend bool operator==(const Action& lhs, const Action& rhs)
+				{return lhs.id == rhs.id;};
+
+			inline friend bool operator<(const Action& lhs, const Action& rhs)
+				{return lhs.id < rhs.id;}
+
+			// internal function access
+			inline std::function<void()>& GetAction()
+				{ return action; };
+
+			inline void operator()()
+				{ action(); }
+
+		private:
+			std::function<void()> action;
+			unsigned int id;
+
+			// global counter
+			inline static unsigned long count = 0u;
 		};
 
 		// input event handling 
 
 		// parse hardware inputs
-		static void ParseEvents();
+		void ParseEvents();
 		// wait for an input indefinitely
-		static void WaitForEvent();
+		void WaitForEvent();
 		// wait for an input for x seconds, trigger after timeout
-		static void WaitForEvent(float seconds);
+		void WaitForEvent(float seconds);
 		// trigger an event that does nothing, can be used to wake up sleeping threads
-		static void TriggerNullEvent();
+		void TriggerNullEvent();
 
-		// convert a phyisical key into a system specific scancode
-		static int GetKeyScanCode(PhysicalKey);
+		// convert a physical key into a system specific scancode
+		int GetKeyScanCode(PhysicalKey);
+		// convert a physical key into its platform specific name
+		std::string GetKeyName(PhysicalKey);
 
 		// last pressed keys
-		static KeyboardKey GetLastKeyboardKey();
-		static MouseKey GetLastMouseKey();
+		KeyboardKey GetLastKeyboardKey();
+		MouseKey GetLastMouseKey();
 
 		// last recorded key state
 		KeyState GetKeyState(PhysicalKey);
 
 		// input mode
-		static void SetInputMode(InputMode);
-		static InputMode GetCurrentInputMode();
+		void SetInputMode(InputMode);
+		InputMode GetCurrentInputMode();
+
+		// enable and disable num and caps lock
+		void SetLockKeys(bool);
+		bool GetLockKeys();
 
 		// key mapping
-		static bool IsKeyMapped(KeyInput);
-		static unsigned int GetNumBoundActions(KeyInput);
-		static void MapKey(KeyInput, Action);
-		static void UnmapActionFromKey(KeyInput, Action);
-		static void UnmapKey(KeyInput);
+		bool IsKeyMapped(KeyInput);
+		unsigned int GetNumBoundActions(KeyInput);
+		void MapKey(KeyInput, Action&);
+		void UnmapActionFromKey(KeyInput, Action&);
+		void UnmapKey(KeyInput);
 
 		// mouse input ==============================================================
 
@@ -247,24 +320,26 @@ namespace Engine
 
 		public:
 			// predefined standard set of window cursor shapes
-			typedef enum class StandardCursorShapes : int
+			enum class StandardCursorShapes : int
 			{
 				ARROW_CURSOR = GLFW_ARROW_CURSOR,
 				IBEAM_CURSOR = GLFW_IBEAM_CURSOR,
 				CROSSHAIR_CUROSR = GLFW_CROSSHAIR_CURSOR,
 				HAND_CURSOR = GLFW_HAND_CURSOR,
 				HORIZONTAL_RESIZE_CURSOR = GLFW_HRESIZE_CURSOR,
-				VERTICAL_RESIZE_CURSOR = GLFW_VRESIZE_CURSOR
+				VERTICAL_RESIZE_CURSOR = GLFW_VRESIZE_CURSOR,
+				DEFAULT = ARROW_CURSOR
 			};
 
-			typedef enum class CursorMode : int
+			enum class CursorMode : int
 			{
 				CURSOR_NORMAL = GLFW_CURSOR_NORMAL,
 				CURSOR_HIDDEN = GLFW_CURSOR_HIDDEN,
-				CURSOR_DISABLED = GLFW_CURSOR_DISABLED
+				CURSOR_DISABLED = GLFW_CURSOR_DISABLED,
+				DEFAULT = CURSOR_NORMAL
 			};
 
-			// custom cursor images
+			// custom cursor images class
 			class CursorImage
 			{
 			public:
@@ -285,8 +360,8 @@ namespace Engine
 			void SetImage(CursorImage&);
 			CursorImage& GetImage();
 
-			void SetGLFWCursor(GLFWcursor&);
-			GLFWcursor& GetGLFWCursor();
+			void SetGLFWCursor(GLFWcursor*);
+			GLFWcursor* GetGLFWCursor();
 
 			void SetCursorMode(CursorMode);
 			CursorMode GetCursorMode();
@@ -299,13 +374,17 @@ namespace Engine
 
 		private:
 			std::unique_ptr<CursorImage> image;
-			std::unique_ptr<GLFWcursor> cursor;
+
+			GLFWcursor* cursor;
+			GLFWwindow* window;
 
 			CursorMode mode;
-			bool rawMode;
 		};
 
 		// input callbacks
+		// being a C library with no knowledge of objects or this->pointer,
+		// glfw can only accept static or fully global functions as valid callbacks
+		static void InitializeCallbacks();
 
 		// keyboard input handling
 		static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -313,16 +392,23 @@ namespace Engine
 		static void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
 		// mouse movement handling
 		static void MouseCallback(GLFWwindow* window, double xPos, double yPos);
+		// text input handling
+		static void CharacterCallback(GLFWwindow* window, unsigned int codepoint);
 
 	private:
-		static std::map<KeyInput, std::vector<Action>> keyMapping;
+		// hide the constructors
+		Input(GLFWwindow&);
+		Input(const Input&) = delete;
+		void operator=(const Input&) = delete;
 
-		static GLFWwindow* window;
-		static Cursor cursor;
-		static InputMode currentInputMode;
+		std::map<KeyInput, std::vector<Action>> keyMapping;
 
-		static KeyboardKey lastKeyboardKey;
-		static MouseKey lastMouseKey;
+		GLFWwindow* window;
+		Cursor cursor;
+		InputMode currentInputMode;
+
+		KeyboardKey lastKeyboardKey;
+		MouseKey lastMouseKey;
 	};
 }
 

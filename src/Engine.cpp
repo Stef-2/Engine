@@ -7,7 +7,7 @@ Engine::Motor& Engine::Motor::GetEngine()
     return instance;
 }
 
-Engine::Motor::Motor()
+Engine::Motor::Motor() : inputHandler(Input::GetInput())
 {
     //this->renderer = {};
     this->collider = {};

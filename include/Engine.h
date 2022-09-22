@@ -51,8 +51,8 @@ namespace Engine
             static Motor& GetEngine();
 
             // make sure it can't be copy constructed
-            Motor(Motor const&) = delete;
-            void operator=(Motor const&) = delete;
+            Motor(const Motor&) = delete;
+            void operator=(const Motor&) = delete;
 
             // retrieves the requested directory path
             std::string GetFilePath(Engine::EngineFilePath path);
@@ -121,7 +121,7 @@ namespace Engine
             Engine::Collider collider;
             Engine::Animator animator;
             Engine::UserInterface userInterface;
-            Engine::Input inputHandler;
+            Engine::Input& inputHandler;
 
             double currentTime;
             double lastTime;

@@ -86,6 +86,7 @@ int main()
 
 	Engine::UIElementAnimation ani1{ {0.0f, -2.0f}, 1.0f };
 	Engine::UIElementAnimation ani2 = -ani1;
+
 	// ===========================================================================
 
 	Engine::ShaderProgram instanced(engine.GetFilePath(Engine::EngineFilePath::SHADERS_PATH).append("\\instanced.vert"),
