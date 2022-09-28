@@ -124,22 +124,22 @@ Engine::Window& Engine::Motor::GetWindow()
     return this->window;
 }
 
-Engine::Renderer& Engine::Motor::GetRenderer()
+Engine::Renderer& Engine::Motor::Renderer()
 {
     return this->renderer;
 }
 
-Engine::Collider& Engine::Motor::GetCollider()
+Engine::Collider& Engine::Motor::Collider()
 {
     return this->collider;
 }
 
-Engine::Animator& Engine::Motor::GetAnimator()
+Engine::Animator& Engine::Motor::Animator()
 {
     return this->animator;
 }
 
-Engine::UserInterface& Engine::Motor::GetUserInterface()
+Engine::UserInterface& Engine::Motor::UserInterface()
 {
     return this->userInterface;
 }

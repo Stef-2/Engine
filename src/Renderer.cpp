@@ -451,3 +451,8 @@ unsigned int Engine::Renderer::QueryProperty(QueryableProperty property)
 		break;
 	}
 }
+
+bool Engine::Renderer::IsExtensionSupported(std::string& extensionName)
+{
+	return glfwExtensionSupported(extensionName.c_str());
+}

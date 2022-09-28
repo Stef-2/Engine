@@ -48,6 +48,8 @@ namespace Engine
 		~Window();
 
 
+
+
 		GLFWwindow* GetGlWindow();
 		GLFWwindow* GetShared();
 		GLFWmonitor* GetMonitor();
@@ -67,7 +69,13 @@ namespace Engine
 		void SetMonitor(GLFWmonitor* monitor);
 		void SetShare(GLFWwindow* share);
 		void SetVersion(OpenGLVersion version);
+
 		void SetFullScreen(bool);
+		bool GetFullScreen();
+
+		void SetShouldClose(bool);
+		bool GetShouldClose();
+
 		void Initialize();
 
 	private:
@@ -93,6 +101,8 @@ namespace Engine
 		std::string title;
 
 		bool fullscreen;
+
+		static Window* currentWindow;
 	};
 
 }

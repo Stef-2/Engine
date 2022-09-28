@@ -191,7 +191,7 @@ int main()
 		}
 	}
 
-	engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back()->GetAnimations().back().GetName());
+	engine.Animator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back()->GetAnimations().back().GetName());
 	
 	Engine::PointLight pointLight1;
 	Engine::PointLight pointLight2;
@@ -284,18 +284,18 @@ int main()
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_R) == GLFW_PRESS) {
 			obj1.GetModel().GetStaticMeshes().at(0)->SetInstanceable(true, Engine::InstanceType::SIMPLE_INSTANCE);
 			//panel3.SetVisiblity(false);
-			engine.GetAnimator().Animate(console, ani1);
+			engine.Animator().Animate(console, ani1);
 		}
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_T) == GLFW_PRESS) {
 			obj1.GetModel().GetStaticMeshes().at(0)->SetInstanceable(true, Engine::InstanceType::COMPLEX_INSTANCE);
 			//panel3.SetVisiblity(true);
-			engine.GetAnimator().Animate(console, ani2);
+			engine.Animator().Animate(console, ani2);
 			mainMenu.SetVisiblity(!mainMenu.GetVisiblity());
 
 		}
 
 		if (glfwGetKey(engine.GetWindow().GetGlWindow(), GLFW_KEY_E) == GLFW_PRESS) {
-			engine.GetAnimator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back()->GetAnimations().back().GetName());
+			engine.Animator().Animate(obj2, obj2.GetModel().GetAnimatedMeshes().back()->GetAnimations().back().GetName());
 			//glm::mat4 asd = glm::mat4_cast(glm::inverse(camera.GetOrientation())) * camera.GetView();
 			/*glm::mat4 asd = camera.GetView();
 			glm::vec3 inv = -asd[3] * glm::mat3(asd);
@@ -312,8 +312,8 @@ int main()
 		obj3.RotateRelative(0.0f, 15.0f * deltaTime, 0.0f);
 		//obj4.MoveRelative(0.2f * deltaTime, 0.0f, 0.0f);
 		//spotLight.RotateRelative(0.0f, 1.0f * deltaTime, 0.0f);
-		engine.GetAnimator().UpdateAnimations();
-		std::vector<Engine::Actor*> culled = engine.GetRenderer().FrustumCull(camera, actors);
+		engine.Animator().UpdateAnimations();
+		std::vector<Engine::Actor*> culled = engine.Renderer().FrustumCull(camera, actors);
 		numCulls = actors.size() - culled.size();
 		//engine.GetRenderer().Render(camera, actors);
 		pointLight1.MoveRelative(0.0f, 10.0f * deltaTime, 0.0f);
@@ -336,14 +336,14 @@ int main()
 		//engine.GetRenderer().Render(camera, obj2.GetModel().GetBoundingBox());
 		// camera.Draw(&obj1);
 		// camera.Draw(&obj2);
-		engine.GetRenderer().Render(camera, skyBox);
+		engine.Renderer().Render(camera, skyBox);
 
 		// render shadows
 		//engine.GetRenderer().Render(dirLight, shadowBuffer, obj1);
 
 		//obj4.SetShader(wireFrame);
-		engine.GetRenderer().Render(camera, obj1);
-		engine.GetRenderer().Render(engine.GetUserInterface());
+		engine.Renderer().Render(camera, obj1);
+		engine.Renderer().Render(engine.UserInterface());
 		//engine.GetRenderer().Render(camera, obj2);
 		//engine.GetRenderer().Render(camera, obj3);
 		//engine.GetRenderer().Render(camera, obj4);

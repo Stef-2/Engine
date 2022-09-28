@@ -138,6 +138,21 @@ void Engine::Window::SetFullScreen(bool value)
 	this->monitor = (this->fullscreen) ? glfwGetPrimaryMonitor() : nullptr;
 }
 
+bool Engine::Window::GetFullScreen()
+{
+	return this->fullscreen;
+}
+
+void Engine::Window::SetShouldClose(bool value)
+{
+	glfwSetWindowShouldClose(this->openGlWindow, value);
+}
+
+bool Engine::Window::GetShouldClose()
+{
+	return glfwWindowShouldClose(this->openGlWindow);
+}
+
 void Engine::Window::SetMonitor(GLFWmonitor* monitor)
 {
 	this->monitor = monitor;

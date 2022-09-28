@@ -64,16 +64,16 @@ namespace Engine
             void SetWindow(Engine::Window& window);
 
             // rendering subsystem
-            Engine::Renderer& GetRenderer();
+            Engine::Renderer& Renderer();
 
             // physics simulation subsystem
-            Engine::Collider& GetCollider();
+            Engine::Collider& Collider();
 
             // animation subsystem
-            Engine::Animator& GetAnimator();
+            Engine::Animator& Animator();
 
             // user inteface subsystem
-            Engine::UserInterface& GetUserInterface();
+            Engine::UserInterface& UserInterface();
 
             void Initialize();
 
@@ -114,6 +114,9 @@ namespace Engine
             // glfw can only accept static or fully global functions as valid callbacks
             void InitializeCallbacks();
 
+            // Window encapsulates OpenGL context and window / monitor related data
+            // it is required to be setup before Engine can be fully constructed
+            // as some of the subsystems depend on Engine::Window data
             Engine::Window window;
 
             // subsystems

@@ -23,7 +23,7 @@ namespace Engine
 
 		// strings taking format [#RRGGBB] or [#RRGGBBAA]
 		struct hexString24 {const char color[1 + 6];};
-		struct hexString32 {const char color[1 + 6];};
+		struct hexString32 {const char color[1 + 8];};
 
 		enum class ColorMode
 		{
@@ -64,10 +64,10 @@ namespace Engine
 
 		// implicit conversion to glm::vec4
 		operator glm::vec4();
-		// implicit conversion to hex code
-		operator unsigned int();
-		// implicit conversion to hex string
-		operator std::string();
+		// explicit conversion to hex code
+		explicit operator unsigned int();
+		// explicit conversion to hex string
+		explicit operator std::string();
 
 		Color& Mix(const Color& other, float scale = 0.5f) const;
 
@@ -102,7 +102,7 @@ namespace Engine
 		static const Color redMagenta;
 		static const Color blueMagenta;
 
-		// regular names for tertiaries ^
+		// regular / common names for tertiaries ^
 		static const Color& orange;
 		static const Color& chartreuse;
 		static const Color& springGreen;
@@ -110,7 +110,10 @@ namespace Engine
 		static const Color& violet;
 		static const Color& rose;
 
+		// ==========================================================================
+
 	private:
+
 		ColorMode mode;
 
 		inline static const constexpr int OxFF = 0xFF;

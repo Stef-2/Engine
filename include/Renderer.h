@@ -69,6 +69,9 @@ namespace Engine
 		unsigned short GetColorDepth();
 		unsigned int QueryProperty(QueryableProperty property);
 
+		// check if the system supports a particular OpenGL extension, provided as a string
+		bool IsExtensionSupported(std::string& extensionName);
+
 	private:
 		unsigned short colorDepth;
 

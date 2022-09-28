@@ -233,6 +233,7 @@ namespace Engine
 		};
 
 		// indexed std::function<>() wrapper, plain ones are indistinguishable from each other
+		// indices are used to differentiate and compare them inside a std::map
 		struct Action
 		{
 			// make constructible from std::function&
@@ -353,9 +354,9 @@ namespace Engine
 			};
 
 			// standard cursor
-			Cursor();
-			Cursor(dimension xOffset, dimension yOffset);
-			Cursor(CursorImage&, dimension xOffset, dimension yOffset);
+			Cursor(GLFWwindow&);
+			Cursor(GLFWwindow&, dimension xOffset, dimension yOffset);
+			Cursor(GLFWwindow&, CursorImage&, dimension xOffset, dimension yOffset);
 
 			void SetImage(CursorImage&);
 			CursorImage& GetImage();
@@ -386,7 +387,10 @@ namespace Engine
 		// glfw can only accept static or fully global functions as valid callbacks
 		static void InitializeCallbacks();
 
+		// input processing functions should be different depeding on the InputMode we're currently in
+		
 		// keyboard input handling
+		template<InputMode M>
 		static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 		// mouse scroll handling
 		static void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset);

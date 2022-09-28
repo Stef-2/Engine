@@ -1,12 +1,5 @@
 #include "Input.h"
-/*
-Engine::Input::InputMode Engine::Input::currentInputMode = Engine::Input::InputMode::USER_INTERFACE_INPUT;
-std::map<Engine::Input::KeyInput, std::vector<Engine::Input::Action>> Engine::Input::keyMapping {};
-Engine::Input::KeyboardKey Engine::Input::lastKeyboardKey {Engine::Input::KeyboardKey::KEY_UNKNOWN};
-Engine::Input::MouseKey Engine::Input::lastMouseKey {Engine::Input::MouseKey::MOUSE_BUTTON_LAST};
-GLFWwindow* Engine::Input::window = {};
-Engine::Input::Cursor Engine::Input::cursor{};
-*/
+
 Engine::Input& Engine::Input::GetInput()
 {
 	static Input input;
@@ -116,6 +109,11 @@ void Engine::Input::UnmapKey(KeyInput key)
 	Engine::Input::keyMapping.erase(key);
 }
 
+void Engine::Input::InitializeCallbacks()
+{
+
+}
+
 unsigned int Engine::Input::GetNumBoundActions(KeyInput key)
 {
 	if (!Engine::Input::keyMapping.contains(key))
@@ -148,22 +146,22 @@ void Engine::Input::Cursor::CursorImage::SetGLFWImage(GLFWimage& image)
 	this->image = image;
 }
 
-Engine::Input::Cursor::Cursor()
+Engine::Input::Cursor::Cursor(GLFWwindow& window)
 	: image{nullptr},
 	cursor{glfwCreateStandardCursor
-	(std::to_underlying(Engine::Input::Cursor::StandardCursorShapes::ARROW_CURSOR))}
+	(std::to_underlying(Engine::Input::Cursor::StandardCursorShapes::ARROW_CURSOR))},
+	window(&window)
 {
 	// check if window hook is set
-	auto window = Engine::Input::window;
-	if (!window)
+	if (!&window)
 		return;
 
 	int width = 0;
 	int height = 0;
 
 	// set cursor in the middle of the screen
-	glfwGetWindowSize(window, &width, &height);
-	glfwSetCursorPos(window, width / 2.0, height / 2.0);
+	glfwGetWindowSize(&window, &width, &height);
+	glfwSetCursorPos(&window, width / 2.0, height / 2.0);
 }
 
 void Engine::Input::Cursor::SetImage(CursorImage& image)
@@ -189,7 +187,7 @@ GLFWcursor* Engine::Input::Cursor::GetGLFWCursor()
 void Engine::Input::Cursor::SetCursorMode(CursorMode mode)
 {
 	this->mode = mode;
-	glfwSetInputMode(Engine::Input::window, GLFW_CURSOR, std::to_underlying(mode));
+	glfwSetInputMode(this->window, GLFW_CURSOR, std::to_underlying(mode));
 }
 
 Engine::Input::Cursor::CursorMode Engine::Input::Cursor::GetCursorMode()
@@ -199,37 +197,36 @@ Engine::Input::Cursor::CursorMode Engine::Input::Cursor::GetCursorMode()
 
 void Engine::Input::Cursor::SetCursorPosition(double x, double y)
 {
-	glfwSetCursorPos(Engine::Input::window, x, y);
+	glfwSetCursorPos(this->window, x, y);
 }
 
 std::array<double, 2> Engine::Input::Cursor::GetCursorPosition()
 {
-	std::array<double, 2> position;
+	std::array<double, 2> position {};
 
-	glfwGetCursorPos(Engine::Input::window, &position[0], &position[1]);
+	glfwGetCursorPos(this->window, &position[0], &position[1]);
 
 	return position;
 }
 
 void Engine::Input::Cursor::SetRawMode(bool value)
 {
-	glfwSetInputMode(Engine::Input::window, GLFW_RAW_MOUSE_MOTION, value);
+	glfwSetInputMode(this->window, GLFW_RAW_MOUSE_MOTION, value);
 }
 
 bool Engine::Input::Cursor::GetRawMode()
 {
-	return glfwGetInputMode(Engine::Input::window, GLFW_RAW_MOUSE_MOTION);
+	return glfwGetInputMode(this->window, GLFW_RAW_MOUSE_MOTION);
 }
 
-Engine::Input::Cursor::Cursor(CursorImage& image, dimension xOffset, dimension yOffset)
-	: image{&image}, cursor{glfwCreateCursor(&image.GetGFLFWImage(), xOffset, yOffset)}
+Engine::Input::Cursor::Cursor(GLFWwindow& window, CursorImage& image, dimension xOffset, dimension yOffset)
+	: image{&image}, cursor{glfwCreateCursor(&image.GetGFLFWImage(), xOffset, yOffset)}, window(&window)
 {
 
 }
 
-Engine::Input::Cursor::Cursor(dimension xOffset, dimension yOffset)
-	: image{nullptr},
-	cursor{glfwCreateCursor(nullptr, xOffset, yOffset)}
+Engine::Input::Cursor::Cursor(GLFWwindow& window, dimension xOffset, dimension yOffset)
+	: image{nullptr}, cursor{glfwCreateCursor(nullptr, xOffset, yOffset)}, window(&window)
 {
 
 }

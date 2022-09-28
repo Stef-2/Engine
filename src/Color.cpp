@@ -23,7 +23,7 @@ const Engine::Color Engine::Color::blueCyan {blue.Mix(cyan)};
 const Engine::Color Engine::Color::redMagenta {red.Mix(magenta)};
 const Engine::Color Engine::Color::blueMagenta{blue.Mix(magenta)};
 
-// regular names for tertiaries
+// regular / common names for tertiaries
 const Engine::Color& Engine::Color::orange {redYellow};
 const Engine::Color& Engine::Color::chartreuse {greenYellow};
 const Engine::Color& Engine::Color::springGreen {greenCyan};
